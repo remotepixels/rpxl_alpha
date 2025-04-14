@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+        <meta http-equiv="Pragma" content="no-cache"/>
+        <meta http-equiv="Expires" content="0"/>
+        <meta name="msapplication-TileColor" content="#2e2e2e"/>
+        <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+        <meta name="robots" content="index, follow"/>
+        <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    
+        <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+        <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="../icons/favicon.ico">
+    
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+
+
+        <title>rpxl.app v2.1</title>
+    </head>
+<style>
+.dialogcreate {
+    position: relative;
+    height: fit-content;
+    align-items: center;
+    justify-content: center;
+    top:  calc(var(--button-height) + 15px);
+    width: 860px;
+    margin:0px;
+    padding: 20px 20px 10px 20px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    border-radius: var(--radius-big);
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    z-index: 2;
+    box-shadow: var(--shadows);
+} 
+.row {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    overflow: hidden;
+    max-height: 400px;
+    transition: max-height 0.25s;  
+}
+/* Create two equal columns that sits next to each other */
+.column {
+    width:410px;
+    margin:0px;
+}
+.spacer {
+    width:810px; 
+    height:1px; 
+    top:10px;
+    margin-top:0px; 
+    margin-bottom:0px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-white), var(--color-dark-grey));
+}
+.refreshicon {
+    position: absolute;
+    display: inline;
+    left:370px;
+    top:10px;
+    z-index:3;
+    cursor: pointer;
+}
+.helpicon {
+    position: absolute; 
+    top:13px; 
+    right:13px;  
+    font-size:32px;
+    cursor: pointer;
+    z-index:10;
+}
+.rotate360 {
+    transform: rotate(180deg);
+    transition: transform ease-in-out 0.3s;
+}
+.refreshicon:hover, .helpicon:hover {
+    color: light-dark(var(--color-dark-grey), var(--color-light-white));
+
+}
+#meterGraph{
+    margin-left:5px;
+    margin-top:5px;
+    overflow: hidden;
+    height: 10px;
+    width:405px;
+    border-radius: var(--radius-big);
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+}
+#meter{
+    background: springgreen;
+    width: 0%;
+    height: 100%;
+    opacity: 0.5;
+}
+
+
+/*to be removed once new interface is on*/
+
+iframe {
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+	width: calc(100% - 10px);
+	height: calc(100% - var(--button-height) - var(--button-height) - 20px);
+    top: calc(0px + var(--button-height) + 10px);
+    margin-left: 5px;
+	border:0px;
+	padding:0px;
+	position:absolute;
+	display:block;
+}
+.mainstreamiframe {
+	width: calc(100% - 110px);
+	background-color: black;
+	z-index: 0;
+}
+.viewersiframe {
+    background-color: blue;
+	width:100px;
+	right:0px;
+	z-index:1;
+	overflow:auto;
+    opacity: 0.8;
+
+}
+.viewersiframe:hover {
+	width:300px;
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+    transition: all 150ms;
+}
+</style>
+
+<link rel="stylesheet" href="../styles/newstyle.css">
+
+<body>
+	<!--load blank iframe, will be replaced with directors room when loged in-->
+	<iframe title="directorroom" class="mainstreamiframe" name="directorroom" id="directorroom"></iframe>
+	<iframe title="addWebcamWindow" class="viewersiframe" name="addWebcamWindow" id="addWebcamWindow"></iframe>
+
+    <div class="dialogcreate centerhorizontal" id="create">
+        <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
+        <div class="row">
+            <div class="column">
+                <h2>Create live session</h2>
+            </div>
+            <div class="column">
+                
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <div>
+                    <span class="label">Session ID</span>
+                    <input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase" oninput="restrictInput(event)"></input>
+                    <span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span>
+                </div>
+                <div>
+                    <span class="label">Client</span>
+                    <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
+                </div>
+                <div>
+                    <span class="label">Resolution</span>
+                    <span class="radioset" role="radiogroup" aria-labelledby="resolution">
+                        <label><input type="radio" name="resolution" disabled value="">4K</label>
+                        <label><input type="radio" name="resolution" checked value="0">1080P</label>
+                        <label><input type="radio" name="resolution" value="1">720P</label>
+                    </span>
+                </div>
+                <div>
+                    <span class="label">Quality</span>
+                    <span class="radioset" role="radiogroup" aria-labelledby="quality">
+                        <label><input type="radio" name="quality" value="16000">High</label>
+                        <label><input type="radio" name="quality" value="8000" checked>Medium</label>
+                        <label><input type="radio" name="quality" value="4000">Low</label>
+                    </span>
+                </div>	
+                <div>
+                    <span class="label">Video source</span>
+                    <div class="custom-select">
+                        <select contenteditable="true" id="videoSource">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <span class="label">Audio source</span>
+                    <div class="custom-select">
+                        <select contenteditable="true" id="audioSource">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div>
+                    <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
+                    <audio id="audio" class="audiosource" autoplay></audio>
+                </div>
+                <!--
+                <div id="meterGraph">
+                    <div id="meter"></div>
+                </div>
+                -->
+            </div>
+        </div>
+        <div class="row spacer">
+            <span></span>
+        </div>
+
+        <div class="row collapsed" id="moresettings">
+            <div class="column"> 
+                <br>
+                <h2>Optional settings</h2>     
+                <div>    
+                    <span class="label">Name</span>
+                    <input type="text" maxlength="11" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
+                </div>
+                <div>
+                    <span class="label">Camera</span>
+                    <div class="custom-select">
+                        <select contenteditable="true" id="cameraSource">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <span class="label">Microphone</span>
+                    <div class="custom-select">
+                        <select contenteditable="true" id="microphoneSource">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div>
+                    <br><h2>&nbsp;</h2>
+                    <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
+                    <audio id="microphone" class="loginaudio" autoplay></audio>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <button id="buttonmoresettings" class="buttonmoresettings" aria-expanded="false">More setings</button>
+            </div>
+            <div class="column">
+                <button id="startSession" class="botton buttonblue">Create live session</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="mainWindow">
+        <!--top menu bar-->
+        <div class="toolbar top">	
+            <div class="toolset">
+                <button class="tool" id="switchTheme" value="light"  style="top: -2px">
+                    <span class="material-symbols-outlined">ios_share</span>
+                </button>
+                <!----- popup menu ------>
+                <div class="toolpopup top left" id="settings">
+                    <button class="link">
+                        <h2>Share link</h2><br>
+                        Copy Main link to clipboard <br> 
+                        Allows full communications, talkback and live annotations.
+                    </button>
+                    
+                    <button class="link">
+                        <h2>Quick link</h2><br>
+                        Copy Quick link to clipboard <br> 
+                        No communications, talkback or annotations.<br>
+                        Use if you already have the client on Whatsapp, Facetime etc.
+                    </button>
+                </div>
+                <!----- end popup menu ------>
+            </div>
+            <div>
+                <h2 id="clientName" class="centerhorizontal centervertical">RPXL</h2>
+            </div>
+            <div class="toolset">
+                <button class="tool toolred" id="quit">
+                    <span class="material-symbols-outlined">mode_off_on</span>
+                </button>
+            </div>
+        </div>
+
+
+        <div id="bottomMenu" class="toolbar bottom">
+            <div class="toolset">
+                <button class="tool toolmoresettings" aria-expanded="false">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <!----- popup menu ------>
+                <div class="toolpopup bottom left" id="settings">
+                    <h2>Session</h2>
+                        <div>
+                        <span class="label">Resolution</span>
+                        <span class="radioset" role="radiogroup" aria-labelledby="resolution">
+                            <label><input type="radio" name="popupresolution" disabled value="">4K</label>
+                            <label><input type="radio" name="popupresolution" checked value="0">1080P</label>
+                            <label><input type="radio" name="popupresolution" value="1">720P</label>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="label">Quality</span>
+                        <span class="radioset" role="radiogroup" aria-labelledby="quality">
+                            <label><input type="radio" name="popupquality" value="16000">High</label>
+                            <label><input type="radio" name="popupquality" value="8000" checked>Medium</label>
+                            <label><input type="radio" name="popupquality" value="4000">Low</label>
+                        </span>
+                    </div>	
+                    <div>
+                        <span class="label">Video source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="popupvideoSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Audio source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="popupaudioSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p></p>
+                    <h2>User</h2>
+                    <div>    
+                        <span class="label">User</span>
+                        <input type="text" maxlength="11" class="textinput" id="popupname" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
+                    </div>
+                    <div>
+                        <span class="label">Camera Source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="popupcameraSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Microphone Source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="popupmicrophoneSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div>
+                        <button id="popupcheckLogin" class="botton buttonblue">Apply</button>
+                    </div>
+                </div>
+            <!----- end popup menu ------>
+            </div>
+
+            <div class="toolset toolspacer">
+                <button class="tool" aria-expanded="false">
+                    <span class="material-symbols-outlined">movie_off</span>
+                </button> 
+                <button class="tool" aria-expanded="false">
+                    <span class="material-symbols-outlined">volume_up</span>
+                </button>   
+                <span class="volume"><input type="range"/></span>        
+            </div>
+
+            <div class="toolset toolspacer">
+                <button class="tool" aria-expanded="false">
+                    <span class="material-symbols-outlined">format_ink_highlighter</span>
+                </button>
+                <button class="tool toolmoresettings" aria-expanded="false">
+                    <span class="material-symbols-outlined">palette</span>
+                </button>
+                <!----- popup menu ------>
+                <div class="toolpopup bottom middle" id="colorPot">
+                        <div>
+                            <span class="colorpot" value="black" style="background-color: black;"></span>
+                            <span class="colorpot" value="white" style="background-color: white;"></span>
+                            <span class="colorpot" value="red" style="background-color: red;"></span>
+                            <span class="colorpot" value="green" style="background-color: green;"></span>
+                            <span class="colorpot" value="blue" style="background-color: blue;"></span>
+                        </div>
+
+                </div>
+                <!----- end popup menu ------>
+                <button class="tool" aria-expanded="false">
+                    <span class="material-symbols-outlined">ink_eraser_off</span>
+                </button>
+            </div>
+
+            <div class="toolset">
+                <button class="tool " aria-expanded="false">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button class="tool " aria-expanded="false">
+                    <span class="material-symbols-outlined">photo_camera</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+                    
+</body>
+
+
+</html>
+
+<!--user microphone and camera selection and display-->
+<script src="../scripts/videoaudioselect.js"></script>
+
+
+<script type="text/javascript"> 
+//move caret to focus on client id field
+document.getElementById("clientName").focus();
+const headers = {
+            "Authorization" : 'Token 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'
+           }
+//////////////////////////////////////////////
+//limit session ID to letters and numbers only
+//////////////////////////////////////////////
+var regex = /^[a-zA-Z0-9]*$/;
+var lastValue = "";
+
+function restrictInput(e) {
+	var currentValue = e.target.value;
+
+	if (!currentValue.match(regex))
+		e.target.value = lastValue;
+	else
+		lastValue = currentValue;
+}
+
+/////////////////////////////////////////////
+//generate random code and prefil
+//create new id when clicking icon
+////////////////////////////////////////////
+generateSessionID ()
+
+function generateSessionID () {
+    let length = 6;
+    let randomID = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    
+    // Loop to generate characters for the specified length
+    for (let i = 0; i < length; i++) {
+        const randomInd = Math.floor(Math.random() * characters.length);
+        randomID += characters.charAt(randomInd);
+    }
+	document.getElementById("sessionID").value = randomID;
+}
+
+//generate new ID when clicking icon
+const generateSession = document.getElementById("generateSessionIcon");
+generateSession.addEventListener("click", () => {
+    generateSessionID ()
+    generateSession.classList.toggle("rotate360"); 
+    setTimeout(function () {  generateSession.classList.toggle("rotate360");  }, 300);
+    });
+
+//more settings flyout
+const buttonmoresettings = document.getElementById("buttonmoresettings");
+buttonmoresettings.addEventListener("click", expandsettings);
+
+function expandsettings() {
+    var isExpanded = document.getElementById("buttonmoresettings").getAttribute("aria-expanded"); 
+
+    if (isExpanded == "true") { 
+        isExpanded = "false" ;
+        buttonmoresettings.innerHTML = "More settings";
+    } 
+    else { 
+        isExpanded = "true" ;
+        buttonmoresettings.innerHTML = "Less settings";
+    }
+    buttonmoresettings.setAttribute("aria-expanded", isExpanded);
+    moresettings.classList.toggle("collapsed");  
+    //console.log(isExpanded)
+}
+
+//check that name is filled and setup vdo.ninja url with selected name, video source and audio source
+const startSession = document.getElementById("startSession");
+startSession.addEventListener("click", startSessions);
+
+//////////////////////////////////////////////////
+//now things for the session creation spefifically
+//////////////////////////////////////////////////
+function startSessions() {
+    stream.getTracks().forEach(function(track) {
+        track.stop();
+    });
+
+    let sessionID = document.getElementById("sessionID").value;
+    let client = document.getElementById("clientName").value;
+
+    //check the resolution selected 1080p or 720p
+    var radioResolution = document.getElementsByName("resolution");
+    for (var i = 0; i < radioResolution.length; i++) {
+        if (radioResolution[i].checked) {
+            resolution = radioResolution[i].value;
+        }
+    }
+    //check the quality selected, high, medium or low
+    var radioQuality = document.getElementsByName("quality");
+    for (var i = 0; i < radioQuality.length; i++) {
+        if (radioQuality[i].checked) {
+            quality = radioQuality[i].value;
+        }
+    }
+    
+    //get the index of the selected camera and microphone
+    let videoList = document.getElementById("videoSource");
+    let audioList = document.getElementById("audioSource");
+
+    let videoSelected = videoList.selectedIndex;
+    let audioSelected = audioList.selectedIndex;
+
+    //get the selected camera and microphone device names (shown in the menu, not the values)
+    let sessionIDUpper = encodeURIComponent(sessionID);   
+    sanitizedSessionID = sessionIDUpper.toUpperCase();
+
+    let sanitizedClient = encodeURIComponent(client);
+    let sanitizedVideo = videoList.options[videoSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+    let sanitizedAudio = audioList.options[audioSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+
+    //if there is no camera or microphone selected then set the value to 0 for vdo.ninja
+    if (sanitizedVideo == "none") {
+        sanitizedVideo = "0"
+    }
+    if (sanitizedAudio == "none") {
+        sanitizedAudio = "0"
+    }
+
+    ////////////////////////////////////////////////////////////
+    //all this is from the client login section and is identical
+    ////////////////////////////////////////////////////////////
+    let username = document.getElementById("name").value;
+    let cameraList = document.getElementById("cameraSource");
+    let microphoneList = document.getElementById("microphoneSource");
+
+    //get the index of the selected camera and microphone
+    let cameraSelected = cameraList.selectedIndex;
+    let microphoneSelected = microphoneList.selectedIndex;
+
+    //get the selected camera and microphone device names (shown in the menu, not the values)
+    if (username == "") {
+        username = "Op";
+    }
+    let sanitizedUserName = encodeURIComponent(username);  
+    let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+    let sanitizedMicrophone = microphoneList.options[microphoneSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+
+    //if there is no camera or microphone selected then set the value to 0 for vdo.ninja
+    if (sanitizedCamera == "none") {
+        sanitizedCamera = "0"
+    }
+    if (sanitizedMicrophone == "none") {
+        sanitizedMicrophone = "0"
+    }
+
+    //error check for a correct sssion ID
+    //start the session using selected settings
+    if ((sanitizedSessionID == "") || (sanitizedSessionID.length != 6)) {
+        document.getElementById("sessionID").style.animation = "pulse 250ms";
+        setTimeout ( function () {document.getElementById("sessionID").style.animation = "none"; }, 250);  
+        document.getElementById("sessionID").focus();
+    } else {     //if everything checks out, create main stream and start director room
+        console.log("SessionID", sanitizedSessionID)
+        console.log("client", sanitizedClient)
+        console.log("resolution", resolution)
+        console.log("quality", quality)
+        console.log("video", sanitizedVideo)
+        console.log("audio", sanitizedAudio)
+        console.log("name", sanitizedUserName)
+        console.log("camera", sanitizedCamera)
+        console.log("microphone", sanitizedMicrophone)
+
+        navigator.clipboard.writeText("https://rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
+
+        document.getElementById("create").style.display = "none";
+
+        //create a new issue on github (used to track sessions)
+        //encode session ID
+        var sessionAndClient = sanitizedSessionID+"&"+sanitizedClient
+
+        var encodedSession = btoa(sessionAndClient);
+        console.log("encoded",encodedSession)
+        addIssue(encodedSession)
+
+		document.getElementById("directorroom").allow = "autoplay;camera *;microphone *;picture-in-picture;display-capture;";
+		document.getElementById("directorroom").src = "https://vdo.rpxl.app/?director=RPXL_"+sanitizedSessionID+
+		"&push=Main_Stream_"+sanitizedSessionID+
+		"&rampuptime=6000"+	//ramp up time of 6 seconds
+		"&label=Stream"+	//sets livestream as label for director connection
+		"&hidehome"+	//hide vdo ninja homepage	
+		"&director"+	//join as director
+		"&preview"+	//forces self preview
+		"&showdirector"+	//shows director interface
+		"&novice"+	//simplyfy director layout
+		"&hidesolo"+	//hide solo links
+		"&notify"+	// notify when people join
+		"&ovb="+quality+	//outbound video bitrate for main (obs stream)
+		"&quality="+resolution+	//1 720p set to 0 for 1080p
+        "&videodevice="+sanitizedVideo+ //video source
+        "&audiodevice="+sanitizedAudio+ //audio source
+        "&autostart"+   //autostart directors feed
+        "&trb=50000"+	//total room bit rate
+		"&hiddenscenebitrate=50000"+	//30mbps, highest quality
+		"&cleandirector"+	//hides link generator in diretor room
+		"&darkmode"+	
+		"&nohub"+	//hide hangup button
+		"&nsb"+	//hide speaker button
+		"&hidetranslate"+	//hide translate
+		"&signalmeter"+	//add signal meter to each guest
+		"&agc=0"+	//turns off auto gain control
+		"&denoise=0"+	//turns off denoiser
+		"&ab=128"+	//constant audio bitrate of 24kbps
+		"&chroma=191919"+	//set bg color
+		"&js=https%3A%2F%2Frpxl.app%2Fscripts%2Fninjadirector.js"+
+		"&css=https%3A%2F%2Frpxl.app%2Fstyles%2Fninjadirector.css"+	//css
+		"";
+
+		//add user camera and microphone to chat
+		setTimeout(function(){
+			document.getElementById("addWebcamWindow").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
+			document.getElementById("addWebcamWindow").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+				"&label="+sanitizedUserName+	//sets webcam as label for client connection
+                "&videodevice="+sanitizedCamera+ //video source
+                "&audiodevice="+sanitizedMicrophone+ //audio source
+                "&autostart"+   //autostart directors feed
+				"&chatbutton=0"+
+				"&quality=3"+	//set camera quality to lowest possible, about 360p
+				"&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
+				"&videobitrate=100"+
+				"&rounded=10"+	//makes videos round
+				"&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
+				"&safemode"+	//loads camera in simplist way
+				"&st=6"+	//show audio only sources as coloured circles with first letter of name
+				"&meterstyle=2"+	//round highlight over person talking
+				"&hh"+	//hide vdo ninja header
+				"&ee"+	//easy exit
+				"&cv"+	//clean viewer
+				"&hpb"+	//hide play button
+				"&nsb"+	//hide speaker button
+				"&nohub"+	//hide hangup button
+				"&hidehome"+	//hide vdo ninja home page
+				"&transparent"+	//makes bg transparent
+				"&hidetranslate"+	//hides translate menu
+				"&darkmode"+	//
+				"&disablehotkeys"+	//no hotkeys
+				"&nocontrols"+	//hides video player controls
+				"&showlist=0"+	//show hidden guest list
+				"&css=https%3A%2F%2Frpxl.app%2Fstyles%2Fninjawebcam.css"+	//load style sheet
+			""; 
+		},1000);
+
+    }
+
+    //async function to create issue on github, used to save session ID's
+    async function addIssue(encodedSession) {
+        const url = "https://api.github.com/repos/remotepixels/rpxl/issues"
+
+        const data = {
+            title: "SessionID",
+            body: encodedSession
+        }
+        const response = await fetch(url, {
+            "method": "POST",
+            "headers": headers,
+            "body": JSON.stringify(data)
+        })
+        const result = await response.json()
+        console.log(result)
+    }
+
+}
+</Script>
+    
