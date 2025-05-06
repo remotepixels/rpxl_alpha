@@ -650,7 +650,7 @@ function joinSession() {
 
         //start mainstream and client streams
         mainstream ()
-        setTimeout(function(){ viewerStream ()	},1000);
+        setTimeout(function(){ viewerStream ()	},2000);
     }
 }
 
@@ -777,24 +777,49 @@ function changeCameraAndMicrophoneSelect () {
 }
 
 
-    function resize() {
-// Get a reference to the iframe
-const iframe = document.getElementById('mainStream');
-    // Use postMessage to send data to the iframe
-    iframe.contentWindow.postMessage('Hello from parent!', 'https://alpha.rpxl.app');
-
-    // Listen for messages from the iframe
-    window.addEventListener('message', (event) => {
-        // Check if the message is from the expected origin
-        if (event.origin === 'https://vdo.rpxl.app') {
-            console.log('Received message from iframe:', event.data);
-        }
-    });
-}
-
-
 window.onresize = resize;
 resize();
+// In your parent frame's JavaScript code:
+
+window.addEventListener('message', (event) => {
+  // 1. Check the origin (Security)
+  // It's important to check the origin of the message for security reasons.
+  // Replace 'http://your-child-frame-origin.com' with the actual origin
+  // of your child frame.
+    if (event.origin !== 'https://vdo.rpxl.app') {
+        console.error('Unauthorized message origin:', event.origin);
+        return;
+    }
+
+  // 2. Check if it's the message we're expecting
+  if (event.data && event.data.holder) {
+    const holderData = event.data.holder;
+    console.log('Received holder data from child frame:', holderData);
+
+    // 3. Process the data
+    const holderWidth = holderData.width;
+    const holderHeight = holderData.height;
+    const holderTop = holderData.top;
+
+    // Do something with the holder data, e.g., update the parent UI
+    console.log(`Width: ${holderWidth}, Height: ${holderHeight}, Top: ${holderTop}`);
+    //Example:
+    // const element = document.getElementById("element-in-parent");
+    // element.style.width = `${holderWidth}px`
+    // element.style.height = `${holderHeight}px`
+    // element.style.top = `${holderTop}px`
+
+
+  } else {
+    // Handle other messages or unexpected formats if necessary
+    //
+    //     console.log("Received message from child frame but the holder key is missing", event.data)
+
+  }
+});
+
+
+
 
 
     		//"&videobitrate=50000"+ //server limited but hey, ask for as much as possible
