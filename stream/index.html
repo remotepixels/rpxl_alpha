@@ -118,35 +118,23 @@ iframe {
 	display:block;
 }
 .mainstreamiframe {
-	width: calc(100% - 110px);
+	width: 70;
 	background-color: black;
 	z-index: 0;
 }
 .viewersiframe {
     background-color: blue;
-	width:100px;
+	width:30%;
 	right:0px;
 	z-index:1;
 	overflow:auto;
-    opacity: 0.8;
-
-}
-.viewersiframe:hover {
-	width:300px;
-    -webkit-backdrop-filter: blur(25px);
-    backdrop-filter: blur(25px);
-    transition: all 150ms;
 }
 </style>
 
 <link rel="stylesheet" href="../styles/newstyle.css">
 
 <body>
-	<!--load blank iframe, will be replaced with directors room when loged in-->
-	<iframe title="directorroom" class="mainstreamiframe" name="directorroom" id="directorroom"></iframe>
-	<iframe title="addWebcamWindow" class="viewersiframe" name="addWebcamWindow" id="addWebcamWindow"></iframe>
-
-    <div class="dialogcreate centerhorizontal" id="create">
+     <div class="dialogcreate centerhorizontal" id="create">
         <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
         <div class="row">
             <div class="column">
@@ -264,27 +252,40 @@ iframe {
     </div>
 
 
-    <div id="mainWindow">
+    <div id="mainWindow" class="hidden">
+        <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>
+        <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
+
         <!--top menu bar-->
         <div class="toolbar top">	
             <div class="toolset">
-                <button class="tool" id="switchTheme" value="light"  style="top: -2px">
+                <button class="tool" id="popupShare" value="light"  style="top: -2px">
                     <span class="material-symbols-outlined">ios_share</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="toolpopup top left" id="settings">
-                    <button class="link">
-                        <h2>Share link</h2><br>
-                        Copy Main link to clipboard <br> 
-                        Allows full communications, talkback and live annotations.
-                    </button>
-                    
-                    <button class="link">
-                        <h2>Quick link</h2><br>
-                        Copy Quick link to clipboard <br> 
-                        No communications, talkback or annotations.<br>
-                        Use if you already have the client on Whatsapp, Facetime etc.
-                    </button>
+                <div class="popupBG hidden" id="popupBlockShare">
+                    <div class="toolpopup top left" id="share" onclick="event.stopPropagation()">
+                        <button class="link" id="copyMainLink">
+                            <h2>Main share link</h2><br>
+                            Copy Main share link to clipboard <br> 
+                            Allows full communications, talkback and live annotations.
+                        </button>
+                        
+                        <button class="link" id="copyQuickLink">
+                            <h2>Quick share link</h2><br>
+                            Copy Quick share link to clipboard <br> 
+                            No communications, talkback or annotations.<br>
+                            Use if you already have the client on Whatsapp, Facetime etc.<!--<br>
+                            Can also be used to feed into OBS or other streaming software.-->
+                        </button>
+<!--
+                        <button class="link">
+                            <h2>OBS link</h2><br>
+                            Copy OBS link to clipboard <br> 
+                            A link of only the main feed for OBS.<br>
+                            Use if you want to output through a Blackmagic or AJA Card.
+                        </button>-->
+                    </div>
                 </div>
                 <!----- end popup menu ------>
             </div>
@@ -292,102 +293,112 @@ iframe {
                 <h2 id="clientName" class="centerhorizontal centervertical">RPXL</h2>
             </div>
             <div class="toolset">
-                <button class="tool toolred" id="quit">
+                <button class="tool toolred" id="popupQuit">
                     <span class="material-symbols-outlined">mode_off_on</span>
                 </button>
+                <!----- popup menu ------>
+                <div class="popupBG hidden" id="popupBlockQuit">
+                    <div class="toolpopup top right" id="quit" onclick="event.stopPropagation()">
+                        <button id="confirmQuit" class="botton toolred">&nbsp;&nbsp;&nbsp; Confirm end session &nbsp;&nbsp;&nbsp;</button>
+                    </div>
+                </div>
+                <!----- end popup menu ------>
             </div>
         </div>
 
 
         <div id="bottomMenu" class="toolbar bottom">
             <div class="toolset">
-                <button class="tool toolmoresettings" aria-expanded="false">
+                <button class="tool toolmoresettings" aria-expanded="false" id="popupSettings">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="toolpopup bottom left" id="settings">
-                    <h2>Session</h2>
+                <div class="popupBG hidden" id="popupBlockSettings">
+                    <div class="toolpopup bottom left" id="settings" onclick="event.stopPropagation()">
+                        <h2>Session</h2>
+                            <div>
+                            <span class="label">Resolution</span>
+                            <span class="radioset" role="radiogroup" aria-labelledby="resolution">
+                                <label><input type="radio" name="popupresolution" disabled value="">4K</label>
+                                <label><input type="radio" name="popupresolution" checked value="0">1080P</label>
+                                <label><input type="radio" name="popupresolution" value="1">720P</label>
+                            </span>
+                        </div>
                         <div>
-                        <span class="label">Resolution</span>
-                        <span class="radioset" role="radiogroup" aria-labelledby="resolution">
-                            <label><input type="radio" name="popupresolution" disabled value="">4K</label>
-                            <label><input type="radio" name="popupresolution" checked value="0">1080P</label>
-                            <label><input type="radio" name="popupresolution" value="1">720P</label>
-                        </span>
-                    </div>
-                    <div>
-                        <span class="label">Quality</span>
-                        <span class="radioset" role="radiogroup" aria-labelledby="quality">
-                            <label><input type="radio" name="popupquality" value="16000">High</label>
-                            <label><input type="radio" name="popupquality" value="8000" checked>Medium</label>
-                            <label><input type="radio" name="popupquality" value="4000">Low</label>
-                        </span>
-                    </div>	
-                    <div>
-                        <span class="label">Video source</span>
-                        <div class="custom-select">
-                            <select contenteditable="true" id="popupvideoSource">
-                                <option value="">None</option>
-                            </select>
+                            <span class="label">Quality</span>
+                            <span class="radioset" role="radiogroup" aria-labelledby="quality">
+                                <label><input type="radio" name="popupquality" value="16000">High</label>
+                                <label><input type="radio" name="popupquality" value="8000" checked>Medium</label>
+                                <label><input type="radio" name="popupquality" value="4000">Low</label>
+                            </span>
+                        </div>	
+                        <div>
+                            <span class="label">Video source</span>
+                            <div class="custom-select">
+                                <select contenteditable="true" id="popupvideoSource">
+                                    <option value="">None</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <span class="label">Audio source</span>
-                        <div class="custom-select">
-                            <select contenteditable="true" id="popupaudioSource">
-                                <option value="">None</option>
-                            </select>
+                        <div>
+                            <span class="label">Audio source</span>
+                            <div class="custom-select">
+                                <select contenteditable="true" id="popupaudioSource">
+                                    <option value="">None</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <p></p>
-                    <h2>User</h2>
-                    <div>    
-                        <span class="label">User</span>
-                        <input type="text" maxlength="11" class="textinput" id="popupname" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
-                    </div>
-                    <div>
-                        <span class="label">Camera Source</span>
-                        <div class="custom-select">
-                            <select contenteditable="true" id="popupcameraSource">
-                                <option value="">None</option>
-                            </select>
+                        <p></p>
+                        <h2>User</h2>
+                        <div>    
+                            <span class="label">User</span>
+                            <input type="text" maxlength="11" class="textinput" id="popupname" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
                         </div>
-                    </div>
-                    <div>
-                        <span class="label">Microphone Source</span>
-                        <div class="custom-select">
-                            <select contenteditable="true" id="popupmicrophoneSource">
-                                <option value="">None</option>
-                            </select>
+                        <div>
+                            <span class="label">Camera Source</span>
+                            <div class="custom-select">
+                                <select contenteditable="true" id="popupcameraSource">
+                                    <option value="">None</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <p></p>
-                    <div>
-                        <button id="popupcheckLogin" class="botton buttonblue">Apply</button>
+                        <div>
+                            <span class="label">Microphone Source</span>
+                            <div class="custom-select">
+                                <select contenteditable="true" id="popupmicrophoneSource">
+                                    <option value="">None</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p></p>
+                        <div>
+                            <button id="popupcheckLogin" class="botton buttonblue">Apply</button>
+                        </div>
                     </div>
                 </div>
             <!----- end popup menu ------>
             </div>
 
             <div class="toolset toolspacer">
-                <button class="tool" aria-expanded="false">
-                    <span class="material-symbols-outlined">movie_off</span>
+                <button class="tool red" aria-expanded="false">
+                    <span class="material-symbols-outlined" id="blindStream">movie_off</span>
                 </button> 
-                <button class="tool" aria-expanded="false">
+                <button class="tool red" aria-expanded="false" id="toolMuteStream">
                     <span class="material-symbols-outlined">volume_up</span>
                 </button>   
-                <span class="volume"><input type="range"/></span>        
+                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100"/></span>    
             </div>
 
             <div class="toolset toolspacer">
-                <button class="tool" aria-expanded="false">
+                <button class="tool" aria-expanded="false" id="toolDraw">
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
-                <button class="tool toolmoresettings" aria-expanded="false">
+                <button class="tool toolmoresettings" aria-expanded="false" id="popupPalette">
                     <span class="material-symbols-outlined">palette</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="toolpopup bottom middle" id="colorPot">
+                <div class="popupBG hidden" id="popupBlockPalette">
+                    <div class="toolpopup bottom middle" onclick="event.stopPropagation()">
                         <div>
                             <span class="colorpot" value="black" style="background-color: black;"></span>
                             <span class="colorpot" value="white" style="background-color: white;"></span>
@@ -395,19 +406,20 @@ iframe {
                             <span class="colorpot" value="green" style="background-color: green;"></span>
                             <span class="colorpot" value="blue" style="background-color: blue;"></span>
                         </div>
-
+                    </div>
                 </div>
                 <!----- end popup menu ------>
-                <button class="tool" aria-expanded="false">
+                <button class="tool " aria-expanded="false" id="toolEraser">
                     <span class="material-symbols-outlined">ink_eraser_off</span>
                 </button>
+
             </div>
 
             <div class="toolset">
-                <button class="tool " aria-expanded="false">
+                <button class="tool " aria-expanded="false" id="toolMuteMicrophone">
                     <span class="material-symbols-outlined">mic</span>
                 </button>
-                <button class="tool " aria-expanded="false">
+                <button class="tool " aria-expanded="false" id="toolMuteCamera">
                     <span class="material-symbols-outlined">photo_camera</span>
                 </button>
             </div>
@@ -422,9 +434,46 @@ iframe {
 
 <!--user microphone and camera selection and display-->
 <script src="../scripts/videoaudioselect.js"></script>
-
+<script src="../scripts/interface.js"></script>
 
 <script type="text/javascript"> 
+//////////////////////////////////////////////////
+//toolbar code
+toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
+toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
+
+toolDraw.addEventListener("click", function() { toolDrawSelect(); });
+popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
+popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
+
+toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
+toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
+
+popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
+popupBlockSettings.addEventListener("click", function() { hidePopupMenu(popupBlockSettings); });
+
+popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
+popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });
+
+popupQuit.addEventListener("click", function() { showPopupMenu(popupQuit); });
+popupBlockQuit.addEventListener("click", function() { hidePopupMenu(popupBlockQuit); });
+
+copyMainLink.addEventListener("click", function() {
+    navigator.clipboard.writeText("https://rpxl.app/?"+sanitizedSessionID );
+    //add a modal popup that says link copied to clipboard
+    //document.getElementById("linkCopied").style.display = "block";
+    //setTimeout ( function () {document.getElementById("linkCopied").style.display = "none"; }, 1000);
+    hidePopupMenu(popupBlockShare);
+  });
+copyQuickLink.addEventListener("click", function() {
+    navigator.clipboard.writeText("https://rpxl.app/?"+sanitizedSessionID );
+    //add a modal popup that says link copied to clipboard
+    //document.getElementById("linkCopied").style.display = "block";
+    //setTimeout ( function () {document.getElementById("linkCopied").style.display = "none"; }, 1000);
+    hidePopupMenu(popupBlockShare);
+ });
+
+
 //move caret to focus on client id field
 document.getElementById("clientName").focus();
 const headers = {
@@ -591,7 +640,9 @@ function startSessions() {
 
         navigator.clipboard.writeText("https://rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
 
-        document.getElementById("create").style.display = "none";
+        document.getElementById("create").classList.add("hidden");
+        document.getElementById("mainWindow").classList.remove("hidden");
+
 
         //create a new issue on github (used to track sessions)
         //encode session ID
@@ -601,6 +652,26 @@ function startSessions() {
         console.log("encoded",encodedSession)
         addIssue(encodedSession)
 
+        //copy options tool settings menu for later
+        var select1 = document.getElementById("cameraSource");
+        var options = select1.innerHTML
+        var select2 = document.getElementById("cameraChange");
+        select2.innerHTML = options
+        select2.selectedIndex = cameraList.selectedIndex;
+
+        var select1 = document.getElementById("microphoneSource");
+        var options = select1.innerHTML
+        var select2 = document.getElementById("microphoneChange");
+        select2.innerHTML = options
+        select2.selectedIndex = microphoneList.selectedIndex;
+
+        //start mainstream and client streams
+        mainstream ()
+        setTimeout(function(){ viewerStream ()	},2000);
+
+
+
+/*        
 		document.getElementById("directorroom").allow = "autoplay;camera *;microphone *;picture-in-picture;display-capture;";
 		document.getElementById("directorroom").src = "https://vdo.rpxl.app/?director=RPXL_"+sanitizedSessionID+
 		"&push=Main_Stream_"+sanitizedSessionID+
@@ -667,8 +738,9 @@ function startSessions() {
 				"&css=https%3A%2F%2Frpxl.app%2Fstyles%2Fninjawebcam.css"+	//load style sheet
 			""; 
 		},1000);
-
+*/
     }
+
 
     //async function to create issue on github, used to save session ID's
     async function addIssue(encodedSession) {
@@ -687,6 +759,54 @@ function startSessions() {
         console.log(result)
     }
 
+}
+
+
+
+
+function mainstream () {
+    document.getElementById("mainStream").allow = "autoplay; screen-wake-lock;";
+
+    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+    "&directorsonly"+ 	//show only directors feed
+    "&solo"+	//no login options, solos stream
+    "&cleanoutput"+	//remove all interface bits
+    "&hideplaybutton"+	//hides big play button if autoplay is disabled
+    "&cv"+	//clean viewer
+    "&transparent"+	//makes bg transparent
+    "&preloadbitrate=-1"+	//preloads the video, might not be necessary as only use scene 1
+    "&rampuptime=6000"+
+    "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+    "&buffer=1000"+	//adds a xms buffer
+    "&showlist=0"+	//hides the viewer list
+    "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+    "";       
+}
+
+function viewerStream () {
+    document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
+
+    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+    "&label="+sanitizedUserName+	//sets webcam as label for client connection
+    "&showlabels"+
+    "&group=client"+
+    "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+    "&showall"+
+    "&groupmode"+
+    "&videodevice="+sanitizedCamera+ //video source
+    "&audiodevice="+sanitizedMicrophone+ //audio source
+    "&autostart"+   //autostart directors feed
+    "&clean"+
+    "&quality=3"+	//set camera quality to lowest possible, about 360p
+    "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
+    "&videobitrate=256"+
+    "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
+    "&style=6"+	//show audio only sources as coloured circles with first letter of name
+    "&meterstyle=5"+	//round highlight over person talking
+    "&transparent"+	//makes bg transparent
+    "&disablehotkeys"+	//no hotkeys
+    "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
+    ""; 
 }
 </Script>
     

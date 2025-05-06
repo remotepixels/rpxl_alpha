@@ -109,15 +109,6 @@ iframe {
 	width:300px;
     transition: all 150ms;
 }
-.popupBG {
-    position: fixed;
-    width:100%;
-    height:100%;
-    top:0;
-    left:0;
-    background-color: rgba(0, 0, 0, 0);
-    z-index: 1;
-}
 </style>
 
 <body>
@@ -227,14 +218,13 @@ iframe {
                 <!----- popup menu ------>
                 <div class="popupBG hidden" id="popupBlockPalette">
                     <div class="toolpopup bottom middle" onclick="event.stopPropagation()">
-                            <div>
-                                <span class="colorpot" value="black" style="background-color: black;"></span>
-                                <span class="colorpot" value="white" style="background-color: white;"></span>
-                                <span class="colorpot" value="red" style="background-color: red;"></span>
-                                <span class="colorpot" value="green" style="background-color: green;"></span>
-                                <span class="colorpot" value="blue" style="background-color: blue;"></span>
-                            </div>
-
+                        <div>
+                            <span class="colorpot" value="black" style="background-color: black;"></span>
+                            <span class="colorpot" value="white" style="background-color: white;"></span>
+                            <span class="colorpot" value="red" style="background-color: red;"></span>
+                            <span class="colorpot" value="green" style="background-color: green;"></span>
+                            <span class="colorpot" value="blue" style="background-color: blue;"></span>
+                        </div>
                     </div>
                 </div>
                 <!----- end popup menu ------>
@@ -293,13 +283,18 @@ iframe {
 
         </div>
     </div>
+
+
+    <canvas id="annotationsCanvas" class="annotationsCanvas">
+    </canvas>
+
 </body>
 </html>
 
 <!--user microphone and camera selection and display-->
 <script src="scripts/videoaudioselect.js"></script>
 <script src="scripts/cookie.js"></script>
-
+<script src="scripts/interface.js"></script>
 
 <script>
 //////////////////////////////////////////////////
@@ -316,108 +311,8 @@ toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); })
 
 popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
 popupBlockSettings.addEventListener("click", function() { hidePopupMenu(popupBlockSettings); });
+
 changeCameraAndMicrophone.addEventListener("click", function () { changeCameraAndMicrophoneSelect(); });
-
-
-function toolMuteStreamSelect () {
-    if (toolMuteStream.getAttribute("aria-expanded") == "false") {
-        toolMuteStream.setAttribute("aria-expanded", "true");
-        toolMuteStream.classList.toggle("selected");  
-        toolMuteStream.lastElementChild.innerHTML = "volume_off";
-        toolStreamVolume.value = "0";
-        mainStream.contentWindow.postMessage({
-            "volume": true
-        }, '*');
-        console.log("main stream mute")
-    } else {
-        toolMuteStream.setAttribute("aria-expanded", "false");
-        toolMuteStream.classList.toggle("selected"); 
-        toolMuteStream.lastElementChild.innerHTML = "volume_up";
-        toolStreamVolume.value = "80";
-        mainStream.contentWindow.postMessage({
-            "volume": 80
-        }, '*');
-        console.log("main stream un-mute")
-    }
-}
-
-function toolStreamVolumeSelect () {
-        toolMuteStream.setAttribute("aria-expanded", "false");
-        toolMuteStream.classList.remove("selected"); 
-        toolMuteStream.lastElementChild.innerHTML = "volume_up";
-        let vol = document.getElementById("toolStreamVolume").value
-        mainStream.contentWindow.postMessage({
-            "volume": vol
-        }, '*');
-        console.log("main stream volume",vol)
-    }
-
-
-function toolDrawSelect () {
-    if (toolDraw.getAttribute("aria-expanded") == "false") {
-        toolDraw.setAttribute("aria-expanded", "true");
-        toolDraw.classList.toggle("selected");  
-    } else {
-        toolDraw.setAttribute("aria-expanded", "false");
-        toolDraw.classList.toggle("selected"); 
-    }
-}
-
-function hidePopupMenu(event) {
-    event.classList.add("hidden");
-    event.previousElementSibling.setAttribute("aria-expanded", "false");
-    }
-
-function showPopupMenu(event) {
-    if (event.nextElementSibling.classList.contains("hidden")) {
-        event.nextElementSibling.classList.remove("hidden");
-        event.setAttribute("aria-expanded", "true");
-       
-    } else {
-        event.nextElementSibling.classList.add("hidden");
-        event.setAttribute("aria-expanded", "false");
-    }
-}
-
-function toolMuteMicrophoneSelect () {
-    if (toolMuteMicrophone.getAttribute("aria-expanded") == "false") {
-        toolMuteMicrophone.setAttribute("aria-expanded", "true");
-        toolMuteMicrophone.classList.toggle("selectedred");  
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic";
-        viewersStream.contentWindow.postMessage({
-            "mic": true
-        }, '*');
-        console.log("mic mute")
-    } else {
-        toolMuteMicrophone.setAttribute("aria-expanded", "false");
-        toolMuteMicrophone.classList.toggle("selectedred"); 
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
-        viewersStream.contentWindow.postMessage({
-            "mic": false
-        }, '*');
-        console.log("mic un-mute")
-    }
-}
-
-function toolMuteCameraSelect () {
-    if (toolMuteCamera.getAttribute("aria-expanded") == "false") {
-        toolMuteCamera.setAttribute("aria-expanded", "true");
-        toolMuteCamera.classList.toggle("selectedred");  
-        toolMuteCamera.lastElementChild.innerHTML = "no_photography";
-        viewersStream.contentWindow.postMessage({
-            "camera": false
-        }, '*');
-        console.log("camera off")
-    } else {
-        toolMuteCamera.setAttribute("aria-expanded", "false");
-        toolMuteCamera.classList.toggle("selectedred"); 
-        toolMuteCamera.lastElementChild.innerHTML = "photo_camera";
-        viewersStream.contentWindow.postMessage({
-            "camera": true
-        }, '*');
-        console.log("camera on")
-    }
-}
 
 /////////////////////////////////////////////////////
 //set focus to session ID input
@@ -776,8 +671,8 @@ function changeCameraAndMicrophoneSelect () {
     
 }
 
-// In your parent frame's JavaScript code:
 
+//Listen for a resize event from the main stream to get the size and position of the video element
 window.addEventListener('message', (event) => {
   // 1. Check the origin (Security)
    if (event.origin !== 'https://vdo.rpxl.app') {
@@ -795,20 +690,16 @@ window.addEventListener('message', (event) => {
     const holderHeight = holderData.height;
     const holderTop = holderData.top;
 
-    // Do something with the holder data, e.g., update the parent UI
+    const element = document.getElementById("annotationsCanvas");
+    element.style.width = `${holderWidth}px`;
+    element.style.height = `${holderHeight}px`;
+    element.style.top = `${holderTop+50}px`;
+    element.style.left = `5px`;
+
     console.log(`Width: ${holderWidth}, Height: ${holderHeight}, Top: ${holderTop}`);
-    //Example:
-    // const element = document.getElementById("element-in-parent");
-    // element.style.width = `${holderWidth}px`
-    // element.style.height = `${holderHeight}px`
-    // element.style.top = `${holderTop}px`
-
-
   } else {
     // Handle other messages or unexpected formats if necessary
-    //
     //     console.log("Received message from child frame but the holder key is missing", event.data)
-
   }
 });
 
