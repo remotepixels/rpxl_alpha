@@ -776,20 +776,14 @@ function changeCameraAndMicrophoneSelect () {
     
 }
 
-
-window.onresize = resize;
-resize();
 // In your parent frame's JavaScript code:
 
 window.addEventListener('message', (event) => {
   // 1. Check the origin (Security)
-  // It's important to check the origin of the message for security reasons.
-  // Replace 'http://your-child-frame-origin.com' with the actual origin
-  // of your child frame.
-    if (event.origin !== 'https://vdo.rpxl.app') {
-        console.error('Unauthorized message origin:', event.origin);
-        return;
-    }
+   if (event.origin !== 'https://vdo.rpxl.app') {
+       console.error('Unauthorized message origin:', event.origin);
+       return;
+   }
 
   // 2. Check if it's the message we're expecting
   if (event.data && event.data.holder) {
