@@ -689,7 +689,7 @@ function viewerStream () {
     "&clean"+
     "&quality=3"+	//set camera quality to lowest possible, about 360p
     "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
-    "&videobitrate=100"+
+    "&videobitrate=256"+
     "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
     "&style=6"+	//show audio only sources as coloured circles with first letter of name
     "&meterstyle=5"+	//round highlight over person talking
@@ -777,16 +777,11 @@ function changeCameraAndMicrophoneSelect () {
 
 
     function resize() {
-    var iframe = document.getElementById("mainStream");
-    console.log(iframe); // Add this line
- //  var elmnt = iframe.contentWindow.document;
- //  console.log(elmnt); // Add this line
- //   elmnt.style.display = "none";
+    const main_iframe = document.getElementById("mainStream");
+    const main_iframewindow = main_iframe.contentWindow;
+    const main_iframeheight = main_iframewindow.document.body.scrollHeight;
 
-var y = (iframe.contentWindow || iframe.contentDocument);
-console.log(y); // Add this line
-y.body.style.backgroundColor = "red";
-//
+    console.log(main_iframeheight); 
 }
 
 
