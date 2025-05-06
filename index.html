@@ -669,7 +669,8 @@ function mainstream () {
     "&rampuptime=6000"+
     "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
     "&buffer=1000"+	//adds a xms buffer
-    "&showlist=0"+	//hides the hidden viewr list
+    "&showlist=0"+	//hides the viewer list
+    "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
     "";       
 }
 
@@ -777,11 +778,18 @@ function changeCameraAndMicrophoneSelect () {
 
 
     function resize() {
-    const main_iframe = document.getElementById("mainStream");
-    const main_iframewindow = main_iframe.contentWindow;
-    const main_iframeheight = main_iframewindow.document.body.scrollHeight;
+// Get a reference to the iframe
+const iframe = document.getElementById('mainStream');
+    // Use postMessage to send data to the iframe
+    iframe.contentWindow.postMessage('Hello from parent!', 'https://vdo.rpxl.app');
 
-    console.log(main_iframeheight); 
+    // Listen for messages from the iframe
+    window.addEventListener('message', (event) => {
+        // Check if the message is from the expected origin
+        if (event.origin === 'https://vdo.rpxl.app') {
+            console.log('Received message from iframe:', event.data);
+        }
+    });
 }
 
 
