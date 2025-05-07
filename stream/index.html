@@ -21,7 +21,6 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-
         <title>rpxl.app v2.1 Stream</title>
     </head>
 <style>
@@ -107,7 +106,6 @@
 /*to be removed once new interface is on*/
 
 iframe {
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
 	width: calc(100% - 10px);
 	height: calc(100% - var(--button-height) - var(--button-height) - 20px);
     top: calc(0px + var(--button-height) + 10px);
@@ -118,12 +116,11 @@ iframe {
 	display:block;
 }
 .mainstreamiframe {
-	width: 70;
-	background-color: black;
+	width: 70%;
 	z-index: 0;
 }
 .viewersiframe {
-    background-color: blue;
+    background-color: black;
 	width:30%;
 	right:0px;
 	z-index:1;
@@ -290,7 +287,7 @@ iframe {
                 <!----- end popup menu ------>
             </div>
             <div>
-                <h2 id="clientName" class="centerhorizontal centervertical">RPXL</h2>
+                <h2 id="sessionName" class="centerhorizontal centervertical">RPXL</h2>
             </div>
             <div class="toolset">
                 <button class="tool toolred" id="popupQuit">
@@ -438,6 +435,13 @@ iframe {
 
 <script type="text/javascript"> 
 //////////////////////////////////////////////////
+//github authorization token
+const headers = {
+            "Authorization" : 'Token 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'
+           }
+
+
+//////////////////////////////////////////////////
 //toolbar code
 toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
 toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
@@ -476,9 +480,7 @@ copyQuickLink.addEventListener("click", function() {
 
 //move caret to focus on client id field
 document.getElementById("clientName").focus();
-const headers = {
-            "Authorization" : 'Token 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'
-           }
+
 //////////////////////////////////////////////
 //limit session ID to letters and numbers only
 //////////////////////////////////////////////
@@ -638,7 +640,9 @@ function startSessions() {
         console.log("camera", sanitizedCamera)
         console.log("microphone", sanitizedMicrophone)
 
-        navigator.clipboard.writeText("https://rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
+        let client = document.getElementById("clientName").value;
+        document.getElementById("sessionName").innerHTML = "RPXL : " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
+        navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
 
         document.getElementById("create").classList.add("hidden");
         document.getElementById("mainWindow").classList.remove("hidden");
@@ -650,8 +654,11 @@ function startSessions() {
 
         var encodedSession = btoa(sessionAndClient);
         console.log("encoded",encodedSession)
-        addIssue(encodedSession)
+//        addIssue(encodedSession)  //////////////////tun back on to add issue to github
 
+ //   }
+//}
+/*
         //copy options tool settings menu for later
         var select1 = document.getElementById("cameraSource");
         var options = select1.innerHTML
@@ -664,10 +671,37 @@ function startSessions() {
         var select2 = document.getElementById("microphoneChange");
         select2.innerHTML = options
         select2.selectedIndex = microphoneList.selectedIndex;
-
+*/
         //start mainstream and client streams
-        mainstream ()
-        setTimeout(function(){ viewerStream ()	},2000);
+        document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
+        document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+            "&push=Stream_"+sanitizedSessionID+	//push stream to this name
+            "&broadcast"+
+            "&label=Stream"+	//sets livestream as label for director connection
+            "&rampuptime=6000"+	//ramp up time of 6 seconds
+            "&hidehome"+	//hide vdo ninja homepage	
+            "&webcam"+
+            "&cleanoutput"+	//remove all interface bits
+            "&notify"+	// notify when people join
+            "&ovb="+quality+	//outbound video bitrate for main (obs stream)
+            "&quality="+resolution+	//1 720p set to 0 for 1080p
+            "&videodevice="+sanitizedVideo+ //video source
+            "&audiodevice="+sanitizedAudio+ //audio source
+            "&autostart"+   //autostart directors feed
+            "&trb=50000"+	//total room bit rate
+            "&hiddenscenebitrate=50000"+	//30mbps, highest quality
+            "&showlist=0"+	//show hidden guest list
+            "&hideplaybutton"+	//hides big play button if autoplay is disabled
+            "&cv"+	//clean viewer
+            "&transparent"+	//makes bg transparent
+            "&agc=0"+	//turns off auto gain control
+            "&denoise=0"+	//turns off denoiser
+            "&ab=128"+	//constant audio bitrate
+            "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+            "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+        "";    
+
+     //  setTimeout(function(){ viewerStream ()	},2000);
 
 
 
@@ -740,73 +774,24 @@ function startSessions() {
 		},1000);
 */
     }
+}
 
 
-    //async function to create issue on github, used to save session ID's
-    async function addIssue(encodedSession) {
-        const url = "https://api.github.com/repos/remotepixels/rpxl/issues"
+//async function to create issue on github, used to save session ID's
+async function addIssue(encodedSession) {
+    const url = "https://api.github.com/repos/remotepixels/rpxl/issues"
 
-        const data = {
-            title: "SessionID",
-            body: encodedSession
-        }
-        const response = await fetch(url, {
-            "method": "POST",
-            "headers": headers,
-            "body": JSON.stringify(data)
-        })
-        const result = await response.json()
-        console.log(result)
+    const data = {
+        title: "SessionID",
+        body: encodedSession
     }
-
-}
-
-
-
-
-function mainstream () {
-    document.getElementById("mainStream").allow = "autoplay; screen-wake-lock;";
-
-    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&directorsonly"+ 	//show only directors feed
-    "&solo"+	//no login options, solos stream
-    "&cleanoutput"+	//remove all interface bits
-    "&hideplaybutton"+	//hides big play button if autoplay is disabled
-    "&cv"+	//clean viewer
-    "&transparent"+	//makes bg transparent
-    "&preloadbitrate=-1"+	//preloads the video, might not be necessary as only use scene 1
-    "&rampuptime=6000"+
-    "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-    "&buffer=1000"+	//adds a xms buffer
-    "&showlist=0"+	//hides the viewer list
-    "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-    "";       
-}
-
-function viewerStream () {
-    document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
-
-    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&label="+sanitizedUserName+	//sets webcam as label for client connection
-    "&showlabels"+
-    "&group=client"+
-    "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-    "&showall"+
-    "&groupmode"+
-    "&videodevice="+sanitizedCamera+ //video source
-    "&audiodevice="+sanitizedMicrophone+ //audio source
-    "&autostart"+   //autostart directors feed
-    "&clean"+
-    "&quality=3"+	//set camera quality to lowest possible, about 360p
-    "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
-    "&videobitrate=256"+
-    "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
-    "&style=6"+	//show audio only sources as coloured circles with first letter of name
-    "&meterstyle=5"+	//round highlight over person talking
-    "&transparent"+	//makes bg transparent
-    "&disablehotkeys"+	//no hotkeys
-    "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
-    ""; 
+    const response = await fetch(url, {
+        "method": "POST",
+        "headers": headers,
+        "body": JSON.stringify(data)
+    })
+    const result = await response.json()
+    console.log(result)
 }
 </Script>
     

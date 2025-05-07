@@ -188,7 +188,7 @@ iframe {
                 </button>-->
             </div>
             <div>
-                <h2 id="clientName" class="centerhorizontal centervertical">RPXL</h2>
+                <h2 id="sessionTitle" class="centerhorizontal centervertical">RPXL</h2>
             </div>
            <div class="toolset">
                 <!-- <button class="tool toolred" id="quit">
@@ -368,7 +368,8 @@ function restrictInput(e) {
 const currentDate = new Date();
 var backDate = new Date();
 
-backDate.setDate(backDate.getDate() - 3);
+////////////////////////////////////change to less once live
+backDate.setDate(backDate.getDate() - 30);
 
 //change date format to yyyy-mm-dd for search query
 const formatDate = (date) => {
@@ -424,7 +425,7 @@ function checkSessionURL (result) {
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("login").classList.remove("hidden");
-                document.getElementById("clientName").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
+                document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
             } 
         }
@@ -449,7 +450,7 @@ function checkEnteredSession() {
 
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("login").classList.remove("hidden");
-                document.getElementById("clientName").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
+                document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
                 //console.log(sessionIDEnteredSanitized);
                 //console.log(client);
@@ -554,7 +555,7 @@ function mainstream () {
     document.getElementById("mainStream").allow = "autoplay; screen-wake-lock;";
 
     document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&directorsonly"+ 	//show only directors feed
+    "&view=Stream_"+sessionIDEnteredSanitized+
     "&solo"+	//no login options, solos stream
     "&cleanoutput"+	//remove all interface bits
     "&hideplaybutton"+	//hides big play button if autoplay is disabled
