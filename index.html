@@ -574,7 +574,7 @@ function viewerStream () {
     document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
 
     document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&label="+sanitizedUserName+	//sets webcam as label for client connection
+    "&label="+sanitizedUserName+" (you)"+	//sets webcam as label for client connection
     "&showlabels"+
     "&group=client"+
     "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
@@ -588,7 +588,7 @@ function viewerStream () {
     "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
     "&videobitrate=256"+
     "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
-    "&style=6"+	//show audio only sources as coloured circles with first letter of name
+    //nea"&style=6"+	//show audio only sources as coloured circles with first letter of name
     "&meterstyle=5"+	//round highlight over person talking
     "&transparent"+	//makes bg transparent
     "&disablehotkeys"+	//no hotkeys
@@ -640,29 +640,7 @@ function changeCameraAndMicrophoneSelect () {
 
     //restart the client stream
     viewerStream ()
-    /*
-    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&label="+sanitizedUserName+	//sets webcam as label for client connection
-    "&showlabels"+
-    "&group=client"+
-    "&avatar=https%3A%2F%2Frpxl.app%2Fimages%2Favatar.png"+
-    "&showall"+
-    "&groupmode"+
-    "&videodevice="+sanitizedCamera+ //video source
-    "&audiodevice="+sanitizedMicrophone+ //audio source
-    "&autostart"+   //autostart directors feed
-    "&clean"+
-    "&quality=3"+	//set camera quality to lowest possible, about 360p
-    "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
-    "&videobitrate=100"+
-    "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
-    "&style=6"+	//show audio only sources as coloured circles with first letter of name
-    "&meterstyle=5"+	//round highlight over person talking
-    "&transparent"+	//makes bg transparent
-    "&disablehotkeys"+	//no hotkeys
-    "&css=https%3A%2F%2Frpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
-    ""; 
-        */
+
     //reset button, hide popup and show client frame
     popupBlockSettings.classList.add("hidden");
     popupSettings.setAttribute("aria-expanded", "false");
@@ -704,28 +682,4 @@ window.addEventListener('message', (event) => {
   }
 });
 
-
-
-
-
-    		//"&videobitrate=50000"+ //server limited but hey, ask for as much as possible
-            //"&minipreview"+
-            //"&bgimage=https%3A%2F%2Frpxl.app%2Fimages%2Favatar-background.jpg"+
-            //"&chatbutton=0"+
-            //"&rounded=10"+	//makes videos round
-            //"&safemode"+	//loads camera in simplist way
-            //"&chroma=FFEEFF"+
-            //"&fontsize=200"+
-            //"&hh"+	//hide vdo ninja header
-            //"&ee"+	//easy exit
-            //"&cv"+	//clean viewer
-            //"&hpb"+	//hide play button
-            //"&nsb"+	//hide speaker button
-            //"&nohub"+	//hide hangup button
-            //"&hidehome"+	//hide vdo ninja home page
-            //"&hidetranslate"+	//hides translate menu
-            //"&darkmode"+	//
-            //"&nocontrols"+	//hides video player controls
-            //"&showlist=0"+	//show hidden guest list
-            //"&js=https%3A%2F%2Frpxl.app%2Fscripts%2Fninjachat.js"+
 </script>

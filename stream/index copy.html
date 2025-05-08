@@ -54,7 +54,7 @@
     margin:0px;
 }
 .spacer {
-    width:810px; 
+    width:100%; 
     height:1px; 
     top:10px;
     margin-top:0px; 
@@ -131,12 +131,13 @@ iframe {
 <link rel="stylesheet" href="../styles/newstyle.css">
 
 <body>
-    <!--Setup screen-->
-     <div class="dialogcreate centerhorizontal" id="create">
+    <!--Setup screen, also used as setting panel later-->
+    <div class="popupBG" id="popupBlockSettings">
+     <div class="dialogcreate centerhorizontal" id="create" onclick="event.stopPropagation()">
         <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
         <div class="row">
             <div class="column">
-                <h2>Create live session</h2>
+                <h2 id="createHeadingSession">Create live session</h2>
             </div>
             <div class="column">
                 
@@ -145,12 +146,12 @@ iframe {
 
         <div class="row">
             <div class="column">
-                <div>
+                <div id="createSession">
                     <span class="label">Session ID</span>
                     <input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase" oninput="restrictInput(event)"></input>
                     <span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span>
                 </div>
-                <div>
+                <div id="createClient">
                     <span class="label">Client</span>
                     <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
                 </div>
@@ -187,7 +188,7 @@ iframe {
                     </div>
                 </div>
             </div>
-            <div class="column">
+            <div class="column" id="createVideo">
                 <div>
                     <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
                     <audio id="audio" class="audiosource" autoplay></audio>
@@ -199,14 +200,15 @@ iframe {
                 -->
             </div>
         </div>
-        <div class="row spacer">
+
+        <div class="row spacer" id="createSpacer">
             <span></span>
         </div>
 
         <div class="row collapsed" id="moresettings">
             <div class="column"> 
                 <br>
-                <h2>Optional settings</h2>     
+                <h2 id="createOptional">Optional settings</h2>     
                 <div>    
                     <span class="label">Name</span>
                     <input type="text" maxlength="11" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
@@ -228,7 +230,7 @@ iframe {
                     </div>
                 </div>
             </div>
-            <div class="column">
+            <div class="column" id="createCamera">
                 <div>
                     <br><h2>&nbsp;</h2>
                     <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
@@ -238,8 +240,12 @@ iframe {
             </div>
         </div>
 
+        <div class="row spacer hidden" id="createSpacerEnd">
+            <span></span>
+        </div>
+
         <div class="row">
-            <div class="column">
+            <div class="column" id="createButtonMore">
                 <button id="buttonmoresettings" class="buttonmoresettings" aria-expanded="false">More setings</button>
             </div>
             <div class="column">
@@ -247,6 +253,7 @@ iframe {
             </div>
         </div>
 
+    </div>
     </div>
 <!--end setup screen-->
 
@@ -315,71 +322,6 @@ iframe {
                 <button class="tool toolmoresettings" aria-expanded="false" id="popupSettings">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-                <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockSettings">
-                    <div class="toolpopup bottom left" id="settings" onclick="event.stopPropagation()">
-                        <h2>Session</h2>
-                            <div>
-                            <span class="label">Resolution</span>
-                            <span class="radioset" role="radiogroup" aria-labelledby="resolution">
-                                <label><input type="radio" name="popupresolution" disabled value="">4K</label>
-                                <label><input type="radio" name="popupresolution" checked value="0">1080P</label>
-                                <label><input type="radio" name="popupresolution" value="1">720P</label>
-                            </span>
-                        </div>
-                        <div>
-                            <span class="label">Quality</span>
-                            <span class="radioset" role="radiogroup" aria-labelledby="quality">
-                                <label><input type="radio" name="popupquality" value="16000">High</label>
-                                <label><input type="radio" name="popupquality" value="8000" checked>Medium</label>
-                                <label><input type="radio" name="popupquality" value="4000">Low</label>
-                            </span>
-                        </div>	
-                        <div>
-                            <span class="label">Video source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupvideoSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="label">Audio source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupaudioSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p></p>
-                        <h2>User</h2>
-                        <div>    
-                            <span class="label">User</span>
-                            <input type="text" maxlength="11" class="textinput" id="popupname" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
-                        </div>
-                        <div>
-                            <span class="label">Camera Source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupcameraSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="label">Microphone Source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupmicrophoneSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p></p>
-                        <div>
-                            <button id="popupcheckLogin" class="botton buttonblue">Apply</button>
-                        </div>
-                    </div>
-                </div>
-            <!----- end popup menu ------>
             </div>
 
             <div class="toolset toolspacer">
@@ -460,8 +402,24 @@ popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBloc
 toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
 toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
 
-popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
-popupBlockSettings.addEventListener("click", function() { hidePopupMenu(popupBlockSettings); });
+popupSettings.addEventListener("click", function() { 
+    if (document.getElementById("create").classList.contains("hidden")) {
+        document.getElementById("create").classList.remove("hidden");
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
+    } else {
+        document.getElementById("create").classList.add("hidden");
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+    }
+});
+popupBlockSettings.addEventListener("click", function() {  
+    if (document.getElementById("mainWindow").classList.contains("hidden")) {
+
+    } else {
+    document.getElementById("create").classList.add("hidden");
+    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");} 
+});
+
+
 
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
 popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });
@@ -677,19 +635,25 @@ function startSessions() {
         console.log("encoded",encodedSession)
 //        addIssue(encodedSession)  //////////////////tun back on to add issue to github
 
+        ////////////////////////////////////////////////////
+        //change setting menu once stream is created, use same logic as before
+        //move settings menu to new place
+        document.getElementById("create").classList.remove("centerhorizontal", "dialogcreate");        
+        document.getElementById("create").style.width = "450px";      
+        document.getElementById("create").classList.add("toolpopup", "bottom", "left");
+        document.getElementById("createHeadingSession").innerHTML = "Session settings";
+        document.getElementById("createSession").style.display = "none";
+        document.getElementById("createClient").style.display = "none";
+        document.getElementById("createVideo").style.display = "none";
+        document.getElementById("createSpacer").style.display = "none";
+        document.getElementById("moresettings").classList.remove("collapsed");
+        document.getElementById("createOptional").innerHTML = "User settings";
+        document.getElementById("createCamera").style.display = "none";
+        document.getElementById("createButtonMore").style.display = "none";
+        document.getElementById("createSpacerEnd").classList.remove("hidden");
+        document.getElementById("startSession").innerHTML = "Apply settings";
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
 
-        //copy options tool settings menu for later
-        var select1 = document.getElementById("cameraSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("cameraChange");
-        select2.innerHTML = options
-        select2.selectedIndex = cameraList.selectedIndex;
-
-        var select1 = document.getElementById("microphoneSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("microphoneChange");
-        select2.innerHTML = options
-        select2.selectedIndex = microphoneList.selectedIndex;
 
         //start mainstream and client streams
         document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
@@ -814,63 +778,6 @@ async function addIssue(encodedSession) {
 }
 
 
-
-
-
-
-function changeCameraAndMicrophoneSelect () {
-
-document.getElementById("viewersStream").classList.add("hidden");
-
-var currentMicrophoneIndex = document.getElementById("microphoneSource").selectedIndex;
-var currentCameraIndex = document.getElementById("cameraSource").selectedIndex;
-
-var newMicrophoneIndex = document.getElementById("microphoneChange").selectedIndex;
-var newCameraIndex = document.getElementById("cameraChange").selectedIndex;
-
-currentMicrophoneIndex = newMicrophoneIndex;
-
-let newMicrophone = document.getElementById("microphoneSource");
-sanitizedMicrophone = newMicrophone.options[newMicrophoneIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-//if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-if (sanitizedMicrophone == "none") {
-    sanitizedMicrophone = "0"
-}
-
-
-currentCameraIndex = newCameraIndex;
-let newCamera = document.getElementById("cameraSource");
-sanitizedCamera = newCamera.options[newCameraIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-//if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-if (sanitizedCamera == "none") {
-    sanitizedCamera = "0"
-}
-
-console.log("new camera selected", sanitizedCamera)
-console.log("new mic selected", sanitizedMicrophone)
-
-
-//stop current streams make sure video and audio objects are hidden
-viewersStream.contentWindow.postMessage({
-        "hangup": true
-    }, '*');
-camera.style.display = "none";
-microphone.style.display = "none";
-console.log("stopping current streams")
-
-//restart the client stream
-viewerStream ()
-
-//reset button, hide popup and show client frame
-popupBlockSettings.classList.add("hidden");
-popupSettings.setAttribute("aria-expanded", "false");
-popupBlockSettings.setAttribute("aria-expanded", "false");
-
-setTimeout(function(){ document.getElementById("viewersStream").classList.remove("hidden");},1000);
-
-}
 
 </Script>
     

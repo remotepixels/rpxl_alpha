@@ -211,9 +211,7 @@ select:hover, select:active{
 .fadeout {
     opacity: 0.1;
 }
-.hidden {
-    display:none;
-}
+
 .buttonmoresettings[aria-expanded="true"]::after, .toolmoresettings[aria-expanded="true"]::after {
     transform: rotate(180deg) translateY(50%);
 }
@@ -493,7 +491,9 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
 
 }
 
-
+.hidden {
+    display:none;
+}
 /*animations*/  
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 var(--color-red); }
