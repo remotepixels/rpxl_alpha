@@ -39,7 +39,7 @@
     background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
-    z-index: 3;
+    z-index: 1;
     box-shadow: var(--shadows);
 } 
 .camera {
@@ -87,10 +87,10 @@
 .viewersiframe {
 	width:100px;
 	right:0px;
-	z-index:1;
 	overflow-y: auto;
     overflow-x: hidden;
     color-scheme: light;
+    z-index:5;
 }
 .viewersiframe:hover {
 	width:300px;
@@ -100,7 +100,9 @@
 </style>
 
 <body>
+
 <!--enter seasion ID popup-->
+
     <div class="dialoglogin centerhorizontal" id="session">
 		<h2 class="center">Enter a valid Session ID to continue</h2>
         <p></p>
@@ -118,63 +120,60 @@
     </div>
 
 <!--enter username, select camera and microphone-->
-    <div class="dialoglogin centerhorizontal hidden" id="login">
-		<h2></h2>
-        <div>
-            <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
-            <audio id="microphone" class="loginaudio" autoplay></audio>
+    <div class="popupBG hidden" id="popupBlockSettings">
+        <div class="dialoglogin centerhorizontal" id="setupCamMic"  onclick="event.stopPropagation()">
+            <h2></h2>
+            <div id="setupPreview">
+                <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
+                <audio id="microphone" class="loginaudio" autoplay></audio>
+            </div>
+            <div>
+                <span class="label">Name</span>
+                <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name... (Required)" contenteditable="true" autocomplete="off">
+            </div>
+            <div>
+                <span class="label">Camera</span>
+                <div class="custom-select">
+                    <select contenteditable="true" id="cameraSource">
+                        <option value="">None</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <span class="label">Microphone</span>
+                <div class="custom-select">
+                    <select contenteditable="true" id="microphoneSource">
+                        <option value="">None</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <button id="checkLogin" class="botton buttonblue">Join live session</button>
+            </div>
         </div>
-        <div>
-            <span class="label">Name</span>
-            <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name... (Required)" contenteditable="true" autocomplete="off">
-        </div>
-        <div>
-            <span class="label">Camera</span>
+        <!-- duplicate elements not displayed so can re-use camera and microphone code-->
+        <div class="row collapsed hidden" id="moresettings">
             <div class="custom-select">
-                <select contenteditable="true" id="cameraSource">
+                <select contenteditable="true" id="videoSource">
                     <option value="">None</option>
                 </select>
             </div>
-        </div>
-        <div>
-            <span class="label">Microphone</span>
             <div class="custom-select">
-                <select contenteditable="true" id="microphoneSource">
+                <select contenteditable="true" id="audioSource">
                     <option value="">None</option>
                 </select>
             </div>
+            <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
+            <audio id="audio" class="audiosource" autoplay></audio>
         </div>
-        <hr>
-        <div>
-            <button id="checkLogin" class="botton buttonblue">Join live session</button>
-        </div>
-    </div>
-    <!-- duplicate elements not displayed so can re-use camera and microphone code-->
-    <div class="row collapsed hidden" id="moresettings">
-        <div class="custom-select">
-            <select contenteditable="true" id="videoSource">
-                <option value="">None</option>
-            </select>
-        </div>
-        <div class="custom-select">
-            <select contenteditable="true" id="audioSource">
-                <option value="">None</option>
-            </select>
-        </div>
-        <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
-        <audio id="audio" class="audiosource" autoplay></audio>
     </div>
     <!-- duplicate elements end-->
 
-
-
     <!--canvas for drawing annotations-->
-    <div style="position: absolute; top:0px; left: 0px; width:100%; height:100%;" id="canvasContainer">
-        <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
-    </div>
 
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
-    
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
         <!--top menu bar-->
@@ -249,37 +248,60 @@
                 <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-                <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockSettings">
-                    <div class="toolpopup bottom right" id="settings" onclick="event.stopPropagation()">
-                        <h2>Settings</h2>
-                            <div>
-                                <span class="label">Camera</span>
-                                <div class="custom-select">
-                                    <select contenteditable="true" id="cameraChange">
-                                        <option value="">None</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <span class="label">Microphone</span>
-                                <div class="custom-select">
-                                    <select contenteditable="true" id="microphoneChange">
-                                        <option value="">None</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <p></p>
-                            <div>
-                                <button id="changeCameraAndMicrophone" class="botton buttonblue">Apply</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!----- end popup menu ------>
+
             </div>
         </div>
     </div>
+
+
+    <!-- popup menu warning for microphone permissions-->
+    <div id="popupPermissionMic" class="toolpopup top middle hidden">
+        <h2>
+        Warning : Microphone permissions blocked<br>
+        </h2>
+        <p></p>
+        Please check your browser settings to allow<br>
+        access to the microphone. Once granted<br>
+        you will be able to mute it at any time.<br>
+        <p></p>
+        <button id="permissionMicHelp" class="botton buttonblue"> Click here for more info </button>
+    </div>
+
+    <!-- popup menu warning for camera permissions-->
+    <div class="popupBG" id="popupPermissionCam">
+        <div  class="toolpopup top middle " onclick="event.stopPropagation()">
+            <h2>
+            Note : Camera permissions blocked<br>
+            </h2>
+            <p></p>
+            If you block the camera access from<br>
+            your browser you will have to reload<br>
+            and re-login to enable it. <br>
+            <p></p>
+            If you allow access to the camera<br>
+            you can mute it or disable it at<br>
+            any time without reloading the page.
+            <p></p>
+            <a href="https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"> Click here for more info </a>
+            <p></p>
+            <button id="permissionCamDismiss" class="botton buttonblue">Continue without camera</button>
+        </div>
+    </div>
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupMicMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupCamMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Your camera has been turned off &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupStreamMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Incoming stream muted (You will still hear participants) &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
 </body>
 </html>
 
@@ -288,6 +310,7 @@
 <script src="scripts/cookie.js"></script>
 <script src="scripts/interface.js"></script>
 <script src="scripts/annotations.js"></script>
+<script src="scripts/framemessages.js"></script>
 
 <script lang="javascript">
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,6 +321,7 @@ let	sessionIDEnteredSanitized
 let sanitizedUserName
 let sanitizedCamera
 let sanitizedMicrophone
+let sessionStarted = false
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //get session ID's from github issues
@@ -356,7 +380,7 @@ function checkSessionURL (result) {
                 sessionIDEnteredSanitized = sessionID;
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
-                document.getElementById("login").classList.remove("hidden");
+                document.getElementById("popupBlockSettings").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
             } 
@@ -399,13 +423,13 @@ function checkEnteredSession() {
                 client = decodeURIComponent(clientEncoded)
 
                 document.getElementById("session").classList.add("hidden");
-                document.getElementById("login").classList.remove("hidden");
+                document.getElementById("popupBlockSettings").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
                 break;
             }
         }
-        console.log("Session ID not found");
+        //console.log("Session ID not found");
         session.style.animation = "shake 500ms";
         setTimeout ( function () {session.style.animation = "none";}, 300);
         document.getElementById("sessionID").value = "";
@@ -414,10 +438,9 @@ function checkEnteredSession() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//check if cookie exists and pre-populate the user name field in the following dialogue
+//check if cookie exists and pre-populate the user camera and mic field in the following dialogue
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-checkCookie("username", "camera", "mic");
-
+checkCookie("username", "camera", "mic")
 function checkCookie(cookieUser, cookieCamera, cookieMic) {
     let usercookie = getCookie(cookieUser);
     let cameracookie = getCookie(cookieCamera);
@@ -426,15 +449,53 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
     if (usercookie != null) {
         console.log("Cookie data");
         console.log("name : " + usercookie);
+        console.log("camera : " + cameracookie);        
+        console.log("mic : " + miccookie);
+
         document.getElementById("name").value = usercookie;
     } 
-    //currently not used but would preset the camera and microphone
-    if (cameracookie != "") {
-        console.log("camera : " + cameracookie);
+    //wait a bit for the camera and microphone to be populated
+    setTimeout(function(){ 
+        if ((cameracookie != "") && (cameracookie != "None") && (cameracookie != "Disabled in browser")) {
+            let selectElement = document.getElementById("cameraSource");
+            //console.log("options:"+selectElement.options.length);
+            let optionFound = false;
+            for (let i = 0; i < selectElement.options.length; i++) {
+                const option = selectElement.options[i].innerHTML;
+                // Compare the cookie value with the option's value
+                if (option === cameracookie) {
+                    document.getElementById("cameraSource").selectedIndex = i
+                    
+                    videoElement = document.querySelector('video#camera');
+                    videoElement.classList.remove("fadeout");
+                    videos = document.getElementById("cameraSource").value;
+                    videoSelected = document.querySelector('select#cameraSource');
+                    getvideoStream();
+                    optionFound = true;
+                    break; // Stop once the matching option is found and selected
+                }
+            } 
+        }
+        if (miccookie != "") {
+            let selectElement = document.getElementById("microphoneSource");
+            
+            let optionFound = false;
+            for (let i = 0; i < selectElement.options.length; i++) {
+                const option = selectElement.options[i].innerHTML;
+                // Compare the cookie value with the option's value
+                if (option === miccookie) {
+                    document.getElementById("microphoneSource").selectedIndex = i
+
+                    audioElement = document.querySelector('audio#microphone');
+                    audios = document.getElementById("microphoneSource").value;
+                    audioSelected = document.querySelector('select#microphoneSource');
+                    getAudioStream()
+                    optionFound = true;
+                    break; // Stop once the matching option is found and selected
+                }
+            }
         } 
-    if (miccookie != "") {
-        console.log("mic : " + miccookie);
-    } 
+    },500);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +505,7 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 document.getElementById("name").focus();
 document.getElementById("checkLogin").addEventListener("click", joinSession);
-//not hundred% sure about this as users may hit enter after entering name hoping to get to the next field, but?
+
 document.getElementById("name").addEventListener("keypress", function(event) {
 	if (event.key === "Enter") {
 		event.preventDefault();        
@@ -452,6 +513,11 @@ document.getElementById("name").addEventListener("keypress", function(event) {
 		}
 	});
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Join seesion code
+//check that the user has enetered a name and selected a microphone
+//if yes then start the main stream and client stream
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function joinSession() {
     let username = document.getElementById("name").value;
     sanitizedUserName = encodeURIComponent(username); 
@@ -460,16 +526,24 @@ function joinSession() {
         document.getElementById("name").style.animation = "pulse 250ms";
         setTimeout ( function () {document.getElementById("name").style.animation = "none"; }, 250);  
         document.getElementById("name").focus(); 
+
+    //check we've selected a microphone
+    } else if ( document.getElementById("microphoneSource").selectedIndex == 0) {
+        document.getElementById("microphoneSource").style.animation = "pulse 250ms";
+        setTimeout ( function () {document.getElementById("microphoneSource").style.animation = "none"; }, 250);  
+        document.getElementById("microphoneSource").focus(); 
+
+    //moving on    
     } else {  
-        //if the username is not empty then stop streams
+        //if the username is not empty then stop streams so not to conflict with the vdo ninja ones
         stream.getTracks().forEach(function(track) {
             track.stop();
         });
 
         //get the select values for the slected camera and microphone
         let cameraList = document.getElementById("cameraSource");
-
         let microphoneList = document.getElementById("microphoneSource");
+
         //get the index of the selected camera and microphone
         let cameraSelected = cameraList.selectedIndex;
         let microphoneSelected = microphoneList.selectedIndex;
@@ -485,6 +559,7 @@ function joinSession() {
         if (sanitizedCamera == "none") {
             sanitizedCamera = "0"
         }
+        //this should never happen but just in case
         if (sanitizedMicrophone == "none") {
             sanitizedMicrophone = "0"
         }
@@ -495,25 +570,47 @@ function joinSession() {
         setCookie("mic", microphone, 7);
 
         //hide the login screen and show the main window
-        document.getElementById("login").classList.add("hidden");
+        document.getElementById("popupBlockSettings").classList.add("hidden");
         document.getElementById("mainWindow").classList.remove("hidden");
 
-        //copy options tool settings menu for later
-        var select1 = document.getElementById("cameraSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("cameraChange");
-        select2.innerHTML = options
-        select2.selectedIndex = cameraList.selectedIndex;
+        //disable the drawing and mute stream button tools until we get the main feed
+        document.getElementById('toolMuteStream').classList.add("disable");
+        document.getElementById('toolMuteStream').disabled = true;
+        document.getElementById('toolStreamVolume').classList.add("disable");
+        document.getElementById('toolStreamVolume').disabled = true;
+        
+        document.getElementById('toolDraw').classList.add("disable");
+        document.getElementById('toolDraw').disabled = true;
+        document.getElementById('popupPalette').classList.add("disable");
+        document.getElementById('popupPalette').disabled = true;
+        document.getElementById('toolEraser').classList.add("disable");
+        document.getElementById('toolEraser').disabled = true;
 
-        var select1 = document.getElementById("microphoneSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("microphoneChange");
-        select2.innerHTML = options
-        select2.selectedIndex = microphoneList.selectedIndex;
+        //disable the camera button if no camera selected or if blocked by browser
+        if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
+            document.getElementById('toolMuteCamera').classList.add("disable");
+            document.getElementById('toolMuteCamera').disabled = true;
+        } else {
+            document.getElementById('toolMuteCamera').classList.remove("disable");
+            document.getElementById('toolMuteCamera').disabled = false;
+        }
 
-        //start mainstream and client streams
-        setTimeout(function(){ mainstream ()},1000);
+        //move and reposition the camera and microphone windows
+        document.getElementById("setupCamMic").classList.remove("centerhorizontal", "dialoglogin");        
+        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "right");
+        document.getElementById("setupPreview").style.display = "none";
+        document.getElementById("checkLogin").innerHTML = "Apply settings";
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+
+        //start mainstream once only
+        if (sessionStarted == false) {
+            mainstream ()
+        }
+        //start viewerstream and if settings changed resart
         viewerStream ()
+
+        //set that we have started the main stream
+        sessionStarted = true;
     }
 }
 
@@ -521,6 +618,7 @@ function joinSession() {
 //start the main stream
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function mainstream () {
+    document.getElementById("mainStream").style.display = "block";
     document.getElementById("mainStream").allow = "autoplay; screen-wake-lock;";
     document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
     "&view=Stream_"+sessionIDEnteredSanitized+
@@ -536,113 +634,43 @@ function mainstream () {
     "&showlist=0"+	//hides the viewer list
     "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
     "";       
-
-    document.getElementById("mainStream").style.display = "block";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //start the chat stream
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function viewerStream () {
-    //document.getElementById("viewersStream").style.display = "none";
+    //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
+    if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
+        var miconly = "&miconly";
+    }   else {
+        var miconly = "&videodevice="+sanitizedCamera;
+    }
+    document.getElementById("viewersStream").style.display = "none";
     document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
 
     document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
     "&label="+sanitizedUserName+	//sets webcam as label for client connection
     "&showlabels"+
+    "&audiodevice="+sanitizedMicrophone+ //audio source
     "&group=client"+
-    "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+    "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+miconly+
     "&showall"+
     "&groupmode"+
     "&groupview"+
-    "&videodevice="+sanitizedCamera+ //video source
-    "&audiodevice="+sanitizedMicrophone+ //audio source
     "&autostart"+   //autostart directors feed
     "&clean"+
     "&quality=3"+	//set camera quality to lowest possible, about 360p
     "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
     "&videobitrate=256"+
     "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
-    //"&style=6"+	//show audio only sources as coloured circles with first letter of name
+    "&style=6"+	//show audio only sources as coloured circles with first letter of name
     //"&meterstyle=5"+	//round highlight over person talking
     "&transparent"+	//makes bg transparent
     "&disablehotkeys"+	//no hotkeys
     "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
     ""; 
-    setTimeout(function(){ document.getElementById("viewersStream").style.display = "block";	},1000);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//toolbar code
-////////////////////////////////////////////////////////////////////////////////////////////////////
-toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
-toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
-
-toolDraw.addEventListener("click", function() { toolDrawSelect(); });
-popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
-popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
-toolEraser.addEventListener("click", function() { toolEraserSelect(); });
-
-toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
-toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
-
-popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
-popupBlockSettings.addEventListener("click", function() { hidePopupMenu(popupBlockSettings); });
-
-changeCameraAndMicrophone.addEventListener("click", function () { changeCameraAndMicrophoneSelect(); });
-
-function changeCameraAndMicrophoneSelect () {
-
-    document.getElementById("viewersStream").classList.add("hidden");
-
-    var currentMicrophoneIndex = document.getElementById("microphoneSource").selectedIndex;
-    var currentCameraIndex = document.getElementById("cameraSource").selectedIndex;
-
-    var newMicrophoneIndex = document.getElementById("microphoneChange").selectedIndex;
-    var newCameraIndex = document.getElementById("cameraChange").selectedIndex;
-
-    currentMicrophoneIndex = newMicrophoneIndex;
-
-    let newMicrophone = document.getElementById("microphoneSource");
-    sanitizedMicrophone = newMicrophone.options[newMicrophoneIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-    //if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-    if (sanitizedMicrophone == "none") {
-        sanitizedMicrophone = "0"
-    }
-
-
-    currentCameraIndex = newCameraIndex;
-    let newCamera = document.getElementById("cameraSource");
-    sanitizedCamera = newCamera.options[newCameraIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-    //if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-    if (sanitizedCamera == "none") {
-        sanitizedCamera = "0"
-    }
-    
-    console.log("new camera selected", sanitizedCamera)
-    console.log("new mic selected", sanitizedMicrophone)
-
-
-    //stop current streams make sure video and audio objects are hidden
-    viewersStream.contentWindow.postMessage({
-            "hangup": true
-        }, '*');
-    camera.style.display = "none";
-    microphone.style.display = "none";
-    console.log("stopping current streams")
-
-    //restart the client stream
-    viewerStream ()
-
-    //reset button, hide popup and show client frame
-    popupBlockSettings.classList.add("hidden");
-    popupSettings.setAttribute("aria-expanded", "false");
-    popupBlockSettings.setAttribute("aria-expanded", "false");
-
-    setTimeout(function(){ document.getElementById("viewersStream").classList.remove("hidden");},1000);
-    
+    setTimeout(function(){ document.getElementById("viewersStream").style.display = "block";	},2000);
 }
 
 

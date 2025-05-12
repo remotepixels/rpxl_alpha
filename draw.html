@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Let's Draw Together</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="alternate icon" type="image/png" href="/static/logo.png">
+    <link rel="icon" type="image/svg+xml" href="/static/logo.png">
+</head>
+<body>
+    <div class="flush vstack">
+        <div class="menubar hstack">
+            <a class="icon-link center">
+                <i class="ri-lg ri-landscape-line"></i>
+            </a>
+            <div class="spacer"></div>
+            <a class="icon-link active center" data-tool="pencil">
+                <i class="ri-lg ri-pencil-fill"></i>
+            </a>
+            <a class="icon-link center" data-tool="rect">
+                <i class="ri-lg ri-shape-line"></i>
+            </a>
+            <a class="icon-link center" data-tool="circle">
+                <i class="ri-lg ri-checkbox-blank-circle-line"></i>
+            </a>
+            <a class="icon-link center" data-tool="text">
+                <i class="ri-lg ri-font-size-2"></i>
+            </a>
+            <div class="spacer"></div>
+            <div class="relative">
+                <a class="icon-link center" data-color="#33ffff">
+                    <i class="ri-lg ri-palette-line"></i>
+                    <i class="ri-lg ri-checkbox-blank-fill center"></i>
+                </a>
+                <div id="color-picker" class="dropdown vstack">
+                </div>
+            </div>
+            <div class="spacer"></div>
+        </div>
+        <div class="spacer app">
+            <canvas></canvas>
+            <canvas class="active"></canvas>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/static/load.js"></script>
+    <script type="text/javascript" src="/static/draw.js"></script>
+</body>
+</html>
+
+
+
+<style>
+:root {
+    --root-font-size: 12px;
+    --standard-padding: 16px;
+
+    --bg: #fafafa;
+    --fg: #666;
+    --menubar-bg: #fdfdfd;
+    --active-color: #339999;
+
+    --menubar-shadow: 0 8px 6px -6px #f4f4f4;
+    --dropdown-shadow: 0px 0px 1px 0px rgba(0,0,0,0.5), 0px 2px 6px -5px rgba(0,0,0,0.75);
+}
+
+/** Reset */
+html, body, nav, ul, h1, h2, h3, h4, a, canvas {
+    margin: 0px;
+    padding: 0px;
+    color: var(--fg);
+}
+html, body {
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: var(--root-font-size);
+    background: var(--bg);
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+*, body, button, input, select, textarea, canvas {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    outline: 0;
+}
+
+/** Utilities */
+.hstack {
+    display: flex;
+    flex-direction: row;
+}
+.vstack {
+    display: flex;
+    flex-direction: column;
+}
+.center {
+    display: flex;
+    align-items: center;
+}
+.spacer {
+    flex: 1;
+}
+.flush {
+    height: 100%;
+}
+.relative {
+    position: relative;
+}
+.dropdown {
+    position: absolute;
+    background-color: #fff;
+    padding: 4px;
+    box-shadow: var(--dropdown-shadow);
+    border-radius: 4px;
+    z-index: 1;
+    margin-left: -80px;
+    transition: all 0.25s ease-in-out;
+}
+.icon-link + .dropdown {
+    opacity: 0;
+    top: 8px;
+    visibility: hidden;
+    transition: all 0.25s ease-in-out;
+}
+.icon-link:hover + .dropdown, .dropdown:hover {
+    opacity: 1;
+    top: 16px;
+    visibility: visible;
+}
+.icon-link:hover + .dropdown *, .dropdown:hover * {
+    opacity: 1;
+}
+.icon-link {
+    padding: calc(var(--standard-padding) / 2);
+    margin: calc(var(--standard-padding) * -1) 0px;
+    font-size: 1rem;
+    position: relative;
+    border-bottom: 2px solid transparent;
+    top: 2px;
+    cursor: pointer;
+}
+.icon-link:hover {
+    color: var(--active-color);
+}
+.icon-link.active {
+    color: var(--active-color);
+    border-bottom: 2px solid var(--active-color);
+    animation: animate--rainbow-border 2s ease-in-out infinite;
+}
+
+/** Sections */
+.menubar {
+    padding: var(--standard-padding);
+    box-shadow: var(--menubar-shadow);
+    background: var(--menubar-bg);
+    height: 32px;
+}
+.app {
+    width: 100%;
+}
+.app canvas.active {
+    position: absolute;
+    top: 32px;
+    left: 0px;
+}
+
+/** Color Picker */
+.box {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+.box:hover, .box.active {
+    box-shadow: inset 0px 0px 2px 2px #fff;
+    opacity: 0.75;
+}
+.box.color-ffffff:hover, .box.color-ffffff.active
+.box.color-f3f3f3:hover, .box.color-f3f3f3.active
+.box.color-efefef:hover, .box.color-efefef.active
+.box.color-d9d9d9:hover, .box.color-d9d9d9.active {
+    box-shadow: inset 0px 0px 2px 2px #aaa;
+}
+*[data-color] > .ri-palette-line {
+    color: #333 !important;
+}
+*[data-color] > .ri-checkbox-blank-fill {
+    width: 12px;
+    text-indent: -2px;
+    margin-left: 4px;
+    box-shadow: 0px 0px 1px 1px #ddd;
+}
+
+/** Animations */
+@keyframes animate--rainbow-border {
+    0% {
+        border-color: #91c96c44;
+    }
+    10% {
+        border-color: #6cc9a244;
+    }
+    20% {
+        border-color: #6ca4c944;
+    }
+    30% {
+        border-color: #6d6cc944;
+    }
+    40% {
+        border-color: #906cc944;
+    }
+    50% {
+        border-color: #c96cc944;
+    }
+    60% {
+        border-color: #c96c8044;
+    }
+    70% {
+        border-color: #c9996c44;
+    }
+    80% {
+        border-color: #c9c36c44;
+    }
+    90% {
+        border-color: #9ec96c44;
+    }
+    100% {
+        border-color: #91c96c44;
+    }
+}
+</style>
+
+
+<script>
+var context = {
+    username: 'user' + parseInt(Math.random() * 100000),
+    roomId: window.location.pathname.substr(1),
+    token: null,
+    eventSource: null,
+    peers: {},
+    channels: {}
+};
+
+const rtcConfig = {
+    iceServers: [{
+        urls: [
+            'stun:stun.l.google.com:19302',
+            'stun:global.stun.twilio.com:3478'
+        ]
+    }]
+};
+
+async function getToken() {
+    let res = await fetch('/access', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: context.username
+        })
+    });
+    let data = await res.json();
+    context.token = data.token;
+}
+
+async function join() {
+    return fetch(`/${context.roomId}/join`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${context.token}`
+        }
+    });
+}
+
+async function connect() {
+    await getToken();
+    context.eventSource = new EventSource(`/connect?token=${context.token}`);
+    context.eventSource.addEventListener('add-peer', addPeer, false);
+    context.eventSource.addEventListener('remove-peer', removePeer, false);
+    context.eventSource.addEventListener('session-description', sessionDescription, false);
+    context.eventSource.addEventListener('ice-candidate', iceCandidate, false);
+    context.eventSource.addEventListener('connected', (user) => {
+        context.user = user;
+        join();
+    });
+}
+
+function addPeer(data) {
+    let message = JSON.parse(data.data);
+    if (context.peers[message.peer.id]) {
+        return;
+    }
+
+    // setup peer connection
+    let peer = new RTCPeerConnection(rtcConfig);
+    context.peers[message.peer.id] = peer;
+
+    // handle ice candidate
+    peer.onicecandidate = function (event) {
+        if (event.candidate) {
+            relay(message.peer.id, 'ice-candidate', event.candidate);
+        }
+    };
+
+    // generate offer if required (on join, this peer will create an offer
+    // to every other peer in the network, thus forming a mesh)
+    if (message.offer) {
+        // create the data channel, map peer updates
+        let channel = peer.createDataChannel('updates');
+        channel.onmessage = function (event) {
+            onPeerData(message.peer.id, event.data);
+        };
+        context.channels[message.peer.id] = channel;
+        createOffer(message.peer.id, peer);
+    } else {
+        peer.ondatachannel = function (event) {
+            context.channels[message.peer.id] = event.channel;
+            event.channel.onmessage = function (evt) {
+                onPeerData(message.peer.id, evt.data);
+            };
+        };
+    }
+}
+
+async function createOffer(peerId, peer) {
+    let offer = await peer.createOffer();
+    await peer.setLocalDescription(offer);
+    await relay(peerId, 'session-description', offer);
+}
+
+function relay(peerId, event, data) {
+    fetch(`/relay/${peerId}/${event}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${context.token}`
+        },
+        body: JSON.stringify(data)
+    });
+}
+
+function peerDataUpdates(peerId, data) {
+    onPeerData(peerId, data.data);
+}
+
+function broadcast(data) {
+    for (let peerId in context.channels) {
+        if (context.channels[peerId].readyState === 'open') {
+            context.channels[peerId].send(data);
+        }
+    }
+}
+
+function removePeer(data) {
+    let message = JSON.parse(data.data);
+    if (context.peers[message.peer.id]) {
+        context.peers[message.peer.id].close();
+    }
+
+    delete context.peers[message.peer.id];
+}
+
+async function sessionDescription(data) {
+    let message = JSON.parse(data.data);
+    let peer = context.peers[message.peer.id];
+
+    let remoteDescription = new RTCSessionDescription(message.data);
+    await peer.setRemoteDescription(remoteDescription);
+    if (remoteDescription.type === 'offer') {
+        let answer = await peer.createAnswer();
+        await peer.setLocalDescription(answer);
+        await relay(message.peer.id, 'session-description', answer);
+    }
+}
+
+function iceCandidate(data) {
+    let message = JSON.parse(data.data);
+    let peer = context.peers[message.peer.id];
+    peer.addIceCandidate(new RTCIceCandidate(message.data));
+}
+
+connect();
+
+
+
+
+
+
+    const canvas = document.querySelector('.app canvas');
+const activeCanvas = document.querySelector('.app canvas.active');
+const ctx = canvas.getContext('2d');
+const activeCtx = activeCanvas.getContext('2d');
+
+var lastPoint;
+var force = 1;
+var mouseDown = false;
+
+var activeToolElement = document.querySelector('[data-tool].active');
+var activeTool = activeToolElement.dataset.tool;
+
+document.querySelectorAll('[data-tool]').forEach(tool => {
+    tool.onclick = function (e) {
+        activeToolElement.classList.toggle('active');
+        activeToolElement = tool;
+        activeToolElement.classList.toggle('active');
+        activeTool = activeToolElement.dataset.tool;
+    };
+});
+
+const swatch = [
+    ["#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#cccccc", "#d9d9d9", "#efefef", "#f3f3f3", "#ffffff"],
+    ["#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00", "#00ffff", "#4a86e8", "#0000ff", "#9900ff", "#ff00ff"],
+    ["#e6b8af", "#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#c9daf8", "#cfe2f3", "#d9d2e9", "#ead1dc"],
+    ["#dd7e6b", "#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#a4c2f4", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
+    ["#cc4125", "#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6d9eeb", "#6fa8dc", "#8e7cc3", "#c27ba0"],
+    ["#a61c00", "#cc0000", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3c78d8", "#3d85c6", "#674ea7", "#a64d79"],
+    ["#85200c", "#990000", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#1155cc", "#0b5394", "#351c75", "#741b47"],
+    ["#5b0f00", "#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#1c4587", "#073763", "#20124d", "#4c1130"]
+];
+const colorMap = swatch.flat();
+
+var activeShape;
+
+let swatchContainer = document.querySelector('#color-picker');
+let colorElements = {};
+swatch.forEach(row => {
+    let rowElem = document.createElement('div');
+    rowElem.classList.add('hstack');
+    row.forEach(c => {
+        let elem = document.createElement('div');
+        elem.classList.add('box');
+        elem.classList.add('color-' + c.substr(1));
+        elem.style.backgroundColor = c;
+        elem.onclick = function (e) {
+            colorPicker.dataset.color = c;
+            colorPicker.style.color = c;
+            if (colorElements[color]) {
+                colorElements[color].classList.remove('active');
+            }
+            color = c;
+            elem.classList.toggle('active');
+            e.preventDefault();
+        };
+        colorElements[c] = elem;
+        rowElem.appendChild(elem);
+    });
+
+    swatchContainer.appendChild(rowElem);
+});
+
+function randomColor() {
+    return parseInt(Math.random() * colorMap.length);
+}
+
+var colorIndex = randomColor();
+var color = colorMap[colorIndex];
+var colorPicker = document.querySelector('[data-color]');
+colorPicker.dataset.color = color;
+colorPicker.style.color = color;
+colorElements[color].classList.add('active');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    activeCanvas.width = window.innerWidth;
+    activeCanvas.height = window.innerHeight;
+}
+
+function onPeerData(id, data) {
+    let msg = JSON.parse(data);
+    if (msg.event === 'draw') {
+        draw(msg);
+    } else if (msg.event === 'drawRect') {
+        drawRect(msg);
+    } else if (msg.event === 'clear') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function draw(data) {
+    ctx.beginPath();
+    ctx.moveTo(data.lastPoint.x, data.lastPoint.y);
+    ctx.lineTo(data.x, data.y);
+    ctx.strokeStyle = data.color;
+    ctx.lineWidth = Math.pow(data.force || 1, 4) * 2;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function drawRect(data, commit) {
+    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    if (data.commit || commit) {
+        ctx.strokeStyle = data.color;
+        ctx.strokeRect(data.origin.x, data.origin.y, data.width, data.height);
+    } else {
+        activeCtx.strokeStyle = data.color;
+        activeCtx.strokeRect(data.origin.x, data.origin.y, data.width, data.height);
+    }
+    activeShape = data;
+}
+
+function move(e) {
+    mouseDown = e.buttons;
+    if (e.buttons) {
+        if (!lastPoint) {
+            lastPoint = { x: e.offsetX, y: e.offsetY };
+            originPoint = { x: e.offsetX, y: e.offsetY };
+            return;
+        }
+
+        if (activeTool === 'pencil') {
+            draw({
+                lastPoint,
+                x: e.offsetX,
+                y: e.offsetY,
+                force: force,
+                color: color
+            });
+
+            broadcast(JSON.stringify({
+                event: 'draw',
+                lastPoint,
+                x: e.offsetX,
+                y: e.offsetY,
+                force: force,
+                color: color
+            }));
+        } else if (activeTool === 'rect') {
+            let origin = {
+                x: Math.min(originPoint.x, e.offsetX),
+                y: Math.min(originPoint.y, e.offsetY)
+            };
+            drawRect({
+                origin: origin,
+                color: color,
+                width: Math.abs(originPoint.x - e.offsetX),
+                height: Math.abs(originPoint.y - e.offsetY)
+            });
+            broadcast(JSON.stringify({
+                event: 'drawRect',
+                origin: origin,
+                color: color,
+                width: Math.abs(originPoint.x - e.offsetX),
+                height: Math.abs(originPoint.y - e.offsetY)
+            }));
+        }
+
+        lastPoint = { x: e.offsetX, y: e.offsetY };
+    } else {
+        lastPoint = undefined;
+    }
+}
+
+function down(e) {
+    originPoint = { x: e.offsetX, y: e.offsetY };
+}
+
+function up() {
+    if (activeShape) {
+        drawRect(activeShape, true);
+        broadcast(JSON.stringify(Object.assign({
+            event: 'drawRect',
+            commit: true,
+        }, activeShape)));
+        activeShape = undefined;
+    }
+    lastPoint = undefined;
+    originPoint = undefined;
+}
+
+function key(e) {
+    if (e.key === 'Backspace') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        broadcast(JSON.stringify({
+            event: 'clear'
+        }));
+    }
+    if (e.key === 'ArrowRight') {
+        colorIndex++;
+    }
+    if (e.key === 'ArrowLeft') {
+        colorIndex--;
+    }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        if (colorIndex >= colorMap.length) {
+            colorIndex = 0;
+        }
+        if (colorIndex < 0) {
+            colorIndex = colorMap.length - 1;
+        }
+        if (colorElements[color]) {
+            colorElements[color].classList.remove('active');
+        }
+        color = colorMap[colorIndex];
+        colorPicker.dataset.color = color;
+        colorPicker.style.color = color;
+        colorElements[color].classList.toggle('active');
+    }
+    if (mouseDown && (e.key === 'ArrowUp' || (e.shiftKey && ['ArrowLeft', 'ArrowRight'].includes(e.key)))) {
+        force += 0.025;
+    }
+    if (mouseDown && (e.key === 'ArrowDown' || (e.altKey && ['ArrowLeft', 'ArrowRight'].includes(e.key)))) {
+        force -= 0.025;
+    }
+}
+
+function forceChanged(e) {
+    force = e.webkitForce || 1;
+}
+
+window.onresize = resize;
+window.onmousedown = down;
+window.onmousemove = move;
+window.onmouseup = up;
+window.onkeydown = key;
+
+window.onwebkitmouseforcechanged = forceChanged;
+
+resize();
+</script>

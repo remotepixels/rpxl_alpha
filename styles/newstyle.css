@@ -59,6 +59,16 @@ h2 {
     font-size: 18px;
     color: light-dark(var(--color-dark-bg), var(--color-light-bg)); 
 }
+iframe {
+	width: calc(100% - 10px);
+	height: calc(100% - var(--button-height) - var(--button-height) - 30px);
+    top: calc(0px + var(--button-height) + 15px);
+    margin-left: 5px;
+	border:0px;
+	padding:0px;
+	position:absolute;
+	display:block;
+}
 .centerhorizontal {
     margin:auto
 }
@@ -242,6 +252,14 @@ label:has([type=radio]:checked) {
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
     color: light-dark(var(--color-dark-grey), var(--color-light-white));
 }
+label:has([type=colorpot]:not(:disabled):hover) {
+    color: light-dark(var(--color-dark-grey), var(--color-light-white));
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+label:has([type=colorpot]:checked) {
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+    color: light-dark(var(--color-dark-grey), var(--color-light-white));
+}
 .toolbar {
     position: fixed;
     display: flex;
@@ -367,7 +385,7 @@ input[type="range"]::-webkit-slider-thumb {
     top:0;
     left:0;
     background-color: rgba(0, 0, 0, 0);
-    z-index: 1;
+    z-index: 9;
 }
 .toolpopup {
     position: absolute;
@@ -382,7 +400,7 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
     box-shadow: var(--shadows);
-    z-index: 5;
+    z-index: 10;
 } 
 .toolpopup.top {
     top: calc(15px + var(--button-height));
@@ -397,7 +415,8 @@ input[type="range"]::-webkit-slider-thumb {
     left: 5px;
 }
 .toolpopup.middle {
-    left: calc(50% - 70px);
+    left: 50%;
+    transform: translate(-50%, 0px);
 }
 .toolpopup.bottom::after {
     position: absolute;
@@ -414,7 +433,8 @@ input[type="range"]::-webkit-slider-thumb {
     bottom: -20px;
 }
 .toolpopup.middle::after {
-    left: calc(50% - 70px);
+    left: 50%;
+    transform: translate(-50%, 0px);
     bottom: -20px;
 }
 .toolpopup.top::before {
@@ -437,11 +457,10 @@ input[type="range"]::-webkit-slider-thumb {
     width: 40px;
     height: 40px;
     margin-right: 10px;
-    border-radius: 100%;
-    background-color: black;
+    border-radius: var(--radius-small);
     cursor: pointer;
 }
-.colorpot:hover {
+.selectedcolorpot, .colorpot:hover  {
     outline: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
     outline-offset: 5px;
 }
@@ -483,12 +502,13 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
 
 .annotationsCanvas {
     position: absolute;
+    display: block;
     top: 0px;
     left: 0px;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-
+    width: 0px;
+    height: 0px;
+    cursor: default;
+    z-index: 2;
 }
 
 .hidden {

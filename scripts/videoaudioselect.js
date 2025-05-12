@@ -1,3 +1,45 @@
+
+//check if the user has allowed access to the camera and microphone
+//if not show a popup to ask them to allow access
+//Microphone access is required but camera access is optional
+
+checkPermissions();
+
+async function checkPermissions() {
+try {
+    const cameraPermission = await navigator.permissions.query({ name: 'camera' });
+    const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
+    //camera permissions, if disabled the disable the camera select
+    if (cameraPermission.state !== 'granted') {
+        document.getElementById('popupPermissionCam').style.display = 'block';
+        permissionCamDismiss.addEventListener("click", function() {
+            document.getElementById('popupPermissionCam').style.display = 'none';
+            document.getElementById('cameraSource').classList.add("disable");
+            document.getElementById('cameraSource').parentElement.classList.add("disable");
+            document.getElementById('cameraSource').innerHTML = "<option>Disabled in browser</option>";
+            document.getElementById('cameraSource').disabled = true;
+        });
+    } else {
+        document.getElementById('popupPermissionCam').style.display = 'none';
+    }
+
+    //block login and session if microphone is not allowed
+    if (microphonePermission.state !== 'granted') {
+        document.getElementById('popupPermissionCam').style.display = 'none';
+        document.getElementById('session').style.display = 'none';        
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('popupPermissionMic').style.display = 'block';
+        permissionMicHelp.addEventListener("click", function() {  window.open('https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"'); });
+
+    } else {
+        document.getElementById('popupPermissionMic').style.display = 'none';
+    }
+    } catch (error) {
+        //console.error('Error checking permissions:', error);
+        // Handle potential errors
+    }
+}
+
 //session creation options of video and audio sources
 //find video and audio sources
 //populates dropdown boxes with the found sources
@@ -6,8 +48,6 @@
 //check that a valid session id is entered
 //sanitize all values before creating streams
 
-
-'use strict';
 //used to populate initial drop down and listen for onclick events
 var videoSelect = document.querySelector('select#videoSource');
 var audioSelect = document.querySelector('select#audioSource');
@@ -27,12 +67,17 @@ var videoSelected
 var audioSelected
 var videoElement = document.querySelector('video#video');
 var audioElement = document.querySelector('audio#audio');
-
+var stream = null;
 
 
 //every time we select the dropdown check the source (main or user)
 //and get the value selected and get the respective stream and put it in the correct preview box
 function checkSelection (calledBy) {
+    if (stream != null) {
+        console.log("stopping stream")
+        stream.getTracks().forEach(function(track) {
+            track.stop();
+        });}
     //setup which elements will be replaced depending on the source changes
     //video, audio, camera or microphone and sets the target preview areas (main or user)
     //disables a select source so that it can not be used twice
@@ -132,7 +177,7 @@ function gotDevices(deviceInfos) {
         const option = document.createElement('option');
         option.value = deviceInfo.deviceId;
 
-        if ((deviceInfo.kind === 'audioinput') && (option.value != 'default')) {
+        if ((deviceInfo.kind === 'audioinput')  && (option.value != 'default')) {
             option.text = deviceInfo.label || `Microphone ${audioSelect.length + 1}`;
             audioSelect.appendChild(option);
         } else if ((deviceInfo.kind === 'videoinput')  && (option.value != 'default')) {

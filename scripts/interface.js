@@ -1,4 +1,65 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//toolbar code
+////////////////////////////////////////////////////////////////////////////////////////////////////
+toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
+toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
 
+toolDraw.addEventListener("click", function() { toolDrawSelect(); });
+popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
+popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
+toolEraser.addEventListener("click", function() { toolEraserSelect(); });
+
+toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
+toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
+
+popupSettings.addEventListener("click", function() { 
+    if (document.getElementById("popupBlockSettings").classList.contains("hidden")) {
+        document.getElementById("popupBlockSettings").classList.remove("hidden");
+        document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "true");
+    } else {
+       // document.getElementById("setupCamMic").classList.add("hidden");
+        document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");
+    }
+});
+popupBlockSettings.addEventListener("click", function() {  
+    if (document.getElementById("mainWindow").classList.contains("hidden")) {
+
+    } else {
+    //document.getElementById("setupCamMic").classList.add("hidden");
+    document.getElementById("popupBlockSettings").classList.add("hidden")
+    document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");} 
+
+});
+
+//limit session ID to letters and numbers only
+var regex = /^[a-zA-Z0-9]*$/;
+var lastValue = "";
+
+function restrictInput(e) {
+	var currentValue = e.target.value;
+
+	if (!currentValue.match(regex))
+		e.target.value = lastValue;
+	else
+		lastValue = currentValue;
+}
+
+function hidePopupMenu(event) {
+    event.classList.add("hidden");
+    event.previousElementSibling.setAttribute("aria-expanded", "false");
+
+    }
+
+function showPopupMenu(event) {
+    if (event.nextElementSibling.classList.contains("hidden")) {
+        event.nextElementSibling.classList.remove("hidden");
+        event.setAttribute("aria-expanded", "true");
+       
+    } else {
+        event.nextElementSibling.classList.add("hidden");
+        event.setAttribute("aria-expanded", "false");
+    }
+}
 
 function toolMuteStreamSelect () {
     if (toolMuteStream.getAttribute("aria-expanded") == "false") {
@@ -9,6 +70,8 @@ function toolMuteStreamSelect () {
         mainStream.contentWindow.postMessage({
             "volume": true
         }, '*');
+        document.getElementById("popupStreamMuted").style.display = "block";
+        setTimeout ( function () {document.getElementById("popupStreamMuted").style.display = "none"; }, 3000);
         console.log("main stream mute")
     } else {
         toolMuteStream.setAttribute("aria-expanded", "false");
@@ -33,49 +96,51 @@ function toolStreamVolumeSelect () {
         console.log("main stream volume",vol)
     }
 
-
 function toolDrawSelect () {
     if (toolDraw.getAttribute("aria-expanded") == "false") {
         toolDraw.setAttribute("aria-expanded", "true");
-        toolDraw.classList.toggle("selected");  
+        toolDraw.classList.toggle("selected"); 
+        document.getElementById("annotationsCanvas").style.cursor = "crosshair";
+        //window.onresize = resizeCanvas;
+        window.onmousedown = down;
+        window.onmousemove = move;
+        window.onmouseup = up;
     } else {
         toolDraw.setAttribute("aria-expanded", "false");
+        document.getElementById("annotationsCanvas").style.cursor = "default";
         toolDraw.classList.toggle("selected"); 
+        //window.onresize = null;
+        window.onmousedown = null;
+        window.onmousemove = null;
+        window.onmouseup = null;
     }
 }
 
-function hidePopupMenu(event) {
-    event.classList.add("hidden");
-    event.previousElementSibling.setAttribute("aria-expanded", "false");
-    }
-
-function showPopupMenu(event) {
-    if (event.nextElementSibling.classList.contains("hidden")) {
-        event.nextElementSibling.classList.remove("hidden");
-        event.setAttribute("aria-expanded", "true");
-       
-    } else {
-        event.nextElementSibling.classList.add("hidden");
-        event.setAttribute("aria-expanded", "false");
-    }
+function toolEraserSelect () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //broadcast(JSON.stringify({
+    //    event: 'clear'
+    //}));
 }
 
 function toolMuteMicrophoneSelect () {
     if (toolMuteMicrophone.getAttribute("aria-expanded") == "false") {
         toolMuteMicrophone.setAttribute("aria-expanded", "true");
         toolMuteMicrophone.classList.toggle("selectedred");  
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic";
+        toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
         viewersStream.contentWindow.postMessage({
             "mic": true
         }, '*');
+        document.getElementById("popupMicMuted").style.display = "block";
         console.log("mic mute")
     } else {
         toolMuteMicrophone.setAttribute("aria-expanded", "false");
         toolMuteMicrophone.classList.toggle("selectedred"); 
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
+        toolMuteMicrophone.lastElementChild.innerHTML = "mic";
         viewersStream.contentWindow.postMessage({
             "mic": false
         }, '*');
+        document.getElementById("popupMicMuted").style.display = "none";
         console.log("mic un-mute")
     }
 }
@@ -88,6 +153,8 @@ function toolMuteCameraSelect () {
         viewersStream.contentWindow.postMessage({
             "camera": false
         }, '*');
+        document.getElementById("popupCamMuted").style.display = "block";
+        setTimeout ( function () {document.getElementById("popupCamMuted").style.display = "none"; }, 2000);
         console.log("camera off")
     } else {
         toolMuteCamera.setAttribute("aria-expanded", "false");
@@ -101,67 +168,32 @@ function toolMuteCameraSelect () {
 }
 
 
-/*//wait for document to load
-document.addEventListener("DOMContentLoaded", () => {
+/////////////////////////////////////////////////////////////////
+// specific for annotations and color pots popup
+/////////////////////////////////////////////////////////////////
+// Get all the color elements and select the one clicked on
+var color = "white";
 
-	const toolbuttons = document.querySelectorAll("tool");
+const colorPots = document.querySelectorAll('.colorpot');
 
-	toolbuttons.forEach((toolbutton) => {
-		const selectButton = toolbutton.querySelector("tool");
-		const dropdown = toolbutton.querySelector("toolpopup");
+// Add a click event listener to each color element
+colorPots.forEach(colorPot => {
+    colorPot.addEventListener('click', () => {
+        // 1. Get the selected color value
+        const newSelectedColor = colorPot.getAttribute('value');
+        color = newSelectedColor;
+        console.log('Selected color:', color); // Optional: Log the selected color
 
-		const toggleDropdown = (expand = null) => {
-			const isOpen = expand !== null ? expand : dropdown.classList.contains("hidden");
-			dropdown.classList.toggle("hidden", !isOpen);
-			selectButton.setAttribute("aria-expanded", isOpen);
-			selectButton.classList.toggle("active", isOpen);
-		};
+        // 2. Remove the 'selectedcolorpot' class from the previously selected element
+        const previouslySelected = document.querySelector('.colorpot.selectedcolorpot');
+        if (previouslySelected) {
+            previouslySelected.classList.remove('selectedcolorpot');
+            previouslySelected.setAttribute('aria-expanded', 'false');
+        }
 
-		selectButton.addEventListener("click", () => {
-			toggleDropdown();
-		});
-
-		document.addEventListener("click", (event) => {
-		const isOutsideClick = !toolbutton.contains(event.target);
-			if (isOutsideClick) {
-				toggleDropdown(false);
-			}
-		});
-	});
-
-
+        // 3. Add the 'selectedcolorpot' class to the clicked element
+        colorPot.classList.add('selectedcolorpot');
+        colorPot.setAttribute('aria-expanded', 'true');
+    });
 });
-*/
 
-
-/*
-document.addEventListener("DOMContentLoaded", () => {
-
-	const toolbuttons = document.querySelectorAll(".toolbutton");
-
-	toolbuttons.forEach((toolbutton) => {
-		const selectButton = toolbutton.querySelector(".tool");
-		const dropdown = toolbutton.querySelector(".toolpopup");
-
-		const toggleDropdown = (expand = null) => {
-			const isOpen = expand !== null ? expand : dropdown.classList.contains("hidden");
-			dropdown.classList.toggle("hidden", !isOpen);
-			selectButton.setAttribute("aria-expanded", isOpen);
-			selectButton.classList.toggle("active", isOpen);
-		};
-
-		selectButton.addEventListener("click", () => {
-			toggleDropdown();
-		});
-
-		document.addEventListener("click", (event) => {
-		const isOutsideClick = !toolbutton.contains(event.target);
-			if (isOutsideClick) {
-				toggleDropdown(false);
-			}
-		});
-	});
-
-
-});
-*/
