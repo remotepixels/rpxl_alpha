@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-        <meta http-equiv="Pragma" content="no-cache"/>
-        <meta http-equiv="Expires" content="0"/>
-        <meta name="msapplication-TileColor" content="#2e2e2e"/>
-        <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
-        <meta name="robots" content="index, follow"/>
-        <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-    
-        <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
-        <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
-        <link rel="shortcut icon" href="../icons/favicon.ico">
-    
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 
-        <title>rpxl.app v2.1 Stream</title>
-    </head>
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="../icons/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+
+    <title>rpxl.app v2.1 Stream</title>
+</head>
+<!--styles speciic for this page only-->
 <style>
 .dialogcreate {
     position: relative;
@@ -54,7 +55,7 @@
     margin:0px;
 }
 .spacer {
-    width:810px; 
+    width:100%; 
     height:1px; 
     top:10px;
     margin-top:0px; 
@@ -101,26 +102,22 @@
     height: 100%;
     opacity: 0.5;
 }
-
-
-/*to be removed once new interface is on*/
-
-iframe {
-	width: calc(100% - 10px);
-	height: calc(100% - var(--button-height) - var(--button-height) - 20px);
-    top: calc(0px + var(--button-height) + 10px);
-    margin-left: 5px;
-	border:0px;
-	padding:0px;
-	position:absolute;
-	display:block;
+.toolquit {
+    position: absolute;
+    height: 40px;
+    right: 5px;
+    top: 5px;
+    width: 300px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    border-radius: var(--radius-big);
+    z-index: 5;
 }
 .mainstreamiframe {
 	width: 70%;
 	z-index: 0;
 }
 .viewersiframe {
-    background-color: black;
 	width:30%;
 	right:0px;
 	z-index:1;
@@ -131,12 +128,13 @@ iframe {
 <link rel="stylesheet" href="../styles/newstyle.css">
 
 <body>
-    <!--Setup screen-->
-     <div class="dialogcreate centerhorizontal" id="create">
+    <!--Setup screen, also used as setting panel later-->
+    <div class="popupBG" id="popupBlockSettings">
+     <div class="dialogcreate centerhorizontal" id="create" onclick="event.stopPropagation()">
         <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
         <div class="row">
             <div class="column">
-                <h2>Create live session</h2>
+                <h2 id="createHeadingSession">Create live session</h2>
             </div>
             <div class="column">
                 
@@ -145,12 +143,12 @@ iframe {
 
         <div class="row">
             <div class="column">
-                <div>
+                <div id="createSession">
                     <span class="label">Session ID</span>
                     <input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase" oninput="restrictInput(event)"></input>
                     <span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span>
                 </div>
-                <div>
+                <div id="createClient">
                     <span class="label">Client</span>
                     <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
                 </div>
@@ -187,7 +185,7 @@ iframe {
                     </div>
                 </div>
             </div>
-            <div class="column">
+            <div class="column" id="createVideo">
                 <div>
                     <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
                     <audio id="audio" class="audiosource" autoplay></audio>
@@ -199,14 +197,15 @@ iframe {
                 -->
             </div>
         </div>
-        <div class="row spacer">
+
+        <div class="row spacer" id="createSpacer">
             <span></span>
         </div>
 
         <div class="row collapsed" id="moresettings">
             <div class="column"> 
                 <br>
-                <h2>Optional settings</h2>     
+                <h2 id="createOptional">Optional settings</h2>     
                 <div>    
                     <span class="label">Name</span>
                     <input type="text" maxlength="11" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
@@ -228,7 +227,7 @@ iframe {
                     </div>
                 </div>
             </div>
-            <div class="column">
+            <div class="column" id="createCamera">
                 <div>
                     <br><h2>&nbsp;</h2>
                     <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
@@ -238,8 +237,12 @@ iframe {
             </div>
         </div>
 
+        <div class="row spacer hidden" id="createSpacerEnd">
+            <span></span>
+        </div>
+
         <div class="row">
-            <div class="column">
+            <div class="column" id="createButtonMore">
                 <button id="buttonmoresettings" class="buttonmoresettings" aria-expanded="false">More setings</button>
             </div>
             <div class="column">
@@ -247,6 +250,7 @@ iframe {
             </div>
         </div>
 
+    </div>
     </div>
 <!--end setup screen-->
 
@@ -258,7 +262,7 @@ iframe {
         <!--top menu bar-->
         <div class="toolbar top">	
             <div class="toolset">
-                <button class="tool" id="popupShare" value="light"  style="top: -2px">
+                <button class="tool toolmoresettings" id="popupShare" value="light" aria-expanded="false">
                     <span class="material-symbols-outlined">ios_share</span>
                 </button>
                 <!----- popup menu ------>
@@ -269,20 +273,12 @@ iframe {
                             Copy Main share link to clipboard <br> 
                             Allows full communications, talkback and live annotations.
                         </button>
-                        
                         <button class="link" id="copyQuickLink">
                             <h2>Quick share link</h2><br>
                             Copy Quick share link to clipboard <br> 
                             No communications, talkback or annotations.<br>
                             Use if you already have the client on Whatsapp, Facetime etc.
                         </button>
-                        <!--
-                        <button class="link">
-                            <h2>OBS link</h2><br>
-                            Copy OBS link to clipboard <br> 
-                            A link of only the main feed for OBS.<br>
-                            Use if you want to output through a Blackmagic or AJA Card.
-                        </button>-->
                     </div>
                 </div>
                 <!----- end popup menu ------>
@@ -296,13 +292,13 @@ iframe {
             </div>
             <!----- end popup menu ------>
             <div class="toolset">
-                <button class="tool toolred" id="popupQuit">
+                <button class="tool toolred" id="popupQuit" aria-expanded="false">
                     <span class="material-symbols-outlined">mode_off_on</span>
                 </button>
                 <!----- popup menu ------>
                 <div class="popupBG hidden" id="popupBlockQuit">
-                    <div class="toolpopup top right" id="quit" onclick="event.stopPropagation()">
-                        <button id="confirmQuit" class="botton toolred">&nbsp;&nbsp;&nbsp; Confirm end session &nbsp;&nbsp;&nbsp;</button>
+                    <div class="toolquit right" id="quit" onclick="event.stopPropagation()">
+                        <button id="confirmQuit" class="botton toolred"> Confirm end session </button>
                     </div>
                 </div>
                 <!----- end popup menu ------>
@@ -315,71 +311,6 @@ iframe {
                 <button class="tool toolmoresettings" aria-expanded="false" id="popupSettings">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-                <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockSettings">
-                    <div class="toolpopup bottom left" id="settings" onclick="event.stopPropagation()">
-                        <h2>Session</h2>
-                            <div>
-                            <span class="label">Resolution</span>
-                            <span class="radioset" role="radiogroup" aria-labelledby="resolution">
-                                <label><input type="radio" name="popupresolution" disabled value="">4K</label>
-                                <label><input type="radio" name="popupresolution" checked value="0">1080P</label>
-                                <label><input type="radio" name="popupresolution" value="1">720P</label>
-                            </span>
-                        </div>
-                        <div>
-                            <span class="label">Quality</span>
-                            <span class="radioset" role="radiogroup" aria-labelledby="quality">
-                                <label><input type="radio" name="popupquality" value="16000">High</label>
-                                <label><input type="radio" name="popupquality" value="8000" checked>Medium</label>
-                                <label><input type="radio" name="popupquality" value="4000">Low</label>
-                            </span>
-                        </div>	
-                        <div>
-                            <span class="label">Video source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupvideoSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="label">Audio source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupaudioSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p></p>
-                        <h2>User</h2>
-                        <div>    
-                            <span class="label">User</span>
-                            <input type="text" maxlength="11" class="textinput" id="popupname" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
-                        </div>
-                        <div>
-                            <span class="label">Camera Source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupcameraSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="label">Microphone Source</span>
-                            <div class="custom-select">
-                                <select contenteditable="true" id="popupmicrophoneSource">
-                                    <option value="">None</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p></p>
-                        <div>
-                            <button id="popupcheckLogin" class="botton buttonblue">Apply</button>
-                        </div>
-                    </div>
-                </div>
-            <!----- end popup menu ------>
             </div>
 
             <div class="toolset toolspacer">
@@ -419,13 +350,14 @@ iframe {
             </div>
 
             <div class="toolset">
-                <button class="tool " aria-expanded="false" id="toolMuteMicrophone">
+                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
                     <span class="material-symbols-outlined">mic</span>
                 </button>
-                <button class="tool " aria-expanded="false" id="toolMuteCamera">
+                <button class="tool toolred" aria-expanded="false" id="toolMuteCamera" >
                     <span class="material-symbols-outlined">photo_camera</span>
                 </button>
             </div>
+
 
         </div>
     </div>
@@ -460,8 +392,23 @@ popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBloc
 toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
 toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
 
-popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
-popupBlockSettings.addEventListener("click", function() { hidePopupMenu(popupBlockSettings); });
+popupSettings.addEventListener("click", function() { 
+    if (document.getElementById("create").classList.contains("hidden")) {
+        document.getElementById("create").classList.remove("hidden");
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
+    } else {
+       // document.getElementById("create").classList.add("hidden");
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+    }
+});
+popupBlockSettings.addEventListener("click", function() {  
+    if (document.getElementById("mainWindow").classList.contains("hidden")) {
+
+    } else {
+    //document.getElementById("create").classList.add("hidden");
+    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");} 
+});
+
 
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
 popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });
@@ -501,21 +448,6 @@ confirmQuit.addEventListener("click", function() {
 
 //move caret to focus on client id field
 document.getElementById("clientName").focus();
-
-//////////////////////////////////////////////
-//limit session ID to letters and numbers only
-//////////////////////////////////////////////
-var regex = /^[a-zA-Z0-9]*$/;
-var lastValue = "";
-
-function restrictInput(e) {
-	var currentValue = e.target.value;
-
-	if (!currentValue.match(regex))
-		e.target.value = lastValue;
-	else
-		lastValue = currentValue;
-}
 
 /////////////////////////////////////////////
 //generate random code and prefil
@@ -630,7 +562,7 @@ function startSessions() {
 
     //get the selected camera and microphone device names (shown in the menu, not the values)
     if (username == "") {
-        username = "Op";
+        username = "Presenter";
     }
     let sanitizedUserName = encodeURIComponent(username);  
     let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
@@ -677,21 +609,27 @@ function startSessions() {
         console.log("encoded",encodedSession)
 //        addIssue(encodedSession)  //////////////////tun back on to add issue to github
 
+        ////////////////////////////////////////////////////
+        //change setting menu once stream is created, use same logic as before
+        //move settings menu to new place
+        document.getElementById("create").classList.remove("centerhorizontal", "dialogcreate");        
+        document.getElementById("create").style.width = "450px";      
+        document.getElementById("create").classList.add("toolpopup", "bottom", "left");
+        document.getElementById("createHeadingSession").innerHTML = "Session settings";
+        document.getElementById("createSession").style.display = "none";
+        document.getElementById("createClient").style.display = "none";
+        document.getElementById("createVideo").style.display = "none";
+        document.getElementById("createSpacer").style.display = "none";
+        document.getElementById("moresettings").classList.remove("collapsed");
+        document.getElementById("createOptional").innerHTML = "User settings";
+        document.getElementById("createCamera").style.display = "none";
+        document.getElementById("createButtonMore").style.display = "none";
+        document.getElementById("createSpacerEnd").classList.remove("hidden");
+        document.getElementById("startSession").innerHTML = "Apply settings";
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
 
-        //copy options tool settings menu for later
-        var select1 = document.getElementById("cameraSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("cameraChange");
-        select2.innerHTML = options
-        select2.selectedIndex = cameraList.selectedIndex;
 
-        var select1 = document.getElementById("microphoneSource");
-        var options = select1.innerHTML
-        var select2 = document.getElementById("microphoneChange");
-        select2.innerHTML = options
-        select2.selectedIndex = microphoneList.selectedIndex;
-
-        //start mainstream and client streams
+        //start mainstream
         document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
         document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
             "&push=Stream_"+sanitizedSessionID+	//push stream to this name
@@ -720,6 +658,33 @@ function startSessions() {
             "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         "";    
 
+
+        //start viewer stream
+		setTimeout(function(){
+			document.getElementById("viewersStream").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
+			document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+            "&label="+sanitizedUserName+	//sets webcam as label for client connection
+            "&showlabels"+
+            "&group=client"+
+            "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+            //"&showall"+
+            "&groupmode"+
+            "&groupview"+
+            "&videodevice="+sanitizedCamera+ //video source
+            "&audiodevice="+sanitizedMicrophone+ //audio source
+            "&autostart"+   //autostart directors feed
+            "&clean"+
+            "&quality=3"+	//set camera quality to lowest possible, about 360p
+            "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
+            "&videobitrate=196"+
+            "&viewwidth=96&viewheight=59"+	//sets incoming video to px size (very low res)
+            //nea"&style=6"+	//show audio only sources as coloured circles with first letter of name
+            //"&meterstyle=5"+	//round highlight over person talking
+            "&transparent"+	//makes bg transparent
+            "&disablehotkeys"+	//no hotkeys
+            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
+			""; 
+		},1000);
      //  setTimeout(function(){ viewerStream ()	},2000);
 
 
@@ -814,63 +779,6 @@ async function addIssue(encodedSession) {
 }
 
 
-
-
-
-
-function changeCameraAndMicrophoneSelect () {
-
-document.getElementById("viewersStream").classList.add("hidden");
-
-var currentMicrophoneIndex = document.getElementById("microphoneSource").selectedIndex;
-var currentCameraIndex = document.getElementById("cameraSource").selectedIndex;
-
-var newMicrophoneIndex = document.getElementById("microphoneChange").selectedIndex;
-var newCameraIndex = document.getElementById("cameraChange").selectedIndex;
-
-currentMicrophoneIndex = newMicrophoneIndex;
-
-let newMicrophone = document.getElementById("microphoneSource");
-sanitizedMicrophone = newMicrophone.options[newMicrophoneIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-//if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-if (sanitizedMicrophone == "none") {
-    sanitizedMicrophone = "0"
-}
-
-
-currentCameraIndex = newCameraIndex;
-let newCamera = document.getElementById("cameraSource");
-sanitizedCamera = newCamera.options[newCameraIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-
-//if there is no camera or microphone selected then set the value to 0 for vdo.ninja
-if (sanitizedCamera == "none") {
-    sanitizedCamera = "0"
-}
-
-console.log("new camera selected", sanitizedCamera)
-console.log("new mic selected", sanitizedMicrophone)
-
-
-//stop current streams make sure video and audio objects are hidden
-viewersStream.contentWindow.postMessage({
-        "hangup": true
-    }, '*');
-camera.style.display = "none";
-microphone.style.display = "none";
-console.log("stopping current streams")
-
-//restart the client stream
-viewerStream ()
-
-//reset button, hide popup and show client frame
-popupBlockSettings.classList.add("hidden");
-popupSettings.setAttribute("aria-expanded", "false");
-popupBlockSettings.setAttribute("aria-expanded", "false");
-
-setTimeout(function(){ document.getElementById("viewersStream").classList.remove("hidden");},1000);
-
-}
 
 </Script>
     
