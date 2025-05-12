@@ -5,7 +5,7 @@ async function sendSize() {
     
     if (!holder) {
         //if holder is not found, wait 2 seconds and try again
-        console.log("no holder")
+        console.log("noMainStream")
         waitAndTryAgain = setTimeout(sendSize, 2000);
         return;
     } else {  
@@ -17,7 +17,7 @@ async function sendSize() {
             height: rect.height,
             top: rect.top,    
             }
- //       console.log("holder width", data);
+        console.log("MainStreamSize", data);
         window.parent.postMessage({holder: data}, "*");
         return
     };
