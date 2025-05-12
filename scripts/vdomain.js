@@ -5,11 +5,13 @@ function sendMainstreamSize() {
   let width = 0;
   let height = 0;
   let top = 0;
-  
+  let left = 0;
+
   if (layoutElement) {
     width = layoutElement.offsetWidth;
     height = layoutElement.offsetHeight;
     top = layoutElement.offsetTop;
+    left = layoutElement.offsetLeft;
   }
   if (width === 0 || height === 0) {
     console.warn("Grid layout size is zero, not sending message.");
@@ -20,7 +22,8 @@ function sendMainstreamSize() {
       type: 'maninstreamSize', // Add a type to easily filter messages
       width: width,
       height: height,
-      top: top
+      top: top,
+      left: left
     }, '*'); // Use '*' for the target origin for simplicity in development,
   }          
 }
