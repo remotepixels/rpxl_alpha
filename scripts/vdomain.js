@@ -71,7 +71,7 @@ function sendMainstreamSize() {
 // You might want to send the size initially when the iframe loads,
 // and potentially again if the gridlayout size changes (e.g., on window resize)
 window.addEventListener('load', sendMainstreamSize);
-setTimeout ( function () {sendMainstreamSize}, 500);  
+setTimeout ( function () {sendMainstreamSize()}, 2000);  
 //sendMainstreamSize(); // Send the size immediately after the page loads
 // Example of sending the size again on window resize (if gridlayout is responsive)
 //window.addEventListener('resize', sendGridLayoutSize);
