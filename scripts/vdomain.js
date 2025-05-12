@@ -6,6 +6,7 @@ async function sendSize() {
     if (!holder) {
         //if holder is not found, wait 2 seconds and try again
         console.log("noMainStream")
+        window.parent.postMessage({holder: "0"}, "*");
         waitAndTryAgain = setTimeout(sendSize, 2000);
         return;
     } else {  
