@@ -49,7 +49,7 @@ sendSize()
 */
 
 // Function to send the size of the 'gridlayout' element
-function sendGridLayoutSize() {
+function sendMainstreamSize() {
   const gridlayoutElement = document.querySelector('.holder');
   let width = 0;
   let height = 0;
@@ -61,7 +61,7 @@ function sendGridLayoutSize() {
 
   // Send the message to the parent window
   window.parent.postMessage({
-    type: 'gridLayoutSize', // Add a type to easily filter messages
+    type: 'maninstreamSize', // Add a type to easily filter messages
     width: width,
     height: height
   }, '*'); // Use '*' for the target origin for simplicity in development,
@@ -70,8 +70,8 @@ function sendGridLayoutSize() {
 
 // You might want to send the size initially when the iframe loads,
 // and potentially again if the gridlayout size changes (e.g., on window resize)
-window.addEventListener('load', sendGridLayoutSize);
-
+window.addEventListener('load', sendMainstreamSize);
+//sendMainstreamSize(); // Send the size immediately after the page loads
 // Example of sending the size again on window resize (if gridlayout is responsive)
 //window.addEventListener('resize', sendGridLayoutSize);
 
@@ -86,8 +86,7 @@ function resizeThrottler() {
     // set a timeout to prevent multiple event’s firing
     resizeTimeout = setTimeout(function () {
       resizeTimeout = null;
-      sendGridLayoutSize();
-
+      sendMainstreamSize();
     }, 500);
   }
 }
