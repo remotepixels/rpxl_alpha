@@ -20,6 +20,7 @@ if (e.data && e.data.sendData === 'drawData') {
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
   }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Send the size of the 'main video stream (called holder)' element to the parent window
