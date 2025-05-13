@@ -254,6 +254,9 @@
     </div>
 <!--end setup screen-->
 
+
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+
 <!------------------------Main interface------------------>
     <div id="mainWindow" class="hidden">
         <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>
@@ -372,6 +375,9 @@
 <script src="../scripts/videoaudioselect.js"></script>
 <script src="../scripts/interface.js"></script>
 
+<script src="../scripts/annotations.js"></script>
+<script src="../scripts/framemessages.js"></script>
+
 <script type="text/javascript"> 
 //////////////////////////////////////////////////
 //github authorization token
@@ -382,33 +388,6 @@ const headers = {
 
 //////////////////////////////////////////////////
 //toolbar code
-toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
-toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
-
-toolDraw.addEventListener("click", function() { toolDrawSelect(); });
-popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
-popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
-
-toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
-toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
-
-popupSettings.addEventListener("click", function() { 
-    if (document.getElementById("create").classList.contains("hidden")) {
-        document.getElementById("create").classList.remove("hidden");
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
-    } else {
-       // document.getElementById("create").classList.add("hidden");
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
-    }
-});
-popupBlockSettings.addEventListener("click", function() {  
-    if (document.getElementById("mainWindow").classList.contains("hidden")) {
-
-    } else {
-    //document.getElementById("create").classList.add("hidden");
-    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");} 
-});
-
 
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
 popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });

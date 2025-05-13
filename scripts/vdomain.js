@@ -8,18 +8,23 @@ window.addEventListener('message', function(e) {
   //   return; // Ignore messages from unexpected origins
   // }
   
-  console.log('data recieved from parent');
 
-  if (e.data && e.data.sendData === 'drawData') {
-    console.log("passing on draw data to clients:");
-    window.parent.postMessage({
-        sendData: 'drawData', // Add a type to easily filter messages
-        width: width,
-        height: height,
-        top: top,
-        left: left,
-        type: "pcs"
-      }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
+
+  if (e.data && e.data.type === 'drawData') {
+    let { lastpoint, xoffset, yoffset, force, color, canvasWidth, canvasHeight } = e.data;
+      window.parent.postMessage({
+        sendData: 'remoteDrawdata',
+        lastPoint: lastpoint,
+        x: xoffset, 
+        y: yoffset, 
+        force: force,
+        color: color,
+        canvasWidth: canvasWidth,
+        canvasHeight: canvasHeight
+      }, '*');
+
+     console.log('draw data recieved from parent');
+
   }
 });
 
@@ -46,7 +51,7 @@ function sendMainstreamSize() {
   } else {  
   // Send the message to the parent window
   window.parent.postMessage({
-      sendData: 'maninstreamSize', // Add a type to easily filter messages
+      sendData: 'mainstreamSize', // Add a type to easily filter messages
       width: width,
       height: height,
       top: top,

@@ -55,7 +55,17 @@ function move(e) {
             x: e.offsetX,
             y: e.offsetY,
             force: force,
-            color: color
+            color: color,
+            canvasWidth: canvas.width,
+            canvasHeight: canvas.height
+        }, '*');
+            document.getElementById("mainStream").contentWindow.postMessage({
+            "sendChat" : e.offsetX, // Add a type to easily filter messages
+
+        }, '*');
+                    document.getElementById("mainStream").contentWindow.postMessage({
+            "sendData" : e.offsetY, // Add a type to easily filter messages
+
         }, '*');
         lastPoint = { x: e.offsetX, y: e.offsetY };
         } else {

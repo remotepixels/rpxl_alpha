@@ -4,9 +4,12 @@ var messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
 var iframe = document.getElementById("mainStream");
 var canvasElement = document.getElementById("annotationsCanvas"); // Replace 'yourCanvasId' with the actual ID of your canvas element
 
-console.log(messageEvent);
+//console.log(messageEvent);
 
 eventer(messageEvent, function (e) {
+  if (e.data.action === 'view-stats-update') { } else if (e.data.action == 'view-stats-update') {    console.log("Received message:", e.data);}
+
+
   if (e.source !== iframe.contentWindow) {
     return; // reject messages sent from other iframes
   }
@@ -14,7 +17,7 @@ eventer(messageEvent, function (e) {
   // process mainstream resize messages
   // make the draw canvas the same size as the mainstream video
   // Check the message type to filter for maninstreamSize messages only
-  if (e.data && e.data.sendData === 'maninstreamSize') {
+  if (e.data && e.data.sendData === 'mainstreamSize') {
     console.log("Received main stream size message:", e.data);
 
     const { width, height, top, left } = e.data;
@@ -56,8 +59,8 @@ eventer(messageEvent, function (e) {
 
   // drawing messages
   // scale data sent from client and draw on the canvas
-  if (e.data && e.data.sendData === 'drawData') {
-    console.log("Received draw data from parent:", e.data);
+  if (e.data && e.data.sendData === 'remoteDrawData') {
+    console.log("Received remote draw data", e.data);
 
     const { lastPoint, x, y, force, color } = e.data;
 
