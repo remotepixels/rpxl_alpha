@@ -254,6 +254,9 @@
     </div>
 <!--end setup screen-->
 
+
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+
 <!------------------------Main interface------------------>
     <div id="mainWindow" class="hidden">
         <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>
@@ -363,6 +366,21 @@
     </div>
 <!--end main initerface-->      
 
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupMicMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupCamMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Your camera has been turned off &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
+    <!----- popup menu microphone mute ------>
+    <div class="toolpopup top middle hidden" id="popupStreamMuted" style="top:0px">
+        <h2>&nbsp;&nbsp;&nbsp; Incoming stream muted (You will still hear participants) &nbsp;&nbsp;&nbsp;</h2>
+    </div>
+    <!----- end popup menu ------>
 </body>
 
 
@@ -371,6 +389,9 @@
 <!--user microphone and camera selection and display-->
 <script src="../scripts/videoaudioselect.js"></script>
 <script src="../scripts/interface.js"></script>
+
+<script src="../scripts/annotations.js"></script>
+<script src="../scripts/framemessages.js"></script>
 
 <script type="text/javascript"> 
 //////////////////////////////////////////////////
@@ -382,33 +403,6 @@ const headers = {
 
 //////////////////////////////////////////////////
 //toolbar code
-toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
-toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
-
-toolDraw.addEventListener("click", function() { toolDrawSelect(); });
-popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
-popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
-
-toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
-toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
-
-popupSettings.addEventListener("click", function() { 
-    if (document.getElementById("create").classList.contains("hidden")) {
-        document.getElementById("create").classList.remove("hidden");
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
-    } else {
-       // document.getElementById("create").classList.add("hidden");
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
-    }
-});
-popupBlockSettings.addEventListener("click", function() {  
-    if (document.getElementById("mainWindow").classList.contains("hidden")) {
-
-    } else {
-    //document.getElementById("create").classList.add("hidden");
-    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");} 
-});
-
 
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
 popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });
@@ -597,9 +591,41 @@ function startSessions() {
         document.getElementById("sessionName").innerHTML = "RPXL " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
         navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
 
-        document.getElementById("create").classList.add("hidden");
+        document.getElementById("popupBlockSettings").classList.add("hidden");
         document.getElementById("mainWindow").classList.remove("hidden");
 
+        //disable the drawing and mute stream button tools until we get the main feed
+        if (annotationsCanvas.style.width == "") {        
+            document.getElementById('toolMuteStream').classList.add("disable");
+            document.getElementById('toolMuteStream').disabled = true;
+            document.getElementById('toolStreamVolume').classList.add("disable");
+            document.getElementById('toolStreamVolume').disabled = true;
+            
+            document.getElementById('toolDraw').classList.add("disable");
+            document.getElementById('toolDraw').disabled = true;
+
+            document.getElementById('popupPalette').classList.add("disable");
+            document.getElementById('popupPalette').disabled = true;
+
+            document.getElementById('toolEraser').classList.add("disable");
+            document.getElementById('toolEraser').disabled = true;
+        }
+        //disable the user camera button if no camera selected or if blocked by browser
+        if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
+            document.getElementById('toolMuteCamera').classList.add("disable");
+            document.getElementById('toolMuteCamera').disabled = true;
+        } else {
+            document.getElementById('toolMuteCamera').classList.remove("disable");
+            document.getElementById('toolMuteCamera').disabled = false;
+        }
+        //disable the user microphone button if no camera selected or if blocked by browser
+        if ((sanitizedMicrophone == 0) || (sanitizedCamera == "disabled_in_browser")) {
+            document.getElementById('toolMuteMicrophone').classList.add("disable");
+            document.getElementById('toolMuteMicrophone').disabled = true;
+        } else {
+            document.getElementById('toolMuteMicrophone').classList.remove("disable");
+            document.getElementById('toolMuteMicrophone').disabled = false;
+        }
 
         //create a new issue on github (used to track sessions)
         //encode session ID
@@ -607,7 +633,7 @@ function startSessions() {
 
         var encodedSession = btoa(sessionAndClient);
         console.log("encoded",encodedSession)
-//        addIssue(encodedSession)  //////////////////tun back on to add issue to github
+        addIssue(encodedSession)  //////////////////tun back on to add issue to github
 
         ////////////////////////////////////////////////////
         //change setting menu once stream is created, use same logic as before
