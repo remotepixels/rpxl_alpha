@@ -68,7 +68,7 @@ function toolMuteStreamSelect () {
         toolMuteStream.lastElementChild.innerHTML = "volume_off";
         toolStreamVolume.value = "0";
         mainStream.contentWindow.postMessage({
-            "volume": true
+            "volume": 0
         }, '*');
         document.getElementById("popupStreamMuted").style.display = "block";
         setTimeout ( function () {document.getElementById("popupStreamMuted").style.display = "none"; }, 3000);
@@ -129,7 +129,7 @@ function toolMuteMicrophoneSelect () {
         toolMuteMicrophone.classList.toggle("selectedred");  
         toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
         viewersStream.contentWindow.postMessage({
-            "mic": true
+            "mic": false
         }, '*');
         document.getElementById("popupMicMuted").style.display = "block";
         console.log("mic mute")
@@ -138,7 +138,7 @@ function toolMuteMicrophoneSelect () {
         toolMuteMicrophone.classList.toggle("selectedred"); 
         toolMuteMicrophone.lastElementChild.innerHTML = "mic";
         viewersStream.contentWindow.postMessage({
-            "mic": false
+            "mic": true
         }, '*');
         document.getElementById("popupMicMuted").style.display = "none";
         console.log("mic un-mute")

@@ -378,11 +378,13 @@ function checkSessionURL (result) {
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
                 clientEncoded = splitBody[1];
                 sessionIDEnteredSanitized = sessionID;
+                checkCookie("username", "camera", "mic")
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("popupBlockSettings").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
+
             } 
         }
     })
@@ -419,6 +421,9 @@ function checkEnteredSession() {
     } else { 
         for (let i = 0; i < gitresults.length; i++) {
             if (gitresults[i][0] == sessionIDEnteredSanitized) { 
+
+                checkCookie("username", "camera", "mic")
+                
                 clientEncoded = gitresults[i][1];
                 client = decodeURIComponent(clientEncoded)
 
@@ -426,6 +431,7 @@ function checkEnteredSession() {
                 document.getElementById("popupBlockSettings").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
+                
                 break;
             }
         }
@@ -440,7 +446,6 @@ function checkEnteredSession() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //check if cookie exists and pre-populate the user camera and mic field in the following dialogue
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-checkCookie("username", "camera", "mic")
 function checkCookie(cookieUser, cookieCamera, cookieMic) {
     let usercookie = getCookie(cookieUser);
     let cameracookie = getCookie(cookieCamera);
@@ -453,9 +458,9 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
         console.log("mic : " + miccookie);
 
         document.getElementById("name").value = usercookie;
-    } 
-    //wait a bit for the camera and microphone to be populated
-    setTimeout(function(){ 
+    }
+    //wait 1/2 second for the camera and microphone to populate and then set the values
+    setTimeout(function() {
         if ((cameracookie != "") && (cameracookie != "None") && (cameracookie != "Disabled in browser")) {
             let selectElement = document.getElementById("cameraSource");
             //console.log("options:"+selectElement.options.length);
@@ -574,7 +579,7 @@ function joinSession() {
         document.getElementById("mainWindow").classList.remove("hidden");
 
         //disable the drawing and mute stream button tools until we get the main feed
-        if (annotationsCanvas.width == 0) {        
+        if (annotationsCanvas.style.width == "") {        
             document.getElementById('toolMuteStream').classList.add("disable");
             document.getElementById('toolMuteStream').disabled = true;
             document.getElementById('toolStreamVolume').classList.add("disable");
@@ -582,7 +587,7 @@ function joinSession() {
             
             document.getElementById('toolDraw').classList.add("disable");
             document.getElementById('toolDraw').disabled = true;
-            
+
             document.getElementById('popupPalette').classList.add("disable");
             document.getElementById('popupPalette').disabled = true;
 

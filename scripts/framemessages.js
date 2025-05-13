@@ -7,8 +7,10 @@ var canvasElement = document.getElementById("annotationsCanvas"); // Replace 'yo
 //console.log(messageEvent);
 
 eventer(messageEvent, function (e) {
-  if (e.data.action === 'view-stats-update') { } else if (e.data.action == 'view-stats-update') {    console.log("Received message:", e.data);}
-
+ // if (e.data.action === 'view-stats-update') { } else if (e.data.action == 'view-stats-update') {    console.log("Received message:", e.data);}
+  if (e.data && e.data.sendData === 'remoteDrawdata') {
+    console.log("Received remotedrawData:", e.data);
+  }
 
   if (e.source !== iframe.contentWindow) {
     return; // reject messages sent from other iframes
