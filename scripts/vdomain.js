@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Listen for draw co-ordinates from parent window and send to all clients
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-window.addEventListener('message', (e) => {
+window.addEventListener('message', function(e) {
   // IMPORTANT: Check the origin of the message to ensure it's from a trusted source.
   // For example, if you expect messages from 'https://parent.example.com':
   // if (event.origin !== 'https://parent.example.com') {
@@ -9,18 +9,19 @@ window.addEventListener('message', (e) => {
   // }
   
   console.log('data recieved from parent');
-if (e.data && e.data.sendData === 'drawData') {
+
+  if (e.data && e.data.sendData === 'drawData') {
     console.log("passing on draw data to clients:");
-  window.parent.postMessage({
-      sendData: 'drawData', // Add a type to easily filter messages
-      width: width,
-      height: height,
-      top: top,
-      left: left,
-      "type": "pcs"
-    }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
+    window.parent.postMessage({
+        sendData: 'drawData', // Add a type to easily filter messages
+        width: width,
+        height: height,
+        top: top,
+        left: left,
+        type: "pcs"
+      }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
   }
-}
+});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Send the size of the 'main video stream (called holder)' element to the parent window
@@ -40,7 +41,7 @@ function sendMainstreamSize() {
   }
   if (width === 0 || height === 0) {
     //don't send if there is no video element, try again in 3 seconds
-    setTimeout ( function () {sendMainstreamSize()}, 3000);  
+    setTimeout(function() { sendMainstreamSize(); }, 3000);  
     return; 
   } else {  
   // Send the message to the parent window
@@ -56,7 +57,7 @@ function sendMainstreamSize() {
 }
 
 //wait for 3 seconds after loaded to run the first time
-setTimeout ( function () {sendMainstreamSize()}, 3000); 
+setTimeout(function() { sendMainstreamSize(); }, 3000); 
 
 // run everytime the window is resized but throttled
 // This will ensure that the function is not called too often
