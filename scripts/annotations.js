@@ -48,19 +48,19 @@ function move(e) {
             force: force,
             color: color
         });
-//sends data via broadcast channel
-/*      broadcast(JSON.stringify({
-        event: 'draw',
-        lastPoint,
-        x: e.offsetX,
-        y: e.offsetY,
-        force: force,
-        color: color
-    }));        */    
+        //sends data to the mainstream iframe
+            document.getElementById("mainStream").contentWindow.postMessage({
+            type: 'drawData', // Add a type to easily filter messages
+            lastPoint,
+            x: e.offsetX,
+            y: e.offsetY,
+            force: force,
+            color: color
+        }, '*');
         lastPoint = { x: e.offsetX, y: e.offsetY };
-    } else {
-        lastPoint = undefined;
-    }
+        } else {
+            lastPoint = undefined;
+        }
 }
 //mousedown function
 function down(e) {

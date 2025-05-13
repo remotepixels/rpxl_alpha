@@ -1,5 +1,29 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Listen for draw co-ordinates from parent window and send to all clients
+////////////////////////////////////////////////////////////////////////////////////////////////////
+window.addEventListener('message', (e) => {
+  // IMPORTANT: Check the origin of the message to ensure it's from a trusted source.
+  // For example, if you expect messages from 'https://parent.example.com':
+  // if (event.origin !== 'https://parent.example.com') {
+  //   return; // Ignore messages from unexpected origins
+  // }
+  
+  console.log('data recieved from parent');
+if (e.data && e.data.sendData === 'drawData') {
+    console.log("passing on draw data to clients:");
+  window.parent.postMessage({
+      sendData: 'drawData', // Add a type to easily filter messages
+      width: width,
+      height: height,
+      top: top,
+      left: left,
+      "type": "pcs"
+    }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
+  }
 
-// Function to send the size of the 'gridlayout' element
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Send the size of the 'main video stream (called holder)' element to the parent window
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
   let width = 0;
@@ -14,27 +38,28 @@ function sendMainstreamSize() {
     left = layoutElement.offsetLeft;
   }
   if (width === 0 || height === 0) {
-    //console.warn("Grid layout size is zero, not sending message.");
+    //don't send if there is no video element, try again in 3 seconds
     setTimeout ( function () {sendMainstreamSize()}, 3000);  
-    return; // Avoid sending a message with zero size
-  } else {  // Send the message to the parent window
+    return; 
+  } else {  
+  // Send the message to the parent window
   window.parent.postMessage({
-      type: 'maninstreamSize', // Add a type to easily filter messages
+      sendData: 'maninstreamSize', // Add a type to easily filter messages
       width: width,
       height: height,
       top: top,
-      left: left
-    }, '*'); // Use '*' for the target origin for simplicity in development,
+      left: left,
+      "type": "pcs"
+    }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
   }          
 }
-setTimeout ( function () {sendMainstreamSize()}, 3000);  
-//sendMainstreamSize(); // Send the size immediately after the page loads
-// Example of sending the size again on window resize (if gridlayout is responsive)
-//window.addEventListener('resize', sendGridLayoutSize);
 
-// Throttle the resize event
+//wait for 3 seconds after loaded to run the first time
+setTimeout ( function () {sendMainstreamSize()}, 3000); 
+
+// run everytime the window is resized but throttled
 // This will ensure that the function is not called too often
-// and will only be called once every 250ms
+// and will only be called once every 500ms
 window.addEventListener("resize", resizeThrottler, false);
 let resizeTimeout; // timeout ID
 function resizeThrottler() {

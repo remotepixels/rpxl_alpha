@@ -574,18 +574,21 @@ function joinSession() {
         document.getElementById("mainWindow").classList.remove("hidden");
 
         //disable the drawing and mute stream button tools until we get the main feed
-        document.getElementById('toolMuteStream').classList.add("disable");
-        document.getElementById('toolMuteStream').disabled = true;
-        document.getElementById('toolStreamVolume').classList.add("disable");
-        document.getElementById('toolStreamVolume').disabled = true;
-        
-        document.getElementById('toolDraw').classList.add("disable");
-        document.getElementById('toolDraw').disabled = true;
-        document.getElementById('popupPalette').classList.add("disable");
-        document.getElementById('popupPalette').disabled = true;
-        document.getElementById('toolEraser').classList.add("disable");
-        document.getElementById('toolEraser').disabled = true;
+        if (annotationsCanvas.width == 0) {        
+            document.getElementById('toolMuteStream').classList.add("disable");
+            document.getElementById('toolMuteStream').disabled = true;
+            document.getElementById('toolStreamVolume').classList.add("disable");
+            document.getElementById('toolStreamVolume').disabled = true;
+            
+            document.getElementById('toolDraw').classList.add("disable");
+            document.getElementById('toolDraw').disabled = true;
+            
+            document.getElementById('popupPalette').classList.add("disable");
+            document.getElementById('popupPalette').disabled = true;
 
+            document.getElementById('toolEraser').classList.add("disable");
+            document.getElementById('toolEraser').disabled = true;
+        }
         //disable the camera button if no camera selected or if blocked by browser
         if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
             document.getElementById('toolMuteCamera').classList.add("disable");

@@ -11,8 +11,10 @@ eventer(messageEvent, function (e) {
     return; // reject messages sent from other iframes
   }
 
-  // Check the message type to filter for grid layout size messages
-  if (e.data && e.data.type === 'maninstreamSize') {
+  // process mainstream resize messages
+  // make the draw canvas the same size as the mainstream video
+  // Check the message type to filter for maninstreamSize messages only
+  if (e.data && e.data.sendData === 'maninstreamSize') {
     console.log("Received main stream size message:", e.data);
 
     const { width, height, top, left } = e.data;
@@ -50,5 +52,28 @@ eventer(messageEvent, function (e) {
     } else {
       console.warn("Canvas element not found.");
     }
+  }
+
+  // drawing messages
+  // scale data sent from client and draw on the canvas
+  if (e.data && e.data.sendData === 'drawData') {
+    console.log("Received draw data from parent:", e.data);
+
+    const { lastPoint, x, y, force, color } = e.data;
+
+    // Scale the coordinates based on the canvas size
+    const canvasWidth = canvasElement.width;
+    const canvasHeight = canvasElement.height;
+    const scaledX = (x / canvasWidth) * canvasElement.width;
+    const scaledY = (y / canvasHeight) * canvasElement.height;
+
+    // Draw on the canvas using the scaled coordinates
+    draw({
+      lastPoint,
+      x: scaledX,
+      y: scaledY,
+      force: force,
+      color: color
+    });
   }
 });
