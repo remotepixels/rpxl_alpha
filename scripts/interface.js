@@ -1,3 +1,19 @@
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//limit session ID to letters and numbers only
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var regex = /^[a-zA-Z0-9]*$/;
+var lastValue = "";
+
+function restrictInput(e) {
+	var currentValue = e.target.value;
+
+	if (!currentValue.match(regex))
+		e.target.value = lastValue;
+	else
+		lastValue = currentValue;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //toolbar code
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +33,6 @@ popupSettings.addEventListener("click", function() {
         document.getElementById("popupBlockSettings").classList.remove("hidden");
         document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "true");
     } else {
-       // document.getElementById("setupCamMic").classList.add("hidden");
         document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");
     }
 });
@@ -25,24 +40,10 @@ popupBlockSettings.addEventListener("click", function() {
     if (document.getElementById("mainWindow").classList.contains("hidden")) {
 
     } else {
-    //document.getElementById("setupCamMic").classList.add("hidden");
     document.getElementById("popupBlockSettings").classList.add("hidden")
     document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");} 
 
 });
-
-//limit session ID to letters and numbers only
-var regex = /^[a-zA-Z0-9]*$/;
-var lastValue = "";
-
-function restrictInput(e) {
-	var currentValue = e.target.value;
-
-	if (!currentValue.match(regex))
-		e.target.value = lastValue;
-	else
-		lastValue = currentValue;
-}
 
 function hidePopupMenu(event) {
     event.classList.add("hidden");
@@ -61,6 +62,9 @@ function showPopupMenu(event) {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//main stream mute and volume
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function toolMuteStreamSelect () {
     if (toolMuteStream.getAttribute("aria-expanded") == "false") {
         toolMuteStream.setAttribute("aria-expanded", "true");
@@ -94,35 +98,64 @@ function toolStreamVolumeSelect () {
             "volume": vol
         }, '*');
         console.log("main stream volume",vol)
-    }
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//drawing tool
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function toolDrawSelect () {
     if (toolDraw.getAttribute("aria-expanded") == "false") {
         toolDraw.setAttribute("aria-expanded", "true");
         toolDraw.classList.toggle("selected"); 
+
         document.getElementById("annotationsCanvas").style.cursor = "crosshair";
-        //window.onresize = resizeCanvas;
-        window.onmousedown = down;
-        window.onmousemove = move;
-        window.onmouseup = up;
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', endDrawing);
+        canvas.addEventListener('mouseout', endDrawing);
     } else {
         toolDraw.setAttribute("aria-expanded", "false");
         document.getElementById("annotationsCanvas").style.cursor = "default";
         toolDraw.classList.toggle("selected"); 
-        //window.onresize = null;
-        window.onmousedown = null;
-        window.onmousemove = null;
-        window.onmouseup = null;
+
+        canvas.removeEventListener('mousedown', startDrawing);
+        canvas.removeEventListener('mousemove', draw);
+        canvas.removeEventListener('mouseup', endDrawing);
+        canvas.removeEventListener('mouseout', endDrawing);
     }
 }
 
-function toolEraserSelect () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //broadcast(JSON.stringify({
-    //    event: 'clear'
-    //}));
-}
+// specific for annotations and color pots popup
+// Get all the color elements and select the one clicked on
+var color = "white";
 
+const colorPots = document.querySelectorAll('.colorpot');
+
+// Add a click event listener to each color element
+colorPots.forEach(colorPot => {
+    colorPot.addEventListener('click', () => {
+        // 1. Get the selected color value
+        const newSelectedColor = colorPot.getAttribute('value');
+        color = newSelectedColor;
+        console.log('Selected color:', color); // Optional: Log the selected color
+
+        // 2. Remove the 'selectedcolorpot' class from the previously selected element
+        const previouslySelected = document.querySelector('.colorpot.selectedcolorpot');
+        if (previouslySelected) {
+            previouslySelected.classList.remove('selectedcolorpot');
+            previouslySelected.setAttribute('aria-expanded', 'false');
+        }
+
+        // 3. Add the 'selectedcolorpot' class to the clicked element
+        colorPot.classList.add('selectedcolorpot');
+        colorPot.setAttribute('aria-expanded', 'true');
+    });
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//mute local microphone and camera
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function toolMuteMicrophoneSelect () {
     if (toolMuteMicrophone.getAttribute("aria-expanded") == "false") {
         toolMuteMicrophone.setAttribute("aria-expanded", "true");
@@ -167,33 +200,4 @@ function toolMuteCameraSelect () {
     }
 }
 
-
-/////////////////////////////////////////////////////////////////
-// specific for annotations and color pots popup
-/////////////////////////////////////////////////////////////////
-// Get all the color elements and select the one clicked on
-var color = "white";
-
-const colorPots = document.querySelectorAll('.colorpot');
-
-// Add a click event listener to each color element
-colorPots.forEach(colorPot => {
-    colorPot.addEventListener('click', () => {
-        // 1. Get the selected color value
-        const newSelectedColor = colorPot.getAttribute('value');
-        color = newSelectedColor;
-        console.log('Selected color:', color); // Optional: Log the selected color
-
-        // 2. Remove the 'selectedcolorpot' class from the previously selected element
-        const previouslySelected = document.querySelector('.colorpot.selectedcolorpot');
-        if (previouslySelected) {
-            previouslySelected.classList.remove('selectedcolorpot');
-            previouslySelected.setAttribute('aria-expanded', 'false');
-        }
-
-        // 3. Add the 'selectedcolorpot' class to the clicked element
-        colorPot.classList.add('selectedcolorpot');
-        colorPot.setAttribute('aria-expanded', 'true');
-    });
-});
 

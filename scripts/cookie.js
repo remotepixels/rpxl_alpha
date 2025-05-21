@@ -1,5 +1,6 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // This script is used to set and get cookies in the browser.
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function setCookie(cookieName, cookieValue, expiryDays) {
   const date = new Date();
   date.setTime(date.getTime() + (expiryDays*24*60*60*1000));
@@ -7,7 +8,9 @@ function setCookie(cookieName, cookieValue, expiryDays) {
   document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/";
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //read cookies
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function getCookie(cname) {
   let name = cname + "=";
   let decodedCookie = decodeURIComponent(document.cookie);
@@ -23,3 +26,62 @@ function getCookie(cname) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//check if cookie exists and pre-populate the user camera and mic field in the following dialogue
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function checkCookie(cookieUser, cookieCamera, cookieMic) {
+    let usercookie = getCookie(cookieUser);
+    let cameracookie = getCookie(cookieCamera);
+    let miccookie = getCookie(cookieMic);
+
+    if (usercookie != null) {
+        console.log("Cookie data");
+        console.log("name : " + usercookie);
+        console.log("camera : " + cameracookie);        
+        console.log("mic : " + miccookie);
+
+        document.getElementById("name").value = usercookie;
+    }
+    //wait 1/2 second for the camera and microphone to populate and then set the values
+    setTimeout(function() {
+        if ((cameracookie != "") && (cameracookie != "None") && (cameracookie != "Disabled in browser")) {
+            let selectElement = document.getElementById("cameraSource");
+            //console.log("options:"+selectElement.options.length);
+            let optionFound = false;
+            for (let i = 0; i < selectElement.options.length; i++) {
+                const option = selectElement.options[i].innerHTML;
+                // Compare the cookie value with the option's value
+                if (option === cameracookie) {
+                    document.getElementById("cameraSource").selectedIndex = i
+                    
+                    videoElement = document.querySelector('video#camera');
+                    videoElement.classList.remove("fadeout");
+                    videos = document.getElementById("cameraSource").value;
+                    videoSelected = document.querySelector('select#cameraSource');
+                    getvideoStream();
+                    optionFound = true;
+                    break; // Stop once the matching option is found and selected
+                }
+            } 
+        }
+        if (miccookie != "") {
+            let selectElement = document.getElementById("microphoneSource");
+            
+            let optionFound = false;
+            for (let i = 0; i < selectElement.options.length; i++) {
+                const option = selectElement.options[i].innerHTML;
+                // Compare the cookie value with the option's value
+                if (option === miccookie) {
+                    document.getElementById("microphoneSource").selectedIndex = i
+
+                    audioElement = document.querySelector('audio#microphone');
+                    audios = document.getElementById("microphoneSource").value;
+                    audioSelected = document.querySelector('select#microphoneSource');
+                    getAudioStream()
+                    optionFound = true;
+                    break; // Stop once the matching option is found and selected
+                }
+            }
+        } 
+    },500);
+}

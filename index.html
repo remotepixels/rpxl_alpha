@@ -79,14 +79,15 @@
     light-dark(var(--color-light-bg), var(--color-dark-bg)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
 }
 .mainstreamiframe {
-	width: calc(100% - 105px);
+	width: calc(100% - 115px);
+    left:110px;
 	z-index: 0;
     color-scheme: light;
     pointer-events: none;
 }
 .viewersiframe {
-	width:100px;
-	right:0px;
+	width:105px;
+	left:0px;
 	overflow-y: auto;
     overflow-x: hidden;
     color-scheme: light;
@@ -102,7 +103,6 @@
 <body>
 
 <!--enter seasion ID popup-->
-
     <div class="dialoglogin centerhorizontal" id="session">
 		<h2 class="center">Enter a valid Session ID to continue</h2>
         <p></p>
@@ -122,7 +122,6 @@
 <!--enter username, select camera and microphone-->
     <div class="popupBG hidden" id="popupBlockSettings">
         <div class="dialoglogin centerhorizontal" id="setupCamMic"  onclick="event.stopPropagation()">
-            <h2></h2>
             <div id="setupPreview">
                 <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
                 <audio id="microphone" class="loginaudio" autoplay></audio>
@@ -171,11 +170,11 @@
     <!-- duplicate elements end-->
 
     <!--canvas for drawing annotations-->
-
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
+
         <!--top menu bar-->
         <div class="toolbar top">	
            <div class="toolset">
@@ -186,10 +185,12 @@
             <div>
                 <h2 id="sessionTitle" class="centerhorizontal centervertical">RPXL</h2>
             </div>
-           <div class="toolset">
-                <!-- <button class="tool toolred" id="quit">
-                    <span class="material-symbols-outlined">mode_off_on</span>
-                </button>-->
+            <div class="toolset">
+                <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
+                    <button class="botton buttonblue" id="vdoninja">
+                        <span>&nbsp;&nbsp;&nbsp;Powered by vdo.ninja&nbsp;&nbsp;&nbsp;</span>
+                    </button>
+                </a>
             </div>
         </div>
 
@@ -199,16 +200,27 @@
 
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
-            <!--Mute main stream-->
+
+            <!--settings menu-->
+            <div class="toolset">
+                <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+
+            </div>
+
+            <!--mute camera and microphone-->
             <div class="toolset toolspacer">
-                <button class="tool" aria-expanded="false" id="toolMuteStream">
-                    <span class="material-symbols-outlined">volume_up</span>
-                </button>   
-                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100"/></span>        
+                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button class="tool toolred" aria-expanded="false" id="toolMuteCamera" >
+                    <span class="material-symbols-outlined">photo_camera</span>
+                </button>
             </div>
 
             <!--annotations-->
-            <div class="toolset toolspacer">
+            <div class="toolset">
                 <button class="tool" aria-expanded="false" id="toolDraw">
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
@@ -233,23 +245,27 @@
                 </button>
             </div>
 
-            <!--mute camera and microphone-->
+            <!--File drop-->
+            <div class="toolset toolspacer hidden">
+                <button class="tool toolmoresettings" aria-expanded="false" id="toolFileShare">
+                    <span class="material-symbols-outlined">cloud_download</span>
+                </button>        
+            </div>
+            <!--spacer-->
+            <div class="toolspacer">
+  
+            </div>
+            <!--Mute main stream-->
             <div class="toolset">
-                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
-                    <span class="material-symbols-outlined">mic</span>
-                </button>
-                <button class="tool toolred" aria-expanded="false" id="toolMuteCamera" >
-                    <span class="material-symbols-outlined">photo_camera</span>
-                </button>
+                <button class="tool" aria-expanded="false" id="toolMuteStream">
+                    <span class="material-symbols-outlined">volume_up</span>
+                </button>   
+                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100"/></span>        
             </div>
 
-            <!--settings menu-->
-            <div class="toolset">
-                <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
-                    <span class="material-symbols-outlined">settings</span>
-                </button>
 
-            </div>
+
+
         </div>
     </div>
 
@@ -289,7 +305,7 @@
     </div>
     <!----- popup menu microphone mute ------>
     <div class="toolpopup top middle hidden" id="popupMicMuted" style="top:0px">
-        <h2>&nbsp;&nbsp;&nbsp; Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
+        <h2>&nbsp;&nbsp;&nbsp; Warning : Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
     </div>
     <!----- end popup menu ------>
     <!----- popup menu microphone mute ------>
@@ -310,7 +326,8 @@
 <script src="scripts/cookie.js"></script>
 <script src="scripts/interface.js"></script>
 <script src="scripts/annotations.js"></script>
-<script src="scripts/framemessages.js"></script>
+<script src="scripts/github.js"></script>
+
 
 <script lang="javascript">
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,28 +340,12 @@ let sanitizedCamera
 let sanitizedMicrophone
 let sessionStarted = false
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//get session ID's from github issues
+//check the session id's for the allowed dates in github.js and then check the session ID against the github issues
 //date range to look for session id's in repo issues currently set to 30 day
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-const currentDate = new Date();
-var backDate = new Date();
-backDate.setDate(backDate.getDate() - 30);
-
-//change date format to yyyy-mm-dd for search query
-const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(date.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-};
-
-currentDateyyyymmdd = (formatDate(currentDate));
-backDateyyyymmdd = (formatDate(backDate));
-
-//search repos for issues
-//once we have the check against any URL parameters, if any are valid then skip the session Id screen
 getList();
 
 async function getList() {
@@ -357,7 +358,6 @@ async function getList() {
     const result = await response.json()
     checkSessionURL(result);
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //check session ID against github issues
 //checks the url parameter supplied, if valid shows the client login screen otherwise shows the session ID screen
@@ -443,65 +443,6 @@ function checkEnteredSession() {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//check if cookie exists and pre-populate the user camera and mic field in the following dialogue
-////////////////////////////////////////////////////////////////////////////////////////////////////
-function checkCookie(cookieUser, cookieCamera, cookieMic) {
-    let usercookie = getCookie(cookieUser);
-    let cameracookie = getCookie(cookieCamera);
-    let miccookie = getCookie(cookieMic);
-
-    if (usercookie != null) {
-        console.log("Cookie data");
-        console.log("name : " + usercookie);
-        console.log("camera : " + cameracookie);        
-        console.log("mic : " + miccookie);
-
-        document.getElementById("name").value = usercookie;
-    }
-    //wait 1/2 second for the camera and microphone to populate and then set the values
-    setTimeout(function() {
-        if ((cameracookie != "") && (cameracookie != "None") && (cameracookie != "Disabled in browser")) {
-            let selectElement = document.getElementById("cameraSource");
-            //console.log("options:"+selectElement.options.length);
-            let optionFound = false;
-            for (let i = 0; i < selectElement.options.length; i++) {
-                const option = selectElement.options[i].innerHTML;
-                // Compare the cookie value with the option's value
-                if (option === cameracookie) {
-                    document.getElementById("cameraSource").selectedIndex = i
-                    
-                    videoElement = document.querySelector('video#camera');
-                    videoElement.classList.remove("fadeout");
-                    videos = document.getElementById("cameraSource").value;
-                    videoSelected = document.querySelector('select#cameraSource');
-                    getvideoStream();
-                    optionFound = true;
-                    break; // Stop once the matching option is found and selected
-                }
-            } 
-        }
-        if (miccookie != "") {
-            let selectElement = document.getElementById("microphoneSource");
-            
-            let optionFound = false;
-            for (let i = 0; i < selectElement.options.length; i++) {
-                const option = selectElement.options[i].innerHTML;
-                // Compare the cookie value with the option's value
-                if (option === miccookie) {
-                    document.getElementById("microphoneSource").selectedIndex = i
-
-                    audioElement = document.querySelector('audio#microphone');
-                    audios = document.getElementById("microphoneSource").value;
-                    audioSelected = document.querySelector('select#microphoneSource');
-                    getAudioStream()
-                    optionFound = true;
-                    break; // Stop once the matching option is found and selected
-                }
-            }
-        } 
-    },500);
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //User and camera, microphone dialogue window
@@ -605,7 +546,7 @@ function joinSession() {
 
         //move and reposition the camera and microphone windows
         document.getElementById("setupCamMic").classList.remove("centerhorizontal", "dialoglogin");        
-        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "right");
+        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "left");
         document.getElementById("setupPreview").style.display = "none";
         document.getElementById("checkLogin").innerHTML = "Apply settings";
         document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
@@ -673,7 +614,7 @@ function viewerStream () {
     "&videobitrate=256"+
     "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
     "&style=6"+	//show audio only sources as coloured circles with first letter of name
-    //"&meterstyle=5"+	//round highlight over person talking
+    "&meterstyle=5"+	//round highlight over person talking
     "&transparent"+	//makes bg transparent
     "&disablehotkeys"+	//no hotkeys
     "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
