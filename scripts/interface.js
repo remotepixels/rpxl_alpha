@@ -17,45 +17,80 @@ function restrictInput(e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //toolbar code
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+var openModal = 0
+
 toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
 toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
 
 toolDraw.addEventListener("click", function() { toolDrawSelect(); });
 popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
-popupBlockPalette.addEventListener("click", function() { hidePopupMenu(popupBlockPalette); });
 toolEraser.addEventListener("click", function() { toolEraserSelect(); });
 
 toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
 toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
-
-popupSettings.addEventListener("click", function() { 
+/*
+popupSettings.addEventListener("click", function() {       console.log("popupSettings clicked");
     if (document.getElementById("popupBlockSettings").classList.contains("hidden")) {
         document.getElementById("popupBlockSettings").classList.remove("hidden");
-        document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "true");
+        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
     } else {
-        document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");
+
     }
-});
-popupBlockSettings.addEventListener("click", function() {  
+});*/
+/*popupBlockSettings.addEventListener("click", function() {  
+
     if (document.getElementById("mainWindow").classList.contains("hidden")) {
-
-    } else {
+    //do nothing till main interface is loaded
+    } else { 
     document.getElementById("popupBlockSettings").classList.add("hidden")
-    document.getElementById("popupBlockSettings").setAttribute("aria-expanded", "false");} 
-
-});
-
-function hidePopupMenu(event) {
-    event.classList.add("hidden");
-    event.previousElementSibling.setAttribute("aria-expanded", "false");
-
+    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
     }
+});*/
 
+
+function hidePopupMenu() {  //used folr special cases like the share menu or to hide after changing settings
+    const popups = document.querySelectorAll(".popupBG");
+    popups.forEach(popup => {
+        if (!popup.classList.contains("hidden")) {
+            popup.classList.add("hidden");
+            popup.previousElementSibling.setAttribute("aria-expanded", "false");
+            }
+    });
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(e) {
+    //console.log("openModal", openModal);
+    if (openModal == true) {
+        //console.log("click");
+        if (e.target.matches('.tool') || e.target.matches('.tool *') || e.target.matches('.toolpopup') || e.target.matches('.toolpopup *') || e.target.matches('.toolquit') || e.target.matches('.toolquit *')) {
+            //console.log("openModal click inside");
+        } else {
+            //console.log("openModal click ooutside");
+            const popups = document.querySelectorAll(".popupBG");
+            popups.forEach(popup => {
+                if (!popup.classList.contains("hidden")) {
+                    popup.classList.add("hidden");
+                    popup.previousElementSibling.setAttribute("aria-expanded", "false");
+                }
+            });
+            topmenu.style.zIndex = 1;        
+            openModal = false;
+        }
+    }
+}
 function showPopupMenu(event) {
+    parent = event.closest('.top');
+    if (parent != null) {
+        parent.style.zIndex = 9;
+    console.log(parent);
+    }
     if (event.nextElementSibling.classList.contains("hidden")) {
         event.nextElementSibling.classList.remove("hidden");
+
         event.setAttribute("aria-expanded", "true");
-       
+        openModal = true;
+        //console.log("openModal", openModal);
     } else {
         event.nextElementSibling.classList.add("hidden");
         event.setAttribute("aria-expanded", "false");

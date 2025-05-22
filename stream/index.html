@@ -30,12 +30,12 @@
     height: fit-content;
     align-items: center;
     justify-content: center;
-    top:  calc(var(--button-height) + 15px);
-    width: 860px;
+    top:  calc(var(--button-height));
+    width: 790px;
     margin:0px;
     padding: 20px 20px 10px 20px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     z-index: 2;
@@ -48,6 +48,20 @@
     overflow: hidden;
     max-height: 400px;
     transition: max-height 0.25s;  
+}
+
+.buttonmoresettings {
+    position: relative;
+    display: inline;
+    width: 205px;
+    padding-right:20px;
+    right:0px;
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+
+.bottoncreate {
+    left:5px;
+    width:336px;
 }
 /* Create two equal columns that sits next to each other */
 .column {
@@ -66,7 +80,7 @@
 .refreshicon {
     position: absolute;
     display: inline;
-    left:370px;
+    left:365px;
     top:10px;
     z-index:3;
     cursor: pointer;
@@ -137,149 +151,146 @@
 <link rel="stylesheet" href="../styles/newstyle.css">
 
 <body>
+
     <!--Setup screen, also used as setting panel later-->
-    <div class="popupBG" id="popupBlockSettings">
-     <div class="dialogcreate centerhorizontal" id="create" onclick="event.stopPropagation()">
-        <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
-        <div class="row">
-            <div class="column">
-                <h2 id="createHeadingSession">Create live session</h2>
-            </div>
-            <div class="column">
-                
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="column">
-                <div id="createSession">
-                    <span class="label">Session ID</span>
-                    <input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase" oninput="restrictInput(event)"></input>
-                    <span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span>
+        <div class="dialogcreate centerhorizontal" id="create">
+            <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
+            <div class="row">
+                <div class="column">
+                    <h2 id="createHeadingSession">Create live session</h2>
                 </div>
-                <div id="createClient">
-                    <span class="label">Client</span>
-                    <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
+                <div class="column">
+                    
                 </div>
-                <div>
-                    <span class="label">Resolution</span>
-                    <span class="radioset" role="radiogroup" aria-labelledby="resolution">
-                        <label><input type="radio" name="resolution" disabled value="">4K</label>
-                        <label><input type="radio" name="resolution" checked value="0">1080P</label>
-                        <label><input type="radio" name="resolution" value="1">720P</label>
-                    </span>
-                </div>
-                <div>
-                    <span class="label">Quality</span>
-                    <span class="radioset" role="radiogroup" aria-labelledby="quality">
-                        <label><input type="radio" name="quality" value="16000">High</label>
-                        <label><input type="radio" name="quality" value="8000" checked>Medium</label>
-                        <label><input type="radio" name="quality" value="4000">Low</label>
-                    </span>
-                </div>	
-                <div>
-                    <span class="label">Video source</span>
-                    <div class="custom-select">
-                        <select contenteditable="true" id="videoSource">
-                            <option value="">None</option>
-                        </select>
+            </div>
+
+            <div class="row">
+                <div class="column">
+                    <div id="createSession">
+                        <span class="label">Session ID</span>
+                        <input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase" oninput="restrictInput(event)"></input>
+                        <span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span>
+                    </div>
+                    <div id="createClient">
+                        <span class="label">Client</span>
+                        <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
+                    </div>
+                    <div>
+                        <span class="label">Resolution</span>
+                        <span class="radioset" role="radiogroup" aria-labelledby="resolution">
+                            <label class="disable"><input type="radio" name="resolution" disabled value="">4K</label>
+                            <label><input type="radio" name="resolution" checked value="0">1080P</label>
+                            <label><input type="radio" name="resolution" value="1">720P</label>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="label">Quality</span>
+                        <span class="radioset" role="radiogroup" aria-labelledby="quality">
+                            <label><input type="radio" name="quality" value="16000">High</label>
+                            <label><input type="radio" name="quality" value="8000" checked>Medium</label>
+                            <label><input type="radio" name="quality" value="4000">Low</label>
+                        </span>
+                    </div>	
+                    <div>
+                        <span class="label">Video source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="videoSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Audio source</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="audioSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <span class="label">Audio source</span>
-                    <div class="custom-select">
-                        <select contenteditable="true" id="audioSource">
-                            <option value="">None</option>
-                        </select>
+                <div class="column" id="createVideo">
+                    <div>
+                        <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
+                        <audio id="audio" class="audiosource" autoplay></audio>
+                    </div>
+                    <!--
+                    <div id="meterGraph">
+                        <div id="meter"></div>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+            <div class="row spacer" id="createSpacer">
+                <span></span>
+            </div>
+
+            <!--Optional setting-->
+            <div class="row collapsed" id="moresettings">
+                <div class="column"> 
+                    <br>
+                    <h2 id="createOptional">Optional settings</h2>     
+                    <div>    
+                        <span class="label">Name</span>
+                        <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
+                    </div>
+                    <div>
+                        <span class="label">Camera</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="cameraSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Microphone</span>
+                        <div class="custom-select">
+                            <select contenteditable="true" id="microphoneSource">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="column" id="createCamera">
+                    <div>
+                        <h2>&nbsp;</h2><br>
+                        <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
+                        <audio id="microphone" class="loginaudio" autoplay></audio>
+                        <p></p>
                     </div>
                 </div>
             </div>
-            <div class="column" id="createVideo">
-                <div>
-                    <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
-                    <audio id="audio" class="audiosource" autoplay></audio>
-                </div>
-                <!--
-                <div id="meterGraph">
-                    <div id="meter"></div>
-                </div>
-                -->
-            </div>
-        </div>
 
-        <div class="row spacer" id="createSpacer">
-            <span></span>
-        </div>
-
-        <!--Optional setting-->
-        <div class="row collapsed" id="moresettings">
-            <div class="column"> 
-                <br>
-                <h2 id="createOptional">Optional settings</h2>     
-                <div>    
-                    <span class="label">Name</span>
-                    <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
-                </div>
-                <div>
-                    <span class="label">Camera</span>
-                    <div class="custom-select">
-                        <select contenteditable="true" id="cameraSource">
-                            <option value="">None</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <span class="label">Microphone</span>
-                    <div class="custom-select">
-                        <select contenteditable="true" id="microphoneSource">
-                            <option value="">None</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="row spacer hidden" id="createSpacerEnd">
+                <span></span>
             </div>
-            <div class="column" id="createCamera">
-                <div>
-                    <br><h2>&nbsp;</h2>
-                    <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
-                    <audio id="microphone" class="loginaudio" autoplay></audio>
-                    <p></p>
+
+            <!--Mores settings and start session buttons-->
+            <div class="row">
+                <div class="column" id="createButtonMore">
+                    <button id="buttonmoresettings" class="buttonmoresettings" aria-expanded="false">More setings</button>
+                </div>
+                <div class="column">
+                    <button id="startSession" class="botton buttonblue bottoncreate">Create live session</button>
                 </div>
             </div>
         </div>
-
-        <div class="row spacer hidden" id="createSpacerEnd">
-            <span></span>
-        </div>
-
-        <!--Mores settings and start session buttons-->
-        <div class="row">
-            <div class="column" id="createButtonMore">
-                <button id="buttonmoresettings" class="buttonmoresettings" aria-expanded="false">More setings</button>
-            </div>
-            <div class="column">
-                <button id="startSession" class="botton buttonblue">Create live session</button>
-            </div>
-        </div>
-
-    </div>
-    </div>
+    
     <!--end setup screen-->
 
-    <!--Annotations canvas-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas directorAnnotations"></canvas>
-
     <!------------------------Main interface------------------>
-    <div id="mainWindow" class="hidden ">
 
+    <div id="mainWindow" class="hidden ">
         <!--top menu bar-->
-        <div class="toolbar top">	
+        <div id="topmenu" class="toolbar top">	    
             <div class="toolset">
                 <button class="tool toolmoresettings" id="popupShare" aria-expanded="false">
                     <span class="material-symbols-outlined">ios_share</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockShare">
-                    <div class="toolpopup top left" id="share" onclick="event.stopPropagation()">
+                <div class="popupBG hidden">
+                    <div class="toolpopup top left share" id="share">
                         <button class="link" id="copyMainLink">
                             <h2>Main share link</h2><br>
                             Copy Main share link to clipboard <br> 
@@ -297,28 +308,27 @@
             </div>
 
             <!-- session ID and client name -->
+
             <div>
                 <h2 id="sessionName" class="centerhorizontal centervertical">RPXL</h2>
             </div>
 
             <!--quit menu-->
             <div class="toolset">
-                <button class="tool toolred" id="popupQuit" aria-expanded="false">
+                <button class="tool toolred toolmoresettings" id="popupQuit" aria-expanded="false">
                     <span class="material-symbols-outlined">mode_off_on</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockQuit">
-                    <div class="toolquit right" id="quit" onclick="event.stopPropagation()">
+                <div class="popupBG hidden">
+                    <div class="toolquit right" id="quit">
                         <button id="confirmQuit" class="botton toolred"> Confirm end session </button>
                     </div>
                 </div>
                 <!----- end popup menu ------>
+
             </div>
         </div>
 
-        <!--iframes for vdo ninja-->
-        <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
-        <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
 
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
@@ -328,6 +338,11 @@
                 <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
+                <div class="popupBG hidden">
+                    <div class="toolpopup bottom left" id="settingsHolder">
+
+                    </div>
+                </div>
             </div>
 
             <!--mute camera and microphone-->
@@ -349,8 +364,8 @@
                     <span class="material-symbols-outlined">palette</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockPalette">
-                    <div class="toolpopup bottom middle" onclick="event.stopPropagation()">
+                <div class="popupBG hidden">
+                    <div class="toolpopup bottom middle">
                         <div>
                             <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
                             <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
@@ -378,8 +393,18 @@
             </div>
 
         </div>
+
     </div>
+
+
     <!--end main initerface-->      
+
+    <!--iframes for vdo ninja-->
+    <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
+    <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
+ 
+    <!--Annotations canvas-->
+    <canvas id="annotationsCanvas" class="annotationsCanvas directorAnnotations"></canvas>
 
     <!----- popup notifications ------>
     <!----- Muted microphone ------>
@@ -424,27 +449,21 @@
 //toolbar code for stream page only, not shred anywhere else
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
-popupBlockShare.addEventListener("click", function() { hidePopupMenu(popupBlockShare); });
-
-popupQuit.addEventListener("click", function() { showPopupMenu(popupQuit); });
-popupBlockQuit.addEventListener("click", function() { hidePopupMenu(popupBlockQuit); });
-
 copyMainLink.addEventListener("click", function() {
     navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID );
     document.getElementById("popupConfirm").style.display = "block";
     setTimeout ( function () {document.getElementById("popupConfirm").style.display = "none"; }, 1000);
-    hidePopupMenu(popupBlockShare);
+    hidePopupMenu();
   });
 copyQuickLink.addEventListener("click", function() {
     navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?"+sanitizedSessionID );
     document.getElementById("popupConfirm").style.display = "block";
     setTimeout ( function () {document.getElementById("popupConfirm").style.display = "none"; }, 1000);
-    hidePopupMenu(popupBlockShare);
+    hidePopupMenu();
  });
 
+popupQuit.addEventListener("click", function() { showPopupMenu(popupQuit); });
 confirmQuit.addEventListener("click", function() { 
-    //console.log("popup Quit confirmed")
-    hidePopupMenu(popupBlockQuit); 
     //stop current streams make sure video and audio objects are hidden
     mainStream.contentWindow.postMessage({
         "hangup": true
@@ -457,6 +476,8 @@ confirmQuit.addEventListener("click", function() {
     
     location.reload();
 });
+
+popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //move caret to focus on client id field
@@ -611,9 +632,6 @@ function startSessions() {
         document.getElementById("sessionName").innerHTML = "RPXL " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
         navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
 
-        document.getElementById("popupBlockSettings").classList.add("hidden");
-        document.getElementById("mainWindow").classList.remove("hidden");
-
         //disable the user camera button if no camera selected or if blocked by browser
         if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
             document.getElementById('toolMuteCamera').classList.add("disable");
@@ -652,6 +670,7 @@ function startSessions() {
             
         }
 
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         //create a new issue on github (used to track sessions)
         //encode session ID
@@ -663,9 +682,10 @@ function startSessions() {
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         //change setting menu once stream is created, use same logic as before
         //move settings menu to new place
-        document.getElementById("create").classList.remove("centerhorizontal", "dialogcreate");        
-        document.getElementById("create").style.width = "450px";      
-        document.getElementById("create").classList.add("toolpopup", "bottom", "left");
+        document.getElementById("create").classList.add("hidden");  
+              
+        document.getElementById("settingsHolder").style.width = "440px";      
+        document.getElementById("settingsHolder").classList.add("toolpopup", "bottom", "left");
         document.getElementById("createHeadingSession").innerHTML = "Session settings";
         document.getElementById("createSession").style.display = "none";
         document.getElementById("createClient").style.display = "none";
@@ -677,7 +697,28 @@ function startSessions() {
         document.getElementById("createButtonMore").style.display = "none";
         document.getElementById("createSpacerEnd").classList.remove("hidden");
         document.getElementById("startSession").innerHTML = "Apply settings";
+        document.getElementById("startSession").style.width = "400px";
+        document.getElementById("startSession").style.left = "0px";
         document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+
+        const settingsmenu = document.getElementById("create").innerHTML;
+        document.getElementById("settingsHolder").innerHTML = settingsmenu;
+        document.getElementById("create").innerHTML = "";
+        document.getElementById("startSession").id = "changeSettings"; 
+        document.getElementById("mainWindow").classList.remove("hidden");
+
+
+        //re-initialise the dop down menus since we've copied code to a new place
+        var videoSelect = document.querySelector('select#videoSource');
+        var audioSelect = document.querySelector('select#audioSource');
+        var cameraSelect = document.querySelector('select#cameraSource');
+        var microphoneSelect = document.querySelector('select#microphoneSource');
+
+        videoSelect.onchange = checkSelection;
+        audioSelect.onchange = checkSelection;
+        cameraSelect.onchange = checkSelection;
+        microphoneSelect.onchange = checkSelection;
+
 
         //start mainstream
         document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";

@@ -32,15 +32,18 @@
     height: fit-content;
     align-items: center;
     justify-content: center;
-    top:  calc(var(--button-height) + 15px);
-    width: 452px;
+    top:  calc(var(--button-height));
+    width: 370px;
     padding: 20px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     z-index: 1;
     box-shadow: var(--shadows);
+} 
+.dialogModify {
+    width: 370px;
 } 
 .camera {
     display: block;
@@ -48,8 +51,8 @@
     object-fit: cover;
     left: 50%;
     transform: translateX(-50%);
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
     border-radius: 100%;
     margin-bottom:20px;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
@@ -57,25 +60,26 @@
     transition: opacity 0.5s;
 }
 .sessionID {
-    --w: 40px;   /* control the width for each letter */
-    --g: 10px; /* the gap between letters */
+    --w: 30px;   /* control the width for each letter */
+    --g: 8px; /* the gap between letters */
     --_n: attr(maxlength type(<integer>)); 
 
-    font-size: 50px;  
-    line-height: 50px; /* control the height */
+    font-size: 38px;  
+    line-height: 40px; /* control the height */
     letter-spacing: var(--w);
     font-family: monospace;
-    width: 486px;
-    padding-left:15px;
+    width: 390px;
+    margin-left:8px;
+    padding-left:10px;
     padding-top:10px;
     padding-bottom: 5px;
-    clip-path: inset(0 70px 0 0);
+    clip-path: inset(0 80px 0 0);
     justify-content: center;
     background:
     repeating-linear-gradient(90deg,
-    light-dark(var(--color-light-white), var(--color-dark-grey)) 0 var(--border-width), /*left edge of block*/
-    light-dark(var(--color-light-white), var(--color-dark-grey)) 0 calc(1ch + var(--w) - var(--g) - var(--border-width)),/*colour of the ID blocks*/
-    light-dark(var(--color-light-white), var(--color-dark-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 var(--border-width), /*left edge of block*/
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g) - var(--border-width)),/*colour of the ID blocks*/
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
     light-dark(var(--color-light-bg), var(--color-dark-bg)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
 }
 .mainstreamiframe {
@@ -546,7 +550,7 @@ function joinSession() {
 
         //move and reposition the camera and microphone windows
         document.getElementById("setupCamMic").classList.remove("centerhorizontal", "dialoglogin");        
-        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "left");
+        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "left", "dialogModify");
         document.getElementById("setupPreview").style.display = "none";
         document.getElementById("checkLogin").innerHTML = "Apply settings";
         document.getElementById("popupSettings").setAttribute("aria-expanded", "false");

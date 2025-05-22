@@ -27,7 +27,7 @@ try {
     if (microphonePermission.state !== 'granted') {
         document.getElementById('popupPermissionCam').style.display = 'none';
         document.getElementById('session').style.display = 'none';        
-        document.getElementById('login').style.display = 'none';
+        //document.getElementById('dialoglogin').style.display = 'none';
         document.getElementById('popupPermissionMic').style.display = 'block';
         permissionMicHelp.addEventListener("click", function() {  window.open('https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"'); });
 
@@ -35,7 +35,7 @@ try {
         document.getElementById('popupPermissionMic').style.display = 'none';
     }
     } catch (error) {
-        //console.error('Error checking permissions:', error);
+        console.error('Error checking permissions:', error);
         // Handle potential errors
     }
 }
@@ -49,6 +49,7 @@ try {
 //sanitize all values before creating streams
 
 //used to populate initial drop down and listen for onclick events
+
 var videoSelect = document.querySelector('select#videoSource');
 var audioSelect = document.querySelector('select#audioSource');
 var cameraSelect = document.querySelector('select#cameraSource');

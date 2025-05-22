@@ -16,7 +16,7 @@
     --button-wide-width: 80px;
     --border-width: 1px;
 
-    --shadows: 0px 0px 40px 0px rgba(0,0,0,.25);
+    --shadows: 0px 0px 40px 0px rgba(0,0,0,.1);
 }
 * {
     font-family: "Roboto", serif;
@@ -41,7 +41,7 @@ a:hover {
 }
 body {
     margin: 0px;
-    background-color: light-dark(var(--color-light-grey), var(--color-dark-grey));
+    background-color: var(--color-mid-grey);
 
 }
 hr {
@@ -94,7 +94,7 @@ iframe {
 .label{ 
     position: relative;
     display: inline-block;
-    width: 120px;
+    width: 105px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
 }
 .textinput {
@@ -102,7 +102,7 @@ iframe {
     display: inline-block;
     justify-content: center;
     align-items: center;
-    width: calc(100% - 135px);
+    width: calc(100% - 125px);
     margin: 5px;
     padding-left: 20px;
     height: var(--button-height);
@@ -117,24 +117,16 @@ button {
     margin: 0px 0px 10px 0px;
     display: block;
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
     height: var(--button-height);
     cursor: pointer;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
+
 .buttonblue:hover {
     color: light-dark(var(--color-light-bg), var(--color-light-white));
     background-color: dodgerblue;
-}
-
-.buttonmoresettings {
-    position: relative;
-    display: inline;
-    width: 205px;
-    padding-right:20px;
-    right:0px;
-    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 
 select { /*custom dropdown selector*/
@@ -151,7 +143,7 @@ select { /*custom dropdown selector*/
     margin: 5px;
     position: relative;
     display: inline-block;
-    width: 275px;
+    width: calc(100% - 125px);
     height: var(--button-height);
     border-radius: var(--radius-big);
 }
@@ -188,12 +180,12 @@ select:hover, select:active{
     display: inline;
     position: relative;
     object-fit: cover;
-    width: 405px;
-    height: 228px;
+    width: 336px;
+    height: 190px;
     margin-left:5px;
     margin-top:5px;
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-dark-grey));
+    border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-dark-bg));
     background-color: black;
 }
 .radioset {
@@ -205,7 +197,7 @@ select:hover, select:active{
     margin: 5px;
     height: var(--button-height);
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 .selected, .buttonmoresettings:hover {
     color: light-dark(var(--color-dark-grey), var(--color-light-white))!important;
@@ -230,7 +222,7 @@ select:hover, select:active{
 label:has([type=radio]) {
     display: inline-flex;
     align-items: center;
-    width: 91px;
+    width: 94px;
     height: var(--button-height);
     justify-content: center;
     padding: 10px;
@@ -270,7 +262,7 @@ label:has([type=colorpot]:checked) {
     margin: 0px;
     padding: 0px;
     z-index: 1;
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
 .toolbar.top {
     top: 0px;
@@ -280,11 +272,12 @@ label:has([type=colorpot]:checked) {
 }
 .toolset {
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    outline: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+
     overflow: hidden;
     width: fit-content;
     height: var(--button-height);
-    margin:5px;
+    margin: 5px;
 }
 .toolspacer {
     margin-right:auto;
@@ -299,14 +292,15 @@ label:has([type=colorpot]:checked) {
     display: inline-flex;
     cursor: pointer;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
 .tool:hover {
-    color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+    color: light-dark(var(--color-dark-grey), var(--color-light-bg));
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
+
 .toolred:hover {
-    color: light-dark(var(--color-light-bg), var(--color-light-white));
+    color: light-dark(var(--color-light-bg), var(--color-light-bg));
     background-color: var(--color-red)
 }
 .toolmoresettings {
@@ -315,7 +309,7 @@ label:has([type=colorpot]:checked) {
     padding-right:30px;
 }
 .toolmoresettings[aria-expanded="true"] {
-    color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+    color: light-dark(var(--color-dark-grey), var(--color-light-bg));
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 .toolmoresettings::before {
@@ -326,10 +320,13 @@ label:has([type=colorpot]:checked) {
     width: 28px;
     height: calc(var(--button-height) - 4px);
     border:0px;
-    border-left: 1px solid light-dark(var(--color-light-bg), var(--color-dark-grey));
+    border-left: 1px solid light-dark(var(--color-light-white), var(--color-mid-grey));
     pointer-events: none;
 }
-/*add dropdown arrow*/
+.toolmoresettings[aria-expanded="true"]::before{
+    border-left: 1px solid light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+ /*add dropdown arrow*/
 .toolmoresettings::after {
     position: absolute;
     content: "";
@@ -340,9 +337,10 @@ label:has([type=colorpot]:checked) {
     pointer-events: none;
     transition: transform ease-in-out 0.3s;
 }
-.disable, .disable:hover {
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+.disable, .disable:hover, .disable::after {
+    opacity: 0.5;
+    color: light-dark(var(--color-light-grey), var(--color-mid-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     cursor: default;
 }
 
@@ -359,7 +357,7 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-runnable-track {
     height: 6px;
-    background: light-dark(var(--color-light-white), var(--color-dark-grey));
+    background: light-dark(var(--color-light-white), var(--color-mid-grey));
     border-radius: 10px;
 }
 input[type="range"]::-webkit-slider-thumb {
@@ -384,7 +382,7 @@ input[type="range"]::-webkit-slider-thumb {
     height:100%;
     top:0;
     left:0;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.50);
     z-index: 9;
 }
 .toolpopup {
@@ -396,14 +394,13 @@ input[type="range"]::-webkit-slider-thumb {
     justify-content: center;
     padding: 20px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
     box-shadow: var(--shadows);
     z-index: 10;
 } 
 .toolpopup.top {
-    position:relative;
     top: calc(15px + var(--button-height));
 }
 .toolpopup.bottom {
@@ -465,8 +462,9 @@ input[type="range"]::-webkit-slider-thumb {
     outline: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
     outline-offset: 5px;
 }
-div:has(button.link) {
-  padding: 2px;
+
+.share {
+  padding: 5px;
   border:0px;
 
 } 
@@ -509,7 +507,7 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
     width: 0px;
     height: 0px;
     cursor: default;
-    z-index: 3;
+    z-index: 5;
 }
 
 .hidden {
