@@ -71,7 +71,7 @@
 .spacer {
     width:100%; 
     height:1px; 
-    top:10px;
+    top:0px;
     margin-top:0px; 
     margin-bottom:0px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
@@ -153,7 +153,7 @@
 <body>
 
     <!--Setup screen, also used as setting panel later-->
-
+    <div>
         <div class="dialogcreate centerhorizontal" id="create">
             <a href="help.html" target="_blank"><span class="material-symbols-outlined helpicon">help</span></a>
             <div class="row">
@@ -262,8 +262,8 @@
                 </div>
             </div>
 
-            <div class="row spacer hidden" id="createSpacerEnd">
-                <span></span>
+            <div class="row hidden" id="createSpacerEnd">
+                <span><p></p></span>
             </div>
 
             <!--Mores settings and start session buttons-->
@@ -276,7 +276,7 @@
                 </div>
             </div>
         </div>
-    
+    </div>
     <!--end setup screen-->
 
     <!------------------------Main interface------------------>
@@ -335,32 +335,29 @@
 
             <!--settings menu-->
             <div class="toolset">
-                <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
+                <button class="tool toolmoresettings" id="settings" aria-expanded="false">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-                <div class="popupBG hidden">
-                    <div class="toolpopup bottom left" id="settingsHolder">
-
-                    </div>
+                <div class="popupBG hidden" id="settingsBG">
                 </div>
             </div>
 
             <!--mute camera and microphone-->
             <div class="toolset toolspacer">
-                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
+                <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone" disabled>
                     <span class="material-symbols-outlined">mic</span>
                 </button>
-                <button class="tool toolred" aria-expanded="false" id="toolMuteCamera" >
+                <button class="tool toolred disable" aria-expanded="false" id="toolMuteCamera" disabled>
                     <span class="material-symbols-outlined">photo_camera</span>
                 </button>
             </div>
 
             <!--annotations-->
             <div class="toolset toolspacer">
-                <button class="tool" aria-expanded="false" id="toolDraw">
+                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
-                <button class="tool toolmoresettings" aria-expanded="false" id="popupPalette">
+                <button class="tool toolmoresettings disable" aria-expanded="false" id="popupPalette" disabled>
                     <span class="material-symbols-outlined">palette</span>
                 </button>
                 <!----- popup menu ------>
@@ -376,37 +373,50 @@
                     </div>
                 </div>
                 <!----- end popup menu ------>
-                <button class="tool" aria-expanded="false" id="toolEraser">
+                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled>
                     <span class="material-symbols-outlined">ink_eraser_off</span>
                 </button>
             </div>
 
             <!--Mute main stream-->
             <div class="toolset ">
-                <button class="tool red" aria-expanded="false">
+                <button class="tool red disable" aria-expanded="false" disabled>
                     <span class="material-symbols-outlined" id="blindStream">movie_off</span>
                 </button> 
-                <button class="tool red" aria-expanded="false" id="toolMuteStream">
+                <button class="tool red disable" aria-expanded="false" id="toolMuteStream" disabled>
                     <span class="material-symbols-outlined">volume_up</span>
                 </button>   
-                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100"/></span>    
+                <span class="volume" ><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"/></span>    
             </div>
 
         </div>
 
     </div>
-
-
-    <!--end main initerface-->      
+    <!--end main interface-->      
 
     <!--iframes for vdo ninja-->
     <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
     <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
  
     <!--Annotations canvas-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas directorAnnotations"></canvas>
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
     <!----- popup notifications ------>
+    <!----- Permissions ------>
+    <div class="popupBG hidden popupBGImmutable" id="popupPermissionMic" >
+        <div class="toolpopup top middle">
+            <h2>
+            Warning : Microphone or Camera permissions blocked<br>
+            </h2>
+            <p></p>
+            Please check your browser settings to allow access<br>
+            to the microphone and camera for streaming.
+            <p></p>
+            You will be able to mute them at any time.
+            <p></p>
+            <button id="permissionMicHelp" class="botton buttonblue"> Click here for more info </button>
+        </div>
+    </div>
     <!----- Muted microphone ------>
     <div class="toolpopup top middle hidden" id="popupMicMuted" style="top:0px">
         <h2>&nbsp;&nbsp;&nbsp; Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
@@ -428,7 +438,7 @@
         <br>&nbsp;&nbsp;&nbsp;(Participants will still hear the main stream)&nbsp;&nbsp;&nbsp;</h2>
     </div>
 
-    <!----- annotations active turned off ------>
+    <!----- annotations active // turned off ------>
     <div class="toolpopup top middle hidden" id="popupAnnotations" style="top:0px">
         <h2>&nbsp;&nbsp;&nbsp; Drawing on &nbsp;&nbsp;&nbsp;</h2>
     </div>
@@ -446,7 +456,8 @@
 
 <script type="text/javascript"> 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//toolbar code for stream page only, not shred anywhere else
+//toolbar code for stream page only, not shared anywhere else
+//share and quit menu, blind stream tool
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 popupShare.addEventListener("click", function() { showPopupMenu(popupShare); });
 copyMainLink.addEventListener("click", function() {
@@ -477,11 +488,25 @@ confirmQuit.addEventListener("click", function() {
     location.reload();
 });
 
-popupSettings.addEventListener("click", function() { showPopupMenu(popupSettings); });
+document.getElementById("startSession").addEventListener("click", prepSession);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//more settings menu on create dialogue flyout
+document.getElementById("buttonmoresettings").addEventListener("click", () => {
+    var isExpanded = document.getElementById("buttonmoresettings").getAttribute("aria-expanded"); 
+
+    if (isExpanded == "true") { 
+        isExpanded = "false" ;
+        buttonmoresettings.innerHTML = "More settings";
+    } 
+    else { 
+        isExpanded = "true" ;
+        buttonmoresettings.innerHTML = "Less settings";
+    }
+    buttonmoresettings.setAttribute("aria-expanded", isExpanded);
+    moresettings.classList.toggle("collapsed");  
+});
+
 //move caret to focus on client id field
-////////////////////////////////////////////////////////////////////////////////////////////////////
 document.getElementById("clientName").focus();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,48 +529,88 @@ function generateSessionID () {
 }
 
 //generate new ID when clicking icon
-const generateSession = document.getElementById("generateSessionIcon");
-generateSession.addEventListener("click", () => {
-    generateSessionID ()
-    generateSession.classList.toggle("rotate360"); 
-    setTimeout(function () {  generateSession.classList.toggle("rotate360");  }, 300);
+document.getElementById("generateSessionIcon").addEventListener("click", () => {
+    generateSessionID ()    //generate anew ID
+    document.getElementById("generateSessionIcon").classList.toggle("rotate360");   //rotate the icon (fancy)
+    setTimeout(function () {  document.getElementById("generateSessionIcon").classList.toggle("rotate360");  }, 300);
     });
 
-//more settings flyout
-const buttonmoresettings = document.getElementById("buttonmoresettings");
-buttonmoresettings.addEventListener("click", expandsettings);
 
-function expandsettings() {
-    var isExpanded = document.getElementById("buttonmoresettings").getAttribute("aria-expanded"); 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//globals
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var sanitizedSessionID
 
-    if (isExpanded == "true") { 
-        isExpanded = "false" ;
-        buttonmoresettings.innerHTML = "More settings";
-    } 
-    else { 
-        isExpanded = "true" ;
-        buttonmoresettings.innerHTML = "Less settings";
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//prep to create session
+//check session ID is correct, save session ID to clipboard
+//create new issue on github to track session
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function prepSession() {
+    var sessionID = document.getElementById("sessionID").value;
+    let sessionIDUpper = encodeURIComponent(sessionID);   
+    sanitizedSessionID = sessionIDUpper.toUpperCase();
+    
+    if ((sanitizedSessionID == "") || (sanitizedSessionID.length != 6)) {
+        document.getElementById("sessionID").style.animation = "pulse 250ms";
+        setTimeout ( function () {document.getElementById("sessionID").style.animation = "none"; }, 250);  
+        document.getElementById("sessionID").focus();
+    } else {
+        //stop any tracks in preview
+        stream.getTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        //add the session ID and client name to the title bar, copy to clipboard for Quick view link
+        let sanitizedClient = encodeURIComponent(client);
+        var client = document.getElementById("clientName").value;
+        document.getElementById("sessionName").innerHTML = "RPXL " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
+        navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
+
+        //hide create dialogue, shuffle for settings menu
+        document.getElementById("create").classList.remove("dialogcreate", "centerhorizontal");        
+        document.getElementById("create").style.width = "440px";      
+        document.getElementById("create").classList.add("toolpopup", "bottom", "left", "hidden");
+        document.getElementById("createHeadingSession").innerHTML = "Session settings";
+        document.getElementById("createSession").style.display = "none";
+        document.getElementById("createClient").style.display = "none";
+        document.getElementById("createVideo").style.display = "none";
+        document.getElementById("createSpacer").style.display = "none";
+        document.getElementById("moresettings").classList.remove("collapsed");
+        document.getElementById("createOptional").innerHTML = "User settings";
+        document.getElementById("createCamera").style.display = "none";
+        document.getElementById("createButtonMore").style.display = "none";
+        document.getElementById("createSpacerEnd").classList.remove("hidden");
+        document.getElementById("startSession").innerHTML = "Apply settings";
+        document.getElementById("startSession").style.width = "400px";
+        document.getElementById("startSession").style.left = "0px";
+
+        //remove event listener for start session button
+        document.getElementById("startSession").removeEventListener("click", prepSession, false);
+        //replace with change session settings
+        document.getElementById("startSession").addEventListener("click", vdoSession);
+
+        document.getElementById("mainWindow").classList.remove("hidden");
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        //create a new issue on github (used to track sessions)
+        //encode session ID
+        var sessionAndClient = sanitizedSessionID+"&"+sanitizedClient
+        var encodedSession = btoa(sessionAndClient);
+        
+        console.log("SessionID", sanitizedSessionID)
+        console.log("client", sanitizedClient)
+        console.log("encoded",encodedSession)
+        //addIssue(encodedSession)  //////////////////tun back on to add issue to github
+
+        vdoSession()
     }
-    buttonmoresettings.setAttribute("aria-expanded", isExpanded);
-    moresettings.classList.toggle("collapsed");  
-    //console.log(isExpanded)
 }
 
-//check that name is filled and setup vdo.ninja url with selected name, video source and audio source
-const startSession = document.getElementById("startSession");
-startSession.addEventListener("click", startSessions);
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//now things for the session creation spefifically
+//start the vdo ninja session, also used if user changes settings during a session
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-function startSessions() {
-    stream.getTracks().forEach(function(track) {
-        track.stop();
-    });
-
-    let sessionID = document.getElementById("sessionID").value;
-    let client = document.getElementById("clientName").value;
-
+function vdoSession() {
     //check the resolution selected 1080p or 720p
     var radioResolution = document.getElementsByName("resolution");
     for (var i = 0; i < radioResolution.length; i++) {
@@ -569,10 +634,7 @@ function startSessions() {
     let audioSelected = audioList.selectedIndex;
 
     //get the selected camera and microphone device names (shown in the menu, not the values)
-    let sessionIDUpper = encodeURIComponent(sessionID);   
-    sanitizedSessionID = sessionIDUpper.toUpperCase();
 
-    let sanitizedClient = encodeURIComponent(client);
     let sanitizedVideo = videoList.options[videoSelected].text.toLowerCase().replace(/[\W]+/g, "_");
     let sanitizedAudio = audioList.options[audioSelected].text.toLowerCase().replace(/[\W]+/g, "_");
 
@@ -584,9 +646,6 @@ function startSessions() {
         sanitizedAudio = "0"
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //all this is from the client login section and is identical
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
     let username = document.getElementById("name").value;
     let cameraList = document.getElementById("cameraSource");
     let microphoneList = document.getElementById("microphoneSource");
@@ -611,174 +670,72 @@ function startSessions() {
         sanitizedMicrophone = "0"
     }
 
-    //error check for a correct sssion ID
-    //start the session using selected settings
-    if ((sanitizedSessionID == "") || (sanitizedSessionID.length != 6)) {
-        document.getElementById("sessionID").style.animation = "pulse 250ms";
-        setTimeout ( function () {document.getElementById("sessionID").style.animation = "none"; }, 250);  
-        document.getElementById("sessionID").focus();
-    } else {     //if everything checks out, create main stream and start director room
-        console.log("SessionID", sanitizedSessionID)
-        console.log("client", sanitizedClient)
-        console.log("resolution", resolution)
-        console.log("quality", quality)
-        console.log("video", sanitizedVideo)
-        console.log("audio", sanitizedAudio)
-        console.log("name", sanitizedUserName)
-        console.log("camera", sanitizedCamera)
-        console.log("microphone", sanitizedMicrophone)
+    console.log("resolution", resolution)
+    console.log("quality", quality)
+    console.log("video", sanitizedVideo)
+    console.log("audio", sanitizedAudio)
+    console.log("name", sanitizedUserName)
+    console.log("camera", sanitizedCamera)
+    console.log("microphone", sanitizedMicrophone)
 
-        let client = document.getElementById("clientName").value;
-        document.getElementById("sessionName").innerHTML = "RPXL " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
-        navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
+    document.getElementById("create").classList.add("hidden");
+    document.getElementById("settings").setAttribute("aria-expanded", "false");
+    document.getElementById("settingsBG").classList.add("hidden");
+    //start mainstream
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
+    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+        "&push=Stream_"+sanitizedSessionID+	//push stream to this name
+        "&broadcast"+
+        "&label=Stream"+	//sets livestream as label for director connection
+        "&rampuptime=6000"+	//ramp up time of 6 seconds
+        "&hidehome"+	//hide vdo ninja homepage	
+        "&webcam"+
+        "&cleanoutput"+	//remove all interface bits
+        "&notify"+	// notify when people join
+        "&ovb="+quality+	//outbound video bitrate for main (obs stream)
+        "&quality="+resolution+	//1 720p set to 0 for 1080p
+        "&videodevice="+sanitizedVideo+ //video source
+        "&audiodevice="+sanitizedAudio+ //audio source
+        "&autostart"+   //autostart directors feed
+        "&trb=50000"+	//total room bit rate
+        "&hiddenscenebitrate=50000"+	//30mbps, highest quality
+        "&showlist=0"+	//show hidden guest list
+        "&hideplaybutton"+	//hides big play button if autoplay is disabled
+        "&cv"+	//clean viewer
+        "&transparent"+	//makes bg transparent
+        "&agc=0"+	//turns off auto gain control
+        "&denoise=0"+	//turns off denoiser
+        "&ab=128"+	//constant audio bitrate
+        "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+        "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+    "";    
 
-        //disable the user camera button if no camera selected or if blocked by browser
-        if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
-            document.getElementById('toolMuteCamera').classList.add("disable");
-            document.getElementById('toolMuteCamera').disabled = true;
-        } else {
-            document.getElementById('toolMuteCamera').classList.remove("disable");
-            document.getElementById('toolMuteCamera').disabled = false;
-        }
-        //disable the user microphone button if no camera selected or if blocked by browser
-        if ((sanitizedMicrophone == 0) || (sanitizedCamera == "disabled_in_browser")) {
-            document.getElementById('toolMuteMicrophone').classList.add("disable");
-            document.getElementById('toolMuteMicrophone').disabled = true;
-        } else {
-            document.getElementById('toolMuteMicrophone').classList.remove("disable");
-            document.getElementById('toolMuteMicrophone').disabled = false;
-        }
-        //disable the drawing tools and mute and blind buttons until we get the main feed
-        if (annotationsCanvas.style.width == "") {        
-            document.getElementById('toolDraw').classList.add("disable");
-            document.getElementById('toolDraw').disabled = true;
-
-            document.getElementById('popupPalette').classList.add("disable");
-            document.getElementById('popupPalette').disabled = true;
-
-            document.getElementById('toolEraser').classList.add("disable");
-            document.getElementById('toolEraser').disabled = true;
-
-            document.getElementById('blindStream').classList.add("disable");
-            document.getElementById('blindStream').disabled = true;
-
-            document.getElementById('toolMuteStream').classList.add("disable");
-            document.getElementById('toolMuteStream').disabled = true;
-
-            document.getElementById('toolStreamVolume').classList.add("disable");
-            document.getElementById('toolStreamVolume').disabled = true;
-            
-        }
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        //create a new issue on github (used to track sessions)
-        //encode session ID
-        var sessionAndClient = sanitizedSessionID+"&"+sanitizedClient
-        var encodedSession = btoa(sessionAndClient);
-        //console.log("encoded",encodedSession)
-        //addIssue(encodedSession)  //////////////////tun back on to add issue to github
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        //change setting menu once stream is created, use same logic as before
-        //move settings menu to new place
-        document.getElementById("create").classList.add("hidden");  
-              
-        document.getElementById("settingsHolder").style.width = "440px";      
-        document.getElementById("settingsHolder").classList.add("toolpopup", "bottom", "left");
-        document.getElementById("createHeadingSession").innerHTML = "Session settings";
-        document.getElementById("createSession").style.display = "none";
-        document.getElementById("createClient").style.display = "none";
-        document.getElementById("createVideo").style.display = "none";
-        document.getElementById("createSpacer").style.display = "none";
-        document.getElementById("moresettings").classList.remove("collapsed");
-        document.getElementById("createOptional").innerHTML = "User settings";
-        document.getElementById("createCamera").style.display = "none";
-        document.getElementById("createButtonMore").style.display = "none";
-        document.getElementById("createSpacerEnd").classList.remove("hidden");
-        document.getElementById("startSession").innerHTML = "Apply settings";
-        document.getElementById("startSession").style.width = "400px";
-        document.getElementById("startSession").style.left = "0px";
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
-
-        const settingsmenu = document.getElementById("create").innerHTML;
-        document.getElementById("settingsHolder").innerHTML = settingsmenu;
-        document.getElementById("create").innerHTML = "";
-        document.getElementById("startSession").id = "changeSettings"; 
-        document.getElementById("mainWindow").classList.remove("hidden");
-
-
-        //re-initialise the dop down menus since we've copied code to a new place
-        var videoSelect = document.querySelector('select#videoSource');
-        var audioSelect = document.querySelector('select#audioSource');
-        var cameraSelect = document.querySelector('select#cameraSource');
-        var microphoneSelect = document.querySelector('select#microphoneSource');
-
-        videoSelect.onchange = checkSelection;
-        audioSelect.onchange = checkSelection;
-        cameraSelect.onchange = checkSelection;
-        microphoneSelect.onchange = checkSelection;
-
-
-        //start mainstream
-        document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-        document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
-            "&push=Stream_"+sanitizedSessionID+	//push stream to this name
-            "&broadcast"+
-            "&label=Stream"+	//sets livestream as label for director connection
-            "&rampuptime=6000"+	//ramp up time of 6 seconds
-            "&hidehome"+	//hide vdo ninja homepage	
-            "&webcam"+
-            "&cleanoutput"+	//remove all interface bits
-            "&notify"+	// notify when people join
-            "&ovb="+quality+	//outbound video bitrate for main (obs stream)
-            "&quality="+resolution+	//1 720p set to 0 for 1080p
-            "&videodevice="+sanitizedVideo+ //video source
-            "&audiodevice="+sanitizedAudio+ //audio source
-            "&autostart"+   //autostart directors feed
-            "&trb=50000"+	//total room bit rate
-            "&hiddenscenebitrate=50000"+	//30mbps, highest quality
-            "&showlist=0"+	//show hidden guest list
-            "&hideplaybutton"+	//hides big play button if autoplay is disabled
-            "&cv"+	//clean viewer
-            "&transparent"+	//makes bg transparent
-            "&agc=0"+	//turns off auto gain control
-            "&denoise=0"+	//turns off denoiser
-            "&ab=128"+	//constant audio bitrate
-            "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-            "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-        "";    
-
-        //start viewer stream, after 1 sec
-		setTimeout(function(){
-			document.getElementById("viewersStream").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
-			document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
-            "&label="+sanitizedUserName+	//sets webcam as label for client connection
-            "&showlabels"+
-            "&group=client"+
-            "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-            //"&showall"+
-            "&groupmode"+
-            "&groupview"+
-            "&videodevice="+sanitizedCamera+ //video source
-            "&audiodevice="+sanitizedMicrophone+ //audio source
-            "&autostart"+   //autostart directors feed
-            "&clean"+
-            "&quality=3"+	//set camera quality to lowest possible, about 360p
-            "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
-            "&videobitrate=196"+
-            "&viewwidth=96&viewheight=59"+	//sets incoming video to px size (very low res)
-            "&style=6"+	//show audio only sources as coloured circles with first letter of name
-            "&meterstyle=5"+	//round highlight over person talking
-            "&transparent"+	//makes bg transparent
-            "&disablehotkeys"+	//no hotkeys
-            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
-			""; 
-		},1000);
-    }
+    //start viewer stream, after 1 sec
+    setTimeout(function(){
+        document.getElementById("viewersStream").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
+        document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+        "&label="+sanitizedUserName+	//sets webcam as label for client connection
+        "&showlabels"+
+        "&group=client"+
+        "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+        //"&showall"+
+        "&groupmode"+
+        "&groupview"+
+        "&videodevice="+sanitizedCamera+ //video source
+        "&audiodevice="+sanitizedMicrophone+ //audio source
+        "&autostart"+   //autostart directors feed
+        "&clean"+
+        "&quality=3"+	//set camera quality to lowest possible, about 360p
+        "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
+        "&videobitrate=196"+
+        "&viewwidth=96&viewheight=59"+	//sets incoming video to px size (very low res)
+        "&style=6"+	//show audio only sources as coloured circles with first letter of name
+        "&meterstyle=5"+	//round highlight over person talking
+        "&transparent"+	//makes bg transparent
+        "&disablehotkeys"+	//no hotkeys
+        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
+        ""; 
+    },1000);
 }
-
-
-
 </Script>
     

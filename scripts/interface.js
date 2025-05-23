@@ -19,6 +19,20 @@ function restrictInput(e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var openModal = 0
 
+settings.addEventListener("click", function() { 
+    document.getElementById("settingsBG").classList.toggle("hidden");
+    document.getElementById("create").classList.toggle("hidden");
+    document.getElementById("settings").setAttribute("aria-expanded", "true");
+    document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
+        iframe.style.zIndex = 1;
+    });
+});
+settingsBG.addEventListener("click", function() { 
+    hidePopupMenu(); 
+    document.getElementById("create").classList.toggle("hidden");
+    document.getElementById("settings").setAttribute("aria-expanded", "false");
+});
+
 toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
 toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
 
@@ -28,27 +42,8 @@ toolEraser.addEventListener("click", function() { toolEraserSelect(); });
 
 toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
 toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
-/*
-popupSettings.addEventListener("click", function() {       console.log("popupSettings clicked");
-    if (document.getElementById("popupBlockSettings").classList.contains("hidden")) {
-        document.getElementById("popupBlockSettings").classList.remove("hidden");
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "true");
-    } else {
 
-    }
-});*/
-/*popupBlockSettings.addEventListener("click", function() {  
-
-    if (document.getElementById("mainWindow").classList.contains("hidden")) {
-    //do nothing till main interface is loaded
-    } else { 
-    document.getElementById("popupBlockSettings").classList.add("hidden")
-    document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
-    }
-});*/
-
-
-function hidePopupMenu() {  //used folr special cases like the share menu or to hide after changing settings
+function hidePopupMenu() {  //used for special cases like the share menu or to hide after changing settings
     const popups = document.querySelectorAll(".popupBG");
     popups.forEach(popup => {
         if (!popup.classList.contains("hidden")) {
@@ -79,11 +74,13 @@ window.onclick = function(e) {
         }
     }
 }
+
 function showPopupMenu(event) {
     parent = event.closest('.top');
     if (parent != null) {
         parent.style.zIndex = 9;
-    console.log(parent);
+        annotationsCanvas.style.zIndex = 8;
+    //console.log(parent);
     }
     if (event.nextElementSibling.classList.contains("hidden")) {
         event.nextElementSibling.classList.remove("hidden");

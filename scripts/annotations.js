@@ -53,7 +53,7 @@ eventer(messageEvent, function(e) {
         document.getElementById("annotationsCanvas").style.top = top+50+"px";
         document.getElementById("annotationsCanvas").style.left = left+110+"px"
 
-        console.log(`Canvas size updated to: ${width}x${height}x${top}x${left}`);
+        console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         
         } else {
         console.warn("Canvas element not found.");

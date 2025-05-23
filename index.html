@@ -124,55 +124,58 @@
     </div>
 
 <!--enter username, select camera and microphone-->
-    <div class="popupBG hidden" id="popupBlockSettings">
-        <div class="dialoglogin centerhorizontal" id="setupCamMic"  onclick="event.stopPropagation()">
-            <div id="setupPreview">
-                <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
-                <audio id="microphone" class="loginaudio" autoplay></audio>
-            </div>
-            <div>
-                <span class="label">Name</span>
-                <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name... (Required)" contenteditable="true" autocomplete="off">
-            </div>
-            <div>
-                <span class="label">Camera</span>
-                <div class="custom-select">
-                    <select contenteditable="true" id="cameraSource">
-                        <option value="">None</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <span class="label">Microphone</span>
-                <div class="custom-select">
-                    <select contenteditable="true" id="microphoneSource">
-                        <option value="">None</option>
-                    </select>
-                </div>
-            </div>
-            <hr>
-            <div>
-                <button id="checkLogin" class="botton buttonblue">Join live session</button>
-            </div>
+    <div class="dialoglogin centerhorizontal hidden" id="create">
+        <div id="setupPreview">
+            <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
+            <audio id="microphone" class="loginaudio" autoplay></audio>
         </div>
-        <!-- duplicate elements not displayed so can re-use camera and microphone code-->
-        <div class="row collapsed hidden" id="moresettings">
+        <div>
+            <span class="label">Name</span>
+            <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name (Required)" contenteditable="true" autocomplete="off">
+        </div>
+        <div>
+            <span class="label">Camera</span>
             <div class="custom-select">
-                <select contenteditable="true" id="videoSource">
+                <select contenteditable="true" id="cameraSource">
                     <option value="">None</option>
                 </select>
             </div>
+        </div>
+        <div>
+            <span class="label">Microphone</span>
             <div class="custom-select">
-                <select contenteditable="true" id="audioSource">
+                <select contenteditable="true" id="microphoneSource">
                     <option value="">None</option>
                 </select>
             </div>
-            <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
-            <audio id="audio" class="audiosource" autoplay></audio>
         </div>
+        <div>
+            <br>
+        </div>
+        <div>
+            <button id="checkLogin" class="botton buttonblue">Join live session</button>
+        </div>
+    </div>
+    <!-- duplicate elements not displayed so can re-use camera and microphone code-->
+    <div class="row collapsed hidden" id="moresettings">
+        <div class="custom-select">
+            <select contenteditable="true" id="videoSource">
+                <option value="">None</option>
+            </select>
+        </div>
+        <div class="custom-select">
+            <select contenteditable="true" id="audioSource">
+                <option value="">None</option>
+            </select>
+        </div>
+        <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
+        <audio id="audio" class="audiosource" autoplay></audio>
     </div>
     <!-- duplicate elements end-->
 
+    <!--iframes for vdo ninja-->
+    <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
+    <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
@@ -198,19 +201,16 @@
             </div>
         </div>
 
-        <!--iframes for vdo ninja-->
-        <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
-        <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
-
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
 
             <!--settings menu-->
             <div class="toolset">
-                <button class="tool toolmoresettings" id="popupSettings" aria-expanded="false">
+                <button class="tool toolmoresettings" id="settings" aria-expanded="false">
                     <span class="material-symbols-outlined">settings</span>
                 </button>
-
+                <div class="popupBG hidden" id="settingsBG">
+                </div>
             </div>
 
             <!--mute camera and microphone-->
@@ -218,22 +218,22 @@
                 <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
                     <span class="material-symbols-outlined">mic</span>
                 </button>
-                <button class="tool toolred" aria-expanded="false" id="toolMuteCamera" >
+                <button class="tool toolred disable" aria-expanded="false" id="toolMuteCamera" disabled>
                     <span class="material-symbols-outlined">photo_camera</span>
                 </button>
             </div>
 
             <!--annotations-->
             <div class="toolset">
-                <button class="tool" aria-expanded="false" id="toolDraw">
+                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
-                <button class="tool toolmoresettings" aria-expanded="false" id="popupPalette">
+                <button class="tool toolmoresettings disable" aria-expanded="false" id="popupPalette" disabled>
                     <span class="material-symbols-outlined">palette</span>
                 </button>
                 <!----- popup menu ------>
                 <div class="popupBG hidden" id="popupBlockPalette">
-                    <div class="toolpopup bottom middle" onclick="event.stopPropagation()">
+                    <div class="toolpopup bottom middle">
                         <div>
                             <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
                             <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
@@ -244,7 +244,7 @@
                     </div>
                 </div>
                 <!----- end popup menu ------>
-                <button class="tool" aria-expanded="false" id="toolEraser">
+                <button class="tool disbale" aria-expanded="false" id="toolEraser" disabled>
                     <span class="material-symbols-outlined">ink_eraser_off</span>
                 </button>
             </div>
@@ -255,6 +255,7 @@
                     <span class="material-symbols-outlined">cloud_download</span>
                 </button>        
             </div>
+
             <!--spacer-->
             <div class="toolspacer">
   
@@ -267,44 +268,24 @@
                 <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100"/></span>        
             </div>
 
-
-
-
         </div>
     </div>
 
 
-    <!-- popup menu warning for microphone permissions-->
-    <div id="popupPermissionMic" class="toolpopup top middle hidden">
-        <h2>
-        Warning : Microphone permissions blocked<br>
-        </h2>
-        <p></p>
-        Please check your browser settings to allow<br>
-        access to the microphone. Once granted<br>
-        you will be able to mute it at any time.<br>
-        <p></p>
-        <button id="permissionMicHelp" class="botton buttonblue"> Click here for more info </button>
-    </div>
-
-    <!-- popup menu warning for camera permissions-->
-    <div class="popupBG" id="popupPermissionCam">
-        <div  class="toolpopup top middle " onclick="event.stopPropagation()">
+    <!-- popups-->
+    <!----- Permissions ------>
+    <div class="popupBG hidden popupBGImmutable" id="popupPermissionMic" >
+        <div class="toolpopup top middle">
             <h2>
-            Note : Camera permissions blocked<br>
+            Warning : Microphone or Camera permissions blocked<br>
             </h2>
             <p></p>
-            If you block the camera access from<br>
-            your browser you will have to reload<br>
-            and re-login to enable it. <br>
+            Please check your browser settings to allow access<br>
+            to the microphone and camera for streaming.
             <p></p>
-            If you allow access to the camera<br>
-            you can mute it or disable it at<br>
-            any time without reloading the page.
+            You will be able to mute them at any time.
             <p></p>
-            <a href="https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"> Click here for more info </a>
-            <p></p>
-            <button id="permissionCamDismiss" class="botton buttonblue">Continue without camera</button>
+            <button id="permissionMicHelp" class="botton buttonblue"> Click here for more info </button>
         </div>
     </div>
     <!----- popup menu microphone mute ------>
@@ -385,7 +366,7 @@ function checkSessionURL (result) {
                 checkCookie("username", "camera", "mic")
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
-                document.getElementById("popupBlockSettings").classList.remove("hidden");
+                document.getElementById("create").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
 
@@ -395,7 +376,7 @@ function checkSessionURL (result) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//Entering session ID code if the URL parameter is not valid
+//Entering session ID code if the URL parameter is not supplied or invalid
 //set focus to session ID input
 //submit session ID if user hits enter key or clicks submit button
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -464,25 +445,23 @@ document.getElementById("name").addEventListener("keypress", function(event) {
 	});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//Join seesion code
+//Join seesion code and change settings code
 //check that the user has enetered a name and selected a microphone
-//if yes then start the main stream and client stream
+//if yes then start the main stream and client stream or change the client stream settings
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function joinSession() {
     let username = document.getElementById("name").value;
     sanitizedUserName = encodeURIComponent(username); 
-    //check if the username is empty
+    //check if the username is empty or no microphone selected
     if (sanitizedUserName == "") {
         document.getElementById("name").style.animation = "pulse 250ms";
         setTimeout ( function () {document.getElementById("name").style.animation = "none"; }, 250);  
         document.getElementById("name").focus(); 
-
     //check we've selected a microphone
     } else if ( document.getElementById("microphoneSource").selectedIndex == 0) {
         document.getElementById("microphoneSource").style.animation = "pulse 250ms";
         setTimeout ( function () {document.getElementById("microphoneSource").style.animation = "none"; }, 250);  
         document.getElementById("microphoneSource").focus(); 
-
     //moving on    
     } else {  
         //if the username is not empty then stop streams so not to conflict with the vdo ninja ones
@@ -513,53 +492,37 @@ function joinSession() {
         if (sanitizedMicrophone == "none") {
             sanitizedMicrophone = "0"
         }
-        
-        //save the username, camera and microphone to cookies, make valid for 7 days
-        setCookie("username", sanitizedUserName, 7);
-        setCookie("camera", camera, 7);
-        setCookie("mic", microphone, 7);
 
-        //hide the login screen and show the main window
-        document.getElementById("popupBlockSettings").classList.add("hidden");
-        document.getElementById("mainWindow").classList.remove("hidden");
-
-        //disable the drawing and mute stream button tools until we get the main feed
-        if (annotationsCanvas.style.width == "") {        
-            document.getElementById('toolMuteStream').classList.add("disable");
-            document.getElementById('toolMuteStream').disabled = true;
-            document.getElementById('toolStreamVolume').classList.add("disable");
-            document.getElementById('toolStreamVolume').disabled = true;
-            
-            document.getElementById('toolDraw').classList.add("disable");
-            document.getElementById('toolDraw').disabled = true;
-
-            document.getElementById('popupPalette').classList.add("disable");
-            document.getElementById('popupPalette').disabled = true;
-
-            document.getElementById('toolEraser').classList.add("disable");
-            document.getElementById('toolEraser').disabled = true;
-        }
         //disable the camera button if no camera selected or if blocked by browser
-        if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
-            document.getElementById('toolMuteCamera').classList.add("disable");
-            document.getElementById('toolMuteCamera').disabled = true;
-        } else {
+        if ((sanitizedCamera != 0) || (sanitizedCamera != "disabled_in_browser")) {
             document.getElementById('toolMuteCamera').classList.remove("disable");
             document.getElementById('toolMuteCamera').disabled = false;
         }
 
-        //move and reposition the camera and microphone windows
-        document.getElementById("setupCamMic").classList.remove("centerhorizontal", "dialoglogin");        
-        document.getElementById("setupCamMic").classList.add("toolpopup", "bottom", "left", "dialogModify");
-        document.getElementById("setupPreview").style.display = "none";
-        document.getElementById("checkLogin").innerHTML = "Apply settings";
-        document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+        //run only the first time the user enters the session there after not necessary
+        if (sessionStarted == false) {                   
+            //hide the login screen and show the main window and reposition the elements for the settings menu
+            document.getElementById("create").classList.remove("centerhorizontal", "dialoglogin");        
+            document.getElementById("create").classList.add("toolpopup", "bottom", "left", "dialogModify", "hidden");
+            document.getElementById("setupPreview").style.display = "none";
+            document.getElementById("checkLogin").innerHTML = "Apply settings";
 
-        //start mainstream once only
-        if (sessionStarted == false) {
+            //save the username, camera and microphone to cookies, make valid for 7 days
+            setCookie("username", sanitizedUserName, 7);
+            setCookie("camera", camera, 7);
+            setCookie("mic", microphone, 7);
+            document.getElementById("mainWindow").classList.remove("hidden");
             mainstream ()
+        } else {
+            document.getElementById("create").classList.add("hidden");
+            document.getElementById("settings").setAttribute("aria-expanded", "false");
+            document.getElementById("settingsBG").classList.add("hidden");
         }
-        //start viewerstream and if settings changed resart
+
+        //document.getElementById("popupBlockSettings").classList.add("hidden");
+        //document.getElementById("popupSettings").setAttribute("aria-expanded", "false");
+
+        //start viewerstream
         viewerStream ()
 
         //set that we have started the main stream

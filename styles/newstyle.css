@@ -46,7 +46,7 @@ body {
 }
 hr {
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
-    margin-top: 20px;
+    margin-top: 0px;
     margin-bottom: 30px;
 }
 h2 {
@@ -66,8 +66,8 @@ iframe {
     margin-left: 0px;
 	border:0px;
 	padding:0px;
-	position:absolute;
-	display:block;
+	position: fixed;
+	display: none;
 }
 .centerhorizontal {
     margin:auto
@@ -382,8 +382,11 @@ input[type="range"]::-webkit-slider-thumb {
     height:100%;
     top:0;
     left:0;
-    background-color: rgba(0, 0, 0, 0.50);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 9;
+}
+.popupBGImmutable {
+    background-color: var(--color-mid-grey);
 }
 .toolpopup {
     position: absolute;

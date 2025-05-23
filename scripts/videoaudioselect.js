@@ -9,31 +9,12 @@ async function checkPermissions() {
 try {
     const cameraPermission = await navigator.permissions.query({ name: 'camera' });
     const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
-    //camera permissions, if disabled the disable the camera select
-    if (cameraPermission.state !== 'granted') {
-        document.getElementById('popupPermissionCam').style.display = 'block';
-        permissionCamDismiss.addEventListener("click", function() {
-            document.getElementById('popupPermissionCam').style.display = 'none';
-            document.getElementById('cameraSource').classList.add("disable");
-            document.getElementById('cameraSource').parentElement.classList.add("disable");
-            document.getElementById('cameraSource').innerHTML = "<option>Disabled in browser</option>";
-            document.getElementById('cameraSource').disabled = true;
-        });
-    } else {
-        document.getElementById('popupPermissionCam').style.display = 'none';
-    }
 
     //block login and session if microphone is not allowed
-    if (microphonePermission.state !== 'granted') {
-        document.getElementById('popupPermissionCam').style.display = 'none';
-        document.getElementById('session').style.display = 'none';        
-        //document.getElementById('dialoglogin').style.display = 'none';
-        document.getElementById('popupPermissionMic').style.display = 'block';
+    if ((microphonePermission.state !== 'granted') || (cameraPermission.state !== 'granted')){
+        document.getElementById('popupPermissionMic').classList.remove("hidden");
         permissionMicHelp.addEventListener("click", function() {  window.open('https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"'); });
-
-    } else {
-        document.getElementById('popupPermissionMic').style.display = 'none';
-    }
+    } 
     } catch (error) {
         console.error('Error checking permissions:', error);
         // Handle potential errors
