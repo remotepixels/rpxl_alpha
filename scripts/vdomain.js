@@ -62,7 +62,7 @@ function sendMainstreamSize() {
 }
 
 //wait for 3 seconds after loaded to run the first time
-setTimeout(function() { sendMainstreamSize(); }, 3000); 
+setTimeout(function() { sendMainstreamSize(); }, 5000); 
 
 // run everytime the window is resized but throttled
 // This will ensure that the function is not called too often

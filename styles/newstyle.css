@@ -67,7 +67,6 @@ iframe {
 	border:0px;
 	padding:0px;
 	position: fixed;
-	display: none;
 }
 .centerhorizontal {
     margin:auto
@@ -505,12 +504,11 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
 .annotationsCanvas {
     position: absolute;
     display: block;
+    border: 1px solid transparent;
     top: 0px;
-    left: 0px;
     width: 0px;
     height: 0px;
     cursor: default;
-    z-index: 5;
 }
 
 .hidden {

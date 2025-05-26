@@ -18,11 +18,12 @@ function restrictInput(e) {
 //toolbar code
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var openModal = 0
-
+//settings menu (special case stuff)
 settings.addEventListener("click", function() { 
     document.getElementById("settingsBG").classList.toggle("hidden");
     document.getElementById("create").classList.toggle("hidden");
     document.getElementById("settings").setAttribute("aria-expanded", "true");
+    document.getElementById("annotationsCanvas").style.display = "none";
     document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
         iframe.style.zIndex = 1;
     });
@@ -31,6 +32,7 @@ settingsBG.addEventListener("click", function() {
     hidePopupMenu(); 
     document.getElementById("create").classList.toggle("hidden");
     document.getElementById("settings").setAttribute("aria-expanded", "false");
+    document.getElementById("annotationsCanvas").style.display = "block";
 });
 
 toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
@@ -79,19 +81,24 @@ function showPopupMenu(event) {
     parent = event.closest('.top');
     if (parent != null) {
         parent.style.zIndex = 9;
-        annotationsCanvas.style.zIndex = 8;
+
     //console.log(parent);
     }
     if (event.nextElementSibling.classList.contains("hidden")) {
         event.nextElementSibling.classList.remove("hidden");
-
+        document.getElementById("annotationsCanvas").style.zIndex = 1; //make sure the canvas is on top of the popup
+        document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
+            iframe.style.zIndex = 1;
+        });
         event.setAttribute("aria-expanded", "true");
         openModal = true;
         //console.log("openModal", openModal);
     } else {
         event.nextElementSibling.classList.add("hidden");
         event.setAttribute("aria-expanded", "false");
+        
     }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,15 +147,18 @@ function toolDrawSelect () {
         toolDraw.setAttribute("aria-expanded", "true");
         toolDraw.classList.toggle("selected"); 
 
+        document.getElementById("annotationsCanvas").style.display = "block";
         document.getElementById("annotationsCanvas").style.cursor = "crosshair";
+
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', endDrawing);
         canvas.addEventListener('mouseout', endDrawing);
     } else {
         toolDraw.setAttribute("aria-expanded", "false");
-        document.getElementById("annotationsCanvas").style.cursor = "default";
         toolDraw.classList.toggle("selected"); 
+
+        document.getElementById("annotationsCanvas").style.cursor = "default";
 
         canvas.removeEventListener('mousedown', startDrawing);
         canvas.removeEventListener('mousemove', draw);

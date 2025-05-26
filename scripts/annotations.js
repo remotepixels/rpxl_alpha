@@ -51,7 +51,7 @@ eventer(messageEvent, function(e) {
         document.getElementById("annotationsCanvas").style.width = width+"px";
         document.getElementById("annotationsCanvas").style.height = height+"px";
         document.getElementById("annotationsCanvas").style.top = top+50+"px";
-        document.getElementById("annotationsCanvas").style.left = left+110+"px"
+        //document.getElementById("annotationsCanvas").style.left = left+110+"px"
 
         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         

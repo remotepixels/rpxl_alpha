@@ -105,6 +105,11 @@
 </style>
 
 <body>
+    <!--iframes for vdo ninja-->
+    <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
+    <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
+    <!--canvas for drawing annotations-->
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
 <!--enter seasion ID popup-->
     <div class="dialoglogin centerhorizontal" id="session">
@@ -131,7 +136,7 @@
         </div>
         <div>
             <span class="label">Name</span>
-            <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name (Required)" contenteditable="true" autocomplete="off">
+            <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Required)" contenteditable="true" autocomplete="off">
         </div>
         <div>
             <span class="label">Camera</span>
@@ -173,11 +178,6 @@
     </div>
     <!-- duplicate elements end-->
 
-    <!--iframes for vdo ninja-->
-    <iframe title="mainStream" class="mainstreamiframe" id="mainStream"></iframe>        
-    <iframe title="viewersStream" class="viewersiframe" id="viewersStream"></iframe>
-    <!--canvas for drawing annotations-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
@@ -413,7 +413,7 @@ function checkEnteredSession() {
                 client = decodeURIComponent(clientEncoded)
 
                 document.getElementById("session").classList.add("hidden");
-                document.getElementById("popupBlockSettings").classList.remove("hidden");
+                document.getElementById("create").classList.remove("hidden");
                 document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
                 
@@ -558,34 +558,41 @@ function mainstream () {
 function viewerStream () {
     //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
     if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
-        var miconly = "&miconly";
+        var setupString = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+            "&transparent"+
+            "&disablehotkeys"+
+            "&videodevice=0"+
+            "&webcam"+
+            "&audiodevice="+sanitizedMicrophone+
+            "&label="+sanitizedUserName+
+            "&style=4"+
+            "&showlabels"+
+            "&group=client"+
+            "&groupmode"+
+            "&groupview"+
+            "&autostart"+
+            "&clean"+
+            "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
+
+            //"&showall"+
+            //"&meterstyle=2"+//round highlight over person talking
+            //"&quality=3"+	//set camera quality to lowest possible, about 360p
+            //disables screenshare use &webcam2 to show share your camera screen
+            //"&videobitrate=196"+
+            //"&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
+            //"&style=5"+	//show audio only sources as coloured circles with first letter of name
+            //"&meterstyle=2"+	//round highlight over person talking
+            
+
     }   else {
-        var miconly = "&videodevice="+sanitizedCamera;
+        var setupString = "&videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
+    
     document.getElementById("viewersStream").style.display = "none";
     document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
 
-    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&label="+sanitizedUserName+	//sets webcam as label for client connection
-    "&showlabels"+
-    "&audiodevice="+sanitizedMicrophone+ //audio source
-    "&group=client"+
-    "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+miconly+
-    "&showall"+
-    "&groupmode"+
-    "&groupview"+
-    "&autostart"+   //autostart directors feed
-    "&clean"+
-    "&quality=3"+	//set camera quality to lowest possible, about 360p
-    "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
-    "&videobitrate=256"+
-    "&viewwidth=160&viewheight=90"+	//sets incoming video to px size (very low res)
-    "&style=6"+	//show audio only sources as coloured circles with first letter of name
-    "&meterstyle=5"+	//round highlight over person talking
-    "&transparent"+	//makes bg transparent
-    "&disablehotkeys"+	//no hotkeys
-    "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
-    ""; 
+    document.getElementById("viewersStream").src = setupString; 
     setTimeout(function(){ document.getElementById("viewersStream").style.display = "block";	},2000);
 }
 
