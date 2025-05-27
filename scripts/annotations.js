@@ -40,18 +40,20 @@ eventer(messageEvent, function(e) {
         document.getElementById('toolMuteStream').disabled = false;
         document.getElementById('toolStreamVolume').classList.remove("disable");
         document.getElementById('toolStreamVolume').disabled = false;
-
         }
 
         // Ensure the canvas element exists before attempting to set its size
         // turn on the stream voule controls
         if (canvas) {
+        var viewersIframeWidth = document.getElementById("mainStream").offsetLeft;
+        console.log("viewers iframe width:"+viewersIframeWidth);
+
         document.getElementById("annotationsCanvas").width = width;
         document.getElementById("annotationsCanvas").height = height;
         document.getElementById("annotationsCanvas").style.width = width+"px";
         document.getElementById("annotationsCanvas").style.height = height+"px";
         document.getElementById("annotationsCanvas").style.top = top+50+"px";
-        //document.getElementById("annotationsCanvas").style.left = left+110+"px"
+        document.getElementById("annotationsCanvas").style.left = left+viewersIframeWidth+"px"
 
         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         
@@ -73,6 +75,7 @@ eventer(messageEvent, function(e) {
                     type: "pcs"/*,
                     UUID: e.data.streamID*/
                 }, "*");
+                //console.log("Sent drawing history to new peer:", e.data.streamID);
             }
         } 
         else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {

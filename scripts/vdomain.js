@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Listen for draw co-ordinates from parent window and send to all clients
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-window.addEventListener('message', function(e) {
+/*window.addEventListener('message', function(e) {
   // IMPORTANT: Check the origin of the message to ensure it's from a trusted source.
   // For example, if you expect messages from 'https://parent.example.com':
   // if (event.origin !== 'https://parent.example.com') {
@@ -27,7 +27,7 @@ window.addEventListener('message', function(e) {
 
   }
 });
-
+*/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Send the size of the 'main video stream (called holder)' element to the parent window
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ function sendMainstreamSize() {
   }          
 }
 
-//wait for 3 seconds after loaded to run the first time
+//wait for 5 seconds after loaded to run the first time
 setTimeout(function() { sendMainstreamSize(); }, 5000); 
 
 // run everytime the window is resized but throttled

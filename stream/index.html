@@ -23,6 +23,9 @@
 
     <title>rpxl.app v2.1 Stream</title>
 </head>
+
+<link rel="stylesheet" href="../styles/newstyle.css">
+
 <!--styles speciic for this page only-->
 <style>
 .dialogcreate {
@@ -32,7 +35,6 @@
     justify-content: center;
     top:  calc(var(--button-height));
     width: 790px;
-    margin:0px;
     padding: 20px 20px 10px 20px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
@@ -58,7 +60,9 @@
     right:0px;
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-
+.collapsed {
+    max-height: 0px;
+}
 .bottoncreate {
     left:5px;
     width:336px;
@@ -80,7 +84,7 @@
 .refreshicon {
     position: absolute;
     display: inline;
-    left:365px;
+    left:360px;
     top:10px;
     z-index:3;
     cursor: pointer;
@@ -101,7 +105,6 @@
     color: light-dark(var(--color-dark-grey), var(--color-light-white));
 
 }
-
 .toolquit {
     position: absolute;
     display: block;
@@ -114,7 +117,6 @@
     border-radius: var(--radius-big);
     z-index: 10;
 }
-
 .mainstreamiframe {
 	width: calc(100% - 310px);
     left:305px;
@@ -126,10 +128,7 @@
 	z-index:0;
 	overflow:auto;
 }
-.directorAnnotations {
-/*over ride left position in directors interface*/
-    left:305px!important;
-}
+
 /*
 #meterGraph{
     margin-left:5px;
@@ -148,15 +147,13 @@
 }*/
 </style>
 
-<link rel="stylesheet" href="../styles/newstyle.css">
-
 <body>
     <!--iframes for vdo ninja-->   
     <iframe class="viewersiframe" id="viewersStream"></iframe>
     <iframe class="mainstreamiframe" id="mainStream"></iframe>     
  
     <!--Annotations canvas-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas directorAnnotations"></canvas>
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
     <!--Setup screen, also used as setting panel later-->
     <div class="dialogcreate centerhorizontal" id="create">
@@ -176,14 +173,14 @@
                 </div>
                 <div id="createClient">
                     <span class="label">Client</span>
-                    <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="Client name (Optional)" contenteditable="true">
+                    <input type="text" maxlength="30" class="textinput" id="clientName" name="clientName" placeholder="(Optional)" contenteditable="true">
                 </div>
                 <div>
                     <span class="label">Resolution</span>
                     <span class="radioset" role="radiogroup" aria-labelledby="resolution">
                         <label class="disable"><input type="radio" name="resolution" disabled value="">4K</label>
-                        <label><input type="radio" name="resolution" checked value="0">1080P</label>
-                        <label><input type="radio" name="resolution" value="1">720P</label>
+                        <label><input type="radio" name="resolution" value="0">1080P</label>
+                        <label><input type="radio" name="resolution" checked value="1">720P</label>
                     </span>
                 </div>
                 <div>
@@ -235,7 +232,7 @@
                 <h2 id="createOptional">Optional settings</h2>     
                 <div>    
                     <span class="label">Name</span>
-                    <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Your name (Optional)" contenteditable="true" autocomplete="off">
+                    <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Optional)" contenteditable="true" autocomplete="off">
                 </div>
                 <div>
                     <span class="label">Camera</span>
@@ -625,7 +622,6 @@ function vdoSession() {
     let audioSelected = audioList.selectedIndex;
 
     //get the selected camera and microphone device names (shown in the menu, not the values)
-
     let sanitizedVideo = videoList.options[videoSelected].text.toLowerCase().replace(/[\W]+/g, "_");
     let sanitizedAudio = audioList.options[audioSelected].text.toLowerCase().replace(/[\W]+/g, "_");
 
@@ -676,57 +672,55 @@ function vdoSession() {
     //start mainstream
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
     document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
-        "&push=Stream_"+sanitizedSessionID+	//push stream to this name
+        "&push=Stream_"+sanitizedSessionID+//push stream to this name
         "&broadcast"+
-        "&label=Stream"+	//sets livestream as label for director connection
-        "&rampuptime=6000"+	//ramp up time of 6 seconds
-        "&hidehome"+	//hide vdo ninja homepage	
+        "&mirror"+//mirror the video
+        "&label=Stream"+sanitizedSessionID+//sets livestream as label for director connection
+        "&rampuptime=6000"+//ramp up time of 6 seconds
+        "&hidehome"+//hide vdo ninja homepage	
         "&webcam"+
-        "&cleanoutput"+	//remove all interface bits
-        "&notify"+	// notify when people join
-        "&ovb="+quality+	//outbound video bitrate for main (obs stream)
-        "&quality="+resolution+	//1 720p set to 0 for 1080p
-        "&videodevice="+sanitizedVideo+ //video source
-        "&audiodevice="+sanitizedAudio+ //audio source
-        "&autostart"+   //autostart directors feed
-        "&trb=50000"+	//total room bit rate
-        "&hiddenscenebitrate=50000"+	//30mbps, highest quality
-        "&showlist=0"+	//show hidden guest list
-        "&hideplaybutton"+	//hides big play button if autoplay is disabled
-        "&cv"+	//clean viewer
-        "&transparent"+	//makes bg transparent
-        "&agc=0"+	//turns off auto gain control
-        "&denoise=0"+	//turns off denoiser
-        "&ab=128"+	//constant audio bitrate
+        "&clean"+//remove all interface bits
+        "&ovb="+quality+//outbound video bitrate for main (obs stream)
+        "&quality="+resolution+//1 720p set to 0 for 1080p
+        "&videodevice="+sanitizedVideo+//video source
+        "&audiodevice="+sanitizedAudio+//audio source
+        "&autostart"+//autostart directors feed
+        "&trb=50000"+//total room bit rate
+        "&hiddenscenebitrate=50000"+//50mbps, highest quality
+        "&showlist=0"+//show hidden guest list
+        "&hideplaybutton"+//hides big play button if autoplay is disabled
+        "&transparent"+//makes bg transparent
+        "&agc=0"+//turns off auto gain control
+        "&denoise=0"+//turns off denoiser
+        "&ab=128"+//constant audio bitrate
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-        "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-    "";    
+        "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js";
 
     //start viewer stream, after 1 sec
     setTimeout(function(){
         document.getElementById("viewersStream").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
         document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
-        "&label="+sanitizedUserName+	//sets webcam as label for client connection
+        "&label="+sanitizedUserName+//sets webcam as label for client connection
         "&showlabels"+
         "&group=client"+
-        "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-        //"&showall"+
+        "&notify"+
+        "&showall"+
         "&groupmode"+
         "&groupview"+
-        "&videodevice="+sanitizedCamera+ //video source
-        "&audiodevice="+sanitizedMicrophone+ //audio source
-        "&autostart"+   //autostart directors feed
+        "&videodevice="+sanitizedCamera+//video source
+        "&audiodevice="+sanitizedMicrophone+//audio source
+        "&autostart"+//autostart directors feed
         "&clean"+
-        "&quality=3"+	//set camera quality to lowest possible, about 360p
-        "&webcam"+	//disables screenshare use &webcam2 to show share your camera screen
+        "&quality=3"+//set camera quality to lowest possible, about 360p
+        "&webcam"+//disables screenshare use &webcam2 to show share your camera screen
         "&videobitrate=196"+
-        "&viewwidth=96&viewheight=59"+	//sets incoming video to px size (very low res)
-        "&style=6"+	//show audio only sources as coloured circles with first letter of name
-        "&meterstyle=5"+	//round highlight over person talking
-        "&transparent"+	//makes bg transparent
-        "&disablehotkeys"+	//no hotkeys
-        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+	//load style sheet
-        ""; 
+        "&viewwidth=96&viewheight=59"+//sets incoming video to px size (very low res)
+        "&style=4"+//show audio only sources as coloured circles with first letter of name
+        "&meterstyle=2"+//round highlight over person talking
+        "&transparent"+//makes bg transparent
+        "&disablehotkeys"+//no hotkeys
+        "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+        
+        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
     },1000);
 
     document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
