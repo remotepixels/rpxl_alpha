@@ -102,13 +102,13 @@ eventer(messageEvent, function(e) {
     //if window resized then resize the canvas
     if (e.data && e.data.sendData === 'mainstreamSize') {
         const { width, height, top, left } = e.data;
-
+        console.log("Received mainstream size:", e.data);
         // if we have video data, i mean some psycho could be sending audio only who knows
         // turn on the annotation tools
-        if (top == 0 && left == 0) { 
+        if (left == 0 && top == 0) { 
             console.log("No height");
- }
-        else if (width >= 0 && height >= 0) {
+        }
+        else{
         
         var leftOffset = left + frameWidth + 5;
 

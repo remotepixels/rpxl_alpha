@@ -15,8 +15,8 @@ function sendMainstreamSize() {
     top = layoutElement.offsetTop;
     left = layoutElement.offsetLeft;
   }
-  if (width === 0 || height === 0) {
-    //don't send if there is no video element, try again in 3 seconds
+  if ((width === 0 || height === 0) && (top === 0 && left === 0)) {
+    //don't send if there is no video element, try again every 3 seconds
     setTimeout(function() { sendMainstreamSize(); }, 1000);  
     return; 
   } else {  
