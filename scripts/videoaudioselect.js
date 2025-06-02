@@ -51,7 +51,20 @@ var videoElement = document.querySelector('video#video');
 var audioElement = document.querySelector('audio#audio');
 var stream = null;
 
+// Declare variables for audio processing
+let audioContext = null;
+let analyserNode = null;
+let animationFrameId = null; // To store the ID returned by requestAnimationFrame
+let mediaStreamAudioSourceNode = null; // Store the source node
 
+// Existing checkPermissions and other functions...
+
+// ... rest of your variables and functions
+
+
+
+//every time we select the dropdown check the source (main or user)
+//and get the value selected and get the respective stream and put it in the correct preview box
 //every time we select the dropdown check the source (main or user)
 //and get the value selected and get the respective stream and put it in the correct preview box
 function checkSelection (calledBy) {
@@ -59,41 +72,58 @@ function checkSelection (calledBy) {
         console.log("stopping stream")
         stream.getTracks().forEach(function(track) {
             track.stop();
-        });}
+        });
+        // Stop audio processing if it's running
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+            audioContext = null;
+            analyserNode = null;
+            mediaStreamAudioSourceNode = null;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            // Reset the meter display if needed
+            const volumeMeterEl = document.getElementById('audiometer');
+            if (volumeMeterEl) {
+                volumeMeterEl.style.height = '0px';
+            }
+        }
+    }
     //setup which elements will be replaced depending on the source changes
     //video, audio, camera or microphone and sets the target preview areas (main or user)
     //disables a select source so that it can not be used twice
     //console.log(calledBy.srcElement.id)
-    if (calledBy.srcElement.id == "videoSource") { 
+    if (calledBy.srcElement.id == "videoSource") {
         videoElement = document.querySelector('video#video');
         videos = document.getElementById("videoSource").value;
         videoSelected = document.querySelector('select#videoSource');
         preventDupes.call(this, cameraSource, this.selectedIndex );
-    } 
-    if (calledBy.srcElement.id == "audioSource") { 
+    }
+    if (calledBy.srcElement.id == "audioSource") {
         audioElement = document.querySelector('audio#audio');
         audios = document.getElementById("audioSource").value;
         audioSelected = document.querySelector('select#audioSource');
         preventDupes.call(this, microphoneSource, this.selectedIndex );
     }
-    if (calledBy.srcElement.id == "cameraSource") { 
+    if (calledBy.srcElement.id == "cameraSource") {
         videoElement = document.querySelector('video#camera');
         videos = document.getElementById("cameraSource").value;
         videoSelected = document.querySelector('select#cameraSource');
         preventDupes.call(this, videoSource, this.selectedIndex );
-    } 
-    if (calledBy.srcElement.id == "microphoneSource") { 
+    }
+    if (calledBy.srcElement.id == "microphoneSource") {
         audioElement = document.querySelector('audio#microphone');
         audios = document.getElementById("microphoneSource").value;
         audioSelected = document.querySelector('select#microphoneSource');
         preventDupes.call(this, audioSource, this.selectedIndex );
-    } 
+    }
 
     //check if a new video or audio option has been selected
     //if so get the appropriate stream
     //if they were set to none the stop the video or audio stream
-    if ((videos != "")) { 
-        videoElement.classList.remove("fadeout");  
+    if ((videos != "")) {
+        videoElement.classList.remove("fadeout");
         getvideoStream();
     } else {
         //console.log("video :", videoElement.srcObject)
@@ -101,7 +131,7 @@ function checkSelection (calledBy) {
             const videoStream = videoElement.srcObject;
             const videoTracks = videoStream.getTracks();
             videoTracks[0].stop();
-            videoElement.classList.add("fadeout");  
+            videoElement.classList.add("fadeout");
         }
     }
 
@@ -116,6 +146,7 @@ function checkSelection (calledBy) {
         }
     }
 }
+// ... rest of your checkSelection function
 //prevents the sources from being selected twice as both main and user sources
 function preventDupes( select, index ) {
     var options = select.options,
@@ -208,46 +239,84 @@ function getAudioStream() {
     return navigator.mediaDevices.getUserMedia(constraints).
         then(gotAudioStream).catch(handleError);
 }
+
+
 function gotAudioStream(stream) {
     window.stream = stream; // make stream available to console !important, used to stop streams earlier
 
     if (audio != "") {//used to make sure we don't set the stream on startup since none is the default option
         audioSelected.selectedIndex = [...audioSelected.options].findIndex(option => option.text === stream.getAudioTracks()[0].label);
-        audioElement.srcObject = stream;
-/*VU meter stuff
-        window.AudioContext = (window.AudioContext || window.webkitAudioContext);
+    //    audioElement.srcObject = stream;
 
-        var audioContext = new AudioContext();
-        var mediaStreamSource = audioContext.createMediaStreamSource(stream);
-        var processor = audioContext.createScriptProcessor(2048, 1, 1);
-
-        mediaStreamSource.connect(audioContext.destination);
-        mediaStreamSource.connect(processor);
-        processor.connect(audioContext.destination);
-
-        processor.onaudioprocess = function (e) {
-        var inputData = e.inputBuffer.getChannelData(0);
-        var inputDataLength = inputData.length;
-        var total = 0;
-
-        for (var i = 0; i < inputDataLength; i++) {
-        total += Math.abs(inputData[i++]);
+        // Close existing audio context if any
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
         }
 
-        var rms = Math.sqrt(total / inputDataLength);
-        updateMeter(rms * 200);
+        audioContext = new AudioContext();
+        mediaStreamAudioSourceNode = audioContext.createMediaStreamSource(stream);
+        const volumeMeterEl = document.getElementById('audiometer');
+        analyserNode = audioContext.createAnalyser(); // Store the analyser node
+        mediaStreamAudioSourceNode.connect(analyserNode);
+
+        const pcmData = new Float32Array(analyserNode.fftSize);
+
+        let currentMeterValue = 0; // Keep this outside the function so it persists between frames
+        const attack = 0.1; // Faster response when volume increases (adjust as needed)
+        const decay = 0.95; // Slower response when volume decreases (adjust as needed)
+        const scaleFactor = 1000; // Adjust this to match your meter's maximum visual height (e.g., 200px)
+
+        const onFrame = () => {
+            analyserNode.getFloatTimeDomainData(pcmData);
+            let sumSquares = 0.0;
+            for (const amplitude of pcmData) { sumSquares += amplitude * amplitude; }
+            const instantValue = Math.sqrt(sumSquares / pcmData.length);
+
+            // Apply attack and decay
+            if (instantValue > currentMeterValue) {
+                currentMeterValue = currentMeterValue + (instantValue - currentMeterValue) * attack;
+            } else {
+                currentMeterValue = currentMeterValue * decay;
+            }
+
+            currentMeterValue = Math.max(0, currentMeterValue);
+
+            if (volumeMeterEl) {
+                const meterHeight = currentMeterValue * scaleFactor;
+                volumeMeterEl.style.height = meterHeight + 'px';
+            }
+
+            // Store the animation frame ID
+            animationFrameId = window.requestAnimationFrame(onFrame);
         };
-        */
+
+        // Start the animation loop
+        animationFrameId = window.requestAnimationFrame(onFrame);
+    } else {
+         // Logic for when audio source is set to none - already partly in checkSelection
+         // Ensure any remaining audio processing is stopped here too
+         if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+            audioContext = null;
+            analyserNode = null;
+            mediaStreamAudioSourceNode = null;
+             if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            const volumeMeterEl = document.getElementById('audiometer');
+            if (volumeMeterEl) {
+                volumeMeterEl.style.height = '0px';
+            }
+         }
     }
 }
+// ... rest of your gotAudioStream function
 
 function handleError(error) {
     console.error('Error: ', error);
 }
-/*
-function updateMeter(pct) {
-    var meter = document.getElementById('meter');
-    meter.style.width = pct + '%';
-}
-
-*/

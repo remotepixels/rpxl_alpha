@@ -174,18 +174,7 @@ select:hover, select:active{
     pointer-events: none;
     transition: transform ease-in-out 0.3s;
 }
-.videosource, .camera {
-    display: inline;
-    position: relative;
-    object-fit: contain;
-    width: 336px;
-    height: 190px;
-    margin-left:5px;
-    margin-top:5px;
-    border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-dark-bg));
-    background-color: black;
-}
+
 .radioset {
     position: relative;
     display: inline-flex;
@@ -204,9 +193,6 @@ select:hover, select:active{
 .selectedred {
     color: light-dark(var(--color-light-bg), var(--color-light-white))!important;
     background-color: var(--color-red)!important;
-}
-.fadeout {
-    opacity: 0.1;
 }
 
 .buttonmoresettings[aria-expanded="true"]::after, .toolmoresettings[aria-expanded="true"]::after {

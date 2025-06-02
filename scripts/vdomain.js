@@ -15,9 +15,29 @@ function sendMainstreamSize() {
     top = layoutElement.offsetTop;
     left = layoutElement.offsetLeft;
   }
-  if ((width === 0 || height === 0) || (top === 0 && left === 0)) {
+ if (width === 0 || height === 0) {
     //don't send if there is no video element, try again every 3 seconds
     setTimeout(function() { sendMainstreamSize(); }, 1000);  
+    console.log("no video stream");
+    return; 
+  } else if ((top === 0) && (left === 0)) {
+    // If the top and left are 0, it means the mainstream is not in the expected position
+    // This can happen if the mainstream is not yet loaded or if it's in a different layout
+    // We will try to send the size again after 1 second
+    console.log("Mainstream is not positioned correctly, retrying...");
+    
+    // Send the message to the parent window with current size
+
+      window.parent.postMessage({
+        sendData: 'mainstreamSize', // Add a type to easily filter messages
+        width: width,
+        height: height,
+        top: top,
+        left: left,
+        "type": "pcs"
+    }, '*')
+
+    setTimeout(function() { sendMainstreamSize(); }, 250);  
     return; 
   } else {  
   // Send the message to the parent window
@@ -33,7 +53,7 @@ function sendMainstreamSize() {
 }
 
 //wait for 5 seconds after loaded to run the first time
-setTimeout(function() { sendMainstreamSize(); }, 4000); 
+setTimeout(function() { sendMainstreamSize(); }, 1000); 
 
 // run everytime the window is resized but throttled
 // This will ensure that the function is not called too often
@@ -47,6 +67,6 @@ function resizeThrottler() {
     resizeTimeout = setTimeout(function () {
       resizeTimeout = null;
       sendMainstreamSize();
-    }, 500);
+    }, 250);
   }
 }

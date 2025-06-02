@@ -97,19 +97,21 @@ var frameWidth = document.getElementById("viewersStream").offsetWidth;
 eventer(messageEvent, function(e) {
     // Make sure the message is from our VDO.Ninja iframe
     //if ((e.source != iframe.contentWindow) || (e.source != streamFrame.contentWindow)) return;
-
     //check if there is a amin stream and if there is then turn on annotations tools
     //if window resized then resize the canvas
     if (e.data && e.data.sendData === 'mainstreamSize') {
         const { width, height, top, left } = e.data;
-        console.log("Received mainstream size:", e.data);
+
         // if we have video data, i mean some psycho could be sending audio only who knows
-        // turn on the annotation tools
+        //sometimes the video stream is not ready yet, so we need to check if width and height are 0
+        //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
         if (left == 0 && top == 0) { 
-            console.log("No height");
+            document.getElementById('mainStream').style.width = "calc(100% - "+(frameWidth + 9)+"px)";
+            console.log("resized frame to get correct top and left positions for canvas");
         }
         else{
-        
+        // turn on the annotation tools and place canvas
+        //offst canvas depending if in director or client view        
         var leftOffset = left + frameWidth + 5;
 
         document.getElementById('toolDraw').classList.remove("disable");
@@ -124,7 +126,6 @@ eventer(messageEvent, function(e) {
         document.getElementById('toolStreamVolume').classList.remove("disable");
         document.getElementById('toolStreamVolume').disabled = false;
 
-        document.getElementById("annotationsCanvas").style.border = "1px solid red";
         document.getElementById("annotationsCanvas").width = width;
         document.getElementById("annotationsCanvas").height = height;
         document.getElementById("annotationsCanvas").style.width = width+"px";
@@ -132,6 +133,7 @@ eventer(messageEvent, function(e) {
         document.getElementById("annotationsCanvas").style.top = top+50+"px";
         document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
 
+        document.getElementById("annotationsCanvas").style.border = "1px solid red";
         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     }
@@ -139,6 +141,7 @@ eventer(messageEvent, function(e) {
     // Process connection events
     if ("action" in e.data) {
         //console.log("got some data");
+        if (e.data.action === "view-stats-updated") { return; } // Ignore stats updates
         if (e.data.action === "guest-connected" && e.data.streamID) {
             connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
             console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);

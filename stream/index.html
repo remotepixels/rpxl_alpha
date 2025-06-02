@@ -34,7 +34,7 @@
     align-items: center;
     justify-content: center;
     top:  calc(var(--button-height));
-    width: 790px;
+    width: 810px;
     padding: 20px 20px 10px 20px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
@@ -51,6 +51,21 @@
     max-height: 400px;
     transition: max-height 0.25s;  
 }
+.videosource, .camera {
+    display: inline;
+    position: relative;
+    object-fit: contain;
+    width: 336px;
+    height: 190px;
+    margin-left:5px;
+    margin-top:5px;
+    border-radius: var(--radius-big);
+    
+    background-color: light-dark(var(--color-mid-grey), var(--color-dark-bg));
+}
+.fadeout {
+    opacity: 0.1;
+}
 
 .buttonmoresettings {
     position: relative;
@@ -65,7 +80,7 @@
 }
 .bottoncreate {
     left:5px;
-    width:336px;
+    width:350px;
 }
 /* Create two equal columns that sits next to each other */
 .column {
@@ -128,22 +143,27 @@
 	z-index:0;
 	overflow:auto;
 }
-/*
-#meterGraph{
+
+.meterGraph{
+    position: relative;
+    display: inline-block;
     margin-left:5px;
     margin-top:5px;
     overflow: hidden;
-    height: 10px;
-    width:405px;
+    height: 190px;
+    width:10px;
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
 }
-#meter{
-    background: springgreen;
-    width: 0%;
-    height: 100%;
-    opacity: 0.5;
-}*/
+.meter{
+    position: absolute;
+    display: inline-block;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: dodgerblue;
+    width: 100%;
+    height: 0px;
+    bottom:0px;
+}
 </style>
 
 <body>
@@ -209,14 +229,12 @@
             </div>
             <div class="column" id="createVideo">
                 <div>
-                    <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video>
+                    <span><video id="video" class="videosource fadeout" autoplay playsinline poster=""></video></span>
+                    <span id="meterGraph" class="meterGraph">
+                        <span id="audiometer" class="meter"></span>
+                    </span>
                     <audio id="audio" class="audiosource" autoplay></audio>
                 </div>
-                <!--
-                <div id="meterGraph">
-                    <div id="meter"></div>
-                </div>
-                -->
             </div>
         </div>
 
@@ -228,7 +246,7 @@
         <div class="row collapsed" id="moresettings">
             <div class="column"> 
                 <br>
-                <h2 id="createOptional">Optional settings</h2>     
+                <h2 id="createOptional">Optional user settings</h2>     
                 <div>    
                     <span class="label">Name</span>
                     <input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Optional)" contenteditable="true" autocomplete="off">
@@ -253,7 +271,10 @@
             <div class="column" id="createCamera">
                 <div>
                     <h2>&nbsp;</h2><br>
-                    <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
+                    <span><video id="camera" class="camera fadeout" autoplay playsinline poster=""></video></span>
+                    <span id="meterGraph" class="meterGraph">
+                        <span id="micmeter" class="meter"></span>
+                    </span>
                     <audio id="microphone" class="loginaudio" autoplay></audio>
                     <p></p>
                 </div>
@@ -675,7 +696,7 @@ function vdoSession() {
         "&directoronly"+
         "&mirror"+//mirror the video
         //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-        "&rampuptime=6000"+//ramp up time of 6 seconds
+        //"&rampuptime=6000"+//ramp up time of 6 seconds
         "&hidehome"+//hide vdo ninja homepage	
         "&webcam"+
         "&cleanoutput"+//remove all interface bits
