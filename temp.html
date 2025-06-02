@@ -1,10 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDO.Ninja Drawing Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #app-container { max-width: 800px; margin: auto; text-align: center; }
+        canvas { cursor: crosshair; }
+    </style>
+    <body>
+        <div id="container"></div>
+    </body>
+</head>   
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Drawing code for canvas, as well as clearing and undoing
-////////////////////////////////////////////////////////////////////////////////////////////////////
-const canvas = document.getElementById('annotationsCanvas');
-const ctx = document.getElementById('annotationsCanvas').getContext('2d');
-const iframe = document.getElementById("viewersStream");
+
+<script>
+
+// Create interface elements
+const container = document.createElement('div');
+container.id = 'app-container';
+document.body.appendChild(container);
+
+// Create VDO.Ninja iframe
+const iframe = document.createElement('iframe');
+iframe.allow = "camera;microphone;fullscreen;display-capture;autoplay;";
+iframe.src = "https://vdo.ninja/?room=drawing-demo&cleanoutput";
+iframe.style.width = "640px";
+iframe.style.height = "360px";
+container.appendChild(iframe);
+
+// Create drawing canvas
+const canvasContainer = document.createElement('div');
+canvasContainer.style.position = 'relative';
+container.appendChild(canvasContainer);
+
+const canvas = document.createElement('canvas');
+canvas.width = 640;
+canvas.height = 360;
+canvas.style.border = '1px solid black';
+canvasContainer.appendChild(canvas);
+const ctx = canvas.getContext('2d');
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 3;
+ctx.lineCap = 'round';
+
+// Create controls
+const controlsDiv = document.createElement('div');
+controlsDiv.style.margin = '10px 0';
+container.appendChild(controlsDiv);
+
+const clearBtn = document.createElement('button');
+clearBtn.textContent = 'Clear';
+clearBtn.onclick = clearDrawing;
+controlsDiv.appendChild(clearBtn);
+
+const undoBtn = document.createElement('button');
+undoBtn.textContent = 'Undo';
+undoBtn.onclick = undoLastDrawing;
+controlsDiv.appendChild(undoBtn);
 
 // Track connected peers
 const connectedPeers = {};
@@ -13,17 +67,17 @@ let currentPath = [];
 let isDrawing = false;
 
 // Set up event handlers for the canvas
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', endDrawing);
+canvas.addEventListener('mouseout', endDrawing);
+
 function startDrawing(e) {
-    var annotationColor = document.getElementsByName("colorpot");
-    for (var i = 0; i < annotationColor.length; i++) {
-        if (annotationColor[i].checked) {
-            color = annotationColor[i].value;
-        }
-    }
     isDrawing = true;
     const x = e.offsetX / canvas.width;
     const y = e.offsetY / canvas.height;
     currentPath = [{ x, y }];
+    
     ctx.beginPath();
     ctx.moveTo(e.offsetX, e.offsetY);
 }
@@ -34,10 +88,7 @@ function draw(e) {
     const x = e.offsetX / canvas.width;
     const y = e.offsetY / canvas.height;
     currentPath.push({ x, y });
-
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
+    
     ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
 }
@@ -57,7 +108,7 @@ function endDrawing() {
     currentPath = [];
 }
 
-function toolEraserSelect() {
+function clearDrawing() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawingHistory.length = 0;
     
@@ -68,77 +119,59 @@ function toolEraserSelect() {
     }, "*");
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//sends the drawing data to the main stream iframe and the peers
-////////////////////////////////////////////////////////////////////////////////////////////////////
+function undoLastDrawing() {
+    if (drawingHistory.length === 0) return;
+    
+    // Remove the last path
+    drawingHistory.pop();
+    
+    // Redraw everything
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawingHistory.forEach(path => {
+        if (path.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
+            
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
+            }
+            
+            ctx.stroke();
+        }
+    });
+    
+    // Send undo command
+    iframe.contentWindow.postMessage({
+        sendData: { overlayNinja: { drawingData: "undo" } },
+        type: "pcs"
+    }, "*");
+}
+
 function sendDrawingData(pathPoints) {
     const drawingData = {
         t: 'path',
         p: pathPoints,
-        c: color,  // Color
+        c: 'red',  // Color
         w: 3       // Width
     };
-    //console.log("Sending drawing data:", drawingData);
+    
     iframe.contentWindow.postMessage({
         sendData: { overlayNinja: { drawingData: drawingData } },
         type: "pcs"
     }, "*");
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Set up the event listener
-//listens for other drawing events from clients
-////////////////////////////////////////////////////////////////////////////////////////////////////
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-var frameWidth = document.getElementById("viewersStream").offsetWidth;
 
 eventer(messageEvent, function(e) {
     // Make sure the message is from our VDO.Ninja iframe
-    //if ((e.source != iframe.contentWindow) || (e.source != streamFrame.contentWindow)) return;
-
-    //check if there is a amin stream and if there is then turn on annotations tools
-    //if window resized then resize the canvas
-    if (e.data && e.data.sendData === 'mainstreamSize') {
-        const { width, height, top, left } = e.data;
-
-        // if we have video data, i mean some psycho could be sending audio only who knows
-        // turn on the annotation tools
-        if (top == 0 && left == 0) { 
-            console.log("No height");
- }
-        else if (width >= 0 && height >= 0) {
-        
-        var leftOffset = left + frameWidth + 5;
-
-        document.getElementById('toolDraw').classList.remove("disable");
-        document.getElementById('toolDraw').disabled = false;
-        document.getElementById('popupPalette').classList.remove("disable");
-        document.getElementById('popupPalette').disabled = false;
-        document.getElementById('toolEraser').classList.remove("disable");
-        document.getElementById('toolEraser').disabled = false;
-
-        document.getElementById('toolMuteStream').classList.remove("disable");
-        document.getElementById('toolMuteStream').disabled = false;
-        document.getElementById('toolStreamVolume').classList.remove("disable");
-        document.getElementById('toolStreamVolume').disabled = false;
-
-        document.getElementById("annotationsCanvas").style.border = "1px solid red";
-        document.getElementById("annotationsCanvas").width = width;
-        document.getElementById("annotationsCanvas").height = height;
-        document.getElementById("annotationsCanvas").style.width = width+"px";
-        document.getElementById("annotationsCanvas").style.height = height+"px";
-        document.getElementById("annotationsCanvas").style.top = top+50+"px";
-        document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
-
-        console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
-        }
-    }
-
+    if (e.source != iframe.contentWindow) return;
+    
     // Process connection events
     if ("action" in e.data) {
-        //console.log("got some data");
         if (e.data.action === "guest-connected" && e.data.streamID) {
             connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
             console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);
@@ -150,7 +183,6 @@ eventer(messageEvent, function(e) {
                     type: "pcs",
                     UUID: e.data.streamID
                 }, "*");
-                
             }
         } 
         else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {
@@ -171,10 +203,31 @@ eventer(messageEvent, function(e) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     drawingHistory.length = 0;
                 }
+                else if (data.drawingData === "undo") {
+                    // Undo command
+                    if (drawingHistory.length > 0) {
+                        drawingHistory.pop();
+                        
+                        // Redraw everything
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        drawingHistory.forEach(path => {
+                            if (path.length > 1) {
+                                ctx.beginPath();
+                                ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
+                                
+                                for (let i = 1; i < path.length; i++) {
+                                    ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
+                                }
+                                
+                                ctx.stroke();
+                            }
+                        });
+                    }
+                }
                 else if (data.drawingData.t === 'path') {
                     // New path
                     const pathPoints = data.drawingData.p;
-                    const pathColor = data.drawingData.c;
+                    
                     // Add to history
                     drawingHistory.push(pathPoints);
                     
@@ -186,9 +239,7 @@ eventer(messageEvent, function(e) {
                         for (let i = 1; i < pathPoints.length; i++) {
                             ctx.lineTo(pathPoints[i].x * canvas.width, pathPoints[i].y * canvas.height);
                         }
-                        ctx.lineWidth = 3;
-                        ctx.lineCap = 'round';
-                        ctx.strokeStyle = pathColor;
+                        
                         ctx.stroke();
                     }
                 }
@@ -220,3 +271,4 @@ eventer(messageEvent, function(e) {
         }
     }
 }, false);
+</script>

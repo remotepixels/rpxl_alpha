@@ -128,7 +128,6 @@
 	z-index:0;
 	overflow:auto;
 }
-
 /*
 #meterGraph{
     margin-left:5px;
@@ -151,7 +150,7 @@
     <!--iframes for vdo ninja-->   
     <iframe class="viewersiframe" id="viewersStream"></iframe>
     <iframe class="mainstreamiframe" id="mainStream"></iframe>     
- 
+
     <!--Annotations canvas-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
@@ -178,7 +177,7 @@
                 <div>
                     <span class="label">Resolution</span>
                     <span class="radioset" role="radiogroup" aria-labelledby="resolution">
-                        <label class="disable"><input type="radio" name="resolution" disabled value="">4K</label>
+                        <label class="disable"><input type="radio" name="resolution" disabled value="&width=3840&height=2160">4K</label>
                         <label><input type="radio" name="resolution" value="0">1080P</label>
                         <label><input type="radio" name="resolution" checked value="1">720P</label>
                     </span>
@@ -672,14 +671,14 @@ function vdoSession() {
     //start mainstream
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
     document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
-        "&push=Stream_"+sanitizedSessionID+//push stream to this name
-        "&broadcast"+
+        "&push=Stream_"+sanitizedSessionID+
+        "&directoronly"+
         "&mirror"+//mirror the video
-        "&label=Stream"+sanitizedSessionID+//sets livestream as label for director connection
+        //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
         "&rampuptime=6000"+//ramp up time of 6 seconds
         "&hidehome"+//hide vdo ninja homepage	
         "&webcam"+
-        "&clean"+//remove all interface bits
+        "&cleanoutput"+//remove all interface bits
         "&ovb="+quality+//outbound video bitrate for main (obs stream)
         "&quality="+resolution+//1 720p set to 0 for 1080p
         "&videodevice="+sanitizedVideo+//video source
@@ -702,15 +701,12 @@ function vdoSession() {
         document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
         "&label="+sanitizedUserName+//sets webcam as label for client connection
         "&showlabels"+
-        "&group=client"+
         "&notify"+
         "&showall"+
-        "&groupmode"+
-        "&groupview"+
         "&videodevice="+sanitizedCamera+//video source
         "&audiodevice="+sanitizedMicrophone+//audio source
         "&autostart"+//autostart directors feed
-        "&clean"+
+        "&cleanoutput"+
         "&quality=3"+//set camera quality to lowest possible, about 360p
         "&webcam"+//disables screenshare use &webcam2 to show share your camera screen
         "&videobitrate=196"+
@@ -719,6 +715,7 @@ function vdoSession() {
         "&meterstyle=2"+//round highlight over person talking
         "&transparent"+//makes bg transparent
         "&disablehotkeys"+//no hotkeys
+        "&group=Client"+
         "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+        
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
     },1000);

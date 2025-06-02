@@ -83,12 +83,12 @@
     light-dark(var(--color-light-bg), var(--color-dark-bg)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
 }
 .mainstreamiframe {
-	width: calc(100% - 115px);
-    left:110px;
-    pointer-events: none;
+	width: calc(100% - 110px);
+    left:305px;
+	z-index: 0;
 }
 .viewersiframe {
-	width:105px;
+	width:110px;
 	left:0px;
 	overflow-y: auto;
     overflow-x: hidden;
@@ -103,8 +103,8 @@
 
 <body id="body">
     <!--iframes for vdo ninja-->
-    <iframe class="mainstreamiframe" id="mainStream"></iframe>        
     <iframe class="viewersiframe" id="viewersStream"></iframe>
+    <iframe class="mainstreamiframe" id="mainStream"></iframe>   
 
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -311,7 +311,6 @@
 <script src="scripts/annotations.js"></script>
 <script src="scripts/github.js"></script>
 
-
 <script lang="javascript">
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //globals
@@ -322,8 +321,6 @@ let sanitizedUserName
 let sanitizedCamera
 let sanitizedMicrophone
 let sessionStarted = false
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //check the session id's for the allowed dates in github.js and then check the session ID against the github issues
@@ -531,9 +528,10 @@ function joinSession() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function mainstream () {
     document.getElementById("mainStream").style.display = "block";
-    document.getElementById("mainStream").allow = "autoplay; screen-wake-lock;";
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
     document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
     "&view=Stream_"+sessionIDEnteredSanitized+
+    //"&directoronly"+
     "&solo"+//no login options, solos stream
     "&clean"+//remove all interface bits
     "&hideplaybutton"+//hides big play button if autoplay is disabled
@@ -559,22 +557,20 @@ function viewerStream () {
     }   else {
         var camOrMicSetup = "&videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
-    document.getElementById("viewersStream").allow = "autoplay; camera *; microphone *;";
+    document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
     document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-            "&transparent"+
-            "&disablehotkeys"+
-            "&"+camOrMicSetup+
-            "&webcam"+
-            "&audiodevice="+sanitizedMicrophone+
             "&label="+sanitizedUserName+
             "&style=4"+
             "&meterstyle=2"+
             "&showlabels"+
-            "&group=client"+
-            "&groupmode"+
-            "&groupview"+
+            "&disablehotkeys"+
+            "&"+camOrMicSetup+
+            "&webcam"+
+            "&audiodevice="+sanitizedMicrophone+
             "&autostart"+
-            "&clean"+
+            "&cleanoutput"+
+            "&transparent"+
+            "&group=Client"+
             "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
             "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
 
