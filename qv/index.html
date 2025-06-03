@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../styles/newstyle.css">
+    <title>rpxl.app v3 Quickview</title>
+</head>
+<!--styles speciic for this page only-->
+<style>
+.dialoglogin {
+    position: relative;
+    height: fit-content;
+    align-items: center;
+    justify-content: center;
+    top:  calc(var(--button-height));
+    width: 370px;
+    padding: 20px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+    border-radius: var(--radius-big);
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    z-index: 1;
+    box-shadow: var(--shadows);
+} 
+.sessionID {
+    --w: 30px;   /* control the width for each letter */
+    --g: 8px; /* the gap between letters */
+    --_n: attr(maxlength type(<integer>)); 
+
+    font-size: 38px;  
+    line-height: 40px; /* control the height */
+    letter-spacing: var(--w);
+    font-family: monospace;
+    width: 390px;
+    margin-left:8px;
+    padding-left:10px;
+    padding-top:10px;
+    padding-bottom: 5px;
+    clip-path: inset(0 80px 0 0);
+    justify-content: center;
+    background:
+    repeating-linear-gradient(90deg,
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 var(--border-width), /*left edge of block*/
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g) - var(--border-width)),/*colour of the ID blocks*/
+    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
+    light-dark(var(--color-light-bg), var(--color-dark-bg)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
+}
+
+.dialogModify {
+    width: 370px;
+} 
+.mainstreamiframe {
+	width: calc(100% - 20px);
+    left:10px;
+	z-index: 0;
+}
+.viewersiframe {
+	width:0px;
+	left:0px;
+	overflow-y: auto;
+    overflow-x: hidden;
+    z-index:2;
+}
+</style>
+
+<body id="body">
+    <!--iframes for vdo ninja-->
+    <iframe class="viewersiframe" id="viewersStream"></iframe>
+    <iframe class="mainstreamiframe" id="mainStream"></iframe>   
+
+    <!--canvas for drawing annotations-->
+    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+
+<!--enter seasion ID popup-->
+    <div class="dialoglogin centerhorizontal" id="session">
+		<h2 class="center">Enter a valid Session ID to continue</h2>
+        <p></p>
+        <div>
+            <input type="text" maxlength="6" class="sessionID" id="sessionID" name="username" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off">
+            <br>&nbsp;
+        </div>
+        <div class="center">6 character code supplied by the host</div>
+        <div>
+            <br>
+        </div>
+        <div>
+            <button id="checkSession" class="botton buttonblue">Continue</button>
+        </div>
+    </div>
+
+    <!--Main interface-->
+    <div id="mainWindow" class="hidden">
+
+        <div id="topmenu" class="toolbar top hidden">	 </div>
+        <!--bottom menu bar-->
+        <div id="bottomMenu" class="toolbar bottom">
+
+            <!--settings menu-->
+            <div id="create" class="hidden" >  </div> 
+            <div class="toolset hidden">
+                <button class="tool toolmoresettings" id="settings" aria-expanded="false">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <div class="popupBG hidden" id="settingsBG">
+                </div>
+            </div>
+
+            <!--mute camera and microphone-->
+            <div class="toolset toolspacer hidden">
+                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button class="tool toolred disable" aria-expanded="false" id="toolMuteCamera" disabled>
+                    <span class="material-symbols-outlined">photo_camera</span>
+                </button>
+            </div>
+            <!--spacer-->
+            <div class="toolspacer">
+  
+            </div>
+            <!--annotations-->
+            <div class="toolset">
+                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
+                    <span class="material-symbols-outlined">format_ink_highlighter</span>
+                </button>
+                <button class="tool toolmoresettings disable" aria-expanded="false" id="popupPalette" disabled>
+                    <span class="material-symbols-outlined">palette</span>
+                </button>
+                <!----- popup menu ------>
+                <div class="popupBG hidden" id="popupBlockPalette">
+                    <div class="toolpopup bottom middle">
+                        <div>
+                            <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
+                            <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
+                            <span class="colorpot" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
+                            <span class="colorpot" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
+                            <span class="colorpot" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
+                        </div>
+                    </div>
+                </div>
+                <!----- end popup menu ------>
+                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled>
+                    <span class="material-symbols-outlined">ink_eraser_off</span>
+                </button>
+            </div>
+
+            <!--File drop-->
+            <div class="toolset toolspacer hidden">
+                <button class="tool toolmoresettings" aria-expanded="false" id="toolFileShare">
+                    <span class="material-symbols-outlined">cloud_download</span>
+                </button>        
+            </div>
+
+            <!--spacer-->
+            <div class="toolspacer">
+            </div>
+
+            <div class="toolset hidden">
+                <button class="tool red disable" aria-expanded="false" disabled>
+                    <span class="material-symbols-outlined" id="blindStream">movie_off</span>
+                </button> 
+                <button class="tool red disable" aria-expanded="false" id="toolMuteStream" disabled>
+                    <span class="material-symbols-outlined">volume_up</span>
+                </button>   
+                <span class="volume" ><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"/></span>    
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
+<!--user microphone and camera selection and display-->
+<script src="../scripts/interface.js"></script>
+<script src="../scripts/annotations.js"></script>
+<script src="../scripts/github.js"></script>
+
+<script lang="javascript">
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//globals
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var gitresults = [ ];
+let	sessionIDEnteredSanitized
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//check the session id's for the allowed dates in github.js and then check the session ID against the github issues
+//date range to look for session id's in repo issues currently set to 30 day
+////////////////////////////////////////////////////////////////////////////////////////////////////
+getList();
+
+async function getList() {
+    const url = "https://api.github.com/search/issues?q=repo:remotepixels/rpxl type:issue created:"+backDateyyyymmdd+".."+currentDateyyyymmdd
+
+    const response = await fetch(url, {
+        "method": "GET"
+    })
+
+    const result = await response.json()
+    checkSessionURL(result);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//check session ID against github issues
+//checks the url parameter supplied, if valid shows the client login screen otherwise shows the session ID screen
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function checkSessionURL (result) {
+    let query = location.search;
+    let sessionIDURL = query.slice(1);
+    let sessionIDUppercase = sessionIDURL.toUpperCase();
+    let	sessionID = encodeURIComponent(sessionIDUppercase); 
+
+    result.items.forEach(i=>{
+        if (i.title == "SessionID" && i.author_association == "OWNER") { //every item we get back made by owner and has sessionID in the title
+            const decodedBody = atob(i.body);   //decrypt and split
+
+            const splitBody = decodedBody.split("&");
+            
+            gitresults.push (splitBody);
+            if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
+                joinSession();
+            } 
+        }
+    })
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Entering session ID code if the URL parameter is not supplied or invalid
+//set focus to session ID input
+//submit session ID if user hits enter key or clicks submit button
+////////////////////////////////////////////////////////////////////////////////////////////////////
+document.getElementById("sessionID").focus();
+document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
+document.getElementById("sessionID").addEventListener("keypress", function(event) {
+	if (event.key === "Enter") {
+		event.preventDefault();
+		document.getElementById("checkSession").click();
+		}
+	});
+
+//quick check to make sure the session ID is 6 characters long
+//if not then shake the box and clear input
+//if the session ID is 6 characters long then check it against the github issues
+//if it is valid then show the client login screen otherwise shke the box and clear input
+function checkEnteredSession() {
+    let sessionIDEntered = document.getElementById("sessionID").value;
+    let sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
+	sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase); 
+
+    if ((sessionIDEnteredSanitized.length != 6) || (sessionIDEnteredSanitized == null)){
+		session.style.animation = "shake 500ms";
+		setTimeout ( function () {session.style.animation = "none";}, 300);
+        document.getElementById("sessionID").value = "";
+        document.getElementById("sessionID").focus();
+    } else { 
+        for (let i = 0; i < gitresults.length; i++) {
+            if (gitresults[i][0] == sessionIDEnteredSanitized) { 
+
+                joinSession ();
+                break;
+            }
+        }
+        //console.log("Session ID not found");
+        session.style.animation = "shake 500ms";
+        setTimeout ( function () {session.style.animation = "none";}, 300);
+        document.getElementById("sessionID").value = "";
+        document.getElementById("sessionID").focus();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Join seesion code and change settings code
+//check that the user has enetered a name and selected a microphone
+//if yes then start the main stream and client stream or change the client stream settings
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function joinSession() { 
+    //hide the login screen and show the main window and reposition the elements for the settings menu    
+    document.getElementById("session").classList.add("hidden");
+    document.getElementById("mainWindow").classList.remove("hidden");
+
+    document.getElementById("mainStream").style.display = "block";
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
+    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+    "&view=Stream_"+sessionIDEnteredSanitized+
+    //"&directoronly"+
+    "&solo"+//no login options, solos stream
+    "&clean"+//remove all interface bits
+    "&hideplaybutton"+//hides big play button if autoplay is disabled
+    "&transparent"+//makes bg transparent
+    "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
+    "&rampuptime=6000"+
+    "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+    "&buffer=1000"+//adds a xms buffer
+    "&showlist=0"+//hides the viewer list
+    "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+    "";        
+
+    }
+
+</script>

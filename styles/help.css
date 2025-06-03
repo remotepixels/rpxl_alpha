@@ -1,0 +1,97 @@
+body {
+    margin-left: 300px;
+    padding: 0px;
+    display: flexbox;
+    position: relative;
+    width: calc(100% - 100px);
+    max-width: calc(100% - 500px);
+    height: 100%;
+    overflow: auto;
+    }
+    a:hover {
+    color: var(--color-light-bg); 
+}
+.content {
+    padding-bottom: 200px;
+    }
+h1 {
+	font-size: 28px;
+	font-weight: 400;
+    color: var(--color-light-bg); 
+	}
+.h2 {
+    margin-left: 15px;
+	font-size: 24px;
+	font-weight: 400;
+        color: var(--color-light-bg); 
+	}
+h3 {
+	font-size: 18px;
+	font-weight: 400;
+        color: var(--color-light-bg); 
+	}
+img {
+    position: relative;
+    left:-35px;
+    padding-bottom: 50px;
+    max-width:100%;
+}
+.point {
+    display: inline-flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-size: 24px;
+	font-weight: 400;
+    width:20px;
+    height:20px;
+    border-radius: 10px;
+            color: var(--color-light-bg);  
+    background-color: dodgerblue;
+}
+.pointItem {
+    position: relative;
+    margin-left: 60px;
+    width:80%;
+    margin-bottom: 15px;
+}
+.navbarItem {
+    left: 0px;
+    width: 0px;
+    height: 30px;
+    padding-bottom: unset;
+    max-width: unset;
+    }
+.navbarItemDesc {
+    position: relative;
+    display: inline-block;
+    left: 10px;
+    top: -7px;
+    }
+p {
+        color: var(--color-light-bg); 
+    width:90%;
+    margin-bottom: 30px;
+}
+br {
+    margin-bottom: 30px;
+}
+
+#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0px;
+    padding-left: 80px;
+    padding-top: 50px;
+    padding-right: 20px;;
+    width: 250px;
+    height: 100%;
+    z-index: 100;
+    display: block;
+    text-align: right;
+    justify-content: center;
+    align-items: center;
+    border-right:1px solid #333;
+    }
