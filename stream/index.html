@@ -143,7 +143,12 @@
 	z-index:0;
 	overflow:auto;
 }
-
+.statsstreamiframe {
+	width:300px;
+    right:0px;
+	z-index:0;
+	overflow:auto;
+}
 .meterGraph{
     position: relative;
     display: inline-block;
@@ -572,7 +577,7 @@ function prepSession() {
         //add the session ID and client name to the title bar, copy to clipboard for Quick view link
         let sanitizedClient = encodeURIComponent(client);
         var client = document.getElementById("clientName").value;
-        document.getElementById("sessionName").innerHTML = "RPXL " +client + " ("+sanitizedSessionID+")"; //adds client name to title bar
+        document.getElementById("sessionName").innerHTML = "Live session (" +sanitizedSessionID+ ") " + client; //adds client name to title bar
         navigator.clipboard.writeText("https://alpha.rpxl.app/?"+sanitizedSessionID ); //copies url session id to clipboard
 
         //hide create dialogue, shuffle for settings menu
@@ -695,8 +700,8 @@ function vdoSession() {
         "&push=Stream_"+sanitizedSessionID+
         "&directoronly"+
         "&mirror"+//mirror the video
-        //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-        //"&rampuptime=6000"+//ramp up time of 6 seconds
+        "&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
+        "&rampuptime=6000"+//ramp up time of 6 seconds
         "&hidehome"+//hide vdo ninja homepage	
         "&webcam"+
         "&cleanoutput"+//remove all interface bits
@@ -713,8 +718,12 @@ function vdoSession() {
         "&agc=0"+//turns off auto gain control
         "&denoise=0"+//turns off denoiser
         "&ab=128"+//constant audio bitrate
+        //"&stats"+
+        //"&showconnections"+
+        //"&signalmeter"+
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js";
+
 
     //start viewer stream, after 1 sec
     setTimeout(function(){
@@ -750,5 +759,7 @@ function vdoSession() {
     document.getElementById("settingsBG").style.zIndex = 9;
 
 }
+
+
 </Script>
     

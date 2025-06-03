@@ -117,11 +117,9 @@
 .fadeout {
     opacity: 0;
 }
-
-
 .mainstreamiframe {
-	width: calc(100% - 110px);
-    left:305px;
+	width: calc(100% - 115px);
+    left:110px;
 	z-index: 0;
 }
 .viewersiframe {
@@ -427,7 +425,7 @@ function checkSessionURL (result) {
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("create").classList.remove("hidden");
-                document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
+                document.getElementById("sessionTitle").innerHTML = "Live session ("+sessionIDEnteredSanitized+") "+client;
                 document.getElementById("name").focus();
 
             } 

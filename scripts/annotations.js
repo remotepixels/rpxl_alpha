@@ -101,7 +101,9 @@ eventer(messageEvent, function(e) {
     //if window resized then resize the canvas
     if (e.data && e.data.sendData === 'mainstreamSize') {
         const { width, height, top, left } = e.data;
-
+        
+        //mainstreamwidth = document.getElementById('mainStream').offsetWidth;
+        //console.log("Mainstream width: " + mainstreamwidth);
         // if we have video data, i mean some psycho could be sending audio only who knows
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
@@ -133,10 +135,12 @@ eventer(messageEvent, function(e) {
         document.getElementById("annotationsCanvas").style.top = top+50+"px";
         document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
 
-        document.getElementById("annotationsCanvas").style.border = "1px solid red";
+        //document.getElementById("annotationsCanvas").style.border = "1px solid red";
         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     }
+
+    //    console.log(e.data);
 
     // Process connection events
     if ("action" in e.data) {
