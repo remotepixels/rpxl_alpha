@@ -386,7 +386,11 @@ input[type="range"]::-webkit-slider-thumb {
     z-index: 10;
 } 
 .toolpopup.top {
-    top: calc(15px + var(--button-height));
+    top: calc(var(--button-height));
+    height: fit-content;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
 }
 .toolpopup.bottom {
     bottom: calc(15px + var(--button-height));
@@ -400,6 +404,7 @@ input[type="range"]::-webkit-slider-thumb {
 .toolpopup.middle {
     left: 50%;
     transform: translate(-50%, 0px);
+    padding:10px;
 }
 .toolpopup.bottom::after {
     position: absolute;
@@ -435,11 +440,12 @@ input[type="range"]::-webkit-slider-thumb {
     top: -20px;
 }
 .colorpot{
-    display: inline-block;
+    display: inline-flex;
     position: relative;
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
+    padding: 0px;
+    width: 30px;
+    height: 30px;
+    margin: 10px;
     border-radius: var(--radius-small);
     cursor: pointer;
 }

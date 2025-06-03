@@ -81,6 +81,77 @@
     overflow-x: hidden;
     z-index:2;
 }
+
+@media (max-height: 430px) {
+.toolbar {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: calc(var(--button-width) + 10px);
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    right:0px;
+    z-index: 1;
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+.toolset {
+    border-radius: var(--radius-big);
+    outline: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: fit-content;
+    width: var(--button-width);
+    margin: 5px;
+}
+.toolspacer {
+
+    margin-bottom:auto;
+}
+.tool {  
+
+    border-radius: 0px;
+    height: calc(var(--button-height) + 10px);
+    width: calc(var(--button-width) + 0px);
+    margin:0px;
+    padding:0px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+.toolpopup {
+    position: fixed;
+    right: 0px;
+    width: calc(var(--button-width) + 5px);
+    justify-content: left;
+    align-items: left;
+    overflow: hidden;
+    height: fit-content;
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+    border-radius: var(--radius-big);
+    z-index: 1; 
+    padding:10px;
+}
+.toolpopup.middle {
+    left:unset;
+    right:calc(var(--button-width) + 15px);
+    top: 50%;
+    transform: translate(0px, -50%);
+}
+.colorpot {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-big);
+    margin: 5px;
+    cursor: pointer;
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+}
 </style>
 
 <body id="body">
@@ -143,11 +214,11 @@
                 <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
-                <button class="tool toolmoresettings disable" aria-expanded="false" id="popupPalette" disabled>
+                <button class="tool disable" aria-expanded="false" id="popupPalette" disabled>
                     <span class="material-symbols-outlined">palette</span>
                 </button>
                 <!----- popup menu ------>
-                <div class="popupBG hidden" id="popupBlockPalette">
+                <div class="popupBG" id="popupBlockPalette">
                     <div class="toolpopup bottom middle">
                         <div>
                             <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
@@ -175,14 +246,14 @@
             <div class="toolspacer">
             </div>
 
-            <div class="toolset hidden">
-                <button class="tool red disable" aria-expanded="false" disabled>
+            <div class="toolset ">
+                <button class="tool red hidden" aria-expanded="false" disabled>
                     <span class="material-symbols-outlined" id="blindStream">movie_off</span>
                 </button> 
-                <button class="tool red disable" aria-expanded="false" id="toolMuteStream" disabled>
+                <button class="tool" aria-expanded="false" id="toolMuteStream">
                     <span class="material-symbols-outlined">volume_up</span>
                 </button>   
-                <span class="volume" ><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"/></span>    
+                <span class="volume hidden disable" ><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable hidden"/></span>    
             </div>
 
         </div>
