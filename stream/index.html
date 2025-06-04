@@ -696,7 +696,7 @@ function vdoSession() {
 
     //start mainstream
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&push=Stream_"+sanitizedSessionID+
         "&directoronly"+
         "&mirror"+//mirror the video
@@ -728,7 +728,7 @@ function vdoSession() {
     //start viewer stream, after 1 sec
     setTimeout(function(){
         document.getElementById("viewersStream").allow = "autoplay;camera;microphone;picture-in-picture;display-capture;";
-        document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+        document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&label="+sanitizedUserName+//sets webcam as label for client connection
         "&showlabels"+
         "&notify"+

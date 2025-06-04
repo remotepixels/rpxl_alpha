@@ -592,7 +592,7 @@ function joinSession() {
 function mainstream () {
     document.getElementById("mainStream").style.display = "block";
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
-    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sessionIDEnteredSanitized+
     "&view=Stream_"+sessionIDEnteredSanitized+
     //"&directoronly"+
     "&solo"+//no login options, solos stream
@@ -621,7 +621,7 @@ function viewerStream () {
         var camOrMicSetup = "&videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
     document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+    document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sessionIDEnteredSanitized+
             "&label="+sanitizedUserName+
             "&style=4"+
             "&meterstyle=2"+
