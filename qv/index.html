@@ -81,7 +81,7 @@
     overflow-x: hidden;
     z-index:2;
 }
-
+/*
 @media (max-height: 430px) {
 .toolbar {
     position: fixed;
@@ -151,7 +151,7 @@
     cursor: pointer;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-}
+}*/
 </style>
 
 <body id="body">
@@ -197,11 +197,11 @@
             </div>
 
             <!--mute camera and microphone-->
-            <div class="toolset toolspacer hidden">
+            <div class="toolset toolspacer">
                 <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
                     <span class="material-symbols-outlined">mic</span>
                 </button>
-                <button class="tool toolred disable" aria-expanded="false" id="toolMuteCamera" disabled>
+                <button class="tool toolred disable hidden" aria-expanded="false" id="toolMuteCamera" disabled>
                     <span class="material-symbols-outlined">photo_camera</span>
                 </button>
             </div>
@@ -366,7 +366,7 @@ function checkEnteredSession() {
 function joinSession() { 
     //hide the login screen and show the main window and reposition the elements for the settings menu    
     document.getElementById("session").classList.add("hidden");
-    document.getElementById("mainWindow").classList.remove("hidden");
+    //document.getElementById("mainWindow").classList.remove("hidden");
 
     document.getElementById("mainStream").style.display = "block";
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
@@ -382,7 +382,7 @@ function joinSession() {
     "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
     "&buffer=1000"+//adds a xms buffer
     "&showlist=0"+//hides the viewer list
-    "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+    //"&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
     "";        
 
     }

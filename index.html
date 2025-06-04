@@ -127,7 +127,7 @@
 	left:0px;
 	overflow-y: auto;
     overflow-x: hidden;
-    z-index:2;
+    z-index:0;
 }
 .viewersiframe:hover {
 	width:300px;
@@ -157,6 +157,24 @@
     width: 100%;
     height: 0px;
     bottom:0px;
+}
+@media (max-width: 760px) {
+    .volume, .text {
+        display: none;
+    }
+}
+@media (max-width: 520px) {
+    .volume, .text, #toolAnnotations, #viewersStream {
+        display: none;
+    }
+}
+@media (max-height: 430px) {
+    #topmenu {
+        display: none;
+    }
+    .viewersiframe, .mainstreamiframe {
+        top: 0px;
+    }
 }
 </style>
 
@@ -245,15 +263,12 @@
 
         <!--top menu bar-->
         <div class="toolbar top" id="topmenu">	
-           <div class="toolset">
-                 <!--<button class="tool" id="switchTheme" value="light">
-                    <span class="material-symbols-outlined">routine</span>
-                </button>-->
-            </div>
+           <div>&nbsp;&nbsp;&nbsp;</div>
             <div>
-                <h2 id="sessionTitle" class="centerhorizontal centervertical">RPXL</h2>
+                <p id="sessionTitle" class="centerhorizontal centervertical text">RPXL</p>
             </div>
-            <div class="toolset">
+            <div class=" toolspacer"></div>           
+             <div class="toolset">
                 <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
                     <button class="botton buttonblue" id="vdoninja">
                         <span>&nbsp;&nbsp;&nbsp;Powered by vdo.ninja&nbsp;&nbsp;&nbsp;</span>
@@ -285,7 +300,7 @@
             </div>
 
             <!--annotations-->
-            <div class="toolset">
+            <div class="toolset" id="toolAnnotations">
                 <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
                     <span class="material-symbols-outlined">format_ink_highlighter</span>
                 </button>
@@ -350,17 +365,17 @@
         </div>
     </div>
     <!----- popup menu microphone mute ------>
-    <div class="toolpopup top middle hidden" id="popupMicMuted" style="top:0px">
+    <div class="toolpopup top middle hidden" id="popupMicMuted" style="position:relative;">
         <h2>&nbsp;&nbsp;&nbsp; Warning : Your microphone is muted &nbsp;&nbsp;&nbsp;</h2>
     </div>
     <!----- end popup menu ------>
     <!----- popup menu microphone mute ------>
-    <div class="toolpopup top middle hidden" id="popupCamMuted" style="top:0px">
+    <div class="toolpopup top middle hidden" id="popupCamMuted" style="position:relative;">
         <h2>&nbsp;&nbsp;&nbsp; Your camera has been turned off &nbsp;&nbsp;&nbsp;</h2>
     </div>
     <!----- end popup menu ------>
     <!----- popup menu microphone mute ------>
-    <div class="toolpopup top middle hidden" id="popupStreamMuted" style="top:0px">
+    <div class="toolpopup top middle hidden" id="popupStreamMuted" style="position:relative;">
         <h2>&nbsp;&nbsp;&nbsp; Incoming stream muted (You will still hear participants) &nbsp;&nbsp;&nbsp;</h2>
     </div>
     <!----- end popup menu ------>
@@ -425,7 +440,7 @@ function checkSessionURL (result) {
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("create").classList.remove("hidden");
-                document.getElementById("sessionTitle").innerHTML = "Live session ("+sessionIDEnteredSanitized+") "+client;
+                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
 
             } 
@@ -472,7 +487,7 @@ function checkEnteredSession() {
 
                 document.getElementById("session").classList.add("hidden");
                 document.getElementById("create").classList.remove("hidden");
-                document.getElementById("sessionTitle").innerHTML = client + " ("+sessionIDEnteredSanitized+")";
+                 document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
                 document.getElementById("name").focus();
                 
                 break;

@@ -68,7 +68,7 @@ iframe {
 	border:0px;
 	padding:0px;
 	position: fixed;
-}
+    background-color: var(--color-mid-grey);}
 .centerhorizontal {
     margin:auto
 }
@@ -94,6 +94,11 @@ iframe {
     position: relative;
     display: inline-block;
     width: 105px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
+}
+.text{ 
+    position: relative;
+    display: inline-block;
     color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
 }
 .textinput {
@@ -403,8 +408,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .toolpopup.middle {
     left: 50%;
-    transform: translate(-50%, 0px);
+    transform: translateX(-50%);
     padding:10px;
+    animation: 200ms fadeup;
 }
 .toolpopup.bottom::after {
     position: absolute;
@@ -516,4 +522,12 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
 	60% {transform: translateX(25px);}
 	75% {transform: translateX(-25px);}
 	100% {transform: translateX(0px); animation-timing-function: ease-in;}
+}
+@keyframes fadeup {
+  0% { 
+    opacity: 0;
+  }
+  100% { 
+    opacity: 1;
+  }
 }
