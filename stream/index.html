@@ -286,8 +286,8 @@ function setupSessionUI() {
     var sessionAndProject = sessionID.value+"&"+sanitizedProject
     var encodedSession = btoa(sessionAndProject);
 
-    console.log("Encoded issue for github Session ID & Client name :", encodedSession )
-    addIssue(encodedSession)  //////////////////tun back on to add issue to github
+    //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
+    addIssue(encodedSession);  //////////////////tun back on to add issue to github
 
     settingsDialog.close();
     settingsDialog.classList.add("hidden");

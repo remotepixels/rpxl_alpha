@@ -165,6 +165,7 @@ async function getList() {
 
 //check session ID against github issues, checks the url parameter supplied, if valid sskips the session ID screen
 function checkSessionURL (result) {
+    console.log("getlist result :",result);
     let query = location.search;
     let sessionIDURL = query.slice(1);
     let sessionIDUppercase = sessionIDURL.toUpperCase();

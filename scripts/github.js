@@ -2,14 +2,14 @@
 //github authorization token, really shouldn't leave this lying around....
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 const headers = {
-            "Authorization" : 'Token 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'
+            "Authorization" : 'Token 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'
            }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //async function to create issue on github, used to save session ID's
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 async function addIssue(encodedSession) {
-    const url = "https://api.github.com/repos/remotepixels/rpxl/issues"
+    const url = "https://api.github.com/repos/remotepixels/rpxl/issues";
 
     const data = {
         title: "SessionID",
@@ -20,8 +20,8 @@ async function addIssue(encodedSession) {
         "headers": headers,
         "body": JSON.stringify(data)
     })
-    const result = await response.json()
-    console.log(result)
+    const result = await response.json();
+    console.log("Posted too github :", result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
