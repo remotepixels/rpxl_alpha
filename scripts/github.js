@@ -43,4 +43,3 @@ const formatDate = (date) => {
 
 currentDateyyyymmdd = (formatDate(currentDate));
 backDateyyyymmdd = (formatDate(backDate));
-
