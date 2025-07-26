@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //limit session ID to letters and numbers only
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,108 +16,91 @@ function restrictInput(e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //toolbar code
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-var openModal = 0
-//settings menu (special case stuff)
-settings.addEventListener("click", function() { 
-    document.getElementById("settingsBG").classList.toggle("hidden");
-    document.getElementById("create").classList.toggle("hidden");
-    document.getElementById("settings").setAttribute("aria-expanded", "true");
-    document.getElementById("annotationsCanvas").style.display = "none";
-    document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
-        iframe.style.zIndex = 1;
-    });
-});
-settingsBG.addEventListener("click", function() { 
-    hidePopupMenu(); 
-    document.getElementById("create").classList.toggle("hidden");
-    document.getElementById("settings").setAttribute("aria-expanded", "false");
-    document.getElementById("annotationsCanvas").style.display = "block";
-});
+var openModal = "";
+var openIcon = "";
 
-toolMuteStream.addEventListener("click", function() { toolMuteStreamSelect(); });
-toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });
+const toolShare = document.getElementById("toolShare");
+const toolQuit = document.getElementById("toolQuit"); 
+const toolSettings = document.getElementById("toolSettings");
+const toolMuteStream = document.getElementById("toolMuteStream");
+const toolStreamVolume = document.getElementById("toolStreamVolume");
+const toolDraw = document.getElementById("toolDraw");
+const toolPalette = document.getElementById("toolPalette");
+const toolEraser = document.getElementById("toolEraser");
+const toolMuteMicrophone = document.getElementById("toolMuteMicrophone");
+const toolMuteCamera = document.getElementById("toolMuteCamera");
 
-toolDraw.addEventListener("click", function() { toolDrawSelect(); });
-popupPalette.addEventListener("click", function() { showPopupMenu(popupPalette); });
-toolEraser.addEventListener("click", function() { toolEraserSelect(); });
 
-toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });
-toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });
+if (toolShare) { toolShare.addEventListener("click", function () { openDialog(shareDialog, toolShare); });}
+if (toolQuit) { toolQuit.addEventListener("click", function () { openDialog(quitDialog, toolQuit); });}
 
-function hidePopupMenu() {  //used for special cases like the share menu or to hide after changing settings
-    const popups = document.querySelectorAll(".popupBG");
-    popups.forEach(popup => {
-        if (!popup.classList.contains("hidden")) {
-            popup.classList.add("hidden");
-            popup.previousElementSibling.setAttribute("aria-expanded", "false");
-            }
-    });
+if (toolSettings) { toolSettings.addEventListener("click", function () { 
+    recalSelectedDevices();
+    openDialog(settingsDialog, toolSettings); });
+}
+
+if (toolMuteStream) { toolMuteStream.addEventListener("click", function() { toggleIcon(toolMuteStream); toolMuteStreamSelect(); });}
+if (toolStreamVolume) { toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });}
+
+if (toolDraw) { toolDraw.addEventListener("click", function() { toggleIcon(toolDraw); toolDrawSelect(); });}
+if (toolPalette) { toolPalette.addEventListener("click", function () { openDialog(paletteDialog, toolPalette); });}
+if (toolEraser) { toolEraser.addEventListener("click", function() { toolEraserSelect(); });}
+
+if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });}
+if (toolMuteCamera) { toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });}
+
+//toggle toolbar icons on and off
+function toggleIcon (toolIcon) {
+    if (toolIcon.getAttribute("aria-expanded") == "false") {
+            toolIcon.setAttribute("aria-expanded", "true");
+            toolIcon.classList.toggle("selected"); 
+        } else { 
+            toolIcon.setAttribute("aria-expanded", "false");
+            toolIcon.classList.toggle("selected"); }
+}
+
+//open ppopup dialogs and menus
+function openDialog (dialog, toolIcon) {
+    document.getElementById("popupBG").classList.remove("hidden");
+    dialog.classList.remove("hidden");
+    dialog.show();
+    toolIcon.setAttribute("aria-expanded", "true"); 
+    toolIcon.classList.toggle("selected"); 
+    openModal = dialog; 
+    openIcon = toolIcon;
 }
 
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(e) {
-    //console.log("openModal", openModal);
-    if (openModal == true) {
-        //console.log("click");
-        if (e.target.matches('.tool') || e.target.matches('.tool *') || e.target.matches('.toolpopup') || e.target.matches('.toolpopup *') || e.target.matches('.toolquit') || e.target.matches('.toolquit *')) {
-            //console.log("openModal click inside");
-        } else {
-            //console.log("openModal click ooutside");
-            const popups = document.querySelectorAll(".popupBG");
-            popups.forEach(popup => {
-                if (!popup.classList.contains("hidden")) {
-                    popup.classList.add("hidden");
-                    popup.previousElementSibling.setAttribute("aria-expanded", "false");
-                }
-            });
-            topmenu.style.zIndex = 1;        
-            openModal = false;
-        }
-    }
+    if (e.target.matches("div#popupBG")) {
+        openModal.close();
+        openModal.classList.add("hidden");
+        openIcon.setAttribute("aria-expanded", "false"); 
+        openIcon.classList.toggle("selected"); 
+        document.getElementById("popupBG").classList.add("hidden");
+        openModal = "";
+        openIcon = "";
+    } 
 }
 
-function showPopupMenu(event) {
-    parent = event.closest('.top');
-    if (parent != null) {
-        parent.style.zIndex = 9;
-
-    //console.log(parent);
-    }
-    if (event.nextElementSibling.classList.contains("hidden")) {
-        event.nextElementSibling.classList.remove("hidden");
-        document.getElementById("annotationsCanvas").style.zIndex = 1; //make sure the canvas is on top of the popup
-        document.querySelectorAll("iframe").forEach(iframe => { //this is a bit of a hack to make sure the settings menu is on top of the iframe
-            iframe.style.zIndex = 1;
-        });
-        event.setAttribute("aria-expanded", "true");
-        openModal = true;
-        //console.log("openModal", openModal);
-    } else {
-        event.nextElementSibling.classList.add("hidden");
-        event.setAttribute("aria-expanded", "false");
-        
-    }
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 //main stream mute and volume
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function toolMuteStreamSelect () {
     if (toolMuteStream.getAttribute("aria-expanded") == "false") {
-        toolMuteStream.setAttribute("aria-expanded", "true");
-        toolMuteStream.classList.toggle("selected");  
         toolMuteStream.lastElementChild.innerHTML = "volume_off";
         toolStreamVolume.value = "0";
         mainStream.contentWindow.postMessage({
             "volume": 0
         }, '*');
-        document.getElementById("popupStreamMuted").style.display = "block";
-        setTimeout ( function () {document.getElementById("popupStreamMuted").style.display = "none"; }, 3000);
+        popupStreamMuted.classList.remove("hidden");
+        popupStreamMuted.show();
+        setTimeout ( function () {
+            popupStreamMuted.classList.add("hidden");
+            popupStreamMuted.close();
+        }, 3000);
         console.log("main stream mute")
     } else {
-        toolMuteStream.setAttribute("aria-expanded", "false");
-        toolMuteStream.classList.toggle("selected"); 
+        popupStreamMuted.close();
+        toolMuteStream.setAttribute("aria-expanded", "true");
         toolMuteStream.lastElementChild.innerHTML = "volume_up";
         toolStreamVolume.value = "80";
         mainStream.contentWindow.postMessage({
@@ -129,7 +111,7 @@ function toolMuteStreamSelect () {
 }
 
 function toolStreamVolumeSelect () {
-        toolMuteStream.setAttribute("aria-expanded", "false");
+        toolMuteStream.setAttribute("aria-expanded", "true");
         toolMuteStream.classList.remove("selected"); 
         toolMuteStream.lastElementChild.innerHTML = "volume_up";
         let vol = document.getElementById("toolStreamVolume").value
@@ -139,14 +121,9 @@ function toolStreamVolumeSelect () {
         console.log("main stream volume",vol)
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 //drawing tool
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function toolDrawSelect () {
     if (toolDraw.getAttribute("aria-expanded") == "false") {
-        toolDraw.setAttribute("aria-expanded", "true");
-        toolDraw.classList.toggle("selected"); 
-
         document.getElementById("annotationsCanvas").style.display = "block";
         document.getElementById("annotationsCanvas").style.cursor = "crosshair";
 
@@ -155,9 +132,6 @@ function toolDrawSelect () {
         canvas.addEventListener('mouseup', endDrawing);
         canvas.addEventListener('mouseout', endDrawing);
     } else {
-        toolDraw.setAttribute("aria-expanded", "false");
-        toolDraw.classList.toggle("selected"); 
-
         document.getElementById("annotationsCanvas").style.cursor = "default";
 
         canvas.removeEventListener('mousedown', startDrawing);
@@ -195,9 +169,7 @@ colorPots.forEach(colorPot => {
 });
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//mute local microphone and camera
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//mute local user microphone and camera
 function toolMuteMicrophoneSelect () {
     if (toolMuteMicrophone.getAttribute("aria-expanded") == "false") {
         toolMuteMicrophone.setAttribute("aria-expanded", "true");
@@ -206,7 +178,8 @@ function toolMuteMicrophoneSelect () {
         viewersStream.contentWindow.postMessage({
             "mic": false
         }, '*');
-        document.getElementById("popupMicMuted").style.display = "block";
+        popupMicMuted.classList.remove("hidden");
+        popupMicMuted.show();
         console.log("mic mute")
     } else {
         toolMuteMicrophone.setAttribute("aria-expanded", "false");
@@ -215,7 +188,8 @@ function toolMuteMicrophoneSelect () {
         viewersStream.contentWindow.postMessage({
             "mic": true
         }, '*');
-        document.getElementById("popupMicMuted").style.display = "none";
+        popupMicMuted.classList.add("hidden");
+        popupMicMuted.close();
         console.log("mic un-mute")
     }
 }
@@ -228,18 +202,22 @@ function toolMuteCameraSelect () {
         viewersStream.contentWindow.postMessage({
             "camera": false
         }, '*');
-        document.getElementById("popupCamMuted").style.display = "block";
-        setTimeout ( function () {document.getElementById("popupCamMuted").style.display = "none"; }, 2000);
+        popupCamMuted.classList.remove("hidden");
+        popupCamMuted.show();
+        setTimeout ( function () {
+            popupCamMuted.classList.add("hidden");
+            popupCamMuted.close();
+        }, 3000);
         console.log("camera off")
     } else {
         toolMuteCamera.setAttribute("aria-expanded", "false");
         toolMuteCamera.classList.toggle("selectedred"); 
         toolMuteCamera.lastElementChild.innerHTML = "photo_camera";
+        popupCamMuted.close();
         viewersStream.contentWindow.postMessage({
             "camera": true
         }, '*');
         console.log("camera on")
     }
 }
-
 

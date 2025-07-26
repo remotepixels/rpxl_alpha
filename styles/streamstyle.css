@@ -1,0 +1,93 @@
+/*generate new SID icon controls*/
+.refreshicon {
+    position: absolute;
+    top:5px;
+    right:5px;
+    z-index:3;
+    cursor: pointer;
+}
+.rotate360 {
+    transform: rotate(180deg);
+    transition: transform ease-in-out 0.3s;
+}
+.refreshicon:hover, .helpicon:hover {
+    color: light-dark(var(--color-dark-grey), var(--color-light-white));
+
+}
+.helpicon {
+    position: absolute; 
+    right:-5px;
+    top:-10px;
+    font-size:32px;
+    cursor: pointer;
+    z-index:10;
+}
+.table {
+    position: relative;
+    display: grid;
+    grid-template-columns: 105px 200px auto auto;
+    column-gap: 10px;
+    row-gap: 5px;
+    width: 100%;
+}
+.videosource, .camera {
+    display: inline;
+    position: relative;
+    object-fit: contain;
+    width: 254px;
+    height: 175px;
+    border-top-left-radius: var(--radius-big);
+    border-bottom-left-radius: var(--radius-big);
+    background-color: light-dark(var(--color-mid-grey), var(--color-dark-bg));
+}
+.meterGraph{
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    height: 175px;
+    width:10px;
+    left: 1px;
+    border-top-right-radius: var(--radius-big);
+    border-bottom-right-radius: var(--radius-big);
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.meter{
+    position: absolute;
+    display: inline-block;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: dodgerblue;
+    width: 100%;
+    height: 0px;
+    bottom:0px;
+}
+.fadeout {
+    opacity: 0.1;
+}
+.buttonmoresettings {
+    position: relative;
+    display: inline;
+    width: 200px;
+    padding-right:30px;
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.buttonmoresettings[aria-expanded="true"]::after, .toolmoresettings[aria-expanded="true"]::after {
+    transform: rotate(180deg) translateY(50%);
+}
+.collapsed {
+    display:none;
+    max-height: 0px;
+}
+/*quit menu confirmation*/
+.confirmpopup {
+    position: absolute;
+    display: block;
+    height: 40px;
+    right: 4px;
+    top: 5px;
+    border: 0px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    border-radius: var(--radius-big);
+    z-index: 10;
+}

@@ -22,278 +22,97 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-    <link rel="stylesheet" href="../styles/newstyle.css">
-    <title>rpxl.app v3 Quickview</title>
+    <link rel="stylesheet" href="../styles/clientstyle.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+
+    <title>alpha.rpxl.app v3 | Quickview</title>
 </head>
-<!--styles speciic for this page only-->
-<style>
-.dialoglogin {
-    position: relative;
-    height: fit-content;
-    align-items: center;
-    justify-content: center;
-    top:  calc(var(--button-height));
-    width: 370px;
-    padding: 20px;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-    border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
-    z-index: 1;
-    box-shadow: var(--shadows);
-} 
-.sessionID {
-    --w: 30px;   /* control the width for each letter */
-    --g: 8px; /* the gap between letters */
-    --_n: attr(maxlength type(<integer>)); 
-
-    font-size: 38px;  
-    line-height: 40px; /* control the height */
-    letter-spacing: var(--w);
-    font-family: monospace;
-    width: 390px;
-    margin-left:8px;
-    padding-left:10px;
-    padding-top:10px;
-    padding-bottom: 5px;
-    clip-path: inset(0 80px 0 0);
-    justify-content: center;
-    background:
-    repeating-linear-gradient(90deg,
-    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 var(--border-width), /*left edge of block*/
-    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g) - var(--border-width)),/*colour of the ID blocks*/
-    light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
-    light-dark(var(--color-light-bg), var(--color-dark-bg)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
-}
-
-.dialogModify {
-    width: 370px;
-} 
-.mainstreamiframe {
-	width: calc(100% - 20px);
-    left:10px;
-	z-index: 0;
-}
-.viewersiframe {
-	width:0px;
-	left:0px;
-	overflow-y: auto;
-    overflow-x: hidden;
-    z-index:2;
-}
-/*
-@media (max-height: 430px) {
-.toolbar {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: calc(var(--button-width) + 10px);
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-    right:0px;
-    z-index: 1;
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-}
-.toolset {
-    border-radius: var(--radius-big);
-    outline: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    height: fit-content;
-    width: var(--button-width);
-    margin: 5px;
-}
-.toolspacer {
-
-    margin-bottom:auto;
-}
-.tool {  
-
-    border-radius: 0px;
-    height: calc(var(--button-height) + 10px);
-    width: calc(var(--button-width) + 0px);
-    margin:0px;
-    padding:0px;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-}
-.toolpopup {
-    position: fixed;
-    right: 0px;
-    width: calc(var(--button-width) + 5px);
-    justify-content: left;
-    align-items: left;
-    overflow: hidden;
-    height: fit-content;
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-    border-radius: var(--radius-big);
-    z-index: 1; 
-    padding:10px;
-}
-.toolpopup.middle {
-    left:unset;
-    right:calc(var(--button-width) + 15px);
-    top: 50%;
-    transform: translate(0px, -50%);
-}
-.colorpot {
-    width: 30px;
-    height: 30px;
-    border-radius: var(--radius-big);
-    margin: 5px;
-    cursor: pointer;
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
-}
-}*/
-</style>
 
 <body id="body">
     <!--iframes for vdo ninja-->
-    <iframe class="viewersiframe" id="viewersStream"></iframe>
-    <iframe class="mainstreamiframe" id="mainStream"></iframe>   
+    <iframe class="mainstreamiframe hidden" id="mainStream" style="width: 100%; left:0px;"></iframe>   
 
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
 
-<!--enter seasion ID popup-->
-    <div class="dialoglogin centerhorizontal" id="session">
-		<h2 class="center">Enter a valid Session ID to continue</h2>
-        <p></p>
-        <div>
-            <input type="text" maxlength="6" class="sessionID" id="sessionID" name="username" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off">
-            <br>&nbsp;
-        </div>
-        <div class="center">6 character code supplied by the host</div>
-        <div>
-            <br>
-        </div>
-        <div>
-            <button id="checkSession" class="botton buttonblue">Continue</button>
-        </div>
-    </div>
-
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
-
-        <div id="topmenu" class="toolbar top hidden">	 </div>
+        <!--top menu bar-->
+        <div id="topmenu" class="toolbar top">	
+            <div style="width:20px"></div>
+            <h3 id="sessionTitle">RPXL</h3>
+            <div class="toolspacer"></div>           
+            <div class="toolset">
+                <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
+                    <button class="botton buttonblue buttonWider" id="vdoninja">Powered by vdo.ninja</button>
+                </a>
+            </div>
+        </div>
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
-
-            <!--settings menu-->
-            <div id="create" class="hidden" >  </div> 
-            <div class="toolset hidden">
-                <button class="tool toolmoresettings" id="settings" aria-expanded="false">
-                    <span class="material-symbols-outlined">settings</span>
-                </button>
-                <div class="popupBG hidden" id="settingsBG">
-                </div>
+            <div class="toolset" id="toolAnnotations">
+                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                <button class="tool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
+                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
             </div>
-
-            <!--mute camera and microphone-->
-            <div class="toolset toolspacer">
-                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone">
-                    <span class="material-symbols-outlined">mic</span>
-                </button>
-                <button class="tool toolred disable hidden" aria-expanded="false" id="toolMuteCamera" disabled>
-                    <span class="material-symbols-outlined">photo_camera</span>
-                </button>
+            <div class="toolspacer"></div>
+            <div class="toolset"><button class="tool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
+                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"></span>        
             </div>
-            <!--spacer-->
-            <div class="toolspacer">
-  
-            </div>
-            <!--annotations-->
-            <div class="toolset">
-                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled>
-                    <span class="material-symbols-outlined">format_ink_highlighter</span>
-                </button>
-                <button class="tool disable" aria-expanded="false" id="popupPalette" disabled>
-                    <span class="material-symbols-outlined">palette</span>
-                </button>
-                <!----- popup menu ------>
-                <div class="popupBG" id="popupBlockPalette">
-                    <div class="toolpopup bottom middle">
-                        <div>
-                            <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
-                            <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
-                            <span class="colorpot" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
-                            <span class="colorpot" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
-                            <span class="colorpot" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
-                        </div>
-                    </div>
-                </div>
-                <!----- end popup menu ------>
-                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled>
-                    <span class="material-symbols-outlined">ink_eraser_off</span>
-                </button>
-            </div>
-
-            <!--File drop-->
-            <div class="toolset toolspacer hidden">
-                <button class="tool toolmoresettings" aria-expanded="false" id="toolFileShare">
-                    <span class="material-symbols-outlined">cloud_download</span>
-                </button>        
-            </div>
-
-            <!--spacer-->
-            <div class="toolspacer">
-            </div>
-
-            <div class="toolset ">
-                <button class="tool red hidden" aria-expanded="false" disabled>
-                    <span class="material-symbols-outlined" id="blindStream">movie_off</span>
-                </button> 
-                <button class="tool" aria-expanded="false" id="toolMuteStream">
-                    <span class="material-symbols-outlined">volume_up</span>
-                </button>   
-                <span class="volume hidden disable" ><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable hidden"/></span>    
-            </div>
-
         </div>
     </div>
+
+    <div class="popupBG hidden" id="popupBG"></div>
+
+    <!--enter session ID dialog-->
+    <dialog open id="sessionDialog" class="centerhorizontal top">
+        <div><h2>Enter a valid Session ID to continue</h2></div>
+        <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
+        <div><h3>6 character code supplied by the host</h3></div>
+        <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
+    </dialog>
+
+    <!----- popup color menu ------>
+    <dialog id="paletteDialog" class="toolpopup bottom middle hidden ">
+            <div>
+                <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
+                <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
+                <span class="colorpot" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
+                <span class="colorpot" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
+                <span class="colorpot" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
+            </div>
+    </dialog>
+
+    <!----- popup menu microphone mute ------>
+    <dialog id="popupStreamMuted" class="centerhorizontal hidden notification">
+        <h2>Incoming stream muted (You will still hear participants)</h2>
+    </dialog>
 
 </body>
 </html>
 
 <!--user microphone and camera selection and display-->
+<script src="../scripts/initui.js"></script>
+<script src="../scripts/initvdo.js"></script>
 <script src="../scripts/interface.js"></script>
 <script src="../scripts/annotations.js"></script>
 <script src="../scripts/github.js"></script>
 
 <script lang="javascript">
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//globals
-////////////////////////////////////////////////////////////////////////////////////////////////////
-var gitresults = [ ];
-let	sessionIDEnteredSanitized
+var gitresults = [ ]; // the only global I can't seem to get rid of :(
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//check the session id's for the allowed dates in github.js and then check the session ID against the github issues
-//date range to look for session id's in repo issues currently set to 30 day
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//get the session id's for the past X days in github.js and then check the session ID against the github issues
 getList();
-
 async function getList() {
     const url = "https://api.github.com/search/issues?q=repo:remotepixels/rpxl type:issue created:"+backDateyyyymmdd+".."+currentDateyyyymmdd
-
     const response = await fetch(url, {
         "method": "GET"
     })
-
     const result = await response.json()
     checkSessionURL(result);
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//check session ID against github issues
-//checks the url parameter supplied, if valid shows the client login screen otherwise shows the session ID screen
-////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//check session ID against github issues, checks the url parameter supplied, if valid sskips the session ID screen
 function checkSessionURL (result) {
     let query = location.search;
     let sessionIDURL = query.slice(1);
@@ -303,22 +122,27 @@ function checkSessionURL (result) {
     result.items.forEach(i=>{
         if (i.title == "SessionID" && i.author_association == "OWNER") { //every item we get back made by owner and has sessionID in the title
             const decodedBody = atob(i.body);   //decrypt and split
-
             const splitBody = decodedBody.split("&");
-            
+        
             gitresults.push (splitBody);
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
-                joinSession();
+                clientEncoded = splitBody[1];
+                client = decodeURIComponent(clientEncoded); //decode the client name
+                localStorage.setItem("sessionID", sessionID);
+
+                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
+                sessionDialog.classList.add("hidden");
+                sessionDialog.close();
+                mainWindow.classList.remove("hidden");
+                document.body.style.backgroundImage = "none";
+
+                viewMainstream();
             } 
         }
     })
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//Entering session ID code if the URL parameter is not supplied or invalid
-//set focus to session ID input
-//submit session ID if user hits enter key or clicks submit button
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//submit session ID on enter or click, focus field
 document.getElementById("sessionID").focus();
 document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
 document.getElementById("sessionID").addEventListener("keypress", function(event) {
@@ -328,63 +152,42 @@ document.getElementById("sessionID").addEventListener("keypress", function(event
 		}
 	});
 
-//quick check to make sure the session ID is 6 characters long
-//if not then shake the box and clear input
-//if the session ID is 6 characters long then check it against the github issues
-//if it is valid then show the client login screen otherwise shke the box and clear input
+//quick check to make sure the session ID is 6 characters long, if not then shake the box and clear input
+//if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
 function checkEnteredSession() {
-    let sessionIDEntered = document.getElementById("sessionID").value;
-    let sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
-	sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase); 
+    const sessionIDEntered = sessionID.value.trim();
+    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
+    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
 
-    if ((sessionIDEnteredSanitized.length != 6) || (sessionIDEnteredSanitized == null)){
-		session.style.animation = "shake 500ms";
-		setTimeout ( function () {session.style.animation = "none";}, 300);
-        document.getElementById("sessionID").value = "";
-        document.getElementById("sessionID").focus();
-    } else { 
-        for (let i = 0; i < gitresults.length; i++) {
-            if (gitresults[i][0] == sessionIDEnteredSanitized) { 
+    // Shake dialog if session ID incorrect
+    function showError() {
+        sessionDialog.style.animation = "shake 500ms";
+        setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
+        sessionID.value = "";
+        sessionID.focus();
+    }
 
-                joinSession ();
-                break;
-            }
-        }
-        //console.log("Session ID not found");
-        session.style.animation = "shake 500ms";
-        setTimeout ( function () {session.style.animation = "none";}, 300);
-        document.getElementById("sessionID").value = "";
-        document.getElementById("sessionID").focus();
+    if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
+        showError();
+        return;
+    }
+
+    const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
+
+    if (found) {
+        const clientEncoded = found[1];
+        const client = decodeURIComponent(clientEncoded);
+
+        localStorage.setItem("sessionID", sessionIDEnteredSanitized);
+        sessionDialog.close();
+        sessionDialog.classList.add("hidden");
+        document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
+        mainWindow.classList.remove("hidden");
+        document.body.style.backgroundImage = "none";
+
+        viewMainstream();
+    } else {
+        showError();
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//Join seesion code and change settings code
-//check that the user has enetered a name and selected a microphone
-//if yes then start the main stream and client stream or change the client stream settings
-////////////////////////////////////////////////////////////////////////////////////////////////////
-function joinSession() { 
-    //hide the login screen and show the main window and reposition the elements for the settings menu    
-    document.getElementById("session").classList.add("hidden");
-    //document.getElementById("mainWindow").classList.remove("hidden");
-
-    document.getElementById("mainStream").style.display = "block";
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
-    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sessionIDEnteredSanitized+
-    "&view=Stream_"+sessionIDEnteredSanitized+
-    //"&directoronly"+
-    "&solo"+//no login options, solos stream
-    "&clean"+//remove all interface bits
-    "&hideplaybutton"+//hides big play button if autoplay is disabled
-    "&transparent"+//makes bg transparent
-    "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
-    "&rampuptime=6000"+
-    "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-    "&buffer=1000"+//adds a xms buffer
-    "&showlist=0"+//hides the viewer list
-    //"&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-    "";        
-
-    }
-
 </script>

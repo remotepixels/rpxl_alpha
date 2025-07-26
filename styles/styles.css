@@ -16,7 +16,7 @@
     --button-wide-width: 80px;
     --border-width: 1px;
 
-    --shadows: 0px 0px 40px 0px rgba(0,0,0,.1);
+    --shadows: 0px 0px 40px 0px rgba(0,0,0,0.05);
 }
 * {
     font-family: "Roboto", serif;
@@ -40,26 +40,84 @@ a {
 a:hover {
     color: light-dark(var(--color-dark-bg), var(--color-light-bg)); 
 }
+
 body {
     margin: 0px;
     background-color: var(--color-mid-grey);
+    background-attachment: fixed ;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: cover;
 
 }
+@media (prefers-color-scheme: dark) {
+    body {
+        background-image: url(../images/background-dark.jpg); 
+    }
+}
+@media (prefers-color-scheme: light) {
+    body {
+        background-image: url(../images/background-light.jpg);
+    }
+}
+
 hr {
+    margin: 10px 0px;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
-    margin-top: 0px;
-    margin-bottom: 30px;
 }
 h2 {
     position: relative;
     display: inline-flex;
     margin:0px;
-    margin-bottom: 10px;
     font-weight: 400;
     font-style: normal;
-    font-size: 18px;
     color: light-dark(var(--color-dark-bg), var(--color-light-bg)); 
 }
+/*
+h3 {
+    font-size: 16px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+}
+*/
+
+/*dialog boxes shared settings*/
+dialog {
+    opacity: 0;
+    transition: all 200ms allow-discrete;
+    position: absolute;
+    display: block;
+    left: 0px;
+    width: fit-content;
+    height: fit-content;
+    justify-items: center;
+    text-align: center;
+    padding: 20px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+    border-radius: var(--radius-big);
+    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    z-index: 10;
+    box-shadow: var(--shadows);
+} 
+dialog::backdrop {
+  background: var(--color-mid-grey);
+}
+dialog:open {
+  opacity: 1;
+}
+@starting-style {
+  dialog:open {
+    opacity: 0;
+  }
+}
+
+/*table styles shared*/
+.table > div {
+    text-align: left;
+    align-content: center;
+}
+
+/*Iframe settings for the main content area*/
 iframe {
 	width: 100%;
 	height: calc(100% - var(--button-height) - var(--button-height) - 20px);
@@ -68,57 +126,55 @@ iframe {
 	border:0px;
 	padding:0px;
 	position: fixed;
-    background-color: var(--color-mid-grey);}
+    background-color: var(--color-mid-grey);
+}
+.mainstreamiframe {
+    background-color: var(--color-mid-grey);
+	width: calc(100% - 110px);
+    left:110px;
+	z-index: 0;
+}
+.viewersiframe {
+    background-color: var(--color-mid-grey);
+	width:110px;
+	left:0px;
+	overflow-y: auto;
+    overflow-x: hidden;
+    z-index:1;
+}
+.viewersiframe:hover {
+    background-color: var(--color-light-grey);
+	width:300px;
+    transition-timing-function: linear;
+    transition: all 150ms;
+}
+
+/*center elements horizontally used for login and popup dialogs*/
 .centerhorizontal {
-    margin:auto
-}
-.centervertical {
     position: relative;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+    top: calc(var(--button-height) + 15px);
+    margin: auto;
+    margin-bottom: 5px;
 }
-.center {
-	position: relative;
-    width: 100%;
-	display: inline-block;
-	justify-content: center;
-	text-align: center;
-}
+
 /*remove system highlight around forms etc */
 [contenteditable] {
     outline: 0px solid transparent;
 }
-.label{ 
-    position: relative;
-    display: inline-block;
-    width: 105px;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
-}
-.text{ 
-    position: relative;
-    display: inline-block;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
-}
 .textinput {
     position: relative;
-    display: inline-block;
-    justify-content: center;
-    align-items: center;
-    width: calc(100% - 125px);
-    margin: 5px;
-    padding-left: 20px;
+    width: 200px;
+    padding: 5px 15px;
     height: var(--button-height);
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
 }
 
+/*botton styles, including red / blue and more settings*/
 button {
     position: relative;
     height: var(--button-height);
-    width:100%;
-    margin: 0px 0px 10px 0px;
+    width: fit-content;
     display: block;
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
@@ -127,15 +183,26 @@ button {
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
-
+.selected, .buttonmoresettings:hover {
+    color: light-dark(var(--color-dark-grey), var(--color-light-white))!important;
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey))!important;
+}
+.selectedred {
+    color: light-dark(var(--color-light-bg), var(--color-light-white))!important;
+    background-color: var(--color-red)!important;
+}
 .buttonblue:hover {
     color: light-dark(var(--color-light-bg), var(--color-light-white));
     background-color: dodgerblue;
 }
+.buttonWider {
+    padding: 0px 80px 0px 80px;
+}
 
-select { /*custom dropdown selector*/
+/*custom dropdown selector*/
+select { 
     appearance: none;
-    width: 100%;
+    width: 200px;
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     border-radius: var(--radius-big);
@@ -144,10 +211,9 @@ select { /*custom dropdown selector*/
     cursor: pointer;
 }
 .custom-select {
-    margin: 5px;
     position: relative;
     display: inline-block;
-    width: calc(100% - 125px);
+    width: 200px;
     height: var(--button-height);
     border-radius: var(--radius-big);
 }
@@ -181,31 +247,18 @@ select:hover, select:active{
     transition: transform ease-in-out 0.3s;
 }
 
+/*radio button customization*/
 .radioset {
     position: relative;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    margin: 5px;
+    width:200px;
     height: var(--button-height);
     border-radius: var(--radius-big);
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-.selected, .buttonmoresettings:hover {
-    color: light-dark(var(--color-dark-grey), var(--color-light-white))!important;
-    background-color: light-dark(var(--color-light-white), var(--color-mid-grey))!important;
-}
-.selectedred {
-    color: light-dark(var(--color-light-bg), var(--color-light-white))!important;
-    background-color: var(--color-red)!important;
-}
-
-.buttonmoresettings[aria-expanded="true"]::after, .toolmoresettings[aria-expanded="true"]::after {
-    transform: rotate(180deg) translateY(50%);
-}
-
-/*radio button costomiztion*/
 label:has([type=radio]) {
     display: inline-flex;
     align-items: center;
@@ -239,6 +292,8 @@ label:has([type=colorpot]:checked) {
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
     color: light-dark(var(--color-dark-grey), var(--color-light-white));
 }
+
+/*toolbars, top and bottom and tool sets (groups)*/
 .toolbar {
     position: fixed;
     display: flex;
@@ -249,7 +304,7 @@ label:has([type=colorpot]:checked) {
     margin: 0px;
     padding: 0px;
     z-index: 1;
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey)); 
 }
 .toolbar.top {
     top: 0px;
@@ -266,9 +321,13 @@ label:has([type=colorpot]:checked) {
     height: var(--button-height);
     margin: 5px;
 }
+
+/*flexible spacer for gaps between tool sets*/
 .toolspacer {
     margin-right:auto;
 }
+
+/*tool buttons*/
 .tool {  
     border-radius: 0px;
     width: var(--button-width);
@@ -290,6 +349,7 @@ label:has([type=colorpot]:checked) {
     color: light-dark(var(--color-light-bg), var(--color-light-bg));
     background-color: var(--color-red)
 }
+/*add divider for tool buttons that show popup windows*/
 .toolmoresettings {
     width: calc(var(--button-width) + 30px);
     justify-content: center;
@@ -361,41 +421,26 @@ input[type="range"]::-webkit-slider-thumb {
     height: var(--button-height);
     margin-left: 20px;
     margin-right:20px;
-
 }
+
+/*background object for popup windows*/
 .popupBG {
     position: fixed;
     width:100%;
     height:100%;
     top:0;
     left:0;
-    background-color: rgba(0, 0, 0, 0.1);
     z-index: 9;
 }
-.popupBGImmutable {
-    background-color: var(--color-mid-grey);
-}
+
+/*popup windows for setting, share and color palette*/
 .toolpopup {
     position: absolute;
-    display: block;
-    height: fit-content;
-    width: fit-content;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-    border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
-    box-shadow: var(--shadows);
+    margin: 0px;
     z-index: 10;
 } 
 .toolpopup.top {
-    top: calc(var(--button-height));
-    height: fit-content;
-    width: fit-content;
-    align-items: center;
-    justify-content: center;
+    top: calc(15px + var(--button-height));
 }
 .toolpopup.bottom {
     bottom: calc(15px + var(--button-height));
@@ -404,13 +449,13 @@ input[type="range"]::-webkit-slider-thumb {
     right: 5px;
 }
 .toolpopup.left {
-    left: 5px;
+    position: fixed;
+    left: 5px!important;
 }
 .toolpopup.middle {
     left: 50%;
     transform: translateX(-50%);
-    padding:10px;
-    animation: 200ms fadeup;
+    padding:20px;
 }
 .toolpopup.bottom::after {
     position: absolute;
@@ -451,7 +496,7 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 0px;
     width: 30px;
     height: 30px;
-    margin: 10px;
+    margin: 5px;
     border-radius: var(--radius-small);
     cursor: pointer;
 }
@@ -459,11 +504,9 @@ input[type="range"]::-webkit-slider-thumb {
     outline: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
     outline-offset: 5px;
 }
-
 .share {
   padding: 5px;
-  border:0px;
-
+  border: 0px;
 } 
 .link {
     position: relative;
@@ -478,12 +521,22 @@ input[type="range"]::-webkit-slider-thumb {
     color: light-dark(var(--color-dark-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-
-/*
-
-for tool tips use  data-tooltip="Generate new random ID" in HTML tag
-
-*/
+.warning {
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    border:0px solid var(--color-light-bg);
+    padding:10px 60px;
+    background-color: var(--color-red);
+}
+.notification {
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    border:0px solid var(--color-light-bg);
+    padding:10px 60px;
+}
+/*for tool tips use  data-tooltip="Generate new random ID" in HTML tag, not currently active*/
 [data-tooltip]:hover::after {
     display: block;
     position: absolute;
@@ -496,6 +549,7 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
     z-index:10;
   }
 
+/*canvas settings for annotations (drawing)*/
 .annotationsCanvas {
     position: absolute;
     display: block;
@@ -506,28 +560,46 @@ for tool tips use  data-tooltip="Generate new random ID" in HTML tag
     cursor: default;
 }
 
+/* hide elements - must be last to over ride other styles*/
 .hidden {
     display:none;
 }
+
+/*display customizations based on screen size for mobile devices*/
+@media (max-width: 760px) {
+    .volume, .text {
+        display: none;
+    }
+}
+@media (max-width: 520px) {
+    .volume, .text, #toolAnnotations, #viewersStream {
+        display: none;
+    }
+}
+@media (max-height: 430px) {
+    #topmenu {
+        display: none;
+    }
+    .viewersiframe, .mainstreamiframe {
+        top: 0px;
+    }
+}
+
 /*animations*/  
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 var(--color-red); }
     100% {  box-shadow: 0 0 0 10px rgba(200, 60, 60, 0); }
 }
 @keyframes shake {
-	0% {transform: translateX(0px);}
-	15% {transform: translateX(-25px);}
-	30% {transform: translateX(25px);}
-	45% {transform: translateX(-25px);}
-	60% {transform: translateX(25px);}
-	75% {transform: translateX(-25px);}
+	0% {transform: translateX(0px); }
+	15% {transform: translateX(-5px);}
+	30% {transform: translateX(10px);}
+	45% {transform: translateX(-15px);}
+	60% {transform: translateX(15px);}
+	75% {transform: translateX(-5px);}
 	100% {transform: translateX(0px); animation-timing-function: ease-in;}
 }
-@keyframes fadeup {
-  0% { 
-    opacity: 0;
-  }
-  100% { 
-    opacity: 1;
-  }
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
 }

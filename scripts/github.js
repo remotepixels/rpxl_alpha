@@ -4,6 +4,7 @@
 const headers = {
             "Authorization" : 'Token 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'
            }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //async function to create issue on github, used to save session ID's
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,14 +24,13 @@ async function addIssue(encodedSession) {
     console.log(result)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //get session ID's from github issues
 //date range to look for session id's in repo issues currently set to 30 day
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 const currentDate = new Date();
 var backDate = new Date();
-backDate.setDate(backDate.getDate() - 30);
+backDate.setDate(backDate.getDate() - 90);
 
 //change date format to yyyy-mm-dd for search query
 const formatDate = (date) => {

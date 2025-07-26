@@ -35,10 +35,10 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
     let miccookie = getCookie(cookieMic);
 
     if (usercookie != null) {
-        console.log("Cookie data");
-        console.log("name : " + usercookie);
-        console.log("camera : " + cameracookie);        
-        console.log("mic : " + miccookie);
+        console.log("Retrieved cookie data :");
+        console.log("cookie - name : " + usercookie);
+        console.log("cookie - camera : " + cameracookie);        
+        console.log("cookie - mic : " + miccookie);
 
         document.getElementById("name").value = usercookie;
     }
@@ -54,11 +54,10 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
                 if (option === cameracookie) {
                     document.getElementById("cameraSource").selectedIndex = i
                     
-                    videoElement = document.querySelector('video#camera');
                     videoElement.classList.remove("fadeout");
                     videos = document.getElementById("cameraSource").value;
                     videoSelected = document.querySelector('select#cameraSource');
-                    getvideoStream();
+                    handleDeviceSelection('video');
                     optionFound = true;
                     break; // Stop once the matching option is found and selected
                 }
@@ -74,10 +73,9 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
                 if (option === miccookie) {
                     document.getElementById("microphoneSource").selectedIndex = i
 
-                    audioElement = document.querySelector('audio#microphone');
                     audios = document.getElementById("microphoneSource").value;
                     audioSelected = document.querySelector('select#microphoneSource');
-                    getAudioStream()
+                    handleDeviceSelection('audio');
                     optionFound = true;
                     break; // Stop once the matching option is found and selected
                 }

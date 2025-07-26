@@ -3,21 +3,24 @@
 //if not show a popup to ask them to allow access
 //Microphone access is required but camera access is optional
 
+// ------------------ Permissions ------------------
 checkPermissions();
 
 async function checkPermissions() {
-try {
-    const cameraPermission = await navigator.permissions.query({ name: 'camera' });
-    const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
+    try {
+        const [camera, mic] = await Promise.all([
+        navigator.permissions.query({ name: 'camera' }),
+        navigator.permissions.query({ name: 'microphone' })
+        ]);
 
-    //block login and session if microphone is not allowed
-    if ((microphonePermission.state !== 'granted') || (cameraPermission.state !== 'granted')){
-        document.getElementById('popupPermissionMic').classList.remove("hidden");
-        permissionMicHelp.addEventListener("click", function() {  window.open('https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36" target="_blank"'); });
-    } 
-    } catch (error) {
-        console.error('Error checking permissions:', error);
-        // Handle potential errors
+        if (mic.state !== 'granted' || camera.state !== 'granted') {
+            document.getElementById('popupPermissionMic').classList.remove('hidden');
+            document.getElementById('permissionMicHelp').addEventListener('click', () =>
+                window.open('https://support.google.com/chrome/answer/2693767','_blank') 
+            ); 
+        }
+    } catch (err) {
+        console.error('Permission check failed:', err);
     }
 }
 
