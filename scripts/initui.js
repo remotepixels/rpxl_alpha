@@ -82,7 +82,9 @@ function reactivateTools() {
 
 //process selected devices and store them in sessionStorage
 function storeSelectedDevices() {
-    let sanitizedSessionID = encodeURIComponent(sessionID.value);
+    let sessionID = document.getElementById("sessionID").value.trim();;
+    let sessionIDUppercase = sessionID.toUpperCase();
+    let sanitizedSessionID = encodeURIComponent(sessionIDUppercase);
 
     let resolution = getCheckedRadioValue("resolution");
     let quality = getCheckedRadioValue("quality");
@@ -95,10 +97,10 @@ function storeSelectedDevices() {
     let username = document.getElementById("name").value || "Presenter";
     let sanitizedUserName = encodeURIComponent(username);
 
-    console.log("SessionID", sanitizedSessionID)
-    console.log("resolution", resolution)
-    console.log("quality", quality)
-    console.log("username", sanitizedUserName)
+    //console.log("SessionID", sanitizedSessionID)
+    //console.log("resolution", resolution)
+    //console.log("quality", quality)
+    //console.log("username", sanitizedUserName)
 
     if (videoList) {
         let videoSelected = videoList.selectedIndex;
@@ -106,7 +108,7 @@ function storeSelectedDevices() {
         if (sanitizedVideo === "none") sanitizedVideo = "0";
         sessionStorage.setItem("videoSource", videoSelected); //selected index for video source (main stream)
         sessionStorage.setItem("videoDevice", sanitizedVideo); //selected video device name, not ID (main stream)
-        console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
+        //console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
     }
     if (audioList) {
         let audioSelected = audioList.selectedIndex;
@@ -114,7 +116,7 @@ function storeSelectedDevices() {
         if (sanitizedAudio === "none") sanitizedAudio = "0";
         sessionStorage.setItem("audioSource", audioSelected); //selected index for audio source (main stream)
         sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
-        console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
+        //console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
     }
     if (cameraList) {
         let cameraSelected = cameraList.selectedIndex;
@@ -124,7 +126,7 @@ function storeSelectedDevices() {
         sessionStorage.setItem("cameraSource", cameraSelected); //selected index for camera source (user webcam)
         sessionStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
         setCookie("camera", rawCamera, 7);
-        console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
+        //console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
     }
     if (microphoneList) {
         let microphoneSelected = microphoneList.selectedIndex;
@@ -134,7 +136,7 @@ function storeSelectedDevices() {
         sessionStorage.setItem("microphoneSource", microphoneSelected); //selected index for microphone source (user microphone)
         sessionStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
         setCookie("mic", rawMicrophone, 7);
-        console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
+        //console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
     }
 
 

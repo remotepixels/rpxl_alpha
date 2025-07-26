@@ -236,22 +236,22 @@ generateSessionIcon.addEventListener("click", () => {
     sessionID.value = generateSessionID();
     generateSessionIcon.classList.toggle("rotate360");   //rotate the icon (fancy)
     setTimeout(function () {  generateSessionIcon.classList.toggle("rotate360");  }, 300);
-    });
+});
 
 //move caret to focus on client id field
 document.getElementById("project").focus();
 
 //generate random code and prefil
 function generateSessionID(length = 6) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
 }
 sessionID.value = generateSessionID();
 
 //check quality and resolution radio buttons
 function getCheckedRadioValue(name) {
-  const selected = document.querySelector(`input[name="${name}"]:checked`);
-  return selected ? selected.value : null;
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    return selected ? selected.value : null;
 }
 
 //check if session id is valid (6 characters long) before prepping session
@@ -266,9 +266,11 @@ function checkSessionID() {
     //stuff to run once and once only when starting session 
     //stopPreviewTracks();
     setupSessionUI();
-    deactivateTools();
     storeSelectedDevices();
+    deactivateTools();
     reactivateTools();
+    viewerStream();
+    startMainStream();
 }
 
 //setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
@@ -284,8 +286,8 @@ function setupSessionUI() {
     var sessionAndProject = sessionID.value+"&"+sanitizedProject
     var encodedSession = btoa(sessionAndProject);
 
-    console.log("Encoded issue for github:", encodedSession )
-    //addIssue(encodedSession)  //////////////////tun back on to add issue to github
+    console.log("Encoded issue for github Session ID & Client name :", encodedSession )
+    addIssue(encodedSession)  //////////////////tun back on to add issue to github
 
     settingsDialog.close();
     settingsDialog.classList.add("hidden");
@@ -316,8 +318,5 @@ function setupSessionUI() {
         viewerStream();
         startMainStream();
     });
-
-    viewerStream();
-    startMainStream();
 }
 </Script>

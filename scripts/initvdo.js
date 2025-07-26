@@ -1,5 +1,7 @@
 //start the chat stream on vdo ninja (used by presenter and client)
 function viewerStream () {  
+    console.log ("session stored values", sessionStorage);
+
     document.getElementById("popupBG").classList.add("hidden"); 
 
     if (!document.getElementById("viewersStream").classList.contains("hidden")) {
@@ -42,6 +44,8 @@ function viewerStream () {
 
 //view the mainstream (used by clients)
 function viewMainstream () {
+    //console.log ("sessionStorage for main stream", sessionStorage);
+
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
@@ -67,6 +71,7 @@ function viewMainstream () {
 
 //used to start main stream by presenter
 function startMainStream() {
+    //console.log ("sessionStorage for stream create", sessionStorage);
     if (!document.getElementById("mainStream").classList.contains("hidden") ) { 
         document.getElementById("mainStream").classList.add("hidden"); 
     }
@@ -101,7 +106,7 @@ function startMainStream() {
         "&agc=0"+//turns off auto gain control
         "&denoise=0"+//turns off denoiser
         "&ab=128"+//constant audio bitrate
-        "&stats"+
+        //"&stats"+
         "&showconnections"+
         "&signalmeter"+
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+

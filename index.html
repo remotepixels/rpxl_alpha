@@ -181,6 +181,7 @@ function checkSessionURL (result) {
                 checkCookie("username", "camera", "mic")
                 client = decodeURIComponent(clientEncoded); //decode the client name
                 document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
+                document.getElementById("sessionID").value = sessionID;
                 sessionDialog.classList.add("hidden");
                 sessionDialog.close();
                 settingsDialog.classList.remove("hidden");
@@ -204,7 +205,7 @@ document.getElementById("sessionID").addEventListener("keypress", function(event
 //quick check to make sure the session ID is 6 characters long, if not then shake the box and clear input
 //if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
 function checkEnteredSession() {
-    const sessionIDEntered = sessionID.value.trim();
+    const sessionIDEntered = sessionID.value;
     const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
     const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
 
@@ -279,7 +280,6 @@ function setupSession() {
     document.getElementById("settingsDialog").classList.add("hidden");    
     document.getElementById("mainWindow").classList.remove("hidden");      
     document.body.style.backgroundImage = "none";
-    viewMainstream();
 
     document.getElementById("settingsDialog").classList.remove("top", "middle");        
     document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
@@ -298,6 +298,8 @@ function setupSession() {
     deactivateTools();
     storeSelectedDevices(); 
     reactivateTools();
+    
+    viewMainstream();
     viewerStream();
 }
 </script>
