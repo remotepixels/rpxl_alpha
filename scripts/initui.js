@@ -40,10 +40,10 @@ function deactivateTools() {
 //turn back on tools depending on settings
 function reactivateTools() {
     let mytools = document.querySelectorAll(".tool");
-    let videoSource = localStorage.getItem("videoDevice");
-    let audioSource = localStorage.getItem("audioDevice");
-    let cameraSource = localStorage.getItem("cameraDevice");
-    let microphoneSource = localStorage.getItem("microphoneDevice");
+    let videoSource = sessionStorage.getItem("videoDevice");
+    let audioSource = sessionStorage.getItem("audioDevice");
+    let cameraSource = sessionStorage.getItem("cameraDevice");
+    let microphoneSource = sessionStorage.getItem("microphoneDevice");
     let toolVolumeSlider = document.getElementById("toolStreamVolume");
 
     mytools.forEach(tool => {
@@ -80,7 +80,7 @@ function reactivateTools() {
     });
 }
 
-//process selected devices and store them in localStorage
+//process selected devices and store them in sessionStorage
 function storeSelectedDevices() {
     let sanitizedSessionID = encodeURIComponent(sessionID.value);
 
@@ -104,16 +104,16 @@ function storeSelectedDevices() {
         let videoSelected = videoList.selectedIndex;
         let sanitizedVideo = videoList.options[videoSelected].text.toLowerCase().replace(/[\W]+/g, "_");
         if (sanitizedVideo === "none") sanitizedVideo = "0";
-        localStorage.setItem("videoSource", videoSelected); //selected index for video source (main stream)
-        localStorage.setItem("videoDevice", sanitizedVideo); //selected video device name, not ID (main stream)
+        sessionStorage.setItem("videoSource", videoSelected); //selected index for video source (main stream)
+        sessionStorage.setItem("videoDevice", sanitizedVideo); //selected video device name, not ID (main stream)
         console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
     }
     if (audioList) {
         let audioSelected = audioList.selectedIndex;
         let sanitizedAudio = audioList.options[audioSelected].text.toLowerCase().replace(/[\W]+/g, "_");
         if (sanitizedAudio === "none") sanitizedAudio = "0";
-        localStorage.setItem("audioSource", audioSelected); //selected index for audio source (main stream)
-        localStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
+        sessionStorage.setItem("audioSource", audioSelected); //selected index for audio source (main stream)
+        sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
         console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
     }
     if (cameraList) {
@@ -121,8 +121,8 @@ function storeSelectedDevices() {
         let rawCamera = cameraList.options[cameraSelected].text; //used to store cookie for client
         let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
         if (sanitizedCamera === "none") sanitizedCamera = "0";
-        localStorage.setItem("cameraSource", cameraSelected); //selected index for camera source (user webcam)
-        localStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
+        sessionStorage.setItem("cameraSource", cameraSelected); //selected index for camera source (user webcam)
+        sessionStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
         setCookie("camera", rawCamera, 7);
         console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
     }
@@ -131,18 +131,18 @@ function storeSelectedDevices() {
         let rawMicrophone = microphoneList.options[microphoneSelected].text; //used to store cookie for client
         let sanitizedMicrophone = microphoneList.options[microphoneSelected].text.toLowerCase().replace(/[\W]+/g, "_");
         if (sanitizedMicrophone === "none") sanitizedMicrophone = "0";
-        localStorage.setItem("microphoneSource", microphoneSelected); //selected index for microphone source (user microphone)
-        localStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
+        sessionStorage.setItem("microphoneSource", microphoneSelected); //selected index for microphone source (user microphone)
+        sessionStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
         setCookie("mic", rawMicrophone, 7);
         console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
     }
 
 
-    // Store settings in localStorage
-    localStorage.setItem("sessionID", sanitizedSessionID);
-    localStorage.setItem("resolution", resolution);
-    localStorage.setItem("quality", quality);
-    localStorage.setItem("username", sanitizedUserName);
+    // Store settings in sessionStorage
+    sessionStorage.setItem("sessionID", sanitizedSessionID);
+    sessionStorage.setItem("resolution", resolution);
+    sessionStorage.setItem("quality", quality);
+    sessionStorage.setItem("username", sanitizedUserName);
     setCookie("username", sanitizedUserName, 7);
 }
 
@@ -153,18 +153,18 @@ function recalSelectedDevices() {
     let cameraDeviceRecal = document.getElementById("cameraSource");
     let microphoneDeviceRecal = document.getElementById("microphoneSource");
 
-    console.log ("localStorage", localStorage);
+    console.log ("sessionStorage", sessionStorage);
     
-    if (videoDeviceRecal) { videoDeviceRecal.selectedIndex = localStorage.getItem("videoSource") || 0; }
-    if (audioDeviceRecal) { audioDeviceRecal.selectedIndex = localStorage.getItem("audioSource") || 0; }
-    if (cameraDeviceRecal) { cameraDeviceRecal.selectedIndex = localStorage.getItem("cameraSource") || 0; }
-    if (microphoneDeviceRecal) { microphoneDeviceRecal.selectedIndex = localStorage.getItem("microphoneSource") || 0; } 
-    let usernameRecal = localStorage.getItem("username");
+    if (videoDeviceRecal) { videoDeviceRecal.selectedIndex = sessionStorage.getItem("videoSource") || 0; }
+    if (audioDeviceRecal) { audioDeviceRecal.selectedIndex = sessionStorage.getItem("audioSource") || 0; }
+    if (cameraDeviceRecal) { cameraDeviceRecal.selectedIndex = sessionStorage.getItem("cameraSource") || 0; }
+    if (microphoneDeviceRecal) { microphoneDeviceRecal.selectedIndex = sessionStorage.getItem("microphoneSource") || 0; } 
+    let usernameRecal = sessionStorage.getItem("username");
     let userNameDecode = decodeURIComponent(usernameRecal);
     document.getElementById("name").value = userNameDecode;
 
-    let resolutionRecal = localStorage.getItem("resolution") || "1"; //default to 720p
-    let qualityRecal = localStorage.getItem("quality") || "8000"; //default to low quality
+    let resolutionRecal = sessionStorage.getItem("resolution") || "1"; //default to 720p
+    let qualityRecal = sessionStorage.getItem("quality") || "8000"; //default to low quality
 
     //set resolution radio buttons
     if (resolutionRecal === "0") {

@@ -1,0 +1,18 @@
+@media (max-width: 760px) {
+    .volume, .text {
+        display: none;
+    }
+}
+@media (max-width: 520px) {
+    .volume, .text, #toolAnnotations, #viewersStream {
+        display: none;
+    }
+}
+@media (max-height: 430px) {
+    #topmenu {
+        display: none;
+    }
+    .viewersiframe, .mainstreamiframe {
+        top: 0px;
+    }
+}

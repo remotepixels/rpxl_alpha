@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" href="../styles/clientstyle.css">
     <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/mobilestyle.css">
 
     <title>alpha.rpxl.app v3 | Quickview</title>
 </head>
@@ -128,7 +129,7 @@ function checkSessionURL (result) {
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
                 clientEncoded = splitBody[1];
                 client = decodeURIComponent(clientEncoded); //decode the client name
-                localStorage.setItem("sessionID", sessionID);
+                sessionStorage.setItem("sessionID", sessionID);
 
                 document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
                 sessionDialog.classList.add("hidden");
@@ -178,7 +179,7 @@ function checkEnteredSession() {
         const clientEncoded = found[1];
         const client = decodeURIComponent(clientEncoded);
 
-        localStorage.setItem("sessionID", sessionIDEnteredSanitized);
+        sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
         sessionDialog.close();
         sessionDialog.classList.add("hidden");
         document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";

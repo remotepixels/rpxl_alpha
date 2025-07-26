@@ -6,10 +6,10 @@ function viewerStream () {
         document.getElementById("viewersStream").classList.add("hidden");
     }
 
-    let sanitizedSessionID = localStorage.getItem("sessionID");
-    let sanitizedUserName = localStorage.getItem("username");
-    let sanitizedCamera = localStorage.getItem("cameraDevice");
-    let sanitizedMicrophone = localStorage.getItem("microphoneDevice");
+    let sanitizedSessionID = sessionStorage.getItem("sessionID");
+    let sanitizedUserName = sessionStorage.getItem("username");
+    let sanitizedCamera = sessionStorage.getItem("cameraDevice");
+    let sanitizedMicrophone = sessionStorage.getItem("microphoneDevice");
 
     //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
     if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
@@ -42,7 +42,7 @@ function viewerStream () {
 
 //view the mainstream (used by clients)
 function viewMainstream () {
-    let sanitizedSessionID = localStorage.getItem("sessionID");
+    let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
     document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
@@ -72,11 +72,11 @@ function startMainStream() {
     }
 
     //get settings from local storage
-    let sanitizedSessionID = localStorage.getItem("sessionID");
-    let resolution = localStorage.getItem("resolution") || "1"; //default to 
-    let quality = localStorage.getItem("quality") || "8000"; //default to low quality
-    let sanitizedVideo = localStorage.getItem("videoDevice") || "0"; //default       
-    let sanitizedAudio = localStorage.getItem("audioDevice") || "0"; //default
+    let sanitizedSessionID = sessionStorage.getItem("sessionID");
+    let resolution = sessionStorage.getItem("resolution") || "1"; //default to 
+    let quality = sessionStorage.getItem("quality") || "8000"; //default to low quality
+    let sanitizedVideo = sessionStorage.getItem("videoDevice") || "0"; //default       
+    let sanitizedAudio = sessionStorage.getItem("audioDevice") || "0"; //default
 
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
     document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
