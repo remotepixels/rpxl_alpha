@@ -123,7 +123,7 @@ function toolStreamVolumeSelect () {
 
 //drawing tool
 function toolDrawSelect () {
-    if (toolDraw.getAttribute("aria-expanded") == "false") {
+    if (toolDraw.getAttribute("aria-expanded") == "true") {
         document.getElementById("annotationsCanvas").style.display = "block";
         document.getElementById("annotationsCanvas").style.cursor = "crosshair";
 
