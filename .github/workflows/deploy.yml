@@ -14,7 +14,7 @@ jobs:
 
       - name: Replace placeholder with secret
         run: |
-          sed -i 's/API_KEY_PLACEHOLDER/${{ secrets.GH_API }}/g' /remotepixels/rpxl_alpha/scripts/github.js
+          sed -i 's/API_KEY_PLACEHOLDER/${{ secrets.GH_API }}/g' scripts/github.js
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
