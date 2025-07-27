@@ -92,7 +92,7 @@ function sendDrawingData(pathPoints) {
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-var frameWidth = document.getElementById("viewersStream").offsetWidth;
+var frameWidth = document.getElementById("viewersStream").width;
 
 eventer(messageEvent, function(e) {
     // Make sure the message is from our VDO.Ninja iframe
@@ -108,13 +108,13 @@ eventer(messageEvent, function(e) {
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
         if (left == 0 && top == 0) { 
-            document.getElementById('mainStream').style.width = "calc(100% - "+(frameWidth + 9)+"px)";
+            document.getElementById('mainStream').style.width = "calc(100% - 110px)";
             console.log("resized frame to get correct top and left positions for canvas");
         }
         else{
         // turn on the annotation tools and place canvas
         //offst canvas depending if in director or client view        
-        var leftOffset = left + frameWidth + 5;
+        var leftOffset = left + 110;
 
         document.getElementById('toolDraw').classList.remove("disable");
         document.getElementById('toolDraw').disabled = false;
