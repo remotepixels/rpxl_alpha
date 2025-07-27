@@ -8,7 +8,7 @@
 //  auth: 'token_issues',
 //});
 const partKey = 'API_KEY_PLACEHOLDER';
-const apiKey = "ghp_"+partKey;
+const apiKey = "TOKEN ghp_"+partKey;
 const headers = {
             "Authorization" : apiKey
            }
