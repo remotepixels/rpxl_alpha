@@ -246,6 +246,7 @@ function generateSessionID(length = 6) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
 }
+
 sessionID.value = generateSessionID();
 
 //check quality and resolution radio buttons
@@ -277,13 +278,16 @@ function checkSessionID() {
 function setupSessionUI() {
     const projectName = document.getElementById("project").value || "";
     const sanitizedProject = encodeURIComponent(projectName);
+    const sessionIDEntered = sessionID.value;
+    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase(); 
+    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
 
     // Set Session Title & Copy Session Quick Link to Clipboard
-    sessionName.innerHTML = projectName + " Live session (" + sessionID.value + ")";
-    navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?" + sessionID.value );
+    sessionName.innerHTML = projectName + " Live session (" + sessionIDEnteredSanitized + ")";
+    navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?" + sessionIDEnteredSanitized );
 
     //create a new issue on github (used to track sessions) encode session ID
-    var sessionAndProject = sessionID.value+"&"+sanitizedProject
+    var sessionAndProject = sessionIDEnteredSanitized+"&"+sanitizedProject
     var encodedSession = btoa(sessionAndProject);
 
     //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
