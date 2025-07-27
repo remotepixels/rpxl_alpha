@@ -92,29 +92,32 @@ function sendDrawingData(pathPoints) {
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-var frameWidth = document.getElementById("viewersStream").width;
+
 
 eventer(messageEvent, function(e) {
+
     // Make sure the message is from our VDO.Ninja iframe
     //if ((e.source != iframe.contentWindow) || (e.source != streamFrame.contentWindow)) return;
     //check if there is a amin stream and if there is then turn on annotations tools
-    //if window resized then resize the canvas
     if (e.data && e.data.sendData === 'mainstreamSize') {
         const { width, height, top, left } = e.data;
         
+        var offsetViewFrame = 0;
+var offsetViewFrame = document.getElementById("viewersStream").offsetWidth;
+console.log ("frame offset:",offsetViewFrame);
         //mainstreamwidth = document.getElementById('mainStream').offsetWidth;
         //console.log("Mainstream width: " + mainstreamwidth);
         // if we have video data, i mean some psycho could be sending audio only who knows
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
         if (left == 0 && top == 0) { 
-            document.getElementById('mainStream').style.width = "calc(100% - 110px)";
+            document.getElementById('mainStream').style.width = "calc(100% - "+offsetViewFrame+"px)";
             console.log("resized frame to get correct top and left positions for canvas");
         }
         else{
         // turn on the annotation tools and place canvas
         //offst canvas depending if in director or client view        
-        var leftOffset = left + 110;
+        var leftOffset = left + offsetViewFrame;
 
         document.getElementById('toolDraw').classList.remove("disable");
         document.getElementById('toolDraw').disabled = false;

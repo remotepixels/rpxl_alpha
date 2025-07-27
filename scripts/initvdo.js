@@ -23,13 +23,14 @@ function viewerStream () {
     document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
     document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
         "&label="+sanitizedUserName+
+        "&showlabels"+
         "&style=4"+
         "&meterstyle=2"+
-        "&showlabels"+
-        "&disablehotkeys"+
         "&"+camOrMicSetup+
-        "&webcam"+
         "&audiodevice="+sanitizedMicrophone+
+        "&webcam"+
+        "&disablehotkeys"+
+        "&showall"+
         "&autostart"+
         "&cleanoutput"+
         "&transparent"+

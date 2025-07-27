@@ -31,6 +31,7 @@
 
 <body id="body">
     <!--iframes for vdo ninja-->
+    <iframe class="hidden" id="viewersStream" style="width: 0px; left:0px;"></iframe>   
     <iframe class="mainstreamiframe hidden" id="mainStream" style="width: 100%; left:0px;"></iframe>   
 
     <!--canvas for drawing annotations-->
@@ -38,19 +39,11 @@
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
-        <!--top menu bar-->
-        <div id="topmenu" class="toolbar top">	
-            <div style="width:20px"></div>
-            <h3 id="sessionTitle">RPXL</h3>
-            <div class="toolspacer"></div>           
-            <div class="toolset">
-                <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
-                    <button class="botton buttonblue buttonWider" id="vdoninja">Powered by vdo.ninja</button>
-                </a>
-            </div>
-        </div>
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
+            <div style="width:20px"></div>
+            <h3 id="sessionTitle">RPXL</h3>
+            <div class="toolspacer"></div>  
             <div class="toolset" id="toolAnnotations">
                 <button class="tool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
                 <button class="tool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
@@ -187,6 +180,27 @@ function checkEnteredSession() {
         document.body.style.backgroundImage = "none";
 
         viewMainstream();
+        viewersStream.classList.remove("hidden");
+        document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
+        document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
+        "&label=Quickviewer"+
+        //"&videodevice=0"+
+        "&style=4"+
+        "&meterstyle=2"+
+        "&showlabels"+
+        "&dataonly"+
+        "&webcam"+
+        "&audiodevice=0"+
+        "&autostart"+
+        "&cleanoutput"+
+        "&transparent"+
+        "&group=Client"+
+        "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
+
+    setTimeout(function(){   
+        document.getElementById("viewersStream").classList.remove("hidden");
+    },1000);
     } else {
         showError();
     }
