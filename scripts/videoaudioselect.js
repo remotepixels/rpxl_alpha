@@ -1,9 +1,5 @@
 
 //check if the user has allowed access to the camera and microphone
-//if not show a popup to ask them to allow access
-//Microphone access is required but camera access is optional
-
-// ------------------ Permissions ------------------
 checkPermissions();
 
 async function checkPermissions() {
@@ -24,16 +20,8 @@ async function checkPermissions() {
     }
 }
 
-//session creation options of video and audio sources
-//find video and audio sources
-//populates dropdown boxes with the found sources
-//load the sources when selected into the correct preview areas (main or user)
-//make sure that the same sources can not be used twice
-//check that a valid session id is entered
-//sanitize all values before creating streams
-
-//used to populate initial drop down and listen for onclick events
-
+//find video and audio sources and populate dropdown boces
+//load the sources when selected into the correct preview areas (main or user), make sure that the same sources can not be used twice
 var videoSelect = document.querySelector('select#videoSource');
 var audioSelect = document.querySelector('select#audioSource');
 var cameraSelect = document.querySelector('select#cameraSource');
@@ -44,7 +32,6 @@ audioSelect.onchange = checkSelection;
 cameraSelect.onchange = checkSelection;
 microphoneSelect.onchange = checkSelection;
 
-
 //dependant on if main or user dropdowns selected will change when moving streams from one to the other
 var videos = ""
 var audios = ""
@@ -52,51 +39,13 @@ var videoSelected
 var audioSelected
 var videoElement = document.querySelector('video#video');
 var audioElement = document.querySelector('audio#audio');
-var stream = null;
-
-// Declare variables for audio processing
-let audioContext = null;
-let analyserNode = null;
-let animationFrameId = null; // To store the ID returned by requestAnimationFrame
-let mediaStreamAudioSourceNode = null; // Store the source node
-
-// Existing checkPermissions and other functions...
-
-// ... rest of your variables and functions
-
-
+//var stream = null;
 
 //every time we select the dropdown check the source (main or user)
 //and get the value selected and get the respective stream and put it in the correct preview box
 //every time we select the dropdown check the source (main or user)
 //and get the value selected and get the respective stream and put it in the correct preview box
 function checkSelection (calledBy) {
-    if (stream != null) {
-        console.log("stopping stream")
-        stream.getTracks().forEach(function(track) {
-            track.stop();
-        });
-        // Stop audio processing if it's running
-        if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-            audioContext = null;
-            analyserNode = null;
-            mediaStreamAudioSourceNode = null;
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            // Reset the meter display if needed
-            const volumeMeterEl = document.getElementById('audiometer');
-            if (volumeMeterEl) {
-                volumeMeterEl.style.height = '0px';
-            }
-        }
-    }
-    //setup which elements will be replaced depending on the source changes
-    //video, audio, camera or microphone and sets the target preview areas (main or user)
-    //disables a select source so that it can not be used twice
-    //console.log(calledBy.srcElement.id)
     if (calledBy.srcElement.id == "videoSource") {
         videoElement = document.querySelector('video#video');
         videos = document.getElementById("videoSource").value;
@@ -123,13 +72,10 @@ function checkSelection (calledBy) {
     }
 
     //check if a new video or audio option has been selected
-    //if so get the appropriate stream
-    //if they were set to none the stop the video or audio stream
     if ((videos != "")) {
         videoElement.classList.remove("fadeout");
         getvideoStream();
     } else {
-        //console.log("video :", videoElement.srcObject)
         if (videoElement.srcObject != null) { //make sure there is a stream or we get an error trying to stop things
             const videoStream = videoElement.srcObject;
             const videoTracks = videoStream.getTracks();
@@ -141,7 +87,6 @@ function checkSelection (calledBy) {
     if ((audios != "")) {
         getAudioStream();
     } else {
-        //console.log("audio ", videoElement.srcObject)
         if (audioElement.srcObject != null) { //make sure there is a stream or we get an error trying to stop things
             const audioStream = audioElement.srcObject;
             const audioTracks = audioStream.getTracks();
@@ -149,7 +94,7 @@ function checkSelection (calledBy) {
         }
     }
 }
-// ... rest of your checkSelection function
+
 //prevents the sources from being selected twice as both main and user sources
 function preventDupes( select, index ) {
     var options = select.options,
@@ -161,7 +106,6 @@ function preventDupes( select, index ) {
         select.options[ index ].disabled = true;
     }
     if( index === select.selectedIndex ) {
-        //alert('You\'ve already selected the item "' + select.options[index].text + '".\n\nPlease choose another.');
         this.selectedIndex = 0;
     }
     return;
@@ -181,13 +125,14 @@ function getStreams() {
     return navigator.mediaDevices.getUserMedia(constraints).
         then(gotvideoStream).catch(handleError);
 }
+
 function getDevices() {
   return navigator.mediaDevices.enumerateDevices();
 }
+
 //adds each device to the dropdown boxes removing the (default device so we don't have duplicates)
 function gotDevices(deviceInfos) {
     window.deviceInfos = deviceInfos; // make available to console
-    //console.log('Available input and output devices:', deviceInfos);
 
     for (const deviceInfo of deviceInfos) {
         const option = document.createElement('option');
@@ -223,8 +168,9 @@ function getvideoStream() {
     return navigator.mediaDevices.getUserMedia(constraints).
         then(gotvideoStream).catch(handleError);
 }
+
 function gotvideoStream(stream) {
-    window.stream = stream; // make stream available to console !important, used to stop streams earlier
+    //window.stream = stream; 
 
     if (videos != "") {//used to make sure we don't set the stream on startup since none is the default option
         videoSelected.selectedIndex = [...videoSelected.options].findIndex(option => option.text === stream.getVideoTracks()[0].label);
@@ -245,29 +191,26 @@ function getAudioStream() {
 
 
 function gotAudioStream(stream) {
-    window.stream = stream; // make stream available to console !important, used to stop streams earlier
+    //window.stream = stream; 
+    if (audioElement.id == "audio") { var volumeMeterEl = document.getElementById('audiometer'); }
+    if (audioElement.id == "microphone") { var volumeMeterEl = document.getElementById('micmeter'); }
+
+    let audioContext = null;
+    let analyserNode = null;
+    let animationFrameId = null; // To store the ID returned by requestAnimationFrame
+    let mediaStreamAudioSourceNode = null; // Store the source node
 
     if (audio != "") {//used to make sure we don't set the stream on startup since none is the default option
         audioSelected.selectedIndex = [...audioSelected.options].findIndex(option => option.text === stream.getAudioTracks()[0].label);
-    //    audioElement.srcObject = stream;
+        audioElement.srcObject = stream;
 
-        // Close existing audio context if any
-        if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-        }
-
+        //setup audio handler for UV meter
         audioContext = new AudioContext();
         mediaStreamAudioSourceNode = audioContext.createMediaStreamSource(stream);
-        const volumeMeterEl = document.getElementById('audiometer');
         analyserNode = audioContext.createAnalyser(); // Store the analyser node
         mediaStreamAudioSourceNode.connect(analyserNode);
 
         const pcmData = new Float32Array(analyserNode.fftSize);
-
         let currentMeterValue = 0; // Keep this outside the function so it persists between frames
         const attack = 0.1; // Faster response when volume increases (adjust as needed)
         const decay = 0.95; // Slower response when volume decreases (adjust as needed)
@@ -300,25 +243,22 @@ function gotAudioStream(stream) {
         // Start the animation loop
         animationFrameId = window.requestAnimationFrame(onFrame);
     } else {
-         // Logic for when audio source is set to none - already partly in checkSelection
-         // Ensure any remaining audio processing is stopped here too
-         if (audioContext && audioContext.state !== 'closed') {
+            // stop uv meters if set to none
+            if (audioContext && audioContext.state !== 'closed') {
             audioContext.close();
             audioContext = null;
             analyserNode = null;
             mediaStreamAudioSourceNode = null;
-             if (animationFrameId) {
+                if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
                 animationFrameId = null;
             }
-            const volumeMeterEl = document.getElementById('audiometer');
             if (volumeMeterEl) {
                 volumeMeterEl.style.height = '0px';
             }
-         }
+        }
     }
 }
-// ... rest of your gotAudioStream function
 
 function handleError(error) {
     console.error('Error: ', error);

@@ -4,7 +4,7 @@ const apiKey = "TOKEN ghp_"+partKey;
 const headers = {
             "Authorization" : apiKey
            }
-console.log (headers);
+//console.log (headers);
 
 //async function to create issue on github, used to save session ID's
 async function addIssue(encodedSession) {
