@@ -16,7 +16,7 @@ console.log (headers);
 //async function to create issue on github, used to save session ID's
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 async function addIssue(encodedSession) {
-    const url = "https://api.github.com/repos/remotepixels/rpxl/issues";
+    const url = "https://api.github.com/repos/remotepixels/rpxl_alpha/issues";
 
     const data = {
         title: "SessionID",
@@ -37,7 +37,7 @@ async function addIssue(encodedSession) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 const currentDate = new Date();
 var backDate = new Date();
-backDate.setDate(backDate.getDate() - 90);
+backDate.setDate(backDate.getDate() - 3);
 
 //change date format to yyyy-mm-dd for search query
 const formatDate = (date) => {
