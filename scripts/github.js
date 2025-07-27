@@ -1,23 +1,14 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//github authorization token, really shouldn't leave this lying around....
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//import { Octokit } from "octokit";
-
-//const octokit = new Octokit({ 
-//  auth: 'token_issues',
-//});
 const partKey = 'API_KEY_PLACEHOLDER';
 const apiKey = "TOKEN ghp_"+partKey;
+
 const headers = {
             "Authorization" : apiKey
            }
 console.log (headers);
-////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //async function to create issue on github, used to save session ID's
-////////////////////////////////////////////////////////////////////////////////////////////////////
 async function addIssue(encodedSession) {
-    const url = "https://api.github.com/repos/remotepixels/rpxl_alpha/issues";
+    const url = "https://api.github.com/repos/remotepixels/rpxl/issues";
 
     const data = {
         title: "SessionID",
@@ -32,10 +23,7 @@ async function addIssue(encodedSession) {
     console.log("Posted too github :", result);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//get session ID's from github issues
-//date range to look for session id's in repo issues currently set to 30 day
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//get session ID's from github issues, date range to look for session id's in repo issues currently set to 30 day
 const currentDate = new Date();
 var backDate = new Date();
 backDate.setDate(backDate.getDate() - 3);
