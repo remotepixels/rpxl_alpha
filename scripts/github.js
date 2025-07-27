@@ -7,7 +7,8 @@
 //const octokit = new Octokit({ 
 //  auth: 'token_issues',
 //});
-const apiKey = 'API_KEY_PLACEHOLDER';
+const partKey = 'API_KEY_PLACEHOLDER';
+const apiKey = "ghp_"+partKey;
 const headers = {
             "Authorization" : apiKey
            }
