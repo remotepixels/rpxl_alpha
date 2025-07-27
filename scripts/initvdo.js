@@ -21,7 +21,7 @@ function viewerStream () {
     }
 
     document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
         "&label="+sanitizedUserName+
         "&style=4"+
         "&meterstyle=2"+
@@ -48,8 +48,8 @@ function viewMainstream () {
 
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay";
-    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;";
+    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
         "&view=Stream_"+sanitizedSessionID+
         //"&directoronly"+
         "&solo"+//no login options, solos stream
@@ -84,7 +84,7 @@ function startMainStream() {
     let sanitizedAudio = sessionStorage.getItem("audioDevice") || "0"; //default
 
     document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
         "&push=Stream_"+sanitizedSessionID+
         "&directoronly"+
         "&mirror"+//mirror the video
