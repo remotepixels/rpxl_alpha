@@ -118,8 +118,8 @@ eventer(messageEvent, function(e) {
 
         document.getElementById('toolDraw').classList.remove("disable");
         document.getElementById('toolDraw').disabled = false;
-        document.getElementById('popupPalette').classList.remove("disable");
-        document.getElementById('popupPalette').disabled = false;
+        document.getElementById('toolPalette').classList.remove("disable");
+        document.getElementById('toolPalette').disabled = false;
         document.getElementById('toolEraser').classList.remove("disable");
         document.getElementById('toolEraser').disabled = false;
 
