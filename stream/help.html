@@ -44,10 +44,10 @@
     &nbsp;
     <h1>General Information</h1>
     <p>
-        This application has been tested on Chrome, Firefox and Safari, we recommend Chrome as this appears to be the most stable.
+        <h1>IMPORTANT! Currently only tested on Chrome.</h1>
     </p>
     <p>
-        The streaming page is only for desktop browsers, however streams can be viewed on most desktop and mobile devices.    </p>
+        The streaming page is only for desktop browsers, however streams can be viewed on most desktop and mobile devices using the chrome browser.    </p>
     <p>
         This application can only create streams from sources available to your browser, such as a webcam, display capture device, or a virtual camera source such as NDI or OBS Virtual camera.    </p>
     <p>
@@ -55,7 +55,7 @@
     <p>
         <a href=https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36 target="_new">For more information on browser permissions, click here.</a>
 </div>
-
+<hr>
 <div id="create" class="content">
     &nbsp;
     <h1>Creating a session</h1>
@@ -165,52 +165,51 @@
         </p>
     <p></p>
 </div>
-
+<hr>
 <div id="more" class="content">
     &nbsp;
     <h1>More settings</h1>
-    <img src="../help/help_more.png" alt="Start Stream">
-    <p>
-        These are optional settings that allow you to add a microphone or camera to present yourself as a participant in the room.
-    </p>
-    <p>
-        If you use the quick link option these setting will be ignored, but if you wish to communicate with other participants in the room you will need to set these up.
-    </p>
+        <img src="../help/help_more.png" alt="Start Stream">
+        <p>
+            These are optional settings that allow you to add a microphone or camera to present yourself as a participant in the room.
+        </p>
+        <p>
+            If you use the quick link option these setting will be ignored, but if you wish to communicate with other participants in the room you will need to set these up.
+        </p>
     <span class="point">1</span>
-    <span class="h2">Name</span>
+        <span class="h2">Name</span>
         <p class="pointItem">
             Your name, this will be displayed in the room for other participants to see. If you do not eneter a name it will default to "Presenter"
         </p>
-    <p></p>
+        <p></p>
     <span class="point">2</span>
     <span class="h2">Camera</span>
-        <p class="pointItem">
-            An optional camera source that will be used to present yourself in the room.<br>
-            This is separate from the main stream and can be turned off or changed during the session.
-        </p>
+    <p class="pointItem">
+        An optional camera source that will be used to present yourself in the room.<br>
+        This is separate from the main stream and can be turned off or changed during the session.
+    </p>
     <p></p>
-        <span class="point">3</span>
-    <span class="h2">Microphone</span>
+    <span class="point">3</span>
+        <span class="h2">Microphone</span>
         <p class="pointItem">
             An optional microphone source that will be used to talk to others in the room.<br>
             This is separate from the main stream and can be muted or changed during the session.<br>
-
         </p>
-    <p></p>
+        <p></p>
     <span class="point">4</span>
-    <span class="h2">Camera preview</span>
-        <p class="pointItem">
-            Preview of the camera you have selected.
-        </p>
-    <p></p>
+        <span class="h2">Camera preview</span>
+            <p class="pointItem">
+                Preview of the camera you have selected.
+            </p>
+        <p></p>
     <span class="point">5</span>
-    <span class="h2">Microphone VU Meter</span>
-        <p class="pointItem">
-            VU Meter of the currently selected microphone.
-        </p>
-    <p></p>
+        <span class="h2">Microphone VU Meter</span>
+            <p class="pointItem">
+                VU Meter of the currently selected microphone.
+            </p>
+        <p></p>
 </div>
-
+<hr>
 <div id="main" class="content">
     &nbsp;
     <h1>Main Interface</h1>
@@ -219,105 +218,103 @@
         The main interface is divided into two main sections, users are listed on the left and the main stream is to the right.
     </p>
     <span class="point">1</span>
-    <span class="h2">Users</span>
-    <p class="pointItem">
-        List of connected Guests.<br>
-        Guests talking will be highlighted.<br>
-    </p>
+        <span class="h2">Users</span>
+        <p class="pointItem">
+            List of connected Guests.<br>
+            Guests talking will be highlighted.<br>
+        </p>        <p></p>
     <span class="point">2</span>
     <span class="h2">Main stream</span>
     <p class="pointItem">
        A high resolution preview of your main stream using the selected camera and audio source.
     </p>
     <span class="point">3</span>
-    <span class="h2">Share icon</span>
-    <p class="pointItem">
-       Allows you to share a link to the session with your clients.
-    </p>
+        <span class="h2">Share icon</span>
         <p class="pointItem">
-       There are 2 options, A main share link that will enable full comms with clients requiring them to connect with a microphone and enter a username.<br>
-       They will be able to annotate the main stream and chat with you.<br>
-    </p>
-        <p class="pointItem">
-         A quick link that will allow clients to view the main stream without a microphone or username, this is useful for clients who just want to watch the stream without interacting. or if you already have them on another communication channel such as Zoom or Teams and want to quickly share with them.
-    </p>
+        Allows you to share a link to the session with your clients.
+        </p>
+            <p class="pointItem">
+        There are 2 options, A main share link that will enable full comms with clients requiring them to connect with a microphone and enter a username.<br>
+        They will be able to annotate the main stream and chat with you.<br>
+        </p>
+            <p class="pointItem">
+            A quick link that will allow clients to view the main stream without a microphone or username, this is useful for clients who just want to watch the stream without interacting. or if you already have them on another communication channel such as Zoom or Teams and want to quickly share with them.
+        </p>        <p></p>
     <span class="point">3</span>
     <span class="h2">End session</span>
-    <p class="pointItem">
-       Will end the stream and disconnect you from the session.
-    </p>
-    <p class="pointItem">
-       Note : clients will not be removed from the session and can continue to chat. The session will continue to exist until the last user disconnects.<br>
-       To reconnect to session you will need to use the same Session ID and rejoin.
-    </p>
+        <p class="pointItem">
+        Will end the stream and disconnect you from the session.
+        </p>
+        <p class="pointItem">
+        Note : clients will not be removed from the session and can continue to chat. The session will continue to exist until the last user disconnects.<br>
+        To reconnect to session you will need to use the same Session ID and rejoin.
+        </p>        <p></p>
     <span class="point">4</span>
-    <span class="h2">Setting menu</span>
-    <p class="pointItem">
-       Allows you to change the Resolution, Quality, Video and source of the main stream.<br>
-       See the previous section for more details.
-    </p>
-    <p class="pointItem">
-       Also allows you to change yoour username, camera and microphone<br>
-       See the previous section for more details.
-    </p>
+        <span class="h2">Setting menu</span>
+        <p class="pointItem">
+        Allows you to change the Resolution, Quality, Video and source of the main stream.<br>
+        See the previous section for more details.
+        </p>
+        <p class="pointItem">
+        Also allows you to change yoour username, camera and microphone<br>
+        See the previous section for more details.
+        </p>        <p></p>
     <span class="point">5</span>
-    <span class="h2">Mute Microphone</span>
-    <p class="pointItem">
-       Allows you to mute your microphone.<br>
-    Guests will still hear the main stream and b able to chat amongst themselves.
-    </p>
-    <p class="pointItem">
-       Note : this option will be disabled if you have not selected a microphone in the settings.
-    </p>
+        <span class="h2">Mute Microphone</span>
+        <p class="pointItem">
+            Allows you to mute your microphone.<br>
+            Guests will still hear the main stream and b able to chat amongst themselves.
+        </p>
+        <p class="pointItem">
+        Note : this option will be disabled if you have not selected a microphone in the settings.
+        </p>        <p></p>
     <span class="point">6</span>
-    <span class="h2">Dissable Camera</span>
-    <p class="pointItem">
-       Allows you to turn off your camera to guests.<br>
-        Guests will still see the main stream.
-    </p>
-    <p class="pointItem">
-       Note : this option will be disabled if you have not selected a camera in the settings.
-    </p>
+        <span class="h2">Dissable Camera</span>
+        <p class="pointItem">
+        Allows you to turn off your camera to guests.<br>
+            Guests will still see the main stream.
+        </p>
+        <p class="pointItem">
+        Note : this option will be disabled if you have not selected a camera in the settings.
+        </p>        <p></p>
     <span class="point">7</span>
-    <span class="h2">Annotations</span>
-    <p class="pointItem">
-        Annotations allow you to draw on the main stream for guests to see.
-    </p>
-    <p class="pointItem">
-       Tools are, the Marker, to draw on the main stream. A pallet to select different colours for the marker and an eraser that will clear the canvas.
-    </p>
-    <p class="pointItem">
-       Drawings by guests will be also be visible to all.<br>
-       Drawings are limited to the size and aspect of the main stream and are not saved or recorded to the stream.
-    </p>
-    <p class="pointItem">
-       Note : Resizing the window or clicking the eraser will clear the annotations for all participants in the room.
-    </p>
+        <span class="h2">Annotations</span>
+        <p class="pointItem">
+            Annotations allow you to draw on the main stream for guests to see.
+        </p>
+        <p class="pointItem">
+        Tools are, the Marker, to draw on the main stream. A pallet to select different colours for the marker and an eraser that will clear the canvas.
+        </p>
+        <p class="pointItem">
+        Drawings by guests will be also be visible to all.<br>
+        Drawings are limited to the size and aspect of the main stream and are not saved or recorded to the stream.
+        </p>
+        <p class="pointItem">
+        Note : Resizing the window or clicking the eraser will clear the annotations for all participants in the room.
+        </p>        <p></p>
     <span class="point">8</span>
-    <span class="h2">Blind Stream</span>
-    <p class="pointItem">
-        Will turn off the main stream for all participants in the room.<br>
-        This is useful if you want to stop the stream for a moment without ending the session.
-    </p>
+        <span class="h2">Blind Stream (currently disabled)</span>
+        <p class="pointItem">
+            Will turn off the main stream for all participants in the room.<br>
+            This is useful if you want to stop the stream for a moment without ending the session.
+        </p>        <p></p>
     <span class="point">9</span>
-    <span class="h2">Mute main stream locally</span>
-    <p class="pointItem">
-        Will mute the main stream for you alone<br>
-        This is useful if to stop feedback or if you already have audio output from another source.
-    </p>
+        <span class="h2">Mute main stream locally</span>
+        <p class="pointItem">
+            Will mute the main stream for you alone<br>
+            This is useful if to stop feedback or if you already have audio output from another source.
+        </p>        <p></p>
     <p class="pointItem">
         Note : Participants will still recieve audio from the main stream and your microphone if enabled.
     </p>
     <span class="point">A</span>
-    <span class="h2">Main Stream local volume</span>
-    <p class="pointItem">
-        Adjusts the local volume of the main stream, it does not affect any users.
-    </p>
-    <p></p>
+        <span class="h2">Main Stream local volume</span>
+        <p class="pointItem">
+            Adjusts the local volume of the main stream, it does not affect any users.
+        </p>
+        <p></p>
     </div>
-
-
-
+<hr>
 <div id="misc" class="content">
     &nbsp;
     <h1>Misc</h1>
@@ -325,7 +322,7 @@
         Not having a central server introduces some benefits and some gotcha's that bear thinking about when using the application.
     </p>
     <p>
-        As all Guests are connecting directly to your machine and not a central server we recommend using wired ethernet. Wifi has inherit latency issues which will disrupt stream.
+        As all Guests are connecting directly to your machine and not a central server we recommend using wired ethernet. Wifi has inherit latency issues which will disrupt the stream.
         If you are having issues with sync or dropped frames try this first.
         Your host PC must be able to encode and transmit the video in real time while you are working (although this can be offloaded to another machine), a modern CPU & GPU is essential.
         This app has been tested on modern Macs and although RAM is not an issue the more cores, the better.
