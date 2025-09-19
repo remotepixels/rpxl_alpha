@@ -1,25 +1,4 @@
 
-//check if the user has allowed access to the camera and microphone
-checkPermissions();
-
-async function checkPermissions() {
-    try {
-        const [camera, mic] = await Promise.all([
-        navigator.permissions.query({ name: 'camera' }),
-        navigator.permissions.query({ name: 'microphone' })
-        ]);
-
-        if (mic.state !== 'granted' || camera.state !== 'granted') {
-            document.getElementById('popupPermissionMic').classList.remove('hidden');
-            document.getElementById('permissionMicHelp').addEventListener('click', () =>
-                window.open('https://support.google.com/chrome/answer/2693767','_blank') 
-            ); 
-        }
-    } catch (err) {
-        console.error('Permission check failed:', err);
-    }
-}
-
 //find video and audio sources and populate dropdown boces
 //load the sources when selected into the correct preview areas (main or user), make sure that the same sources can not be used twice
 var videoSelect = document.querySelector('select#videoSource');

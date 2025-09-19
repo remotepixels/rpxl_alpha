@@ -87,7 +87,7 @@
             <span id="cameraFill" class="cameraFill"></span>
             <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
             <span id="meterGraph" class="meterGraph">
-                <span id="audiometer" class="meter"></span> 
+                <span id="micmeter" class="meter"></span> 
             </span>
             <audio id="microphone" class="loginaudio" autoplay></audio>
         </div>
@@ -141,7 +141,9 @@
 </html>
 
 <!--user microphone and camera selection and display-->
-<script src="scripts/videoaudioselectSingle.js"></script>
+<script src="scripts/checkpermissions.js"></script>
+<script src="scripts/avselect.js"></script>
+<!-- <script src="scripts/videoaudioselectSingle.js"></script> -->
 <script src="scripts/cookies.js"></script>
 <script src="scripts/initui.js"></script>
 <script src="scripts/initvdo.js"></script>
@@ -163,7 +165,7 @@ async function getList() {
     checkSessionURL(result);
 }
 
-//check session ID against github issues, checks the url parameter supplied, if valid sskips the session ID screen
+//check session ID against github issues, checks the url parameter supplied, if valid skips the session ID screen
 function checkSessionURL (result) {
     console.log("getlist result :",result);
     let query = location.search;
@@ -226,6 +228,7 @@ function checkEnteredSession() {
     const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
 
     if (found) {
+        init(); //initialise the camera and microphone selection script
         checkCookie("username", "camera", "mic"); //get the cookies for username, camera and mic and pre-fill if they exist
         const clientEncoded = found[1];
         const client = decodeURIComponent(clientEncoded);
@@ -274,8 +277,7 @@ function setupSession() {
     }
 
     //if the username is not empty then stop streams so not to conflict with the vdo ninja ones
-    stopVideoStream();
-    stopAudioStream();
+    stopAllMediaStreams();
 
     settingsDialog.close();     
     document.getElementById("settingsDialog").classList.add("hidden");    

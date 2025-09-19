@@ -20,8 +20,11 @@ function viewerStream () {
         var camOrMicSetup = "videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
 
-    document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("viewersStream").setAttribute("allowtransparency", "true");
+	document.getElementById("viewersStream").setAttribute("crossorigin", "anonymous");
+	document.getElementById("viewersStream").setAttribute("credentialless", "true");
+    document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&label="+sanitizedUserName+
         "&showlabels"+
         "&style=4"+
@@ -33,7 +36,8 @@ function viewerStream () {
         "&showall"+
         "&autostart"+
         "&cleanoutput"+
-        "&transparent"+
+        //"&transparent"+
+        "&chroma=3c3c3c"+
         "&group=Client"+
         "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
@@ -49,14 +53,18 @@ function viewMainstream () {
 
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;";
-    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("mainStream").setAttribute("allowtransparency", "true");
+	document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
+	document.getElementById("mainStream").setAttribute("credentialless", "true");
+    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&view=Stream_"+sanitizedSessionID+
         //"&directoronly"+
         "&solo"+//no login options, solos stream
         "&clean"+//remove all interface bits
         "&hideplaybutton"+//hides big play button if autoplay is disabled
-        "&transparent"+//makes bg transparent
+        //"&transparency"+//makes bg transparent
+        "&chroma=3c3c3c"+
         "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
         "&rampuptime=6000"+
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
@@ -84,8 +92,11 @@ function startMainStream() {
     let sanitizedVideo = sessionStorage.getItem("videoDevice") || "0"; //default       
     let sanitizedAudio = sessionStorage.getItem("audioDevice") || "0"; //default
 
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
-    document.getElementById("mainStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sanitizedSessionID+
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("mainStream").setAttribute("allowtransparency", "true");
+	document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
+	document.getElementById("mainStream").setAttribute("credentialless", "true");
+    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&push=Stream_"+sanitizedSessionID+
         "&directoronly"+
         "&mirror"+//mirror the video
@@ -103,11 +114,12 @@ function startMainStream() {
         "&hiddenscenebitrate=50000"+//50mbps, highest quality
         "&showlist=0"+//show hidden guest list
         "&hideplaybutton"+//hides big play button if autoplay is disabled
-        "&transparent"+//makes bg transparent
+        //"&transparent"+//makes bg transparent
+        "&chroma=3c3c3c"+
         "&agc=0"+//turns off auto gain control
         "&denoise=0"+//turns off denoiser
         "&ab=128"+//constant audio bitrate
-        //"&stats"+
+        "&stats"+
         "&showconnections"+
         "&signalmeter"+
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+

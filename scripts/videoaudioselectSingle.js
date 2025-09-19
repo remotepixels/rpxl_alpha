@@ -1,33 +1,8 @@
 
-//check if the user has allowed access to the camera and microphone
-//if not show a popup to ask them to allow access
-//Microphone access is required but camera access is optional
-
-// ------------------ Permissions ------------------
-checkPermissions();
-
-async function checkPermissions() {
-    try {
-        const [camera, mic] = await Promise.all([
-        navigator.permissions.query({ name: 'camera' }),
-        navigator.permissions.query({ name: 'microphone' })
-        ]);
-
-        if (mic.state !== 'granted' || camera.state !== 'granted') {
-            permissionsDialog.showModal();
-            permissionsDialog.classList.remove('hidden');
-            document.getElementById('permissionMicHelp').addEventListener('click', () =>
-                window.open('https://support.google.com/chrome/answer/2693767','_blank') 
-            ); 
-        }
-    } catch (err) {
-        console.error('Permission check failed:', err);
-    }
-}
 
 // ------------------ Video and Audio Selection ------------------
-const videoSelect = document.querySelector('select#cameraSource');
-const audioSelect = document.querySelector('select#microphoneSource');
+//const videoSelect = document.querySelector('select#cameraSource');
+//const audioSelect = document.querySelector('select#microphoneSource');
 const videoElement = document.querySelector('video#camera');
 const audioElement = document.querySelector('audio#microphone');
 const volumeMeterEl = document.getElementById('audiometer');
@@ -42,16 +17,34 @@ let mediaStreamAudioSourceNode = null;
 videoSelect.onchange = () => handleDeviceSelection('video');
 audioSelect.onchange = () => handleDeviceSelection('audio');
 
-init();
+//init();
 
-async function init() {
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    populateDeviceOptions(devices);
-  } catch (error) {
-    handleError(error);
-  }
-}
+// async function init() {
+//   try {
+//     const devices = await navigator.mediaDevices.enumerateDevices();
+//     //const result = await response.json()
+//     console.log("Devices :", devices);
+
+//     devices.forEach(devices => {
+//     if (devices.deviceId === 'default') return;
+
+//     const option = document.createElement('option');
+//     option.value = devices.deviceId;
+
+//     if (devices.kind === 'audioinput') {
+//       option.text = devices.label || `Microphone ${audioSelect.length + 1}`;
+//       audioSelect.appendChild(option);
+//     } else if (devices.kind === 'videoinput') {
+//       option.text = devices.label || `Camera ${videoSelect.length + 1}`;
+//       videoSelect.appendChild(option);
+//     }
+//   });
+//     //populateDeviceOptions(devices);
+//   } catch (error) {
+//     handleError(error);
+//     console.log('Error accessing media devices. Ensure permissions are granted.');
+//   }
+// }
 
 function handleDeviceSelection(type) {
   if (type === 'video') {
@@ -65,22 +58,22 @@ function handleDeviceSelection(type) {
   }
 }
 
-function populateDeviceOptions(deviceInfos) {
-  deviceInfos.forEach(deviceInfo => {
-    if (deviceInfo.deviceId === 'default') return;
+// function populateDeviceOptions(deviceInfos) {
+//   deviceInfos.forEach(deviceInfo => {
+//     if (deviceInfo.deviceId === 'default') return;
 
-    const option = document.createElement('option');
-    option.value = deviceInfo.deviceId;
+//     const option = document.createElement('option');
+//     option.value = deviceInfo.deviceId;
 
-    if (deviceInfo.kind === 'audioinput') {
-      option.text = deviceInfo.label || `Microphone ${audioSelect.length + 1}`;
-      audioSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'videoinput') {
-      option.text = deviceInfo.label || `Camera ${videoSelect.length + 1}`;
-      videoSelect.appendChild(option);
-    }
-  });
-}
+//     if (deviceInfo.kind === 'audioinput') {
+//       option.text = deviceInfo.label || `Microphone ${audioSelect.length + 1}`;
+//       audioSelect.appendChild(option);
+//     } else if (deviceInfo.kind === 'videoinput') {
+//       option.text = deviceInfo.label || `Camera ${videoSelect.length + 1}`;
+//       videoSelect.appendChild(option);
+//     }
+//   });
+// }
 
 function stopVideoStream() {
   if (videoStream) {

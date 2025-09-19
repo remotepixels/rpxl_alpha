@@ -61,9 +61,6 @@
     height: 0px;
     bottom:0px;
 }
-.fadeout {
-    opacity: 0.1;
-}
 .buttonmoresettings {
     position: relative;
     display: inline;

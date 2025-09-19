@@ -57,7 +57,7 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
                     videoElement.classList.remove("fadeout");
                     videos = document.getElementById("cameraSource").value;
                     videoSelected = document.querySelector('select#cameraSource');
-                    handleDeviceSelection('video');
+                    //preselectDevice('video');
                     optionFound = true;
                     break; // Stop once the matching option is found and selected
                 }
@@ -75,7 +75,7 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
 
                     audios = document.getElementById("microphoneSource").value;
                     audioSelected = document.querySelector('select#microphoneSource');
-                    handleDeviceSelection('audio');
+                    //preselectDevice('audio');
                     optionFound = true;
                     break; // Stop once the matching option is found and selected
                 }
