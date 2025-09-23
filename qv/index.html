@@ -130,7 +130,7 @@ function checkSessionURL (result) {
                 document.body.style.backgroundImage = "none";
 
                 sessionStorage.setItem("sessionID", sessionID);
-                sessionStorage.setItem("username", "Quickview Client");
+                sessionStorage.setItem("username", "Quickview%20Client");
                 sessionStorage.setItem("camerDevice", "0");
                 sessionStorage.setItem("microphoneDevice", "0");
 
@@ -178,7 +178,7 @@ function checkEnteredSession() {
         const client = decodeURIComponent(clientEncoded);
 
         sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
-        sessionStorage.setItem("username", "Quickview Client");
+        sessionStorage.setItem("username", "Quickview%20Client");
         sessionStorage.setItem("camerDevice", "0");
         sessionStorage.setItem("microphoneDevice", "0");
 

@@ -14,11 +14,13 @@ function viewerStream () {
     let sanitizedMicrophone = sessionStorage.getItem("microphoneDevice");
 
     //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
-    if ((sanitizedCamera == 0) || (sanitizedCamera == "disabled_in_browser")) {
-        var camOrMicSetup = "videodevice=0";
+    if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
+        var camOrMicSetup = "dataonly";
     }   else {
         var camOrMicSetup = "videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
+console.log("Starting viewer stream with settings :", camOrMicSetup);
+console.log("microphone :", sanitizedMicrophone);
 
     document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;";
     document.getElementById("viewersStream").setAttribute("allowtransparency", "true");
@@ -27,6 +29,7 @@ function viewerStream () {
     document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&showlabels"+
         "&style=4"+
+        "&dataonly"+
         "&meterstyle=2"+
         "&label="+sanitizedUserName+
         "&"+camOrMicSetup+

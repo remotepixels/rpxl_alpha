@@ -201,9 +201,14 @@ function copyToClipboard(text) {
         toolShare.setAttribute("aria-expanded", "false");
         toolShare.classList.remove("selected");
         document.getElementById("popupBG").classList.add("hidden");
+        //show copied to clipboard message
         popupClipboard.classList.remove("hidden");
         popupClipboard.show();
-        setTimeout(() => popupClipboard.close(), 3000);
+        //hide copied to clipbaord message after 3 seconds
+        setTimeout ( function () {
+            popupClipboard.classList.add("hidden");
+            popupClipboard.close();
+        }, 3000);
     });
 }
 

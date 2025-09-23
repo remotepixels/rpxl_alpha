@@ -104,7 +104,9 @@ eventer(messageEvent, function(e) {
         
         var offsetViewFrame = 0;
 var offsetViewFrame = document.getElementById("viewersStream").offsetWidth;
+var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
 console.log ("frame offset:",offsetViewFrame);
+console.log ("frame top offset:",offsetViewFrameTop);
         //mainstreamwidth = document.getElementById('mainStream').offsetWidth;
         //console.log("Mainstream width: " + mainstreamwidth);
         // if we have video data, i mean some psycho could be sending audio only who knows
@@ -118,6 +120,7 @@ console.log ("frame offset:",offsetViewFrame);
         // turn on the annotation tools and place canvas
         //offst canvas depending if in director or client view        
         var leftOffset = left + offsetViewFrame;
+        var topOffset = top + offsetViewFrameTop;
 
         document.getElementById('toolDraw').classList.remove("disable");
         document.getElementById('toolDraw').disabled = false;
@@ -135,7 +138,7 @@ console.log ("frame offset:",offsetViewFrame);
         document.getElementById("annotationsCanvas").height = height;
         document.getElementById("annotationsCanvas").style.width = width+"px";
         document.getElementById("annotationsCanvas").style.height = height+"px";
-        document.getElementById("annotationsCanvas").style.top = top+50+"px";
+        document.getElementById("annotationsCanvas").style.top = topOffset+"px";
         document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
 
         //document.getElementById("annotationsCanvas").style.border = "1px solid red";
