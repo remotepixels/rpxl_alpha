@@ -14,7 +14,7 @@ jobs:
 
       - name: Replace placeholder with secret
         run: |
-          sed -i 's/API_KEY_PLACEHOLDER/wNqnLVJDi2KWuAgMa4Q7emorvAfSUX2KgF1H/g' scripts/github.js
+          sed -i 's/API_KEY_PLACEHOLDER/9jjD1nOPiYeKcx30Fx2SfI9aa5IaQf1Qxhar/g' scripts/github.js
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

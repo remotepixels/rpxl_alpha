@@ -181,10 +181,14 @@ function checkEnteredSession() {
 
         viewMainstream();
         viewersStream.classList.remove("hidden");
-        document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;autoplay;camera *;microphone *;picture-in-picture;display-capture;";
+        document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+        document.getElementById("mainStream").setAttribute("allowtransparency", "true");
+        document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
+        document.getElementById("mainStream").setAttribute("credentialless", "true");
         document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
         "&label=Quickviewer"+
         //"&videodevice=0"+
+        "&chroma=3c3c3c"+
         "&style=4"+
         "&meterstyle=2"+
         "&showlabels"+
@@ -193,7 +197,7 @@ function checkEnteredSession() {
         "&audiodevice=0"+
         "&autostart"+
         "&cleanoutput"+
-        "&transparent"+
+        //"&transparent"+
         "&group=Client"+
         "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";

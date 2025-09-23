@@ -20,15 +20,15 @@ function viewerStream () {
         var camOrMicSetup = "videodevice="+sanitizedCamera+"&quality=3&videobitrate=196&viewwidth=160&viewheight=90";
     }
 
-    document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("viewersStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;";
     document.getElementById("viewersStream").setAttribute("allowtransparency", "true");
 	document.getElementById("viewersStream").setAttribute("crossorigin", "anonymous");
 	document.getElementById("viewersStream").setAttribute("credentialless", "true");
     document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
-        "&label="+sanitizedUserName+
         "&showlabels"+
         "&style=4"+
         "&meterstyle=2"+
+        "&label="+sanitizedUserName+
         "&"+camOrMicSetup+
         "&audiodevice="+sanitizedMicrophone+
         "&webcam"+
@@ -36,7 +36,6 @@ function viewerStream () {
         "&showall"+
         "&autostart"+
         "&cleanoutput"+
-        //"&transparent"+
         "&chroma=3c3c3c"+
         "&group=Client"+
         "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
@@ -53,7 +52,7 @@ function viewMainstream () {
 
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;encrypted-media;sync-xhr;usb;web-share;";
     document.getElementById("mainStream").setAttribute("allowtransparency", "true");
 	document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
 	document.getElementById("mainStream").setAttribute("credentialless", "true");
@@ -63,7 +62,6 @@ function viewMainstream () {
         "&solo"+//no login options, solos stream
         "&clean"+//remove all interface bits
         "&hideplaybutton"+//hides big play button if autoplay is disabled
-        //"&transparency"+//makes bg transparent
         "&chroma=3c3c3c"+
         "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
         "&rampuptime=6000"+
@@ -89,10 +87,11 @@ function startMainStream() {
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
     let resolution = sessionStorage.getItem("resolution") || "1"; //default to 
     let quality = sessionStorage.getItem("quality") || "8000"; //default to low quality
-    let sanitizedVideo = sessionStorage.getItem("videoDevice") || "0"; //default       
-    let sanitizedAudio = sessionStorage.getItem("audioDevice") || "0"; //default
+    let sanitizedVideo = sessionStorage.getItem("videoDevice" || "0"); //default       
+    let sanitizedAudio = sessionStorage.getItem("audioDevice" || "0"); //default
+    console.log("Starting main stream with settings :", resolution, quality, sanitizedVideo, sanitizedAudio);
 
-    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
+    document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;";
     document.getElementById("mainStream").setAttribute("allowtransparency", "true");
 	document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
 	document.getElementById("mainStream").setAttribute("credentialless", "true");
@@ -114,7 +113,6 @@ function startMainStream() {
         "&hiddenscenebitrate=50000"+//50mbps, highest quality
         "&showlist=0"+//show hidden guest list
         "&hideplaybutton"+//hides big play button if autoplay is disabled
-        //"&transparent"+//makes bg transparent
         "&chroma=3c3c3c"+
         "&agc=0"+//turns off auto gain control
         "&denoise=0"+//turns off denoiser

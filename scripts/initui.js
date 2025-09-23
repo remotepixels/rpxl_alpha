@@ -108,7 +108,7 @@ function storeSelectedDevices() {
         if (sanitizedVideo === "none") sanitizedVideo = "0";
         sessionStorage.setItem("videoSource", videoSelected); //selected index for video source (main stream)
         sessionStorage.setItem("videoDevice", sanitizedVideo); //selected video device name, not ID (main stream)
-        //console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
+        // console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
     }
     if (audioList) {
         let audioSelected = audioList.selectedIndex;
@@ -116,7 +116,7 @@ function storeSelectedDevices() {
         if (sanitizedAudio === "none") sanitizedAudio = "0";
         sessionStorage.setItem("audioSource", audioSelected); //selected index for audio source (main stream)
         sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
-        //console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
+        // console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
     }
     if (cameraList) {
         let cameraSelected = cameraList.selectedIndex;

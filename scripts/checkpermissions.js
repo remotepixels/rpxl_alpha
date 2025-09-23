@@ -11,10 +11,10 @@ const constraints = {
 
 //find video and audio sources and populate dropdown boces
 //load the sources when selected into the correct preview areas (main or user), make sure that the same sources can not be used twice
-const videoSelect = document.querySelector('select#videoSource');
-const audioSelect = document.querySelector('select#audioSource');
-const cameraSelect = document.querySelector('select#cameraSource');
-const microphoneSelect = document.querySelector('select#microphoneSource');
+const videoSelect = document.getElementById("videoSource");
+const audioSelect = document.getElementById("audioSource");
+const cameraSelect = document.getElementById("cameraSource");
+const microphoneSelect = document.getElementById("microphoneSource");
 var videoElement = document.querySelector('video#camera');
 var audioElement = document.querySelector('audio#microphone');
 
@@ -25,31 +25,33 @@ console.log("Microphone select :", microphoneSelect);
 
 navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
-      console.log("Audio / Video devices found :", devices);
-
+      //console.log("Audio / Video devices found :", devices);
+      // populte drop down boxes with devices;
       devices.forEach(device => {
         //if (device.deviceId === 'default') return; //ignore defailt device
+        const option = document.createElement('option');
+        option.value = device.deviceId;
 
-          const option = document.createElement('option');
-           option.value = device.deviceId;
+        if (device.kind === 'audioinput') {
+          option.text = device.label || `Microphone ${microphoneSource.length + 1}`;
+          microphoneSource.appendChild(option);
+          } else if (device.kind === 'videoinput') {
+            option.text = device.label || `Camera ${cameraSource.length + 1}`;
+            cameraSource.appendChild(option);
+          }
+        });
 
-          if (device.kind === 'audioinput') {
-            if (audioSelect) {               
-              option.text = device.label || `Microphone ${audioSelect.length + 1}`;
-              audioSelect.appendChild(option);
-              }
-            option.text = device.label || `Microphone ${microphoneSource.length + 1}`;
-            microphoneSource.appendChild(option);
-
-           } else if (device.kind === 'videoinput') {
-            if (videoSelect) { 
-             option.text = device.label || `Camera ${videoSelect.length + 1}`;
-             videoSelect.appendChild(option);
-            }
-             option.text = device.label || `Camera ${cameraSource.length + 1}`;
-             cameraSource.appendChild(option);
-           }
-       });
+        //duplicate sources in to video and audio source dropdowns for stream if we're on that page shit way of doing it but couldn't get it to work otherwise
+        if (videoSelect && audioSelect) {
+          var select1 = document.getElementById("cameraSource");
+          var options = select1.innerHTML 
+          var select2 = document.getElementById("videoSource");
+          select2.innerHTML = options
+          var select1 = document.getElementById("microphoneSource");
+          var options = select1.innerHTML
+          var select2 = document.getElementById("audioSource");
+          select2.innerHTML = options
+        }
     });
   })
   .catch((error) => {

@@ -1,3 +1,8 @@
+// const videoSelect = document.querySelector('select#videoSource');
+// const audioSelect = document.querySelector('select#audioSource');
+// const cameraSelect = document.querySelector('select#cameraSource');
+// const microphoneSelect = document.querySelector('select#microphoneSource');
+//declared in checkpermissions.js
 
 if (videoSelect) videoSelect.onchange = checkSelection;
 if (audioSelect) audioSelect.onchange = checkSelection;
@@ -65,7 +70,29 @@ console.log("Audio Element :", audioElement.id);
             audioTracks[0].stop();
         }
     }
-}
+
+
+    // if (audios == ""){
+    //     console.log("No audio stream available");
+    //     VUAudioStream(null);
+    //     //cancelAnimationFrame(stream);
+    //         //stop uv meters if set to none
+    //         //if (audioContext && audioContext.state !== 'closed') {
+    //         // audioContext.close();
+    //         //    audioContext = null;
+    //         //    analyserNode = null;
+    //         //mediaStreamAudioSourceNode = null;
+    //         //if (animationFrameId) {
+    //         //    cancelAnimationFrame(animationFrameId);
+    //         //    animationFrameId = null;
+    //         //}
+    //         //if (volumeMeterEl) {
+    //         //volumeMeterEl.style.height = '0px';
+    //         //}
+    //     }
+
+    }
+
 
 //prevents the sources from being selected twice as both main and user sources
 function preventDupes( select, index ) {
@@ -112,75 +139,151 @@ function getAudioStream() {
         then(VUAudioStream).catch(handleError);
 }
 
-//VU meter for audio sources (note they are not currently echoed through the speakers on setup, just the VU meter)
+
+
+// Store state outside the function so we can manage cleanup
+let vuMeterState = {
+    audioContext: null,
+    analyserNode: null,
+    animationFrameId: null,
+    mediaStreamSource: null,
+    volumeMeterEl: null,
+};
+
 function VUAudioStream(stream) {
-    if (audioElement.id == "audio") { var volumeMeterEl = document.getElementById('audiometer'); }
-    if (audioElement.id == "microphone") { var volumeMeterEl = document.getElementById('micmeter'); }
-
-    let audioContext = null;
-    let analyserNode = null;
-    let animationFrameId = null; // To store the ID returned by requestAnimationFrame
-    let mediaStreamAudioSourceNode = null; // Store the source node
-
-    if (stream) {//used to make sure we don't set the stream on startup since none is the default option
-        //audioSelected.selectedIndex = [...audioSelected.options].findIndex(option => option.text === stream.getAudioTracks()[0].label);
-        //audioElement.srcObject = stream;
-
-        //setup audio handler for UV meter
-        audioContext = new AudioContext();
-        mediaStreamAudioSourceNode = audioContext.createMediaStreamSource(stream);
-        analyserNode = audioContext.createAnalyser(); // Store the analyser node
-        mediaStreamAudioSourceNode.connect(analyserNode);
-
-        const pcmData = new Float32Array(analyserNode.fftSize);
-        let currentMeterValue = 0; // Keep this outside the function so it persists between frames
-        const attack = 0.5; // Faster response when volume increases (adjust as needed)
-        const decay = 0.97; // Slower response when volume decreases (adjust as needed)
-        const scaleFactor = 1500; // Adjust this to match your meter's maximum visual height (e.g., 200px)
-
-        const onFrame = () => {
-            analyserNode.getFloatTimeDomainData(pcmData);
-            let sumSquares = 0.0;
-            for (const amplitude of pcmData) { sumSquares += amplitude * amplitude; }
-            const instantValue = Math.sqrt(sumSquares / pcmData.length);
-
-            // Apply attack and decay
-            if (instantValue > currentMeterValue) {
-                currentMeterValue = currentMeterValue + (instantValue - currentMeterValue) * attack;
-            } else {
-                currentMeterValue = currentMeterValue * decay;
-            }
-
-            currentMeterValue = Math.max(0, currentMeterValue);
-
-            if (volumeMeterEl) {
-                const meterHeight = currentMeterValue * scaleFactor;
-                volumeMeterEl.style.height = meterHeight + 'px';
-            }
-
-            // Store the animation frame ID
-            animationFrameId = window.requestAnimationFrame(onFrame);
-        };
-
-        // Start the animation loop
-        animationFrameId = window.requestAnimationFrame(onFrame);
-    } else {
-            // stop uv meters if set to none
-            if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-            audioContext = null;
-            analyserNode = null;
-            mediaStreamAudioSourceNode = null;
-                if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            if (volumeMeterEl) {
-                volumeMeterEl.style.height = '0px';
-            }
-        }
+    // Stop and cleanup any existing VU meter
+    if (vuMeterState.animationFrameId) {
+        cancelAnimationFrame(vuMeterState.animationFrameId);
+        vuMeterState.animationFrameId = null;
     }
+    if (vuMeterState.mediaStreamSource) {
+        vuMeterState.mediaStreamSource.disconnect();
+        vuMeterState.mediaStreamSource = null;
+    }
+    if (vuMeterState.audioContext) {
+        vuMeterState.audioContext.close();
+        vuMeterState.audioContext = null;
+    }
+    if (vuMeterState.volumeMeterEl) {
+        vuMeterState.volumeMeterEl.style.height = '0px'; // Reset the meter UI
+    }
+
+    // If no stream, just return after cleanup
+    if (!stream) return;
+
+    //const audioElement = document.getElementById("audio") || document.getElementById("microphone");
+    let volumeMeterEl = null;
+    console.log("Audio stream for VU meter :", audioElement);
+    if (audioElement.id == "audio") { volumeMeterEl = document.getElementById('audiometer'); }
+    if (audioElement.id == "microphone") { volumeMeterEl = document.getElementById('micmeter'); }
+
+    const audioContext = new AudioContext();
+    const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+    const analyserNode = audioContext.createAnalyser();
+    mediaStreamSource.connect(analyserNode);
+
+    const pcmData = new Float32Array(analyserNode.fftSize);
+    let currentMeterValue = 0;
+    const attack = 0.5;
+    const decay = 0.97;
+    const scaleFactor = 1500;
+
+    const onFrame = () => {
+        analyserNode.getFloatTimeDomainData(pcmData);
+        let sumSquares = 0.0;
+        for (const amplitude of pcmData) {
+            sumSquares += amplitude * amplitude;
+        }
+        const instantValue = Math.sqrt(sumSquares / pcmData.length);
+
+        if (instantValue > currentMeterValue) {
+            currentMeterValue += (instantValue - currentMeterValue) * attack;
+        } else {
+            currentMeterValue *= decay;
+        }
+
+        currentMeterValue = Math.max(0, currentMeterValue);
+
+        if (volumeMeterEl) {
+            const meterHeight = currentMeterValue * scaleFactor;
+            volumeMeterEl.style.height = meterHeight + 'px';
+        }
+
+        vuMeterState.animationFrameId = window.requestAnimationFrame(onFrame);
+    };
+
+    // Save state for cleanup
+    vuMeterState = {
+        audioContext,
+        analyserNode,
+        animationFrameId: requestAnimationFrame(onFrame),
+        mediaStreamSource,
+        volumeMeterEl
+    };
 }
+
+
+
+
+
+
+
+
+// //VU meter for audio sources (note they are not currently echoed through the speakers on setup, just the VU meter)
+// function VUAudioStream(stream) {
+//     console.log("Audio stream for VU meter :", stream);
+//     if (audioElement.id == "audio") { var volumeMeterEl = document.getElementById('audiometer'); }
+//     if (audioElement.id == "microphone") { var volumeMeterEl = document.getElementById('micmeter'); }
+
+//     let audioContext = null;
+//     let analyserNode = null;
+//     let animationFrameId = null; // To store the ID returned by requestAnimationFrame
+//     let mediaStreamAudioSourceNode = null; // Store the source node
+
+//     if (stream) {//used to make sure we don't set the stream on startup since none is the default option
+//         //audioSelected.selectedIndex = [...audioSelected.options].findIndex(option => option.text === stream.getAudioTracks()[0].label);
+//         //audioElement.srcObject = stream;
+
+//         //setup audio handler for UV meter
+//         audioContext = new AudioContext();
+//         mediaStreamAudioSourceNode = audioContext.createMediaStreamSource(stream);
+//         analyserNode = audioContext.createAnalyser(); // Store the analyser node
+//         mediaStreamAudioSourceNode.connect(analyserNode);
+
+//         const pcmData = new Float32Array(analyserNode.fftSize);
+//         let currentMeterValue = 0; // Keep this outside the function so it persists between frames
+//         const attack = 0.5; // Faster response when volume increases (adjust as needed)
+//         const decay = 0.97; // Slower response when volume decreases (adjust as needed)
+//         const scaleFactor = 1500; // Adjust this to match your meter's maximum visual height (e.g., 200px)
+
+//         const onFrame = () => {
+//             analyserNode.getFloatTimeDomainData(pcmData);
+//             let sumSquares = 0.0;
+//             for (const amplitude of pcmData) { sumSquares += amplitude * amplitude; }
+//             const instantValue = Math.sqrt(sumSquares / pcmData.length);
+
+//             // Apply attack and decay
+//             if (instantValue > currentMeterValue) {
+//                 currentMeterValue = currentMeterValue + (instantValue - currentMeterValue) * attack;
+//             } else {
+//                 currentMeterValue = currentMeterValue * decay;
+//             }
+
+//             currentMeterValue = Math.max(0, currentMeterValue);
+
+//             if (volumeMeterEl) {
+//                 const meterHeight = currentMeterValue * scaleFactor;
+//                 volumeMeterEl.style.height = meterHeight + 'px';
+//             }
+
+//             // Store the animation frame ID
+//             animationFrameId = window.requestAnimationFrame(onFrame);
+//         };
+
+//         // Start the animation loop
+//         animationFrameId = window.requestAnimationFrame(onFrame);
+//     }
+// }
 
 function handleError(error) {
     console.error('Error: ', error);
