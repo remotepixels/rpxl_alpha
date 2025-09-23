@@ -32,7 +32,7 @@
 <body id="body">
     <!--iframes for vdo ninja-->
     <iframe class="hidden" id="viewersStream" style="width: 0px; left:0px;"></iframe>   
-    <iframe class="mainstreamiframe hidden" id="mainStream" style="width: 100%; left:0px;"></iframe>   
+    <iframe class="mainstreamiframe hidden" id="mainStream" style="width: 100%; left:0px; top:0px; height: calc(100% - 50px)"></iframe>   
 
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -122,7 +122,6 @@ function checkSessionURL (result) {
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
                 clientEncoded = splitBody[1];
                 client = decodeURIComponent(clientEncoded); //decode the client name
-                sessionStorage.setItem("sessionID", sessionID);
 
                 document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
                 sessionDialog.classList.add("hidden");
@@ -130,7 +129,13 @@ function checkSessionURL (result) {
                 mainWindow.classList.remove("hidden");
                 document.body.style.backgroundImage = "none";
 
+                sessionStorage.setItem("sessionID", sessionID);
+                sessionStorage.setItem("username", "Quickview Client");
+                sessionStorage.setItem("camerDevice", "0");
+                sessionStorage.setItem("microphoneDevice", "0");
+
                 viewMainstream();
+                viewerStream(); //used to send annotations and other data back and forth
             } 
         }
     })
@@ -173,38 +178,20 @@ function checkEnteredSession() {
         const client = decodeURIComponent(clientEncoded);
 
         sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
+        sessionStorage.setItem("username", "Quickview Client");
+        sessionStorage.setItem("camerDevice", "0");
+        sessionStorage.setItem("microphoneDevice", "0");
+
         sessionDialog.close();
         sessionDialog.classList.add("hidden");
         document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
         mainWindow.classList.remove("hidden");
         document.body.style.backgroundImage = "none";
 
-        viewMainstream();
-        viewersStream.classList.remove("hidden");
-        document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;document-domain;encrypted-media;sync-xhr;usb;web-share;cross-origin-isolated";
-        document.getElementById("mainStream").setAttribute("allowtransparency", "true");
-        document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
-        document.getElementById("mainStream").setAttribute("credentialless", "true");
-        document.getElementById("viewersStream").src = "https://vdo.rpxl.app/?room=RPXL_"+sessionIDEnteredSanitized+
-        "&label=Quickviewer"+
-        //"&videodevice=0"+
-        "&chroma=3c3c3c"+
-        "&style=4"+
-        "&meterstyle=2"+
-        "&showlabels"+
-        "&dataonly"+
-        "&webcam"+
-        "&audiodevice=0"+
-        "&autostart"+
-        "&cleanoutput"+
-        //"&transparent"+
-        "&group=Client"+
-        "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
 
-    setTimeout(function(){   
-        document.getElementById("viewersStream").classList.remove("hidden");
-    },1000);
+        viewMainstream();
+        viewerStream();
+
     } else {
         showError();
     }

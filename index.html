@@ -228,7 +228,7 @@ function checkEnteredSession() {
     const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
 
     if (found) {
-        init(); //initialise the camera and microphone selection script
+        //init(); //initialise the camera and microphone selection script
         checkCookie("username", "camera", "mic"); //get the cookies for username, camera and mic and pre-fill if they exist
         const clientEncoded = found[1];
         const client = decodeURIComponent(clientEncoded);
