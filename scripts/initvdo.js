@@ -120,9 +120,9 @@ function startMainStream() {
         "&agc=0"+//turns off auto gain control
         "&denoise=0"+//turns off denoiser
         "&ab=128"+//constant audio bitrate
-        "&stats"+
-        "&showconnections"+
-        "&signalmeter"+
+        //"&stats"+
+        //"&showconnections"+
+        //"&signalmeter"+
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js";
 
