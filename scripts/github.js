@@ -23,10 +23,10 @@ async function addIssue(encodedSession) {
     console.log("Posted too github :", result);
 }
 
-//get session ID's from github issues, date range to look for session id's in repo issues currently set to 30 day
+//get session ID's from github issues, date range to look for session id's in repo issues currently set to 90 day
 const currentDate = new Date();
 var backDate = new Date();
-backDate.setDate(backDate.getDate() - 3);
+backDate.setDate(backDate.getDate() - 9);
 
 //change date format to yyyy-mm-dd for search query
 const formatDate = (date) => {
