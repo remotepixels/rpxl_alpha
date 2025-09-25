@@ -75,9 +75,9 @@ function viewerStream () {
 }
 
 //view the mainstream (used by clients)
-function viewMainstream () {
+function viewMainStream () {
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
-
+    //deactivateTools()
     // document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;encrypted-media;sync-xhr;usb;web-share;";
     // document.getElementById("mainStream").setAttribute("allowtransparency", "true");
 	// document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
@@ -86,6 +86,7 @@ function viewMainstream () {
         "&view=Stream_"+sanitizedSessionID+
         //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
         //"&directoronly"+
+        "&autostart"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
         "&clean"+//remove all interface bits
@@ -98,7 +99,7 @@ function viewMainstream () {
         "&showlist=0"+//hides the viewer list
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         "";    
-
+    reactivateTools();
     setTimeout(function(){   
         document.getElementById("mainStream").classList.remove("hidden");
     },1000);

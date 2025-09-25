@@ -169,6 +169,7 @@ function recalSelectedDevices() {
     if (audioDeviceRecal) { audioDeviceRecal.selectedIndex = sessionStorage.getItem("audioSource") || 0; }
     if (cameraDeviceRecal) { cameraDeviceRecal.selectedIndex = sessionStorage.getItem("cameraSource") || 0; }
     if (microphoneDeviceRecal) { microphoneDeviceRecal.selectedIndex = sessionStorage.getItem("microphoneSource") || 0; } 
+    
     let usernameRecal = sessionStorage.getItem("username");
     let userNameDecode = decodeURIComponent(usernameRecal);
     document.getElementById("name").value = userNameDecode;
@@ -176,20 +177,26 @@ function recalSelectedDevices() {
     let resolutionRecal = sessionStorage.getItem("resolution") || "1"; //default to 720p
     let qualityRecal = sessionStorage.getItem("quality") || "8000"; //default to low quality
 
-    //set resolution radio buttons
-    if (resolutionRecal === "0") {
-        document.getElementById("res1080P").checked = true;
-    } else if (resolutionRecal === "1") {
-        document.getElementById("res720P").checked = true;
-    } else if (resolutionRecal === "2") {
-        document.getElementById("res4k").checked = true;
+    let resolution = getCheckedRadioValue("resolution");
+    let quality = getCheckedRadioValue("quality");
+
+    if (resolution) {     //set resolution radio buttons if they exist
+        if (resolutionRecal === "0") {
+            document.getElementById("res1080P").checked = true;
+        } else if (resolutionRecal === "1") {
+            document.getElementById("res720P").checked = true;
+        } else if (resolutionRecal === "2") {
+            document.getElementById("res4k").checked = true;
+        }
     }
-    //set quality radio buttons
-    if (qualityRecal === "16000") {
-        document.getElementById("qualityHigh").checked = true;
-    } else if (qualityRecal === "8000") {
-        document.getElementById("qualityMed").checked = true;
-    } else if (qualityRecal === "4000") {
-        document.getElementById("qualityLow").checked = true;
+
+    if (quality) {     //set quality radio buttons if they exist
+        if (qualityRecal === "16000") {
+            document.getElementById("qualityHigh").checked = true;
+        } else if (qualityRecal === "8000") {
+            document.getElementById("qualityMed").checked = true;
+        } else if (qualityRecal === "4000") {
+            document.getElementById("qualityLow").checked = true;
+        }
     }
 }

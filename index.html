@@ -31,8 +31,8 @@
 
 <body id="body">
     <!--iframes for vdo ninja-->
-    <iframe class="viewersiframe hidden" id="viewersStream"></iframe>
-    <iframe class="mainstreamiframe hidden" id="mainStream"></iframe>   
+    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>
+    <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>   
 
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -191,6 +191,7 @@ function checkSessionURL (result) {
                 settingsDialog.classList.remove("hidden");
                 settingsDialog.show();
                 document.getElementById("name").focus();
+                storeSelectedDevices(1,0,0)     //store session ID only
             } 
         }
     })
@@ -230,6 +231,7 @@ function checkEnteredSession() {
 
     if (found) { //if we found a match then show the user, camera and microphone dialog
         //check cookie data for username, camera and microphone
+        storeSelectedDevices(1,0,0) //store session ID only
         checkCookie("username", "camera", "mic"); //cookies.js
 
         const clientEncoded = found[1];
@@ -296,15 +298,15 @@ function setupSession() {
     checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
 
     checkLogin.addEventListener("click",() => {
-        // deactivateTools();
+        deactivateTools();
         // storeSelectedDevices(); 
-        // reactivateTools();
+        reactivateTools();
         viewerStream() ; 
     });
 
-    // deactivateTools();
+     deactivateTools();
     // storeSelectedDevices(); 
-    // reactivateTools();
+    reactivateTools();
     viewerStream() ; 
     setTimeout(function(){   
         viewMainStream();

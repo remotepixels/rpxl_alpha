@@ -17,8 +17,8 @@ function sendMainstreamSize() {
   }
   if (width === 0 || height === 0) {
     //don't send if there is no video element, try again every 3 seconds
-    //setTimeout(function() { sendMainstreamSize(); }, 1000);  
-    console.log("no video stream");
+    setTimeout(function() { sendMainstreamSize(); }, 1000);  
+    console.log("no video stream, retry in 1 second");
     return; 
   } 
   if ((top === 0) && (left === 0)) {

@@ -45,4 +45,6 @@ canvas {
 	font-size:14px!important;
 	top:calc(50% - 15px);
 	background:unset;
+	display: block;
+	opacity: 1;
 }
