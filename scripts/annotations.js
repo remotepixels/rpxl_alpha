@@ -95,6 +95,7 @@ const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
 
 
 eventer(messageEvent, function(e) {
+    const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
 
     // Make sure the message is from our VDO.Ninja iframe
     //if ((e.source != iframe.contentWindow) || (e.source != streamFrame.contentWindow)) return;
@@ -103,20 +104,17 @@ eventer(messageEvent, function(e) {
         const { width, height, top, left } = e.data;
         
         var offsetViewFrame = 0;
-var offsetViewFrame = document.getElementById("viewersStream").offsetWidth;
-var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
-console.log ("frame offset:",offsetViewFrame);
-console.log ("frame top offset:",offsetViewFrameTop);
-        //mainstreamwidth = document.getElementById('mainStream').offsetWidth;
-        //console.log("Mainstream width: " + mainstreamwidth);
-        // if we have video data, i mean some psycho could be sending audio only who knows
+        if (viewersFrame) {var offsetViewFrame = 110;} //director view has a sidebar so we need to offset the canvas
+        var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
+        //console.log ("frame offset:",offsetViewFrame);
+        //console.log ("frame top offset:",offsetViewFrameTop);
+
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
         if (left == 0 && top == 0) { 
             document.getElementById('mainStream').style.width = "calc(100% - "+offsetViewFrame+"px)";
             console.log("resized frame to get correct top and left positions for canvas");
-        }
-        else{
+        } else {
         // turn on the annotation tools and place canvas
         //offst canvas depending if in director or client view        
         var leftOffset = left + offsetViewFrame;

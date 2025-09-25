@@ -1,13 +1,13 @@
-const partKey = 'API_KEY_PLACEHOLDER';
-const apiKey = "TOKEN ghp_"+partKey;
-
-const headers = {
-            "Authorization" : apiKey
-           }
-//console.log (headers);
-
 //async function to create issue on github, used to save session ID's
 async function addIssue(encodedSession) {
+    //API Key bits (don't do this at home kids)
+    const partKey = 'API_KEY_PLACEHOLDER';
+    const apiKey = "TOKEN ghp_"+partKey;
+
+    const headers = {
+                "Authorization" : apiKey
+            }
+
     const url = "https://api.github.com/repos/remotepixels/rpxl/issues";
 
     const data = {
@@ -23,19 +23,29 @@ async function addIssue(encodedSession) {
     console.log("Posted too github :", result);
 }
 
-//get session ID's from github issues, date range to look for session id's in repo issues currently set to 90 day
-const currentDate = new Date();
-var backDate = new Date();
-backDate.setDate(backDate.getDate() - 9);
+//get session ID's from github issues, date range to look for session id's in repo issues currently set to 9 days
+async function getList() {
+    const currentDate = new Date();
+    var backDate = new Date();
+    backDate.setDate(backDate.getDate() - 9);
 
-//change date format to yyyy-mm-dd for search query
-const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(date.getDate()).padStart(2, '0');
+    //change date format to yyyy-mm-dd for search query
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(date.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`;
-};
+        return `${year}-${month}-${day}`;
+    };
 
-currentDateyyyymmdd = (formatDate(currentDate));
-backDateyyyymmdd = (formatDate(backDate));
+    currentDateyyyymmdd = (formatDate(currentDate));
+    backDateyyyymmdd = (formatDate(backDate));
+
+    const url = "https://api.github.com/search/issues?q=repo:remotepixels/rpxl type:issue created:"+backDateyyyymmdd+".."+currentDateyyyymmdd
+    const response = await fetch(url, {
+        "method": "GET"
+    })
+    const result = await response.json()
+
+    checkSessionURL(result);
+}

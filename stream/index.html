@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
-    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Expires" content="-1"/>
     <meta name="msapplication-TileColor" content="#2e2e2e"/>
     <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
     <meta name="robots" content="index, follow"/>
@@ -29,8 +29,8 @@
 
 <body>
     <!--iframes for vdo ninja-->   
-    <iframe class="viewersiframe hidden" id="viewersStream"></iframe>
-    <iframe class="mainstreamiframe hidden" id="mainStream"></iframe>     
+    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>
+    <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>     
 
     <!--Annotations canvas-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -168,22 +168,23 @@
 </body>
 </html>
 
-<!--user microphone and camera selection and display-->
-<script src="../scripts/checkpermissions.js"></script>
-<script src="../scripts/avselect.js"></script>
-<!-- <script src="../scripts/videoaudioselect.js"></script> -->
-<script src="../scripts/cookies.js"></script>
+<script src="../scripts/checkpermissions.js"></script> <!-- check if mic and camera permissions are blocked and poulate dropdowns with values -->
+<script src="../scripts/avpreview.js"></script> <!-- preview streams as we select them (currrently mostly off) -->
+<script src="../scripts/cookies.js"></script> <!-- check and store cookies -->
 <script src="../scripts/initui.js"></script>
 <script src="../scripts/interface.js"></script>
 <script src="../scripts/initvdo.js"></script>
 <script src="../scripts/annotations.js"></script>
-<script src="../scripts/github.js"></script>
+<script src="../scripts/github.js"></script>  <!-- add github issues for session ID and Project name (to cheap to have my own DB server)-->
 
 <script type="text/javascript"> 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+localStorage.clear(); //clear local storage on load to avoid issues with old settings
+sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+
+checkPermissions(); //checkpermissions.js check for camera and microphone permissions
+
 //toolbar code for stream page only, not shared anywhere else
 //share and quit menu, blind stream tool
-////////////////////////////////////////////////////////////////////////////////////////////////////
 copyMainLink.addEventListener("click", () => {
     copyToClipboard("https://alpha.rpxl.app/?" + sessionID.value);
 });
@@ -266,26 +267,29 @@ function getCheckedRadioValue(name) {
 //check if session id is valid (6 characters long) before prepping session
 function checkSessionID() {
     if (!sessionID.value || sessionID.value.length !== 6) {
-        sessionID.style.animation = "pulse 250ms";
-        setTimeout(() => sessionID.style.animation = "none", 250);
+        sessionID.style.animation = "pulse 300ms";
+        setTimeout(() => sessionID.style.animation = "none", 300);
         sessionID.focus();
         return;
     }
 
     //stuff to run once and once only when starting session 
     //stopPreviewTracks();
+    storeSelectedDevices(1,0,0)
     setupSessionUI();
-    storeSelectedDevices();
-    deactivateTools();
-    reactivateTools();
     viewerStream();
-    startMainStream();
+    setTimeout(function(){   
+        startMainStream();
+    },1000);
 }
 
 //setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
 function setupSessionUI() {
+    //encode project name to URI
     const projectName = document.getElementById("project").value || "";
     const sanitizedProject = encodeURIComponent(projectName);
+
+    //encode session ID to URI
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase(); 
     const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
@@ -299,11 +303,11 @@ function setupSessionUI() {
     var encodedSession = btoa(sessionAndProject);
 
     //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
-    addIssue(encodedSession);  //////////////////tun back on to add issue to github
+    //addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
 
-    settingsDialog.close();
+    //hide stream settings creation dialog
     settingsDialog.classList.add("hidden");
-    mainWindow.classList.remove("hidden");
+    settingsDialog.close();
     document.body.style.backgroundImage = "none";
 
     //Change create dialog layout for settings to re-use it
@@ -324,11 +328,22 @@ function setupSessionUI() {
     startSessionButton.removeEventListener("click", checkSessionID);    // Remove start session listener and add settings change listener
 
     startSessionButton.addEventListener("click",() => {
-        deactivateTools();
-        storeSelectedDevices(); 
-        reactivateTools();
+        let openModals = document.querySelectorAll("dialog:not(.hidden)");
+        openModals.forEach(openModal => {
+        openModal.close();
+        openModal.classList.add("hidden");
+        openIcon.setAttribute("aria-expanded", "false"); 
+        openIcon.classList.remove("selected"); 
+        document.getElementById("popupBG").classList.add("hidden");
+        });
+
         viewerStream();
-        startMainStream();
+        setTimeout(function(){   
+            startMainStream();
+        },1000);
+
     });
+
+    mainWindow.classList.remove("hidden");
 }
 </Script>

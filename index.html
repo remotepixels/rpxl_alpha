@@ -119,7 +119,7 @@
         <p>Please check your browser settings to allow access<br>to the microphone and camera for streaming.</p>
         <p>You will be able to mute them at any time.</p>
         <hr>
-        <button id="permissionMicHelp" class="botton buttonblue buttonWider"> Click here for more info </button>
+        <button id="permissionMicHelp" class="botton buttonblue buttonWider"> Click here for more information </button>
     </dialog>
     
     <!----- popup menu microphone mute ------>
@@ -140,34 +140,29 @@
 </body>
 </html>
 
-<!--user microphone and camera selection and display-->
-<script src="scripts/checkpermissions.js"></script>
-<script src="scripts/avselect.js"></script>
-<!-- <script src="scripts/videoaudioselectSingle.js"></script> -->
-<script src="scripts/cookies.js"></script>
+<script src="scripts/github.js"></script>   <!-- check github issues for session ID -->
+<script src="scripts/checkpermissions.js"></script>  <!-- check if mic and camera permissions are blocked and poulate dropdowns with values -->
+<script src="scripts/avpreview.js"></script> <!-- preview streams as we select them (currrently mostly off) -->
+<script src="scripts/cookies.js"></script>  <!-- check and store cookies -->
 <script src="scripts/initui.js"></script>
 <script src="scripts/initvdo.js"></script>
 <script src="scripts/interface.js"></script>
 <script src="scripts/annotations.js"></script>
-<script src="scripts/github.js"></script>
+
 
 <script lang="javascript">
-var gitresults = [ ]; // the only global I can't seem to get rid of :(
+var gitresults = [ ]; //array to hold the results we get back from github
+
+localStorage.clear(); //clear local storage on load to avoid issues with old settings
+sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 
 //get the session id's for the past X days in github.js and then check the session ID against the github issues
-getList();
-async function getList() {
-    const url = "https://api.github.com/search/issues?q=repo:remotepixels/rpxl type:issue created:"+backDateyyyymmdd+".."+currentDateyyyymmdd
-    const response = await fetch(url, {
-        "method": "GET"
-    })
-    const result = await response.json()
-    checkSessionURL(result);
-}
+getList(); //github.js
+checkPermissions(); //checkpermissions.js
 
-//check session ID against github issues, checks the url parameter supplied, if valid skips the session ID screen
+//checks if an url parameter supplied, if valid, skips the session ID screen goes straight ti user screen
 function checkSessionURL (result) {
-    console.log("getlist result :",result);
+    //console.log("getlist result :",result);
     let query = location.search;
     let sessionIDURL = query.slice(1);
     let sessionIDUppercase = sessionIDURL.toUpperCase();
@@ -179,14 +174,20 @@ function checkSessionURL (result) {
             const splitBody = decodedBody.split("&");
         
             gitresults.push (splitBody);
+
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
+                //check cookie data for username, camera and microphone
+                checkCookie("username", "camera", "mic"); //cookies.js
+                
                 clientEncoded = splitBody[1];
-                checkCookie("username", "camera", "mic")
                 client = decodeURIComponent(clientEncoded); //decode the client name
+                //fill in client name and session ID in the interface
                 document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
                 document.getElementById("sessionID").value = sessionID;
+                //hide session dialog
                 sessionDialog.classList.add("hidden");
                 sessionDialog.close();
+                //show user, camera and microphone dialog
                 settingsDialog.classList.remove("hidden");
                 settingsDialog.show();
                 document.getElementById("name").focus();
@@ -195,7 +196,7 @@ function checkSessionURL (result) {
     })
 }
 
-//submit session ID on enter or click, focus field
+//submit session ID on enter or click, focus field, run checkEnteredSession() function
 document.getElementById("sessionID").focus();
 document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
 document.getElementById("sessionID").addEventListener("keypress", function(event) {
@@ -205,7 +206,6 @@ document.getElementById("sessionID").addEventListener("keypress", function(event
 		}
 	});
 
-//quick check to make sure the session ID is 6 characters long, if not then shake the box and clear input
 //if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
 function checkEnteredSession() {
     const sessionIDEntered = sessionID.value;
@@ -220,31 +220,34 @@ function checkEnteredSession() {
         sessionID.focus();
     }
 
+    //check if there is a session ID and if it is 6 characters long
     if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
         showError();
         return;
     }
+    
+    const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //compare sanitized ID to results we got from github using async getlist()
 
-    const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
+    if (found) { //if we found a match then show the user, camera and microphone dialog
+        //check cookie data for username, camera and microphone
+        checkCookie("username", "camera", "mic"); //cookies.js
 
-    if (found) {
-        //init(); //initialise the camera and microphone selection script
-        checkCookie("username", "camera", "mic"); //get the cookies for username, camera and mic and pre-fill if they exist
         const clientEncoded = found[1];
         const client = decodeURIComponent(clientEncoded);
+        document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
+        //hide the seeion dialog
         sessionDialog.close();
         sessionDialog.classList.add("hidden");
-
+        //show user, camera and microphone dialog
         settingsDialog.classList.remove("hidden");
         settingsDialog.show();
         document.getElementById("name").focus();
-        document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
     } else {
         showError();
     }
 }
 
-//User, camera and microphone dialogue window, available cameras and microphones found videoaudioselectsingle.js script
+//User, camera and microphone dialogue window submit button and enter actions (run setupSession())
 document.getElementById("checkLogin").addEventListener("click", setupSession);
 document.getElementById("name").addEventListener("keypress", function(event) {
 	if (event.key === "Enter") {
@@ -271,19 +274,21 @@ function setupSession() {
     } 
     //flash error
     function animateAndFocus(element) {
-        element.style.animation = "pulse 250ms";
-        setTimeout(() => { element.style.animation = "none"; }, 250);
+        element.style.animation = "pulse 300ms";
+        setTimeout(() => { element.style.animation = "none"; }, 300);
         element.focus();
     }
 
     //if the username is not empty then stop streams so not to conflict with the vdo ninja ones
-    stopAllMediaStreams();
+    //stopAllMediaStreams();
 
+    //hide the user, camera and microphone dialog
     settingsDialog.close();     
     document.getElementById("settingsDialog").classList.add("hidden");    
     document.getElementById("mainWindow").classList.remove("hidden");      
     document.body.style.backgroundImage = "none";
 
+    //reset settings dialog to be a settings dialog not a login dialog
     document.getElementById("settingsDialog").classList.remove("top", "middle");        
     document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
     document.getElementById("camPreview").style.display = "none";
@@ -291,18 +296,18 @@ function setupSession() {
     checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
 
     checkLogin.addEventListener("click",() => {
-        deactivateTools();
-        storeSelectedDevices(); 
-        reactivateTools();
+        // deactivateTools();
+        // storeSelectedDevices(); 
+        // reactivateTools();
         viewerStream() ; 
     });
 
-
-    deactivateTools();
-    storeSelectedDevices(); 
-    reactivateTools();
-    
-    viewMainstream();
-    viewerStream();
+    // deactivateTools();
+    // storeSelectedDevices(); 
+    // reactivateTools();
+    viewerStream() ; 
+    setTimeout(function(){   
+        viewMainStream();
+    },1000);
 }
 </script>

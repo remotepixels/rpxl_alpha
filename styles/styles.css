@@ -129,7 +129,8 @@ iframe {
     /* color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
 }
 .mainstreamiframe {
-    background-color: red;
+    background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey));
+    /* background-color: red; */
     /* color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
     /* background-image: unset; */
     /* color: var(--color-mid-grey); */
@@ -138,7 +139,7 @@ iframe {
 	z-index: 0;
 }
 .viewersiframe {
-    /* background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
+    background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey));
     /* color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
     /* color: var(--color-mid-grey); */
 	width:110px;

@@ -1,6 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// This script is used to set and get cookies in the browser.
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// This script is used to set and get cookies in the browser. (called from initui.js and index.html)
 function setCookie(cookieName, cookieValue, expiryDays) {
   const date = new Date();
   date.setTime(date.getTime() + (expiryDays*24*60*60*1000));
@@ -8,9 +6,7 @@ function setCookie(cookieName, cookieValue, expiryDays) {
   document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/";
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//read cookies
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//read cokkie and decode values
 function getCookie(cname) {
   let name = cname + "=";
   let decodedCookie = decodeURIComponent(document.cookie);
@@ -26,20 +22,14 @@ function getCookie(cname) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 //check if cookie exists and pre-populate the user camera and mic field in the following dialogue
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function checkCookie(cookieUser, cookieCamera, cookieMic) {
     let usercookie = getCookie(cookieUser);
     let cameracookie = getCookie(cookieCamera);
     let miccookie = getCookie(cookieMic);
 
     if (usercookie != null) {
-        console.log("Retrieved cookie data :");
-        console.log("cookie - name : " + usercookie);
-        console.log("cookie - camera : " + cameracookie);        
-        console.log("cookie - mic : " + miccookie);
-
+        // console.log("Retrieved cookie data, name : " + usercookie + " ,camera : " + cameracookie + " ,mic : " + miccookie);
         document.getElementById("name").value = usercookie;
     }
     //wait 1/2 second for the camera and microphone to populate and then set the values
