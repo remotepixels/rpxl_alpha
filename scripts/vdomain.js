@@ -31,7 +31,7 @@ function sendMainstreamSize() {
         left: left+1,
         "type": "pcs"
     }, '*')
-    return; 
+    //return; 
   }
   // Send the message to the parent window
   window.parent.postMessage({
