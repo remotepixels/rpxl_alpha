@@ -17,7 +17,11 @@ function sendMainstreamSize() {
   }
   if (width === 0 || height === 0) {
     //don't send if there is no video element, try again every 3 seconds
-    setTimeout(function() { sendMainstreamSize(); }, 1000);  
+    setTimeout(function() { sendMainstreamSize(); }, 2000); 
+    window.parent.postMessage({
+      sendData: 'noMainStream', // Add a type to easily filter messages
+      "type": "pcs"
+    }, '*') 
     console.log("no video stream, retry in 1 second");
     return; 
   } 
@@ -29,7 +33,7 @@ function sendMainstreamSize() {
     
     // Send the message to the parent window with current size
 
-      window.parent.postMessage({
+    window.parent.postMessage({
         sendData: 'mainstreamSize', // Add a type to easily filter messages
         width: width,
         height: height,
@@ -56,20 +60,20 @@ function sendMainstreamSize() {
 //wait for 1 seconds after loaded to run the first time
 setTimeout(function() { sendMainstreamSize(); }, 1000); 
 
-setInterval(function() { 
-  const isThereAStream = document.getElementById('retryimage');
+// setInterval(function() { 
+//   const isThereAStream = document.getElementById('retryimage');
 
-  if (!isThereAStream) {
-    //if there is no retry image, it means there is a stream
-    //so we can send the size right away
-    window.parent.postMessage({
-      sendData: 'noMainStream', // Add a type to easily filter messages
-      "type": "pcs"
-    }, '*')
+//   if (!isThereAStream) {
+//     //if there is no retry image, it means there is a stream
+//     //so we can send the size right away
+//     window.parent.postMessage({
+//       sendData: 'noMainStream', // Add a type to easily filter messages
+//       "type": "pcs"
+//     }, '*')
 
-    sendMainstreamSize();
-  }
-}, 1000); //send every 15 seconds just in case
+//     sendMainstreamSize();
+//   }
+// }, 1000); //send every 15 seconds just in case
 
 
 // run everytime the window is resized but throttled
