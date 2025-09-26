@@ -1,7 +1,5 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Send the size of the 'main video stream (called holder)' element to the parent window
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
   let width = 0;
@@ -16,7 +14,7 @@ function sendMainstreamSize() {
     left = layoutElement.offsetLeft;
   }
   if (width === 0 || height === 0) {
-    //don't send if there is no video element, try again every 3 seconds
+    //don't send if there is no video element, try again every 2 seconds
     setTimeout(function() { sendMainstreamSize(); }, 2000); 
     console.log("no video stream, retry in 2 second");
     return; 
@@ -54,19 +52,25 @@ function sendMainstreamSize() {
 }          
 
 //wait for 1 seconds after loaded to run the first time
-setTimeout(function() { sendMainstreamSize(); }, 1000); 
+//setTimeout(function() { sendMainstreamSize(); }, 1000); 
+var streamActivated = false;
+setInterval(function() { checkForMainstream(); }, 2000); //send every 15 seconds just in case
 
-setInterval(function() { 
-  const isThereAStream = document.getElementById('retryimage');
+function checkForMainstream() {
+  const noStream = document.getElementById('retryimage');
 
-  if (isThereAStream) {
+  if ((noStream) || (streamActivated == false)) {
     window.parent.postMessage({
       sendData: 'noMainStream', // Add a type to easily filter messages
       "type": "pcs"
     }, '*')
     console.log("no stream, disable stream tools, update every 2 seconds");
+    streamActivated = false;
+  } else {
+    streamActivated = true;
+    sendMainstreamSize();
   }
-}, 2000); //send every 15 seconds just in case
+}
 
 
 // run everytime the window is resized but throttled
