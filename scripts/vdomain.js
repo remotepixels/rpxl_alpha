@@ -21,7 +21,7 @@ function sendMainstreamSize() {
   if ((top === 0) && (left === 0)) {
     // If the top and left are 0, it means the mainstream is not in the expected position
     // This can happen if the mainstream is not yet loaded or if it's in a different layout
-    //console.log("Mainstream is not positioned correctly, offset by 1 px...");
+    // console.log("Mainstream is not positioned correctly, offset by 1 px...");
 
     window.parent.postMessage({
         sendData: 'mainstreamSize', // Add a type to easily filter messages
