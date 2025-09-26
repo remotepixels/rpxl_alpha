@@ -11,7 +11,7 @@ function sendMainstreamSize() {
     height = layoutElement.offsetHeight;
     top = layoutElement.offsetTop;
     left = layoutElement.offsetLeft;
-
+  }
   // if (width === 0 || height === 0) {
   //   //don't send if there is no video element, try again every 2 seconds
   //   setTimeout(function() { sendMainstreamSize(); }, 2000); 
@@ -43,7 +43,6 @@ function sendMainstreamSize() {
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
 }          
-}
 
 //wait for 1 seconds after loaded to run the first time
 setInterval(function() { sendMainstreamSize(); }, 1000); 
