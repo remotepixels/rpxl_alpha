@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
@@ -22,10 +21,7 @@ function sendMainstreamSize() {
   if ((top === 0) && (left === 0)) {
     // If the top and left are 0, it means the mainstream is not in the expected position
     // This can happen if the mainstream is not yet loaded or if it's in a different layout
-    // We will try to send the size again after 1 second
-    console.log("Mainstream is not positioned correctly, retrying...");
-    
-    // Send the message to the parent window with current size
+    console.log("Mainstream is not positioned correctly, offset by 1 px...");
 
     window.parent.postMessage({
         sendData: 'mainstreamSize', // Add a type to easily filter messages
@@ -35,11 +31,8 @@ function sendMainstreamSize() {
         left: left+1,
         "type": "pcs"
     }, '*')
-
-    //setTimeout(function() { sendMainstreamSize(); }, 500);  
     return; 
   }
-
   // Send the message to the parent window
   window.parent.postMessage({
       sendData: 'mainstreamSize', // Add a type to easily filter messages
@@ -53,30 +46,8 @@ function sendMainstreamSize() {
 
 //wait for 1 seconds after loaded to run the first time
 setTimeout(function() { sendMainstreamSize(); }, 1000); 
-// var streamActivated = false;
-// setInterval(function() { checkForMainstream(); }, 2000); //send every 15 seconds just in case
-
-// function checkForMainstream() {
-//   const noStream = document.getElementById('retryimage');
-
-//   if ((noStream) || (streamActivated == false)) {
-//     window.parent.postMessage({
-//       sendData: 'noMainStream', 
-//       value: 1,// Add a type to easily filter messages
-//       "type": "pcs"
-//     }, '*')
-//     //console.log("no stream, disable stream tools, update every 2 seconds");
-//     streamActivated = false;
-//   } else {
-//     streamActivated = true;
-//     sendMainstreamSize();
-//   }
-// }
-
 
 // run everytime the window is resized but throttled
-// This will ensure that the function is not called too often
-// and will only be called once every 250ms
 window.addEventListener("resize", resizeThrottler, false);
 let resizeTimeout; // timeout ID
 function resizeThrottler() {
