@@ -44,11 +44,11 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
                 if (option === cameracookie) {
                     document.getElementById("cameraSource").selectedIndex = i
                     
-                    videoElement.classList.remove("fadeout");
+                    //videoElement.classList.remove("fadeout");
                     videos = document.getElementById("cameraSource").value;
                     videoSelected = document.querySelector('select#cameraSource');
-                    //preselectDevice('video');
-                    optionFound = true;
+
+                    optionFound = true;                    //preselectDevice('video');
                     break; // Stop once the matching option is found and selected
                 }
             } 
@@ -65,8 +65,8 @@ function checkCookie(cookieUser, cookieCamera, cookieMic) {
 
                     audios = document.getElementById("microphoneSource").value;
                     audioSelected = document.querySelector('select#microphoneSource');
-                    //preselectDevice('audio');
-                    optionFound = true;
+
+                    optionFound = true;                    //preselectDevice('audio');
                     break; // Stop once the matching option is found and selected
                 }
             }

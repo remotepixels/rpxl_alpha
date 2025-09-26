@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
-    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Expires" content="-1"/>
     <meta name="msapplication-TileColor" content="#2e2e2e"/>
     <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
     <meta name="robots" content="index, follow"/>
@@ -31,8 +31,8 @@
 
 <body id="body">
     <!--iframes for vdo ninja-->
-    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>
-    <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>   
+    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;"></iframe>
+    <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
 
     <!--canvas for drawing annotations-->
     <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -56,17 +56,17 @@
                 <button class="tool toolmoresettings" id="toolSettings" aria-expanded="false"><span class="material-symbols-outlined">settings</span></button>
             </div>
             <div class="toolset toolspacer">
-                <button class="tool toolred" aria-expanded="false" id="toolMuteMicrophone"><span class="material-symbols-outlined">mic</span></button>
-                <button class="tool toolred disable" aria-expanded="false" id="toolMuteCamera" disabled><span class="material-symbols-outlined">photo_camera</span></button>
+                <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone"><span class="material-symbols-outlined">mic</span></button>
+                <button class="tool disable" aria-expanded="false" id="toolMuteCamera" disabled><span class="material-symbols-outlined">photo_camera</span></button>
             </div>
             <div class="toolset" id="toolAnnotations">
-                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                <button class="tool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
-                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
             </div>
             <div class="toolspacer"></div>
-            <div class="toolset"><button class="tool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
-                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"></span>        
+            <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
+                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
             </div>
         </div>
     </div>
@@ -103,7 +103,7 @@
     </dialog>
 
     <!----- popup color menu ------>
-    <dialog id="paletteDialog" class="toolpopup bottom middle hidden ">
+    <dialog id="paletteDialog" class="toolpopup bottom middle hidden">
             <div>
                 <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
                 <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
@@ -298,18 +298,15 @@ function setupSession() {
     checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
 
     checkLogin.addEventListener("click",() => {
-        deactivateTools();
-        // storeSelectedDevices(); 
-        reactivateTools();
-        viewerStream() ; 
+        //deactivateTools();
+        //storeSelectedDevices(); 
+        //reactivateTools();
+        viewerStream() ; //from initvdo.js
     });
 
-     deactivateTools();
-    // storeSelectedDevices(); 
-    reactivateTools();
-    viewerStream() ; 
+    viewerStream(); //from initvdo.js
     setTimeout(function(){   
-        viewMainStream();
+        viewMainStream();//from initvdo.js
     },1000);
 }
 </script>

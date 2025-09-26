@@ -38,7 +38,7 @@ function sendMainstreamSize() {
         "type": "pcs"
     }, '*')
 
-    setTimeout(function() { sendMainstreamSize(); }, 500);  
+    //setTimeout(function() { sendMainstreamSize(); }, 500);  
     return; 
   }
 
@@ -56,9 +56,25 @@ function sendMainstreamSize() {
 //wait for 1 seconds after loaded to run the first time
 setTimeout(function() { sendMainstreamSize(); }, 1000); 
 
+setInterval(function() { 
+  const isThereAStream = document.getElementById('retryimage');
+
+  if (!isThereAStream) {
+    //if there is no retry image, it means there is a stream
+    //so we can send the size right away
+    window.parent.postMessage({
+      sendData: 'noMainStream', // Add a type to easily filter messages
+      "type": "pcs"
+    }, '*')
+
+    sendMainstreamSize();
+  }
+}, 1000); //send every 15 seconds just in case
+
+
 // run everytime the window is resized but throttled
 // This will ensure that the function is not called too often
-// and will only be called once every 500ms
+// and will only be called once every 250ms
 window.addEventListener("resize", resizeThrottler, false);
 let resizeTimeout; // timeout ID
 function resizeThrottler() {

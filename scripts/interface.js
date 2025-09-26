@@ -32,7 +32,7 @@ if (toolShare) { toolShare.addEventListener("click", function () { openDialog(sh
 if (toolQuit) { toolQuit.addEventListener("click", function () { openDialog(quitDialog, toolQuit); });}
 
 if (toolSettings) { toolSettings.addEventListener("click", function () { 
-    recalSelectedDevices();
+    recalSelectedDevices(); //from initui.js - reset settings dialog to current selected devices
     openDialog(settingsDialog, toolSettings); });
 }
 
@@ -66,6 +66,17 @@ function openDialog (dialog, toolIcon) {
     openModal = dialog; 
     openIcon = toolIcon;
 }
+
+function closeDialog (dialog, toolIcon) {
+    document.getElementById("popupBG").classList.add("hidden");
+    dialog.classList.add("hidden");
+    dialog.close();
+    toolIcon.setAttribute("aria-expanded", "false"); 
+    toolIcon.classList.remove("selected"); 
+    openModal = "";
+    openIcon = "";
+}
+
 
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(e) {
@@ -194,7 +205,7 @@ function toolMuteMicrophoneSelect () {
 function toolMuteCameraSelect () {
     if (toolMuteCamera.getAttribute("aria-expanded") == "false") {
         toolMuteCamera.setAttribute("aria-expanded", "true");
-        toolMuteCamera.classList.toggle("selectedred");  
+        toolMuteCamera.classList.toggle("selected");  
         toolMuteCamera.lastElementChild.innerHTML = "no_photography";
         viewersStream.contentWindow.postMessage({
             "camera": false
@@ -208,7 +219,7 @@ function toolMuteCameraSelect () {
         console.log("camera off")
     } else {
         toolMuteCamera.setAttribute("aria-expanded", "false");
-        toolMuteCamera.classList.toggle("selectedred"); 
+        toolMuteCamera.classList.toggle("selected"); 
         toolMuteCamera.lastElementChild.innerHTML = "photo_camera";
         popupCamMuted.close();
         viewersStream.contentWindow.postMessage({

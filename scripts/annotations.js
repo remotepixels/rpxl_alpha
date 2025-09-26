@@ -115,32 +115,43 @@ eventer(messageEvent, function(e) {
             document.getElementById('mainStream').style.width = "calc(100% - "+offsetViewFrame+"px)";
             console.log("resized frame to get correct top and left positions for canvas");
         } else {
-        // turn on the annotation tools and place canvas
-        //offst canvas depending if in director or client view        
-        var leftOffset = left + offsetViewFrame;
-        var topOffset = top + offsetViewFrameTop;
+            // turn on the annotation tools and place canvas
+            //offst canvas depending if in director or client view        
+            var leftOffset = left + offsetViewFrame;
+            var topOffset = top + offsetViewFrameTop;
 
-        document.getElementById('toolDraw').classList.remove("disable");
-        document.getElementById('toolDraw').disabled = false;
-        document.getElementById('toolPalette').classList.remove("disable");
-        document.getElementById('toolPalette').disabled = false;
-        document.getElementById('toolEraser').classList.remove("disable");
-        document.getElementById('toolEraser').disabled = false;
+            let streamtools = document.querySelectorAll(".streamtool");
+            streamtools.forEach(tool => {
+                tool.classList.remove("disable");
+                tool.disabled = false;
+            });
+            
+            document.getElementById("annotationsCanvas").width = width;
+            document.getElementById("annotationsCanvas").height = height;
+            document.getElementById("annotationsCanvas").style.width = width+"px";
+            document.getElementById("annotationsCanvas").style.height = height+"px";
+            document.getElementById("annotationsCanvas").style.top = topOffset+"px";
+            document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
 
-        document.getElementById('toolMuteStream').classList.remove("disable");
-        document.getElementById('toolMuteStream').disabled = false;
-        document.getElementById('toolStreamVolume').classList.remove("disable");
-        document.getElementById('toolStreamVolume').disabled = false;
+            //document.getElementById("annotationsCanvas").style.border = "1px solid red";
+            console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
+        }
+        
+        if (e.data && e.data.sendData === 'noMainStream') {
+            let streamtools = document.querySelectorAll(".streamtool");
 
-        document.getElementById("annotationsCanvas").width = width;
-        document.getElementById("annotationsCanvas").height = height;
-        document.getElementById("annotationsCanvas").style.width = width+"px";
-        document.getElementById("annotationsCanvas").style.height = height+"px";
-        document.getElementById("annotationsCanvas").style.top = topOffset+"px";
-        document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
-
-        //document.getElementById("annotationsCanvas").style.border = "1px solid red";
-        console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
+                streamtools.forEach(tool => {
+                tool.classList.add("disable");
+                tool.classList.remove("selected");
+                tool.setAttribute("aria-expanded", "false");
+                tool.disabled = true;
+            });
+            document.getElementById("annotationsCanvas").width = 0;
+            document.getElementById("annotationsCanvas").height = 0;
+            document.getElementById("annotationsCanvas").style.width = 0+"px";
+            document.getElementById("annotationsCanvas").style.height = 0+"px";
+            document.getElementById("annotationsCanvas").style.top = 0+"px";
+            document.getElementById("annotationsCanvas").style.left = 0+"px";
         }
     }
 

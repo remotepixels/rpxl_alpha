@@ -4,6 +4,50 @@ function getCheckedRadioValue(name) {
   return selected ? selected.value : null;
 }
 
+
+function deactivateUserTools() {
+    let mytools = document.querySelectorAll(".tool");
+
+    mytools.forEach(tool => {
+        if (tool.id === "toolMuteMicrophone") {
+            tool.disabled = true;
+            tool.classList.add("disable");
+            tool.classList.remove("selected");
+            tool.classList.remove("selectedred");
+            tool.lastElementChild.innerHTML = "mic";
+        }
+        if (tool.id === "toolMuteCamera") {
+            tool.disabled = true;
+            tool.classList.add("disable");
+            tool.classList.remove("selected");
+            tool.lastElementChild.innerHTML = "photo_camera";
+        }
+    });
+}
+
+function reactivateUserTools() {
+    let openModals = document.querySelectorAll("dialog:not(.hidden)");
+
+    let mytools = document.querySelectorAll(".tool");
+    let cameraSource = sessionStorage.getItem("cameraDevice");
+    let microphoneSource = sessionStorage.getItem("microphoneDevice");
+
+    mytools.forEach(tool => {
+        if (tool.id === "toolMuteMicrophone" && microphoneSource !== "0") {
+            tool.disabled = false;
+            tool.classList.remove("disable");
+        }
+        if (tool.id === "toolMuteCamera" && cameraSource !== "0") {
+            tool.disabled = false;
+            tool.classList.remove("disable");
+        }
+
+    });
+
+    closeDialog(settingsDialog, toolSettings);    //close settings open modal interface.js
+}
+
+
 //turn off all tools when starting or changing session settings
 function deactivateTools() {
     let mytools = document.querySelectorAll(".tool");
@@ -79,6 +123,17 @@ function reactivateTools() {
         }
 
     });
+    //turn back on annotation tools if we have a stream
+    const mainStream = document.getElementById('mainStream').offsetWidth;
+    if (mainStream >= 10) {
+        document.getElementById('toolDraw').classList.remove("disable");
+        document.getElementById('toolDraw').disabled = false;
+        document.getElementById('toolPalette').classList.remove("disable");
+        document.getElementById('toolPalette').disabled = false;
+        document.getElementById('toolEraser').classList.remove("disable");
+        document.getElementById('toolEraser').disabled = false;
+    }
+
 }
 
 //process selected devices and store them in sessionStorage
@@ -157,7 +212,7 @@ function storeSelectedDevices(sessionID, session, user) {
 }
 
 //reset the settings dialog everytime it is opened to the curently selected devices. useful if user cancels settings changes half way
-function recalSelectedDevices() {
+function recalSelectedDevices() { //used in interface.js
     let videoDeviceRecal = document.getElementById("videoSource");
     let audioDeviceRecal = document.getElementById("audioSource");
     let cameraDeviceRecal = document.getElementById("cameraSource");

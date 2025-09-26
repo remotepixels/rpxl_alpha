@@ -194,19 +194,14 @@ copyQuickLink.addEventListener("click", () => {
 });
 
 function copyToClipboard(text) {
-    console.log("openIcon", openIcon);
+    //console.log("openIcon", openIcon);
     navigator.clipboard.writeText(text).then(() => {
-        shareDialog.close();
-        shareDialog.classList.add("hidden");
-        shareDialog.setAttribute("aria-expanded", "false"); 
-        toolShare.setAttribute("aria-expanded", "false");
-        toolShare.classList.remove("selected");
-        document.getElementById("popupBG").classList.add("hidden");
-        //show copied to clipboard message
-        popupClipboard.classList.remove("hidden");
+        closeDialog(shareDialog, toolShare);    //close share dialog
+
+        popupClipboard.classList.remove("hidden");        //show copied to clipboard message
         popupClipboard.show();
-        //hide copied to clipbaord message after 3 seconds
-        setTimeout ( function () {
+
+        setTimeout ( function () {         //hide copied to clipbaord message after 3 seconds
             popupClipboard.classList.add("hidden");
             popupClipboard.close();
         }, 3000);

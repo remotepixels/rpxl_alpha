@@ -12,12 +12,12 @@ function viewerStream () {
 
     //compare form values with stored values, if they're different then reload the iframe
     if ((currentUsername != sanitizedUserName) || (currentCamera.selectedIndex != cameraIndex) || (currentMic.selectedIndex != micIndex)) {
-                if (!document.getElementById("viewersStream").classList.contains("hidden") ) { 
+        if (!document.getElementById("viewersStream").classList.contains("hidden") ) { 
             document.getElementById("viewersStream").classList.add("hidden"); 
         }
         console.log("Viewer settings changed, reloading...");
 
-        deactivateTools(); //turn off tools while reloading frame - initui.js
+        deactivateUserTools(); //turn off tools while reloading frame - initui.js
         storeSelectedDevices(0,0,1); //store new user only settings and reload frame - initui.js
         let sanitizedSessionID = sessionStorage.getItem("sessionID");   //retrieve session ID
 
@@ -64,13 +64,14 @@ function viewerStream () {
             //"&intro"+
             //"&dataonly"+
             //"&meterstyle=5&bgimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-        reactivateTools(); //reactivate tools - initui.js
 
+        reactivateUserTools(); //reactivate tools - initui.js
         setTimeout(function(){   
             document.getElementById("viewersStream").classList.remove("hidden");  //wait 1 second and show frame
         },1000);
     } else {
         console.log("Viewer settings unchanged, not reloading")
+        closeDialog(settingsDialog, toolSettings);
     }
 }
 

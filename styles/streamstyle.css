@@ -68,7 +68,7 @@
     padding-right:30px;
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-.buttonmoresettings[aria-expanded="true"]::after, .toolmoresettings[aria-expanded="true"]::after {
+.buttonmoresettings[aria-expanded="true"]::after {
     transform: rotate(180deg) translateY(50%);
 }
 .collapsed {
