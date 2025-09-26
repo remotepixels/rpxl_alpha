@@ -45,7 +45,7 @@ function sendMainstreamSize() {
 }          
 
 //wait for 1 seconds after loaded to run the first time
-setTimeout(function() { sendMainstreamSize(); }, 1000); 
+setInterval(function() { sendMainstreamSize(); }, 1000); 
 
 // run everytime the window is resized but throttled
 window.addEventListener("resize", resizeThrottler, false);
