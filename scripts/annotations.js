@@ -137,7 +137,10 @@ eventer(messageEvent, function(e) {
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     
-        if ('noMainStream' in e.data) {
+        if (e.data && e.data.sendData === 'mainstreamSize') {
+            console.log("no stream, disable stream tools, update every 2 seconds");
+            const { value } = e.data;
+            if (value === 1) {
             let streamtools = document.querySelectorAll(".streamtool");
 
                 streamtools.forEach(tool => {
@@ -152,6 +155,7 @@ eventer(messageEvent, function(e) {
             document.getElementById("annotationsCanvas").style.height = 0+"px";
             document.getElementById("annotationsCanvas").style.top = 0+"px";
             document.getElementById("annotationsCanvas").style.left = 0+"px";
+        }
         }
     }
 
