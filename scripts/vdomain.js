@@ -61,7 +61,8 @@ function checkForMainstream() {
 
   if ((noStream) || (streamActivated == false)) {
     window.parent.postMessage({
-      sendData: 'noMainStream', // Add a type to easily filter messages
+      sendData: 'noMainStream', 
+      value: true,// Add a type to easily filter messages
       "type": "pcs"
     }, '*')
     console.log("no stream, disable stream tools, update every 2 seconds");

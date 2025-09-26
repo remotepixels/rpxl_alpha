@@ -136,8 +136,8 @@ eventer(messageEvent, function(e) {
             //document.getElementById("annotationsCanvas").style.border = "1px solid red";
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
-        
-        if (e.data && e.data.sendData === 'noMainStream') {
+    
+        if ('noMainStream' in e.data) {
             let streamtools = document.querySelectorAll(".streamtool");
 
                 streamtools.forEach(tool => {
@@ -155,7 +155,7 @@ eventer(messageEvent, function(e) {
         }
     }
 
-    //    console.log(e.data);
+    //console.log(e.data);
 
     // Process connection events
     if ("action" in e.data) {
