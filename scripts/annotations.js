@@ -108,7 +108,22 @@ eventer(messageEvent, function(e) {
         var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
         //console.log ("frame offset:",offsetViewFrame);
         //console.log ("frame top offset:",offsetViewFrameTop);
+        if (width == 0 || height == 0) {
+            let streamtools = document.querySelectorAll(".streamtool");
 
+                streamtools.forEach(tool => {
+                tool.classList.add("disable");
+                tool.classList.remove("selected");
+                tool.setAttribute("aria-expanded", "false");
+                tool.disabled = true;
+            });
+            document.getElementById("annotationsCanvas").width = 0;
+            document.getElementById("annotationsCanvas").height = 0;
+            document.getElementById("annotationsCanvas").style.width = 0+"px";
+            document.getElementById("annotationsCanvas").style.height = 0+"px";
+            document.getElementById("annotationsCanvas").style.top = 0+"px";
+            document.getElementById("annotationsCanvas").style.left = 0+"px";
+        }
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
         if (left == 0 && top == 0) { 
@@ -136,29 +151,7 @@ eventer(messageEvent, function(e) {
             //document.getElementById("annotationsCanvas").style.border = "1px solid red";
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
-    
-        if (e.data && e.data.sendData === 'mainstreamSize') {
-            console.log("no stream, disable stream tools, update every 2 seconds");
-            const { value } = e.data;
-            if (value === 1) {
-            let streamtools = document.querySelectorAll(".streamtool");
-
-                streamtools.forEach(tool => {
-                tool.classList.add("disable");
-                tool.classList.remove("selected");
-                tool.setAttribute("aria-expanded", "false");
-                tool.disabled = true;
-            });
-            document.getElementById("annotationsCanvas").width = 0;
-            document.getElementById("annotationsCanvas").height = 0;
-            document.getElementById("annotationsCanvas").style.width = 0+"px";
-            document.getElementById("annotationsCanvas").style.height = 0+"px";
-            document.getElementById("annotationsCanvas").style.top = 0+"px";
-            document.getElementById("annotationsCanvas").style.left = 0+"px";
-        }
-        }
-    }
-
+    }    
     //console.log(e.data);
 
     // Process connection events

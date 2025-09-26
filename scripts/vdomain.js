@@ -52,26 +52,26 @@ function sendMainstreamSize() {
 }          
 
 //wait for 1 seconds after loaded to run the first time
-//setTimeout(function() { sendMainstreamSize(); }, 1000); 
-var streamActivated = false;
-setInterval(function() { checkForMainstream(); }, 2000); //send every 15 seconds just in case
+setTimeout(function() { sendMainstreamSize(); }, 1000); 
+// var streamActivated = false;
+// setInterval(function() { checkForMainstream(); }, 2000); //send every 15 seconds just in case
 
-function checkForMainstream() {
-  const noStream = document.getElementById('retryimage');
+// function checkForMainstream() {
+//   const noStream = document.getElementById('retryimage');
 
-  if ((noStream) || (streamActivated == false)) {
-    window.parent.postMessage({
-      sendData: 'noMainStream', 
-      value: 1,// Add a type to easily filter messages
-      "type": "pcs"
-    }, '*')
-    //console.log("no stream, disable stream tools, update every 2 seconds");
-    streamActivated = false;
-  } else {
-    streamActivated = true;
-    sendMainstreamSize();
-  }
-}
+//   if ((noStream) || (streamActivated == false)) {
+//     window.parent.postMessage({
+//       sendData: 'noMainStream', 
+//       value: 1,// Add a type to easily filter messages
+//       "type": "pcs"
+//     }, '*')
+//     //console.log("no stream, disable stream tools, update every 2 seconds");
+//     streamActivated = false;
+//   } else {
+//     streamActivated = true;
+//     sendMainstreamSize();
+//   }
+// }
 
 
 // run everytime the window is resized but throttled
