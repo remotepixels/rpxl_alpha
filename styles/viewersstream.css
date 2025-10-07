@@ -3,48 +3,51 @@
 	-webkit-backdrop-filter: blur(200px);
 	backdrop-filter: blur(200px);
 } */
-.holder{	
-	position:relative!;
-	left:5px!;
-	top:5px!;
-	height:90px!;
-	width:300px!;
+/* .holder{	
+	position:relative!important;
+	left:5px!important;
+	top:5px!important;
+	height:90px!important;
+	width:300px!important;
 	
-}
+} */
 .container_holder_video {
-	position:relative;
-	left:10px;
-	top:0px;
-	height:90px;
-
+	border: 1px solid black;
+	position:relative!important;
+	/* left:100px; */
+	top:5px!important;
+	height:90px!important;
+	/* min-width:300px!important; */
+	/* width:300px!important; */
 }
 video {
 	position:absolute;
-	left:5px;
-	width:85px;
-	height:85px;
-	border-radius:100%;
-	object-fit:cover;
-	/* background-image: url('../images/avatar.png')!important;
-	background-size: cover!important;
-	background-color: black!important; */
+	left:10px;
+	width:85px!important;
+	height:85px!important;
+	border-radius:100%!important;
+	object-fit:cover!important;
+	background-image: url('../images/avatar.png')!important;
+	background-size: cover;
+	/* background-color: black!important; */
 }	
 /* canvas {
 	position:absolute;
 	left:5px;
-	width:85px;
-	height:85px;
-	border-radius:100%;
-	object-fit:cover;
+	width:85px!important;
+	height:85px!important;
+	border-radius:100%!important;
+	object-fit:cover!important;
 
 } */
 .video-label{
-	position:absolute;
-	width:200px;
+	/* position:absolute; */
+	/* display: inline-block; */
+	/* width:200px!important; */
+	overflow: visible!important;
 	left:100px;
-	font-size:14px;
-	top:calc(50% - 15px);
-	/* background:unset;
-	display: block;
-	opacity: 1; */
+	font-size:14px!important;
+	top:calc(50% - 10px);
+	background:none;
+	/* opacity: 1; */
 }

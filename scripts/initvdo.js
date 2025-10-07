@@ -47,13 +47,13 @@ function viewerStream () {
             "&showlabels"+
             "&label="+sanitizedUserName+camSetup+micSetup+
             "&hidehome"+
-            //"&style=5"+
-            //"&meterstyle=2"+
+            "&style=5"+
+            "&meterstyle=2"+
             "&mutestatus"+
             "&webcam"+
             "&notify"+
             "&disablehotkeys"+
-            //"&showall"+
+            "&showall"+
             "&autostart"+
             "&cleanoutput"+
             "&chroma=3c3c3c"+
