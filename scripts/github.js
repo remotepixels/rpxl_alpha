@@ -27,7 +27,7 @@ async function addIssue(encodedSession) {
 async function getList() {
     const currentDate = new Date();
     var backDate = new Date();
-    backDate.setDate(backDate.getDate() - 9);
+    backDate.setDate(backDate.getDate() - 30);
 
     //change date format to yyyy-mm-dd for search query
     const formatDate = (date) => {

@@ -194,7 +194,6 @@ copyQuickLink.addEventListener("click", () => {
 });
 
 function copyToClipboard(text) {
-    //console.log("openIcon", openIcon);
     navigator.clipboard.writeText(text).then(() => {
         closeDialog(shareDialog, toolShare);    //close share dialog
 
@@ -298,7 +297,7 @@ function setupSessionUI() {
     var encodedSession = btoa(sessionAndProject);
 
     //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
-    //addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
+    addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
 
     //hide stream settings creation dialog
     settingsDialog.classList.add("hidden");

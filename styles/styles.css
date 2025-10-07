@@ -51,6 +51,7 @@ body {
     background-position: top center;
     background-repeat: no-repeat;
     background-size: cover;
+
 }
 @media (prefers-color-scheme: dark) {
     body {
@@ -357,7 +358,11 @@ label:has([type=colorpot]:checked) {
 
 .toolred:hover {
     color: light-dark(var(--color-light-bg), var(--color-light-bg));
-    background-color: var(--color-red)
+    background-color: var(--color-red);
+}
+.toolblue:hover {
+    color: light-dark(var(--color-light-bg), var(--color-light-bg));
+    background-color: dodgerblue;
 }
 /*add divider for tool buttons that show popup windows*/
 .toolmoresettings {
