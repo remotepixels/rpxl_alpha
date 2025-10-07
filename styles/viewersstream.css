@@ -111,10 +111,9 @@ canvas {
 	/* border: 1px #00555e solid; */
 	background-color: #00000000;
 	font-size: 22px;
-	color:#3d3d3d!important;
-	overflow:hidden;
+	color:#3c3c3c!important;
+	/* overflow:hidden; */
 	z-index: 25;
-	opacity:0.5!important;
 	/* display:inline-block!important; */
 	/* cursor: help; */
 }

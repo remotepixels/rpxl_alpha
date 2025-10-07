@@ -156,7 +156,8 @@ h5 {
 .textBackground {
     margin-top:-20px;
     margin-bottom:-20px;
-    padding:0px;
+    /* width: 100vw; */
+    padding: 0px;
     display: block;
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 	}
