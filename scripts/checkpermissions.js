@@ -51,6 +51,7 @@ function checkPermissions () {
         //popup message if the user has blocked access to microphone or camera
         permissionsDialog.showModal();
         permissionsDialog.classList.remove('hidden');
+        shmeg.classList.add('hidden');
         document.getElementById('permissionMicHelp').addEventListener('click', () =>
           window.open('https://www.google.com/search?q=camera+and+microphone+permissions+in+your+browser&client=safari&sca_esv=6df9598451498e66&rls=en&ei=rhjUaNugItzqi-gPuuLioAc&ved=0ahUKEwjbr_as5fGPAxVc9QIHHTqxGHQQ4dUDCBA&oq=camera+and+microphone+permissions+in+your+browser&gs_lp=Egxnd3Mtd2l6LXNlcnAiMWNhbWVyYSBhbmQgbWljcm9waG9uZSBwZXJtaXNzaW9ucyBpbiB5b3VyIGJyb3dzZXJIAFAAWABwAHgBkAEAmAEAoAEAqgEAuAEMyAEAmAIAoAIAmAMAkgcAoAcAsgcAuAcAwgcAyAcA&sclient=gws-wiz-serp','_blank')
         );
