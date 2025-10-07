@@ -33,9 +33,9 @@ function viewerStream () {
         
         //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
-            var camSetup = "&novideo&videodevice=0";
+            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png";//"&novideo&videodevice=0";
         } else {
-            var camSetup = "&videodevice="+sanitizedCamera+"&videobitrate=96";
+            var camSetup = ""+sanitizedCamera+"&videobitrate=96";
         }
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
             var micSetup = "&noaudio";
@@ -44,21 +44,31 @@ function viewerStream () {
         }
 
         document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+            "&cleanish"+
             "&showlabels"+
+            //"&fontsize=100"+
             "&label="+sanitizedUserName+camSetup+micSetup+
             "&hidehome"+
-            "&style=5"+
+            "&style=6"+
             "&meterstyle=2"+
-            "&mutestatus"+
+            //"&mutestatus"+
+            //"&minipreview&minipreviewoffset"+
+            //"&unmutestatus"+
             "&webcam"+
             "&notify"+
             "&disablehotkeys"+
-            "&showall"+
+            "&clearstorage"+
+            //"&showall"+
             "&autostart"+
-            "&cleanoutput"+
+            "&nocontrols"+
+            "&signalmeter"+
+            //"&showconnections"+
+            // "&cleanoutput"+
             "&chroma=3c3c3c"+
+            "&nomouseevents"+
+            // "&groupview=Client"+
             "&group=Client"+
-            //"&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+            // "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
             "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
             //"&safemode"+
             //"&intro"+
@@ -68,7 +78,7 @@ function viewerStream () {
         reactivateUserTools(); //reactivate tools - initui.js
         setTimeout(function(){   
             document.getElementById("viewersStream").classList.remove("hidden");  //wait 1 second and show frame
-        },1000);
+        },2000);
     } else {
         console.log("Viewer settings unchanged, not reloading")
         closeDialog(settingsDialog, toolSettings);

@@ -100,21 +100,24 @@ canvas {
 
 }
 .signal-meter{
-	width: 26px;
-	height: 26px;
-	position: absolute;
-	left: 0px;
-	padding:2px;
-	top: 62px;
-	border-radius: 50px;
+	/* width: 30px; */
+	/* height: 30px; */
+	/* position: absolute; */
+	left: 260px;
+	/* padding:2px; */
+	top: 35px;
+	/* border-radius: 100%; */
 	pointer-events:none;
-	border: 1px #00555e solid;
-	background-color: #000000;
-	font-size: 20px;
+	/* border: 1px #00555e solid; */
+	background-color: #00000000;
+	font-size: 22px;
 	color:#3d3d3d!important;
 	overflow:hidden;
 	z-index: 25;
-		opacity:1!important;
-	display:block!important;
+	opacity:0.5!important;
+	/* display:inline-block!important; */
 	/* cursor: help; */
+}
+#context-menu-video{
+	display:none!important;
 }
