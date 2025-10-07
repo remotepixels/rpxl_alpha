@@ -138,7 +138,7 @@ iframe {
     /* background-image: unset; */
     /* color: var(--color-mid-grey); */
     display: block;
-	width: calc(100% - 110px);
+	width: calc(100% - 100px);
     left:110px;
 	z-index: 0;
 }
@@ -146,7 +146,7 @@ iframe {
     background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey));
     /* color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
     /* color: var(--color-mid-grey); */
-	width:110px;
+	width:100px;
 	left:0px;
 	overflow-y: auto;
     overflow-x: hidden;
@@ -156,7 +156,7 @@ iframe {
 	width:300px;
 	box-shadow: 0 0 100px 0px rgba(0, 0, 0, 0.5);
     transition-timing-function: linear;
-    transition: all 150ms;
+    transition: 150ms;
 }
 
 /*center elements horizontally used for login and popup dialogs*/

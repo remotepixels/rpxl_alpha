@@ -104,7 +104,7 @@ eventer(messageEvent, function(e) {
         const { width, height, top, left } = e.data;
         
         var offsetViewFrame = 0;
-        if (viewersFrame) {var offsetViewFrame = 110;} //director view has a sidebar so we need to offset the canvas
+        if (viewersFrame) {var offsetViewFrame = 100;} //director view has a sidebar so we need to offset the canvas
         var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
         //console.log ("frame offset:",offsetViewFrame);
         //console.log ("frame top offset:",offsetViewFrameTop);
