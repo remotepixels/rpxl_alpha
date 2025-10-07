@@ -53,12 +53,12 @@ function viewerStream () {
             "&webcam"+
             "&notify"+
             "&disablehotkeys"+
-            "&showall"+
+            //"&showall"+
             "&autostart"+
             "&cleanoutput"+
             "&chroma=3c3c3c"+
             "&group=Client"+
-            "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
+            //"&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
             "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
             //"&safemode"+
             //"&intro"+
