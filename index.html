@@ -160,7 +160,7 @@
     </dialog>
 
     <!--enter username, select camera and microphone dialog-->
-    <dialog id="settingsDialog" class="toolpopup top middle hidden">
+    <dialog id="settingsDialog" class="fixedcenterhorizontal top hidden">
         <div id="camPreview">
             <span id="cameraFill" class="cameraFill"></span>
             <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
@@ -325,7 +325,6 @@ function checkEnteredSession() {
         //hide the seeion dialog & show user, camera and microphone dialog
         sessionDialog.close();
         sessionDialog.classList.add("hidden");
-
         openDialog(settingsDialog, toolJoinSession)
         document.getElementById("name").focus();
     } else {
