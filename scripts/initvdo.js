@@ -1,4 +1,6 @@
 //start the chat stream on vdo ninja (used by presenter and client)
+var avatar = "";
+
 function viewerStream () {
     let sanitizedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
     let cameraIndex = sessionStorage.getItem("cameraSource");
@@ -9,7 +11,12 @@ function viewerStream () {
     let currentMic = document.getElementById("microphoneSource");
 
     if (currentUsername == null) { currentUsername = "Presenter"; }
-
+    if (avatar == "") {
+        // Step 1: Create the array from "000" to "010"
+        const numberArray = Array.from({ length: 11 }, (_, i) => String(i).padStart(3, '0'));
+        const randomNum = numberArray[Math.floor(Math.random() * numberArray.length)];
+        avatar = `${randomNum}.png`;
+    }
     //compare form values with stored values, if they're different then reload the iframe
     if ((currentUsername != sanitizedUserName) || (currentCamera.selectedIndex != cameraIndex) || (currentMic.selectedIndex != micIndex)) {
         if (!document.getElementById("viewersStream").classList.contains("hidden") ) { 
@@ -33,7 +40,7 @@ function viewerStream () {
         
         //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
-            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png";//"&novideo&videodevice=0";
+            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2F"+avatar;//"&novideo&videodevice=0";
         } else {
             var camSetup = ""+sanitizedCamera+"&videobitrate=96";
         }
