@@ -20,19 +20,10 @@ function sendMainstreamSize() {
   // } 
   if ((top === 0) && (left === 0)) {
     // If the top and left are 0, it means the mainstream is not in the expected position
-    // This can happen if the mainstream is not yet loaded or if it's in a different layout
     // console.log("Mainstream is not positioned correctly, offset by 1 px...");
-
-    window.parent.postMessage({
-        sendData: 'mainstreamSize', // Add a type to easily filter messages
-        width: width,
-        height: height,
-        top: top+1,
-        left: left+1,
-        "type": "pcs"
-    }, '*')
-    //return; 
-  } else {
+    top = top+1;
+    left = left+1;
+  } 
   // Send the message to the parent window
   window.parent.postMessage({
       sendData: 'mainstreamSize', // Add a type to easily filter messages
@@ -42,7 +33,7 @@ function sendMainstreamSize() {
       left: left,
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
-}          
+        
 }
 //wait for 1 seconds after loaded to run the first time
 setInterval(function() { sendMainstreamSize(); }, 1000); 

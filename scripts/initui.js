@@ -7,22 +7,31 @@ function getCheckedRadioValue(name) {
 
 function deactivateUserTools() {
     let mytools = document.querySelectorAll(".tool");
-
+    
+    closeDialog(settingsDialog, toolSettings);    //close settings open modal interface.js
     mytools.forEach(tool => {
         if (tool.id === "toolMuteMicrophone") {
             tool.disabled = true;
             tool.classList.add("disable");
             tool.classList.remove("selected");
             tool.classList.remove("selectedred");
+            tool.setAttribute("aria-expanded", "false");
             tool.lastElementChild.innerHTML = "mic";
         }
         if (tool.id === "toolMuteCamera") {
             tool.disabled = true;
             tool.classList.add("disable");
             tool.classList.remove("selected");
+            tool.setAttribute("aria-expanded", "false");
             tool.lastElementChild.innerHTML = "photo_camera";
         }
     });
+
+    let openModals = document.querySelectorAll("dialog:not(.hidden)");
+    openModals.forEach(modal => { 
+        modal.classList.add("hidden"); 
+        modal.close();
+    })
 }
 
 function reactivateUserTools() {
@@ -43,8 +52,6 @@ function reactivateUserTools() {
         }
 
     });
-
-    closeDialog(settingsDialog, toolSettings);    //close settings open modal interface.js
 }
 
 
@@ -72,7 +79,7 @@ function deactivateTools() {
     document.getElementById("toolStreamVolume").disabled = true;
     document.getElementById("toolStreamVolume").classList.add("disable");
 
-    //close any open modals
+    //close any open other modals
     openModals.forEach(openModal => {
         openModal.close();
         openModal.classList.add("hidden");
