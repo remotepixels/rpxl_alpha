@@ -151,7 +151,7 @@ eventer(messageEvent, function(e) {
             document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
             canvasSet = true;
             //document.getElementById("annotationsCanvas").style.border = "1px solid red";
-            //console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
+            console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     }    
     //console.log(e.data);

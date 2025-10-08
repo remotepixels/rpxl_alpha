@@ -108,7 +108,7 @@ function viewMainStream () {
         "&autostart"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
-        "&cleanish"+//remove all interface bits
+        "&clean"+//remove all interface bits
         "&style=1"+
         "&meterstyle=3"+
         "&hideplaybutton"+//hides big play button if autoplay is disabled

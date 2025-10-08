@@ -1,7 +1,6 @@
 //wait for 1 seconds after loaded to run the first time
-setInterval(function() { sendMainstreamSize(); }, 1000); 
-
-function sendMainstreamSize() {
+setInterval(function() { 
+// function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
   let width = 0;
   let height = 0;
@@ -14,7 +13,7 @@ function sendMainstreamSize() {
     top = layoutElement.offsetTop;
     left = layoutElement.offsetLeft;
   }
-  console.log("Mainstream w, h, t, l: ",width,height,top,left);
+  //console.log("Mainstream w, h, t, l: ",width,height,top,left);
   // if (width === 0 || height === 0) {
   //   //don't send if there is no video element, try again every 2 seconds
   //   setTimeout(function() { sendMainstreamSize(); }, 2000); 
@@ -36,18 +35,18 @@ function sendMainstreamSize() {
       left: left,
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
-}
-
+//}
+}, 1000); 
 // run everytime the window is resized but throttled
-window.addEventListener("resize", resizeThrottler, false);
-let resizeTimeout; // timeout ID
-function resizeThrottler() {
-  // ignore resize events as long as an actualResizeHandler execution is in the queue
-  if (!resizeTimeout) {
-    // set a timeout to prevent multiple event’s firing
-    resizeTimeout = setTimeout(function () {
-      resizeTimeout = null;
-      sendMainstreamSize();
-    }, 250);
-  }
-}
+// window.addEventListener("resize", resizeThrottler, false);
+// let resizeTimeout; // timeout ID
+// function resizeThrottler() {
+//   // ignore resize events as long as an actualResizeHandler execution is in the queue
+//   if (!resizeTimeout) {
+//     // set a timeout to prevent multiple event’s firing
+//     resizeTimeout = setTimeout(function () {
+//       resizeTimeout = null;
+//       sendMainstreamSize();
+//     }, 250);
+//   }
+// }
