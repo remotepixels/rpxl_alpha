@@ -71,7 +71,8 @@ function viewerStream () {
             "&signalmeter"+
             //"&showconnections"+
             // "&cleanoutput"+
-            "&chroma=3c3c3c"+
+            // "&chroma=3c3c3c"+
+            "&transparent"+
             "&nomouseevents"+
             // "&groupview=Client"+
             "&group=Client"+

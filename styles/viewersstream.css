@@ -39,6 +39,7 @@ video {
 	object-fit:cover!important;
 	/* background-image: url('../images/avatar.png')!important; */
 	background-size: cover;
+	opacity:0.6;
 	/* background-color: black!important; */
 }	
 canvas {
@@ -48,7 +49,7 @@ canvas {
 	height:80px!important;
 	border-radius:100%!important;
 	object-fit:cover!important;
-
+	opacity:0.6;
 }
 .video-label{
 	/* position:absolute; */

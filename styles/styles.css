@@ -143,7 +143,7 @@ iframe {
 	z-index: 0;
 }
 .viewersiframe {
-    background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey));
+    /* background-color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
     /* color: light-dark(var(--color-mid-grey), var(--color-mid-grey)); */
     /* color: var(--color-mid-grey); */
 	width:100px;
@@ -151,10 +151,21 @@ iframe {
 	overflow-y: auto;
     overflow-x: hidden;
     z-index:1;
+
+    /* filter: blur(20px); */
+    /* background-color: rgba(255, 255, 255, 0.4); */
+    /* -webkit-backdrop-filter:  brightness(.8) blur(50px) contrast(0.8); */
+	/* backdrop-filter:  brightness(.8) blur(50px) contrast(0.8); */
 }
 .viewersiframe:hover {
 	width:300px;
-	box-shadow: 0 0 100px 0px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 0 100px 0px rgba(0, 0, 0, 1);
+        opacity: .99;
+    /* box-shadow: ; */
+    /* background: rgba(255, 255, 255); */
+    /* backdrop-filter: blur(20px); */
+    -webkit-backdrop-filter:  brightness(.8) blur(50px) contrast(0.8);
+	backdrop-filter:  brightness(.8) blur(50px) contrast(0.8);
     transition-timing-function: linear;
     transition: 150ms;
 }
