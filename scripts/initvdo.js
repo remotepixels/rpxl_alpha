@@ -13,7 +13,7 @@ function viewerStream () {
     if (currentUsername == null) { currentUsername = "Presenter"; }
     if (avatar == "") {
         // Step 1: Create the array from "000" to "010"
-        const numberArray = Array.from({ length: 11 }, (_, i) => String(i).padStart(3, '0'));
+        const numberArray = Array.from({ length: 43 }, (_, i) => String(i).padStart(3, '0'));
         const randomNum = numberArray[Math.floor(Math.random() * numberArray.length)];
         avatar = `${randomNum}.png`;
     }
@@ -40,7 +40,7 @@ function viewerStream () {
         
         //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
-            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2F"+avatar;//"&novideo&videodevice=0";
+            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar;//"&novideo&videodevice=0";
         } else {
             var camSetup = ""+sanitizedCamera+"&videobitrate=96";
         }
