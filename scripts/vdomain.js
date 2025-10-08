@@ -1,3 +1,6 @@
+//wait for 1 seconds after loaded to run the first time
+setInterval(function() { sendMainstreamSize(); }, 1000); 
+
 function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
   let width = 0;
@@ -11,6 +14,7 @@ function sendMainstreamSize() {
     top = layoutElement.offsetTop;
     left = layoutElement.offsetLeft;
   }
+  console.log("Mainstream w, h, t, l: ",width,height,top,left);
   // if (width === 0 || height === 0) {
   //   //don't send if there is no video element, try again every 2 seconds
   //   setTimeout(function() { sendMainstreamSize(); }, 2000); 
@@ -33,8 +37,6 @@ function sendMainstreamSize() {
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
 }
-//wait for 1 seconds after loaded to run the first time
-setInterval(function() { sendMainstreamSize(); }, 1000); 
 
 // run everytime the window is resized but throttled
 window.addEventListener("resize", resizeThrottler, false);
