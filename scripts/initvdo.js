@@ -118,7 +118,7 @@ function viewMainStream () {
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
         "&buffer=1000"+//adds a xms buffer
         "&showlist=0"+//hides the viewer list
-        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css";
+        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         "";    
     reactivateTools();
