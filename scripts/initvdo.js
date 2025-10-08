@@ -40,12 +40,12 @@ function viewerStream () {
         
         //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
-            var camSetup = "&videodevice=0&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar;//"&novideo&videodevice=0";
+            var camSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
         } else {
-            var camSetup = ""+sanitizedCamera+"&videobitrate=96";
+            var camSetup = "&"+sanitizedCamera+"&videobitrate=96";
         }
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
-            var micSetup = "&noaudio";
+            var micSetup = "&noaudio"; //really shouldn't happen buuuuuuuuuttttttt........
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
