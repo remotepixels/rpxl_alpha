@@ -1,4 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function sendMainstreamSize() {
   const layoutElement = document.querySelector('.holder');
   let width = 0;
@@ -33,7 +32,6 @@ function sendMainstreamSize() {
       left: left,
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
-        
 }
 //wait for 1 seconds after loaded to run the first time
 setInterval(function() { sendMainstreamSize(); }, 1000); 
