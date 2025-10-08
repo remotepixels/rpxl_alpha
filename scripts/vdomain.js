@@ -2,32 +2,28 @@
 setInterval(function() { sendMainstreamSize(); }, 1000); 
 
 function sendMainstreamSize() {
-  const layoutElement = document.querySelector('.holder');
-  let width = 0;
-  let height = 0;
-  let top = 0;
-  let left = 0;
+  let layoutElement = document.querySelector('.holder');
 
   if (layoutElement) {
-    width = layoutElement.offsetWidth;
-    height = layoutElement.offsetHeight;
-    top = layoutElement.offsetTop;
-    left = layoutElement.offsetLeft;
+    let LEwidth = layoutElement.offsetWidth || 0;
+    let LEheight = layoutElement.offsetHeight || 0;
+    let LEtop = layoutElement.offsetTop || 0;
+    let LEleft = layoutElement.offsetLeft || 0;
   }
 
-  if ((top === 0) && (left === 0)) {
+  if ((LEtop === 0) && (LEleft === 0)) {
     // If the top and left are 0, it means the mainstream is not in the expected position
     // console.log("Mainstream is not positioned correctly, offset by 1 px...");
-    top = top+1;
-    left = left+1;
+    LEtop = LEtop+1;
+    LEleft = LEleft+1;
   } 
   // Send the message to the parent window
   window.parent.postMessage({
       sendData: 'mainstreamSize', // Add a type to easily filter messages
-      width: width,
-      height: height,
-      top: top,
-      left: left,
+      width: LEwidth,
+      height: LEheight,
+      top: LEtop,
+      left: LEleft,
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
 }
