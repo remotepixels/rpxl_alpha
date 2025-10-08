@@ -7,10 +7,10 @@ function sendMainstreamSize() {
   let left = 0;
 
   if (layoutElement) {
-    width = layoutElement.offsetWidth || 0;
-    height = layoutElement.offsetHeight || 0;
-    top = layoutElement.offsetTop || 0;
-    left = layoutElement.offsetLeft || 0;
+    width = layoutElement.offsetWidth;
+    height = layoutElement.offsetHeight;
+    top = layoutElement.offsetTop;
+    left = layoutElement.offsetLeft;
   }
   // if (width === 0 || height === 0) {
   //   //don't send if there is no video element, try again every 2 seconds

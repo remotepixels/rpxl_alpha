@@ -39,7 +39,7 @@ video {
 	object-fit:cover!important;
 	/* background-image: url('../images/avatar.png')!important; */
 	background-size: cover;
-	opacity:0.6;
+	opacity:0.6!important;
 	/* background-color: black!important; */
 }	
 canvas {
@@ -111,7 +111,7 @@ canvas {
 	/* border: 1px #00555e solid; */
 	background-color: #00000000;
 	font-size: 22px;
-	color: #949494!important;
+	color: #e0e0e0!important;
 	/* overflow:hidden; */
 	z-index: 25;
 	/* display:inline-block!important; */

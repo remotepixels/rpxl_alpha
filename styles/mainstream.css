@@ -1,9 +1,7 @@
-video-meter {
-position: absolute;
-right:10px;
-top:10px;
-width:10px;
-height:10px;
-opacity:0.5;
-
+.video-meter {
+    position: fixed;
+    right:15px!important;
+    top:5px!important;
+    width:10px!important;
+    height:10px!important;
 }

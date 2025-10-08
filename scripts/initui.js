@@ -58,7 +58,6 @@ function deactivateTools() {
         tool.classList.remove("selected");
         tool.classList.remove("selectedred");
         tool.setAttribute("aria-expanded", "false");
-        tool.classList.remove("selectedred");
         tool.disabled = true;
         if (tool.id === "toolMuteMicrophone") {
             tool.lastElementChild.innerHTML = "mic";
@@ -100,6 +99,8 @@ function reactivateTools() {
         if (tool.id === "toolMuteMicrophone" && microphoneSource !== "0") {
             tool.disabled = false;
             tool.classList.remove("disable");
+            tool.setAttribute("aria-expanded", "false");
+            console.log("Mic reactivated");
             // console.log("Microphone reactivated");
         }
         if (tool.id === "toolMuteCamera" && cameraSource !== "0") {
@@ -111,7 +112,7 @@ function reactivateTools() {
             tool.disabled = false;
             tool.classList.remove("disable");
             tool.setAttribute("aria-expanded", "true");
-            console.log("Audio straem reactivated");
+            console.log("Audio stream reactivated");
             toolVolumeSlider.disabled = false;
             toolVolumeSlider.classList.remove("disable");
             toolStreamVolume.value = "80";

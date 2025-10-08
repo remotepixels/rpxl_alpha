@@ -139,7 +139,7 @@ iframe {
     /* color: var(--color-mid-grey); */
     display: block;
 	width: calc(100% - 100px);
-    left:110px;
+    left:100px;
 	z-index: 0;
 }
 .viewersiframe {
