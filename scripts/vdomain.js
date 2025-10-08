@@ -7,10 +7,10 @@ function sendMainstreamSize() {
   let left = 0;
 
   if (layoutElement) {
-    width = layoutElement.offsetWidth;
-    height = layoutElement.offsetHeight;
-    top = layoutElement.offsetTop;
-    left = layoutElement.offsetLeft;
+    width = layoutElement.offsetWidth || 0;
+    height = layoutElement.offsetHeight || 0;
+    top = layoutElement.offsetTop || 0;
+    left = layoutElement.offsetLeft || 0;
   }
   // if (width === 0 || height === 0) {
   //   //don't send if there is no video element, try again every 2 seconds
@@ -32,7 +32,7 @@ function sendMainstreamSize() {
         "type": "pcs"
     }, '*')
     //return; 
-  }
+  } else {
   // Send the message to the parent window
   window.parent.postMessage({
       sendData: 'mainstreamSize', // Add a type to easily filter messages
@@ -43,7 +43,7 @@ function sendMainstreamSize() {
       "type": "pcs"
     }, '*'); // Use '*' for the target origin for simplicity should be sent to parent
 }          
-
+}
 //wait for 1 seconds after loaded to run the first time
 setInterval(function() { sendMainstreamSize(); }, 1000); 
 

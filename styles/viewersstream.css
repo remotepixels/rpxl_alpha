@@ -98,7 +98,6 @@ canvas {
 	/* z-Index: 2; */
 	transition-property: opacity;
 	transition-duration: 50ms;
-
 }
 .signal-meter{
 	/* width: 30px; */
@@ -112,7 +111,7 @@ canvas {
 	/* border: 1px #00555e solid; */
 	background-color: #00000000;
 	font-size: 22px;
-	color:#3c3c3c!important;
+	color: #949494!important;
 	/* overflow:hidden; */
 	z-index: 25;
 	/* display:inline-block!important; */

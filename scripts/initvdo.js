@@ -108,7 +108,9 @@ function viewMainStream () {
         "&autostart"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
-        "&clean"+//remove all interface bits
+        "&cleanish"+//remove all interface bits
+        "&style=1"+
+        "&meterstyle=3"+
         "&hideplaybutton"+//hides big play button if autoplay is disabled
         "&chroma=3c3c3c"+
         "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
@@ -116,6 +118,7 @@ function viewMainStream () {
         "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
         "&buffer=1000"+//adds a xms buffer
         "&showlist=0"+//hides the viewer list
+        "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css";
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         "";    
     reactivateTools();
