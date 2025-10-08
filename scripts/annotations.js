@@ -92,7 +92,11 @@ function sendDrawingData(pathPoints) {
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-var canvasSet = null;
+//var canvasSet = null;
+var canvasCurrentLeft = 0;
+var canvasCurrentTop = 0;
+var canvasCurrentWidth = 0;
+var canvasCurrentHeight = 0;
 
 eventer(messageEvent, function(e) {
     const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
@@ -123,7 +127,10 @@ eventer(messageEvent, function(e) {
             document.getElementById("annotationsCanvas").style.height = 0+"px";
             document.getElementById("annotationsCanvas").style.top = 0+"px";
             document.getElementById("annotationsCanvas").style.left = 0+"px";
-            canvasSet = null;
+            canvasCurrentLeft = 0;
+            canvasCurrentTop = 0;
+            canvasCurrentWidth = 0;
+            canvasCurrentHeight = 0;
         }
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
@@ -131,7 +138,7 @@ eventer(messageEvent, function(e) {
             document.getElementById('mainStream').style.width = "calc(100% - "+offsetViewFrame+"px)";
             //console.log("resized frame to get correct top and left positions for canvas");
         } 
-        if (width > 0 && height > 0 && canvasSet == null) {
+        if (width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) {
             // turn on the annotation tools and place canvas
             //offst canvas depending if in director or client view        
             var leftOffset = left + offsetViewFrame;
@@ -149,7 +156,11 @@ eventer(messageEvent, function(e) {
             document.getElementById("annotationsCanvas").style.height = height+"px";
             document.getElementById("annotationsCanvas").style.top = topOffset+"px";
             document.getElementById("annotationsCanvas").style.left = leftOffset+"px";
-            canvasSet = true;
+            
+            canvasCurrentLeft = left;
+            canvasCurrentTop = top;
+            canvasCurrentWidth = width;
+            canvasCurrentHeight = height;
             //document.getElementById("annotationsCanvas").style.border = "1px solid red";
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
