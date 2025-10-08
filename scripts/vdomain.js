@@ -3,13 +3,16 @@ setInterval(function() { sendMainstreamSize(); }, 1000);
 
 function sendMainstreamSize() {
   let layoutElement = document.querySelector('.holder');
-
-  if (layoutElement) {
     let LEwidth = layoutElement.offsetWidth || 0;
     let LEheight = layoutElement.offsetHeight || 0;
     let LEtop = layoutElement.offsetTop || 0;
     let LEleft = layoutElement.offsetLeft || 0;
-  }
+  // if (layoutElement) {
+  //   let LEwidth = layoutElement.offsetWidth || 0;
+  //   let LEheight = layoutElement.offsetHeight || 0;
+  //   let LEtop = layoutElement.offsetTop || 0;
+  //   let LEleft = layoutElement.offsetLeft || 0;
+  // }
 
   if ((LEtop === 0) && (LEleft === 0)) {
     // If the top and left are 0, it means the mainstream is not in the expected position
