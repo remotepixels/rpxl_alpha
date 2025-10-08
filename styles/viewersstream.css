@@ -1,10 +1,10 @@
-/* #gridlayout {
+#gridlayout {
 	background-color:#00000000;
 	-webkit-backdrop-filter: blur(200px);
 	backdrop-filter: blur(200px);
-} */
-body.darktheme {
-    color: #3c3c3c!important;
+}
+body {
+	color: #3c3c3c!important;
 }
 .holder{	
 	/* position:relative!important; */
