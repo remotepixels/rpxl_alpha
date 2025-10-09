@@ -30,10 +30,14 @@
 <body>
     <!--iframes for vdo ninja-->   
     <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>
-    <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>     
+        <div class="mainZoom" id="zoomdiv">
+        <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
+        <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+    </div>
+    <!-- <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>      -->
 
     <!--Annotations canvas-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+    <!-- <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas> -->
 
     <!------------------------Main interface------------------>
     <div id="mainWindow" class="hidden ">

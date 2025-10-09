@@ -108,14 +108,12 @@
     </div>
 
 
-    <!--iframes for vdo ninja-->
+    <!--iframes for vdo ninja and annotations canvas-->
     <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;"></iframe>
-    <div class="mainZoom" id="mainZoom">
+    <div class="mainZoom" id="zoomdiv">
         <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
     </div>
-    <!--canvas for drawing annotations-->
-
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
@@ -217,6 +215,9 @@
         <h2>Incoming stream muted (You will still hear participants)</h2>
     </dialog>
 
+    <!----- popup stream zoomed popup------>
+      <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+
 </body>
 </html>
 
@@ -263,16 +264,15 @@ function checkSessionURL (result) {
             gitresults.push (splitBody);
 
             if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
-                //check cookie data for username, camera and microphone
-                checkCookie("username", "camera", "mic"); //cookies.js
+                checkCookie("username", "camera", "mic"); //cookies.js check cookie data for username, camera and microphone
                 
                 clientEncoded = splitBody[1];
                 client = decodeURIComponent(clientEncoded); //decode the client name
-                //fill in client name and session ID in the interface
-                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
+
+                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";                //fill in client name and session ID in the interface
                 document.getElementById("sessionID").value = sessionID;
-                //hide session dialog & show user, camera and microphone dialog
-                sessionDialog.classList.add("hidden");
+
+                sessionDialog.classList.add("hidden");                //hide session dialog & show user, camera and microphone dialog
                 sessionDialog.close();
 
                 openDialog(settingsDialog, toolJoinSession)
@@ -361,8 +361,8 @@ function setupSession() {
     } 
     //flash error
     function animateAndFocus(element) {
-        element.style.animation = "pulse 300ms";
-        setTimeout(() => { element.style.animation = "none"; }, 300);
+        element.style.animation = "pulse 500ms";
+        setTimeout(() => { element.style.animation = "none"; }, 500);
         element.focus();
     }
 
@@ -396,40 +396,5 @@ function setupSession() {
     setTimeout(function(){   
         viewMainStream();//from initvdo.js
     },1000);
-}
-
-
-let currentZoom = 1;
-let minZoom = 1;
-let maxZoom = 2;
-let stepSize = 0.1;
-
-
-let container = document.getElementById("mainZoom");
-
-container.addEventListener("wheel", function(event) {
-    // Zoom in or out based on the scroll direction
-    let direction = event.deltaY > 0 ? -1 : 1;
-    zoomImage(direction);
-    console.log("moose scroll:",direction)
-});
-
-function zoomImage(direction)
-{
-    let newZoom = currentZoom + direction * stepSize;
-
-    // Limit the zoom level to the minimum and maximum
-    // values
-    if (newZoom < minZoom || newZoom > maxZoom) {
-        return;
-    }
-    console.log(MSheight,MSwidth,MSleft,MStop)
-    currentZoom = newZoom;
-    // Update the CSS transform of the image to scale it
-
-    // mainStream.style.width = "100vw";
-    //     mainStream.style.height = "100vh";
-    mainStream.style.transform = "scale(" + currentZoom + ")";
-    annotationsCanvas.style.transform = "scale(" + currentZoom + ")";
 }
 </script>

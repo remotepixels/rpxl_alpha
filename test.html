@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zoom & Pan</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    #zoomdiv {
+      width: 800px;
+      height: 600px;
+      background: url('https://alpha.rpxl.app/avatars/001.png') no-repeat center center;
+      background-size: cover;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      will-change: transform;
+      border: 1px solid green;
+    }
+    #zoom-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+#zoom-popup.visible {
+  opacity: 1;
+}
+
+  </style>
+</head>
+<body>
+  <div id="zoomdiv"></div>
+
+  <div id="zoom-popup">Stream zoomed</div>
+
+</body>
+
+
+<script>
+const zoomPopup = document.getElementById("zoom-popup");
+
+
+const zoomDiv = document.getElementById("zoomdiv");
+
+let scale = 1;
+let translate = { x: 0, y: 0 };
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
+
+function applyTransform() {
+  zoomDiv.style.transform = `
+    translate(calc(-50% + ${translate.x}px), calc(-50% + ${translate.y}px))
+    scale(${scale})
+  `;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getMousePosInDiv(e) {
+  const rect = zoomDiv.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+function onWheel(e) {
+  e.preventDefault();
+
+  const mousePos = getMousePosInDiv(e);
+  const prevScale = scale;
+
+  const delta = -e.deltaY * 0.001;
+  scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
+
+  if (scale === 1) {
+    // Reset to center
+    translate.x = 0;
+    translate.y = 0;
+    zoomPopup.classList.remove("visible");
+  } else {
+    // Show popup when zoomed in
+    zoomPopup.classList.add("visible");
+
+    // Calculate zoom point shift
+    const rect = zoomDiv.getBoundingClientRect();
+    const dx = (e.clientX - rect.left - rect.width / 2);
+    const dy = (e.clientY - rect.top - rect.height / 2);
+
+    translate.x -= dx * (scale - prevScale) / scale;
+    translate.y -= dy * (scale - prevScale) / scale;
+
+    constrainPan();
+  }
+
+  applyTransform();
+}
+
+
+function constrainPan() {
+  const rect = zoomDiv.getBoundingClientRect();
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
+
+  const maxX = Math.max((rect.width - winW) / 2, 0);
+  const maxY = Math.max((rect.height - winH) / 2, 0);
+
+  translate.x = clamp(translate.x, -maxX, maxX);
+  translate.y = clamp(translate.y, -maxY, maxY);
+}
+
+function onMouseDown(e) {
+  if (scale <= 1) return;
+  isDragging = true;
+  dragStart.x = e.clientX;
+  dragStart.y = e.clientY;
+}
+
+function onMouseMove(e) {
+  if (!isDragging) return;
+
+  const dx = e.clientX - dragStart.x;
+  const dy = e.clientY - dragStart.y;
+
+  dragStart.x = e.clientX;
+  dragStart.y = e.clientY;
+
+  translate.x += dx;
+  translate.y += dy;
+
+  constrainPan();
+  applyTransform();
+}
+
+function onMouseUp() {
+  isDragging = false;
+}
+
+window.addEventListener("wheel", onWheel, { passive: false });
+window.addEventListener("mousedown", onMouseDown);
+window.addEventListener("mousemove", onMouseMove);
+window.addEventListener("mouseup", onMouseUp);
+
+
+
+
+  </script>
+</html>

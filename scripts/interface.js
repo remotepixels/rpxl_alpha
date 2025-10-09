@@ -109,6 +109,7 @@ function toolMuteStreamSelect () {
     } else {
         popupStreamMuted.close();
         toolMuteStream.setAttribute("aria-expanded", "true");
+        toolMuteStream.classList.remove("selected"); 
         toolMuteStream.lastElementChild.innerHTML = "volume_up";
         toolStreamVolume.value = "80";
         mainStream.contentWindow.postMessage({
