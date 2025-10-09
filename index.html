@@ -5,6 +5,7 @@
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="-1"/>
     <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
     <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
     <meta name="robots" content="index, follow"/>
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -20,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
 
     <link rel="stylesheet" href="styles/clientstyle.css">
     <link rel="stylesheet" href="styles/styles.css">
@@ -35,7 +36,7 @@
         <div class="toolbar">
             <div class="toolspacer"></div>           
             <div class="toolset">
-                <button class="tool toolblue" id="toolJoinSession" aria-expanded="false" style="width:250px;"><span>Join a live session</span>&nbsp;&nbsp;&nbsp;<span class="material-symbols-outlined">login</span></button>
+                <button class="tool toolblue" id="toolJoinSession" aria-expanded="false" style="width:250px;"><span>Join a live session</span></button>
             </div>
         </div>
         <div class="siteHeader">
@@ -48,41 +49,62 @@
         <div class="textBackground">
             <div class="text">
                 <p>&nbsp;</p>
-                <h4>
-                Stream high quality video from anywhere, to anywhere using only your browser.<sup>*</sup>
-                </h4>
-                <p>&nbsp;</p>
+                <h4>Stream high quality video from anywhere, to anywhere using only your browser.<sup>*</sup></h4>
+                <p></p>
                 Using the incredible open source <a href="https://vdo.ninja">vdo.ninja</a> software created by <a href="https://github.com/steveseguin/vdo.ninja">Steve Seguin</a>, RPXL is an optimised and simplified front end focused for realtime, remote editorial approvals.
                 <p></p>
                 Created as an alternative to server based messaging apps, vdo.ninja uses a peer to peer model allowing very low latency (less than 1 second) using webRTC and modern video codecs (vp9, Av1).
                 <p></p>
                 Bandwidth is concentrated on one, high quality primary video stream, for your edit. With only minimal data used for communication between participants (typically between 30kbps to 60kbps per participant), RPXL puts your work front and centre.
-                <p></p>
-                WebRTC was designed to be secure from the start and as such all transfers are encrypted using DTLS (Datagram Transport Layer Security) and SRTP (Secure Real-time Transport Protocol).
-                <p></p>
-                Added to HTTPS encryption this guarantees any communication between you and your clients, remains safe and secure.
-                <p></p>
-                vdo.ninja and RPXL are essentially server-less. STUN (Session Traversal Utilities for NAT) servers help devices behind NAT (Network Address Translation) determine their public IP address and port. This process facilitates peer-to-peer connections, even when devices are located in different network environments.
-                <p></p>
-                All this is handled invisibly and securely behind the scenes, this means your data is encrypted, stays encrypted and is never saved to a central server.
-                <p></p>
-                No using your data to train AI, no recording and no cookies to track you.<sup>**</sup>
-                <p></p>
-                You can try it now, for free, no sign-ups, no watermarks, no limits.<sup>***</sup>
                 <p>&nbsp;</p>
-                <a href="https://alpha.rpxl.app/stream" target="_self" style="text-decoration: none">
-                    <button class="botton buttonblue buttonWider">Create a live session</button>
-                </a>
+                <h4>No sign-ups, no downloads, <br>no watermarks, no time limits.<sup>**</sup></h4>
+                <p></p>
+                <img src="images/interface.jpg" width="800" height="483" style="border-radius: 5px; overflow: hidden; position: relative; display: inline-block;">
+                <p> </p>
+                As this app is essentially server-less there are no costs in running this service. 
+                <p></p>
+                So want to stream your timeline for to a remote client for quick feedback and approval? Go ahead.
+                <p></p>
+                Clients can annotate, zoom in on the stream to see details and give their feedback live, all with less than 2 seconds of delay from your edit timeline.
+                <p>&nbsp;</p>
+                <h4>So what's the catch? Is it secure?</h4>
+                <p></p>
+                <div class="table">
+                    <div>Unlike Zoom or Teams all connections and encoding is handled by you. This means the more clients connect, the greater the load on your machine, typically about a dozen clients should be fine. The streaming can be offloaded to a separate machine if you want to keep your edit machine free of encoding duties.
+                        <p></p>
+                        The upside is all connections are direct, one to one and are not routed through a central server for distribution. Which means we don't see your data, we don't record your data and we don't use your data to train AI or whatever the hip young kids are doing these days.
+                        <p></p>
+                        WebRTC was designed to be secure from the start and as such all transfers are encrypted using DTLS (Datagram Transport Layer Security) and SRTP (Secure Real-time Transport Protocol). Added to HTTPS encryption this guarantees any communication between you and your clients, remains safe and secure.
+                        <p></p>
+                        STUN (Session Traversal Utilities for NAT) servers help devices behind NAT (Network Address Translation) determine their public IP address and port. This process facilitates peer-to-peer connections, even when devices are located in different network environments.
+                        <p></p>
+                        All this is handled invisibly and securely behind the scenes, this means your data is encrypted and stays encrypted. Once you disconnect all connections are closed and the session is terminated.
+                        <p>&nbsp;</p>
+                    </div>
+                    <div><img src="images/secure.jpg" width="300" height="520" style="border-radius: 5px; overflow: hidden; position:relative; top:-100px;"></div>
+                </div>
+                <h4>Gotcha's. They're not that bad... really</h4>
+                <p></p>
+                In order to capture your video stream from your edit package you will either need a capture device (a cheap HDMI to USB capture device is fine) Blackmagic and AJA cards are not supported but the Blackmagic Web-presenter will work. An alternative is to use a virtual camera software such as OBS or NDI tools, they're free and they work very well. 
+                <p></p>
+                We've had some issues with the colour fidelity with some of the cheaper capture cards, it appears they sometimes double up the LUT on footage, this can cause some pretty big colour disparities ao be sure to test first.
+                <p></p>
+                This project is often updated and may be prone to breaking, we will try to minimize disruptions as best we can as we add features and fix things but your mileage may vary.
+                <p></p>
+                If you've read this far and still want to give it a go, use the button bellow to get started.
+                <p>&nbsp;</p>
+                <p></p>
+                <a href="https://alpha.rpxl.app/stream" target="_self" style="text-decoration: none"><button class="botton buttonblue buttonWider">Create a live session</button></a>
+                <p>&nbsp;</p>
+                <hr>
                 <p>&nbsp;</p>
                 <h5>
-                <sup>*</sup>Okay, you are going need some sort of capture device, or use NDI tools to get your video into your browser. 
-                <sup>**</sup>Cookies are used to store your username,camera and microphone preferences only, no tracking cookies are used, because we don't know how to do that.
-                <sup>***</sup>Because we're awesome that way. Also, we're tinkering, so some things might break from time to time.
+                <sup>*</sup>Okay, you are going need some sort of capture device, or use NDI tools to get your video into your browser.<br>
+                <sup>**</sup>Because we're awesome that way.
                 </h5>
                 <p>&nbsp;</p>
             </div>
         </div>
-            
         <div class="footer">
             <div class="text">
                 <p>&nbsp;</p>
@@ -110,7 +132,7 @@
 
     <!--iframes for vdo ninja and annotations canvas-->
     <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;"></iframe>
-    <div class="mainZoom" id="zoomdiv">
+    <div class="mainZoom hidden" id="zoomdiv">
         <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
     </div>
@@ -161,23 +183,24 @@
 
     <!--enter username, select camera and microphone dialog-->
     <dialog id="settingsDialog" class="fixedcenterhorizontal top hidden">
-        <div id="camPreview">
-            <span id="cameraFill" class="cameraFill"></span>
-            <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video>
-            <span id="meterGraph" class="meterGraph">
-                <span id="micmeter" class="meter"></span> 
-            </span>
-            <audio id="microphone" class="loginaudio" autoplay></audio>
-        </div>
         <div class="table">
+            <div id="camPreview" style="grid-column: 1 / span 2;">
+                <span id="cameraFill" class="cameraFill"></span>
+                <video id="camera" class="camera " autoplay playsinline poster=""></video>
+                <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
+                <audio id="microphone" class="loginaudio" autoplay></audio>
+            </div>
             <div>Name</div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="(Required)" contenteditable="true" autocomplete="off"></div>
             <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
             <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="" selected disabled>None</option></select></div>
+            <div style="grid-column: 1 / span 2;"><hr></div>
+            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Join live session</button></div>
         </div>
-        <hr>
-        <div>
-            <button id="checkLogin" class="botton buttonblue buttonWider">Join live session</button>
-        </div>
+        <!-- duplicate elements not used (so use same logic in stream and client) -->
+        <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+        <div class="hidden">Audio source</div><div class="custom-select hidden"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
+        <div style="grid-column: 1 / span 2; hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
+       
     </dialog>
 
     <!----- popup color menu ------>
@@ -216,14 +239,13 @@
     </dialog>
 
     <!----- popup stream zoomed popup------>
-      <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+    <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
 
 </body>
 </html>
 
 <script src="scripts/github.js"></script>   <!-- check github issues for session ID -->
-<script src="scripts/checkpermissions.js"></script>  <!-- check if mic and camera permissions are blocked and poulate dropdowns with values -->
-<script src="scripts/avpreview.js"></script> <!-- preview streams as we select them (currrently mostly off) -->
+<script src="scripts/deviceselect.js"></script>
 <script src="scripts/cookies.js"></script>  <!-- check and store cookies -->
 <script src="scripts/initui.js"></script>
 <script src="scripts/initvdo.js"></script>
@@ -239,7 +261,7 @@ sessionStorage.clear(); //clear session storage on load to avoid issues with old
 
 //get the session id's for the past X days in github.js and then check the session ID against the github issues
 getList(); //github.js
-checkPermissions(); //checkpermissions.js
+//checkPermissions(); //checkpermissions.js
 
 //join session button code
 const joinSession = document.getElementById("toolJoinSession");
@@ -384,6 +406,11 @@ function setupSession() {
     document.getElementById("camPreview").style.display = "none";
     document.getElementById("checkLogin").innerHTML = "Change settings";
     checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
+    // Events
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
 
     checkLogin.addEventListener("click",() => {
         //deactivateTools();

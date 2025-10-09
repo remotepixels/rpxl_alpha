@@ -1,60 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Media Stream Selector</title>
-  <style>
-    .container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
-    .stream-box { border: 1px solid #ccc; padding: 10px; width: 45%; }
-    video { width: 100%; max-height: 240px; background: #000; }
-    .vu-meter { height: 10px; background: #eee; margin-top: 5px; position: relative; }
-    .vu-fill { height: 100%; background: limegreen; width: 0%; transition: width 0.1s; }
-    select, button { margin-top: 10px; width: 100%; padding: 5px; }
-    #selected-devices { margin-top: 20px; font-family: monospace; white-space: pre; background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
-  </style>
-</head>
-<body>
 
-  <h1>Media Stream Selector</h1>
-
-  <div class="container">
-    <div class="stream-box">
-      <h2>Main Stream</h2>
-      <label>Audio Source:</label>
-      <select id="main-audio"></select>
-      <div class="vu-meter"><div id="main-vu" class="vu-fill"></div></div>
-      
-      <label>Video Source:</label>
-      <select id="main-video"></select>
-      <video id="main-preview" autoplay muted playsinline></video>
-    </div>
-
-    <div class="stream-box">
-      <h2>User Stream</h2>
-      <label>Microphone:</label>
-      <select id="user-audio"></select>
-      <div class="vu-meter"><div id="user-vu" class="vu-fill"></div></div>
-      
-      <label>Camera:</label>
-      <select id="user-video"></select>
-      <video id="user-preview" autoplay muted playsinline></video>
-    </div>
-  </div>
-
-  <button id="start-button">Start / Stop</button>
-  <div id="selected-devices"></div>
-
-  <script>
-    const mainAudioSelect = document.getElementById('main-audio');
-    const mainVideoSelect = document.getElementById('main-video');
-    const userAudioSelect = document.getElementById('user-audio');
-    const userVideoSelect = document.getElementById('user-video');
-    const mainPreview = document.getElementById('main-preview');
-    const userPreview = document.getElementById('user-preview');
-    const mainVU = document.getElementById('main-vu');
-    const userVU = document.getElementById('user-vu');
+    const mainAudioSelect = document.getElementById('audioSource');
+    const mainVideoSelect = document.getElementById('videoSource');
+    const userAudioSelect = document.getElementById('microphoneSource');
+    const userVideoSelect = document.getElementById('cameraSource');
+    const mainPreview = document.getElementById('video');
+    const userPreview = document.getElementById('camera');
+    const mainVU = document.getElementById('audiometer');
+    const userVU = document.getElementById('micmeter');
     const startButton = document.getElementById('start-button');
-    const selectedDevicesDiv = document.getElementById('selected-devices');
+    // const selectedDevicesDiv = document.getElementById('selected-devices');
 
     let devices = [];
     let mainAudioStream = null, userAudioStream = null;
@@ -70,19 +24,23 @@
       const audioInputs = devices.filter(d => d.kind === 'audioinput');
       const videoInputs = devices.filter(d => d.kind === 'videoinput');
 
-      [mainAudioSelect, userAudioSelect].forEach(sel => sel.innerHTML = '');
-      [mainVideoSelect, userVideoSelect].forEach(sel => sel.innerHTML = '');
+      [mainAudioSelect, userAudioSelect].forEach(sel => sel.innerHTML = '<option value="">None</option>');
+      [mainVideoSelect, userVideoSelect].forEach(sel => sel.innerHTML = '<option value="">None</option>');
 
       audioInputs.forEach(device => {
-        const option = new Option(device.label || `Microphone ${device.deviceId}`, device.deviceId);
-        mainAudioSelect.add(option.cloneNode(true));
-        userAudioSelect.add(option.cloneNode(true));
+        if (device.deviceId !== 'default') {
+            const option = new Option(device.label || `Microphone ${device.deviceId}`, device.deviceId);
+            mainAudioSelect.add(option.cloneNode(true));
+            userAudioSelect.add(option.cloneNode(true));
+        }
       });
 
       videoInputs.forEach(device => {
-        const option = new Option(device.label || `Camera ${device.deviceId}`, device.deviceId);
-        mainVideoSelect.add(option.cloneNode(true));
-        userVideoSelect.add(option.cloneNode(true));
+        if (device.deviceId !== 'default') {
+            const option = new Option(device.label || `Camera ${device.deviceId}`, device.deviceId);
+            mainVideoSelect.add(option.cloneNode(true));
+            userVideoSelect.add(option.cloneNode(true));
+        }
       });
     }
 
@@ -105,7 +63,7 @@
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       analyser.getByteFrequencyData(dataArray);
       const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
-      vuElement.style.width = `${Math.min(avg, 100)}%`;
+      vuElement.style.height = `${Math.min(avg, 100)}%`;
     }
 
     async function handleSelectionChange() {
@@ -138,8 +96,8 @@
 
       // Reset VU
       clearInterval(vuInterval);
-      mainVU.style.width = "0%";
-      userVU.style.width = "0%";
+      mainVU.style.height = "0%";
+      userVU.style.height = "0%";
 
       // Setup streams again
       if (selectedMainAudio) {
@@ -184,8 +142,8 @@
       if (mainAudioContext?.ctx) mainAudioContext.ctx.close();
       if (userAudioContext?.ctx) userAudioContext.ctx.close();
       clearInterval(vuInterval);
-      mainVU.style.width = "0%";
-      userVU.style.width = "0%";
+      mainVU.style.height = "0%";
+      userVU.style.height = "0%";
     }
 
     function showSelectedDevices() {
@@ -194,23 +152,23 @@
       const userAudio = userAudioSelect.options[userAudioSelect.selectedIndex]?.text || 'None';
       const userVideo = userVideoSelect.options[userVideoSelect.selectedIndex]?.text || 'None';
 
-      selectedDevicesDiv.textContent = `
-Selected Devices:
------------------------
-Main Stream:
-- Audio: ${mainAudio}
-- Video: ${mainVideo}
+//       selectedDevicesDiv.textContent = `
+// Selected Devices:
+// -----------------------
+// Main Stream:
+// - Audio: ${mainAudio}
+// - Video: ${mainVideo}
 
-User Stream:
-- Microphone: ${userAudio}
-- Camera: ${userVideo}
-`.trim();
+// User Stream:
+// - Microphone: ${userAudio}
+// - Camera: ${userVideo}
+// `.trim();
     }
 
-    startButton.addEventListener('click', () => {
-      stopAll();
-      showSelectedDevices();
-    });
+    // startButton.addEventListener('click', () => {
+    //   stopAll();
+    //   showSelectedDevices();
+    // });
 
     // Setup
     getDevices().then(() => {
@@ -218,6 +176,3 @@ User Stream:
         sel.addEventListener('change', handleSelectionChange);
       });
     });
-  </script>
-</body>
-</html>

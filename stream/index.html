@@ -5,6 +5,7 @@
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="-1"/>
     <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
     <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
     <meta name="robots" content="index, follow"/>
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -88,7 +89,7 @@
             <div style="grid-column: 1 / span 4;"><h2 id="createHeadingSession" style="height:30px; top:-5px;">Create live session</h2><a href="help.html" target="_blank" class="helpicon"><span class="material-symbols-outlined">help</span></a></div>
         </div>
         <div class="table" id="settingsDialogProjectID">
-            <div style="grid-column: 1 / span 3;"">Project  &nbsp;<input type="text" maxlength="26" class="textinput" id="project" name="clientName" placeholder="(Optional)" contenteditable="true" style="width:320px;"></div>
+            <div style="grid-column: 1 / span 3;">Project  &nbsp;<input type="text" maxlength="26" class="textinput" id="project" name="clientName" placeholder="(Optional)" contenteditable="true" style="width:320px;"></div>
             <div>SID &nbsp;<input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase; width:160px; background-color: light-dark(var(--color-light-white), var(--color-mid-grey));  color: light-dark(var(--color-light-grey), var(--color-light-grey));" oninput="restrictInput(event)"></input><span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span></div>
             <div style="grid-column: 1 / span 4;"><hr></div>
         </div>
@@ -97,21 +98,17 @@
             <div>Quality</div><div class="radioset" role="radiogroup" aria-labelledby="quality"><label><input type="radio" name="quality" id="qualityHigh" value="16000">High</label><label><input type="radio" name="quality" id="qualityMed" value="8000" checked>Med</label><label><input type="radio" name="quality" id="qualityLow" value="4000">Low</label></div>
             <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
             <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
-            <div style="grid-column: 3 / span 2; grid-row: 1 / span 4;" id="settingsDialogVideoAudioPreview">
-                <video id="video" class="videosource fadeout" autoplay playsinline poster=""></video><span id="meterGraph" class="meterGraph"><span id="audiometer" class="meter"></span><audio id="audio" class="audiosource" autoplay></audio>
-            </div> 
+            <div style="grid-column: 3 / span 2; grid-row: 1 / span 4;" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph"><span id="audiometer" class="meter"></span></div> 
         </div>
         <div class="table collapsed hidden" id="settingsDialogTitleOptional">
             <div style="grid-column: 1 / span 4;"><hr></div>
-            <div style="grid-column: 1 / span 4;"><h2 id="createOptional" style="text-align: left;">Optional user settings</h2><br>&nbsp;</div>
         </div>
         <div class="table hidden collapsed"  id="moresettings">
+            <div style="grid-column: 1 / span 2;"><h2 id="createOptional" >Optional user settings</h2></div>
             <div>Username</div><div><input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Optional)" contenteditable="true" autocomplete="off"></div>
             <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
             <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>                     
-            <div id="settingsDialogCameraMicPreview" style="grid-column: 3 / span 2; grid-row: 1 / span 4;">
-                <video id="camera" class="camera fadeout" autoplay playsinline poster=""></video></span><span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span><audio id="microphone" class="loginaudio" autoplay></audio>
-            </div> 
+            <div id="settingsDialogCameraMicPreview" style="grid-column: 3 / span 2; grid-row: 1 / span 4;"><video id="camera" class="camera" autoplay playsinline poster="" muted></video></span><span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span></div> 
         </div>
         <div style="width:100%"><hr></div>
         <div id="settingsDialogButtons" style="position: relative; width: 100%; display: inline-flex; justify-content: space-between; align-items: center;">
@@ -172,8 +169,7 @@
 </body>
 </html>
 
-<script src="../scripts/checkpermissions.js"></script> <!-- check if mic and camera permissions are blocked and poulate dropdowns with values -->
-<script src="../scripts/avpreview.js"></script> <!-- preview streams as we select them (currrently mostly off) -->
+<script src="../scripts/deviceselect.js"></script>
 <script src="../scripts/cookies.js"></script> <!-- check and store cookies -->
 <script src="../scripts/initui.js"></script>
 <script src="../scripts/interface.js"></script>
@@ -184,8 +180,6 @@
 <script type="text/javascript"> 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
-
-checkPermissions(); //checkpermissions.js check for camera and microphone permissions
 
 //toolbar code for stream page only, not shared anywhere else
 //share and quit menu, blind stream tool

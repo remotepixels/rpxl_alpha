@@ -32,29 +32,28 @@ function getMousePosInDiv(e) {
 function onWheel(e) {
     e.preventDefault();
     if (canvasCurrentWidth >= 2) {
+        const prevScale = scale;
+        const delta = -e.deltaY * 0.001;
+        scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
 
-      const prevScale = scale;
-      const delta = -e.deltaY * 0.001;
-      scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
+        if (scale === 1) {
+            translate.x = 0;
+            translate.y = 0;
+            zoomPopup.classList.remove("visible");
+        } else {
+            zoomPopup.classList.add("visible");
 
-      if (scale === 1) {
-        translate.x = 0;
-        translate.y = 0;
-        zoomPopup.classList.remove("visible");
-      } else {
-        zoomPopup.classList.add("visible");
+            const rect = zoomDiv.getBoundingClientRect();
+            const dx = (e.clientX - rect.left - rect.width / 2);
+            const dy = (e.clientY - rect.top - rect.height / 2);
 
-        const rect = zoomDiv.getBoundingClientRect();
-        const dx = (e.clientX - rect.left - rect.width / 2);
-        const dy = (e.clientY - rect.top - rect.height / 2);
+            translate.x -= dx * (scale - prevScale) / scale;
+            translate.y -= dy * (scale - prevScale) / scale;
 
-        translate.x -= dx * (scale - prevScale) / scale;
-        translate.y -= dy * (scale - prevScale) / scale;
+            constrainPan();
+        }
 
-        constrainPan();
-      }
-
-      applyTransform();
+        applyTransform();
     }
 }
 
@@ -103,12 +102,6 @@ function onMouseMove(e) {
 function onMouseUp() {
       isDragging = false;
 }
-
-// Events
-window.addEventListener("wheel", onWheel, { passive: false });
-window.addEventListener("mousedown", onMouseDown);
-window.addEventListener("mousemove", onMouseMove);
-window.addEventListener("mouseup", onMouseUp);
 
 //annotations
 const canvas = document.getElementById('annotationsCanvas');
