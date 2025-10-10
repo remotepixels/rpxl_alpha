@@ -150,10 +150,19 @@ function endDrawing() {
     
     if (currentPath.length > 1) {
         // Save path to history
-        drawingHistory.push(currentPath);
-        
+        // drawingHistory.push(currentPath);
+        drawingHistory.push({
+            color: color,
+            width: 3,
+            points: [...currentPath]
+        });
         // Send path to peers
-        sendDrawingData(currentPath);
+        //sendDrawingData(currentPath);
+        sendDrawingData({
+            color: color,
+            width: 3,
+            points: [...currentPath]
+        });
     }
     
     currentPath = [];
@@ -170,27 +179,74 @@ function toolEraserSelect() {
     }, "*");
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//sends the drawing data to the main stream iframe and the peers
-////////////////////////////////////////////////////////////////////////////////////////////////////
-function sendDrawingData(pathPoints) {
+// //sends the drawing data to the main stream iframe and the peers
+// function sendDrawingData(pathPoints) {
+//     const drawingData = {
+//         t: 'path',
+//         p: pathPoints,
+//         c: color,  // Color
+//         w: 3       // Width
+//     };
+//     //console.log("Sending drawing data:", drawingData);
+//     iframe.contentWindow.postMessage({
+//         sendData: { overlayNinja: { drawingData: drawingData } },
+//         type: "pcs"
+//     }, "*");
+// }
+
+function sendDrawingData(drawing) {
     const drawingData = {
         t: 'path',
-        p: pathPoints,
-        c: color,  // Color
-        w: 3       // Width
+        p: drawing.points,
+        c: drawing.color,
+        w: 3
     };
-    //console.log("Sending drawing data:", drawingData);
+
     iframe.contentWindow.postMessage({
         sendData: { overlayNinja: { drawingData: drawingData } },
         type: "pcs"
     }, "*");
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Set up the event listener
+//redraws canvas if size is changed
+// function redrawCanvas() {
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//     for (const path of drawingHistory) {
+//         if (path.length > 1) {
+//             ctx.beginPath();
+//             ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
+//             for (let i = 1; i < path.length; i++) {
+//                 ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
+//             }
+//             ctx.lineWidth = 3;
+//             ctx.lineCap = 'round';
+//             ctx.strokeStyle = 'black'; // default color in case one isn't provided
+//             // You can improve this by storing color/width info per path later
+//             ctx.stroke();
+//         }
+//     }
+// }
+function redrawCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const stroke of drawingHistory) {
+        const points = stroke.points;
+        if (points.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
+            }
+            ctx.lineWidth = stroke.width;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = stroke.color;
+            ctx.stroke();
+        }
+    }
+}
+
 //listens for other drawing events from clients
-////////////////////////////////////////////////////////////////////////////////////////////////////
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
@@ -258,6 +314,8 @@ eventer(messageEvent, function(e) {
             document.getElementById("annotationsCanvas").style.height = height+5+"px";
             document.getElementById("annotationsCanvas").style.top = topOffset+"px";
             document.getElementById("annotationsCanvas").style.left = left+"px";
+
+            redrawCanvas(); //redraw canvas once resized
             
             canvasCurrentLeft = left;
             canvasCurrentTop = top;
@@ -310,47 +368,90 @@ eventer(messageEvent, function(e) {
                     const pathPoints = data.drawingData.p;
                     const pathColor = data.drawingData.c;
                     // Add to history
-                    drawingHistory.push(pathPoints);
+                    //drawingHistory.push(pathPoints);
+                    drawingHistory.push({
+                        color: data.drawingData.c,
+                        width: data.drawingData.w,
+                        points: data.drawingData.p
+                    });
                     
                     // Draw it
-                    if (pathPoints && pathPoints.length > 1) {
-                        ctx.beginPath();
-                        ctx.moveTo(pathPoints[0].x * canvas.width, pathPoints[0].y * canvas.height);
+                    // if (pathPoints && pathPoints.length > 1) {
+                    //     ctx.beginPath();
+                    //     ctx.moveTo(pathPoints[0].x * canvas.width, pathPoints[0].y * canvas.height);
                         
-                        for (let i = 1; i < pathPoints.length; i++) {
-                            ctx.lineTo(pathPoints[i].x * canvas.width, pathPoints[i].y * canvas.height);
+                    //     for (let i = 1; i < pathPoints.length; i++) {
+                    //         ctx.lineTo(pathPoints[i].x * canvas.width, pathPoints[i].y * canvas.height);
+                    //     }
+                    //     ctx.lineWidth = 3;
+                    //     ctx.lineCap = 'round';
+                    //     ctx.strokeStyle = pathColor;
+                    //     ctx.stroke();
+                    // }
+                    if (data.drawingData.p && data.drawingData.p.length > 1) {
+                        const points = data.drawingData.p;
+                        ctx.beginPath();
+                        ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
+                        
+                        for (let i = 1; i < points.length; i++) {
+                            ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
                         }
-                        ctx.lineWidth = 3;
+                        ctx.lineWidth = data.drawingData.w;
                         ctx.lineCap = 'round';
-                        ctx.strokeStyle = pathColor;
+                        ctx.strokeStyle = data.drawingData.c;
                         ctx.stroke();
                     }
+
                 }
             }
             
             // Handle initial state sync
-            if (data.drawingHistory) {
-                // Clear current state
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // if (data.drawingHistory) {
+            //     // Clear current state
+            //     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Apply all paths from history
-                data.drawingHistory.forEach(path => {
-                    if (path.length > 1) {
+            //     // Apply all paths from history
+            //     data.drawingHistory.forEach(path => {
+            //         if (path.length > 1) {
+            //             ctx.beginPath();
+            //             ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
+                        
+            //             for (let i = 1; i < path.length; i++) {
+            //                 ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
+            //             }
+                        
+            //             ctx.stroke();
+            //         }
+            //     });
+                
+            //     // Update local history
+            //     drawingHistory.length = 0;
+            //     drawingHistory.push(...data.drawingHistory);
+            // }
+            if (data.drawingHistory) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                data.drawingHistory.forEach(stroke => {
+                    const points = stroke.points;
+                    if (points.length > 1) {
                         ctx.beginPath();
-                        ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
+                        ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
                         
-                        for (let i = 1; i < path.length; i++) {
-                            ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
+                        for (let i = 1; i < points.length; i++) {
+                            ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
                         }
-                        
+
+                        ctx.lineWidth = stroke.width;
+                        ctx.lineCap = 'round';
+                        ctx.strokeStyle = stroke.color;
                         ctx.stroke();
                     }
                 });
-                
-                // Update local history
+
                 drawingHistory.length = 0;
                 drawingHistory.push(...data.drawingHistory);
             }
+
         }
     }
 }, false);

@@ -35,10 +35,6 @@
         <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
     </div>
-    <!-- <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;"></iframe>      -->
-
-    <!--Annotations canvas-->
-    <!-- <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas> -->
 
     <!------------------------Main interface------------------>
     <div id="mainWindow" class="hidden ">
@@ -266,7 +262,6 @@ function checkSessionID() {
     }
 
     //stuff to run once and once only when starting session 
-    //stopPreviewTracks();
     storeSelectedDevices(1,0,0)
     setupSessionUI();
     viewerStream();
@@ -303,7 +298,6 @@ function setupSessionUI() {
     document.body.style.backgroundImage = "none";
 
     //Change create dialog layout for settings to re-use it
-    //settingsDialog.style.width = "360px";
     settingsDialog.classList.remove("middle", "top");
     settingsDialog.classList.add("toolpopup", "bottom", "left");
     createHeadingSession.innerHTML = "Session settings";
@@ -313,7 +307,6 @@ function setupSessionUI() {
     settingsDialogTitleOptional.classList.remove("collapsed", "hidden");
     createOptional.innerHTML = "User settings";
     moresettings.classList.remove("collapsed", "hidden");
-    //moresettings.style.gridTemplateColumns = "105px 200px";
     settingsDialogCameraMicPreview.classList.add("hidden");
     buttonMoreSettings.classList.add("hidden");
     settingsDialogButtons.style.justifyContent = "center";

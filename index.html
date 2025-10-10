@@ -175,10 +175,12 @@
 
     <!--enter session ID dialog-->
     <dialog open id="sessionDialog" class="toolpopup top middle hidden">
-        <div><h2>Enter a valid Session ID to continue</h2></div>
-        <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
-        <div><h3>6 character code supplied by the host</h3></div>
-        <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
+        <div class="dialogContent">
+            <div><h2>Enter a valid Session ID to continue</h2></div>
+            <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
+            <div><h3>6 character code supplied by the host</h3></div>
+            <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
+        </div>
     </dialog>
 
     <!--enter username, select camera and microphone dialog-->
@@ -249,7 +251,6 @@
 <script src="scripts/interface.js"></script>
 <script src="scripts/annotations.js"></script>
 
-
 <script lang="javascript">
 var gitresults = [ ]; //array to hold the results we get back from github
 
@@ -258,7 +259,6 @@ sessionStorage.clear(); //clear session storage on load to avoid issues with old
 
 //get the session id's for the past X days in github.js and then check the session ID against the github issues
 getList(); //github.js
-//checkPermissions(); //checkpermissions.js
 
 //join session button code
 const joinSession = document.getElementById("toolJoinSession");
@@ -315,21 +315,18 @@ document.getElementById("sessionID").addEventListener("keypress", function(event
 
 //if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
 function checkEnteredSession() {
+    const dialogContent = document.querySelector('#sessionDialog .dialogContent');
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
     const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
 
-    // Shake dialog if session ID incorrect
-    function showError() {
-        sessionDialog.style.animation = "shake 500ms";
-        setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
-        sessionID.value = "";
-        sessionID.focus();
-    }
-
     //check if there is a session ID and if it is 6 characters long
     if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
-        showError();
+    dialogContent.classList.remove('shake'); // reset if already animating
+    void dialogContent.offsetWidth; // force reflow to restart animation
+    sessionID.value = "";
+    sessionID.focus();
+    dialogContent.classList.add('shake');
         return;
     }
     
@@ -367,26 +364,19 @@ function setupSession() {
     const nameInput = document.getElementById("name");
     const micSelect = document.getElementById("microphoneSource");
 
-    let username = document.getElementById("name").value;
+    let username = nameInput.value.trim();
     sanitizedUserName = encodeURIComponent(username); 
     //check if the username is empty or no microphone selected
     if (!sanitizedUserName) {
         animateAndFocus(nameInput);
         return;
     }
-    // if (micSelect.selectedIndex === 0) {
-    //     animateAndFocus(microphoneSource);
-    //     return;
-    // } 
-    //flash error
+
     function animateAndFocus(element) {
         element.style.animation = "pulse 500ms";
         setTimeout(() => { element.style.animation = "none"; }, 500);
         element.focus();
     }
-
-    //if the username is not empty then stop streams so not to conflict with the vdo ninja ones
-    //stopAllMediaStreams();
 
     //hide the user, camera and microphone dialog
     settingsDialog.close();     
@@ -410,15 +400,12 @@ function setupSession() {
     window.addEventListener("mouseup", onMouseUp);
 
     checkLogin.addEventListener("click",() => {
-        //deactivateTools();
-        //storeSelectedDevices(); 
-        //reactivateTools();
         viewerStream() ; //from initvdo.js
     });
 
     viewerStream(); //from initvdo.js
     setTimeout(function(){   
         viewMainStream();//from initvdo.js
-    },500);
+    },250);
 }
 </script>
