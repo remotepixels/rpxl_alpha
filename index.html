@@ -53,10 +53,11 @@
                 <p></p>
                 Using the incredible open source <a href="https://vdo.ninja">vdo.ninja</a> software created by <a href="https://github.com/steveseguin/vdo.ninja">Steve Seguin</a>, RPXL is an optimised and simplified front end focused for realtime, remote editorial approvals.
                 <p></p>
-                Created as an alternative to server based messaging apps, vdo.ninja uses a peer to peer model allowing very low latency (less than 1 second) using webRTC and modern video codecs (vp9, Av1).
+                Created as an alternative to server based messaging apps, vdo.ninja uses a peer to peer model allowing very low latency (less than 2 seconds) using webRTC and modern video codecs (vp9, Av1, H.265).
                 <p></p>
                 Bandwidth is concentrated on one, high quality primary video stream, for your edit. With only minimal data used for communication between participants (typically between 30kbps to 60kbps per participant), RPXL puts your work front and centre.
                 <p>&nbsp;</p>
+
                 <h4>No sign-ups, no downloads, <br>no watermarks, no time limits.<sup>**</sup></h4>
                 <p></p>
                 <img src="images/interface.jpg" width="800" height="483" style="border-radius: 5px; overflow: hidden; position: relative; display: inline-block;">
@@ -67,23 +68,25 @@
                 <p></p>
                 Clients can annotate, zoom in on the stream to see details and give their feedback live, all with less than 2 seconds of delay from your edit timeline.
                 <p>&nbsp;</p>
+
                 <h4>So what's the catch? Is it secure?</h4>
+                <p>
+                <img src="images/secure.jpg" width="300" height="520" style="border-radius: 5px; overflow: hidden; margin-left:50px; float:right">
+                Unlike Zoom or Teams all connections and encoding is handled by you. This means the more clients connect, the greater the load on your machine, typically about a dozen clients should be fine. The streaming can be offloaded to a separate machine if you want to keep your edit machine free of encoding duties.
                 <p></p>
-                <div class="table">
-                    <div>Unlike Zoom or Teams all connections and encoding is handled by you. This means the more clients connect, the greater the load on your machine, typically about a dozen clients should be fine. The streaming can be offloaded to a separate machine if you want to keep your edit machine free of encoding duties.
-                        <p></p>
-                        The upside is all connections are direct, one to one and are not routed through a central server for distribution. Which means we don't see your data, we don't record your data and we don't use your data to train AI or whatever the hip young kids are doing these days.
-                        <p></p>
-                        WebRTC was designed to be secure from the start and as such all transfers are encrypted using DTLS (Datagram Transport Layer Security) and SRTP (Secure Real-time Transport Protocol). Added to HTTPS encryption this guarantees any communication between you and your clients, remains safe and secure.
-                        <p></p>
-                        STUN (Session Traversal Utilities for NAT) servers help devices behind NAT (Network Address Translation) determine their public IP address and port. This process facilitates peer-to-peer connections, even when devices are located in different network environments.
-                        <p></p>
-                        All this is handled invisibly and securely behind the scenes, this means your data is encrypted and stays encrypted. Once you disconnect all connections are closed and the session is terminated.
-                        <p>&nbsp;</p>
-                    </div>
-                    <div><img src="images/secure.jpg" width="300" height="520" style="border-radius: 5px; overflow: hidden; position:relative; top:-100px;"></div>
-                </div>
-                <h4>Gotcha's. They're not that bad... really</h4>
+                The upside is all connections are direct, one to one and are not routed through a central server for distribution. Which means we don't see your data, we don't record your data and we don't use your data to train AI or whatever the hip young kids are doing these days.
+                <p></p>
+                WebRTC was designed to be secure from the start and as such all transfers are encrypted using DTLS (Datagram Transport Layer Security) and SRTP (Secure Real-time Transport Protocol). Added to HTTPS encryption this guarantees any communication between you and your clients, remains safe and secure.
+                <p></p>
+                STUN (Session Traversal Utilities for NAT) servers help devices behind NAT (Network Address Translation) determine their public IP address and port. This process facilitates peer-to-peer connections, even when devices are located in different network environments.
+                <p></p>
+                All this is handled invisibly and securely behind the scenes, this means your data is encrypted and stays encrypted. Once you disconnect all connections are closed and the session is terminated.
+                <p>&nbsp;</p>
+
+                </p>
+                <h4>Gotcha's. They're not that bad... really.</h4>
+                <p></p>
+                The Streaming part of this app is desktop only, it won't work with mobile devices or tablets, clients however can still login on phones and tablets.
                 <p></p>
                 In order to capture your video stream from your edit package you will either need a capture device (a cheap HDMI to USB capture device is fine) Blackmagic and AJA cards are not supported but the Blackmagic Web-presenter will work. An alternative is to use a virtual camera software such as OBS or NDI tools, they're free and they work very well. 
                 <p></p>
@@ -93,13 +96,14 @@
                 <p></p>
                 If you've read this far and still want to give it a go, use the button bellow to get started.
                 <p>&nbsp;</p>
+
                 <p></p>
                 <a href="https://alpha.rpxl.app/stream" target="_self" style="text-decoration: none"><button class="botton buttonblue buttonWider">Create a live session</button></a>
                 <p>&nbsp;</p>
                 <hr>
                 <p>&nbsp;</p>
                 <h5>
-                <sup>*</sup>Okay, you are going need some sort of capture device, or use NDI tools to get your video into your browser.<br>
+                <sup>*</sup>Okay, you are going need some sort of capture device to get your video into your browser (see the Gotcha's section for help).<br>
                 <sup>**</sup>Because we're awesome that way.
                 </h5>
                 <p>&nbsp;</p>
@@ -322,11 +326,12 @@ function checkEnteredSession() {
 
     //check if there is a session ID and if it is 6 characters long
     if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
-    dialogContent.classList.remove('shake'); // reset if already animating
-    void dialogContent.offsetWidth; // force reflow to restart animation
-    sessionID.value = "";
-    sessionID.focus();
-    dialogContent.classList.add('shake');
+        //dialogContent.classList.remove('shake'); // reset if already animating
+        void dialogContent.offsetWidth; // force reflow to restart animation
+        sessionID.value = "";
+        sessionID.focus();
+        dialogContent.classList.add('shake');
+        setTimeout(() => { dialogContent.classList.remove('shake') }, 500);
         return;
     }
     
@@ -345,6 +350,7 @@ function checkEnteredSession() {
         sessionDialog.classList.add("hidden");
         openDialog(settingsDialog, toolJoinSession)
         document.getElementById("name").focus();
+
     } else {
         showError();
     }

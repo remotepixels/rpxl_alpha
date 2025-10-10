@@ -80,7 +80,7 @@
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--Setup screen, also used as setting panel later-->
-    <dialog open id="settingsDialog" class="toolpopup top middle">
+    <dialog open id="settingsDialog" class="toolpopup top middle" style="min-width:634px">
         <div class="table" id="settingsDialogTitleCreate">
             <div style="grid-column: 1 / span 4;"><h2 id="createHeadingSession" style="height:30px; top:-5px;">Create live session</h2><a href="help.html" target="_blank" class="helpicon"><span class="material-symbols-outlined">help</span></a></div>
         </div>
@@ -298,7 +298,8 @@ function setupSessionUI() {
     document.body.style.backgroundImage = "none";
 
     //Change create dialog layout for settings to re-use it
-    settingsDialog.classList.remove("middle", "top");
+    settingsDialog.classList.remove("middle", "top", "min-width");
+    settingsDialog.style.minWidth = "fit-content";
     settingsDialog.classList.add("toolpopup", "bottom", "left");
     createHeadingSession.innerHTML = "Session settings";
     settingsDialogProjectID.classList.add("hidden");

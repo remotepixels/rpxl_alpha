@@ -12,7 +12,7 @@ function viewerStream () {
 
     if (currentUsername == null) { currentUsername = "Presenter"; }
     if (avatar == "") {
-        // Step 1: Create the array from "000" to "010"
+        // pick a random avatar image
         const numberArray = Array.from({ length: 43 }, (_, i) => String(i).padStart(3, '0'));
         const randomNum = numberArray[Math.floor(Math.random() * numberArray.length)];
         avatar = `${randomNum}.png`;
@@ -45,7 +45,7 @@ function viewerStream () {
             var camSetup = "&"+sanitizedCamera+"&videobitrate=96";
         }
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
-            var micSetup = "&noaudio"; //really shouldn't happen buuuuuuuuuttttttt........
+            var micSetup = "&noaudio";
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
@@ -96,20 +96,13 @@ function viewerStream () {
 //view the mainstream (used by clients)
 function viewMainStream () {
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
-    //deactivateTools()
-    // document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;encrypted-media;sync-xhr;usb;web-share;";
-    // document.getElementById("mainStream").setAttribute("allowtransparency", "true");
-	// document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
-	// document.getElementById("mainStream").setAttribute("credentialless", "true");
+
     document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
         "&view=Stream_"+sanitizedSessionID+
-        //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-        //"&directoronly"+
         "&autostart"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
         "&cleanish"+//remove all interface bits
-        //"&style=1"+
         "&meterstyle=1"+
         "&hideplaybutton"+//hides big play button if autoplay is disabled
         "&chroma=3c3c3c"+
@@ -120,8 +113,11 @@ function viewMainStream () {
         "&showlist=0"+//hides the viewer list
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-        "";    
-    //reactivateTools();
+        ""; 
+        //"&style=1"+
+        //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
+        //"&directoronly"+
+
     setTimeout(function(){   
         document.getElementById("zoomdiv").classList.remove("hidden");
     },2000);
@@ -132,26 +128,22 @@ function startMainStream() {
     //get settings from local storage
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
     
-    let storedResolution = sessionStorage.getItem("resolution"); //default to 
-    let storedQuality = sessionStorage.getItem("quality"); //default to low quality
-    let storedVideo = sessionStorage.getItem("videoSource"); //default       
-    let storedAudio = sessionStorage.getItem("audioSource"); //default
+    let storedResolution = sessionStorage.getItem("resolution");
+    let storedQuality = sessionStorage.getItem("quality");
+    let storedVideo = sessionStorage.getItem("videoSource");
+    let storedAudio = sessionStorage.getItem("audioSource"); 
     
     let currentResolution = getCheckedRadioValue("resolution");
     let currentQuality = getCheckedRadioValue("quality");
     let currentVideo = document.getElementById("videoSource").selectedIndex;
     let currentAudio = document.getElementById("audioSource").selectedIndex;
-    
-    // console.log("Stored settings :", storedResolution, storedQuality, storedVideo, storedAudio);
-    // console.log("Current settings :", currentResolution, currentQuality, currentVideo, currentAudio);
 
     if ((storedResolution != currentResolution) || (storedQuality != currentQuality) || (storedVideo != currentVideo) || (storedAudio != currentAudio)) {
         if (!document.getElementById("mainStream").classList.contains("hidden") ) { 
             document.getElementById("mainStream").classList.add("hidden"); 
         }
         console.log("Main stream settings changed, reloading...")
-        
-        //deactivateTools(); //turn off tools while reloading frame - initui.js
+
         storeSelectedDevices(0,1,0); //store new user only settings and reload frame - initui.js
 
         let resolution = sessionStorage.getItem("resolution"); //default to 
@@ -170,10 +162,7 @@ function startMainStream() {
         } else {
             var micSetup = "&audiodevice="+sanitizedAudio;
         }
-        // document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;";
-        // document.getElementById("mainStream").setAttribute("allowtransparency", "true");
-        // document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
-        // document.getElementById("mainStream").setAttribute("credentialless", "true");
+
         document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&push=Stream_"+sanitizedSessionID+
             "&directoronly"+
@@ -204,7 +193,7 @@ function startMainStream() {
             //"&signalmeter"+
             //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
             //"&showlabels"+
-        //reactivateTools(); //reactivate tools - initui.js
+
         setTimeout(function(){   
             document.getElementById("mainStream").classList.remove("hidden");
         },1000);

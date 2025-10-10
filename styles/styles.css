@@ -124,10 +124,10 @@ dialog:open {
     width: 100%;
 }
 .table > div {
+    flex: 1; /* makes both columns flexible */
     text-align: left;
     align-content: center;
 }
-
 
 .meter{
     position: absolute;
