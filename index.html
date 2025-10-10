@@ -133,7 +133,7 @@
     <!--iframes for vdo ninja and annotations canvas-->
     <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;"></iframe>
     <div class="mainZoom hidden" id="zoomdiv">
-        <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
+        <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
     </div>
 
@@ -174,7 +174,7 @@
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--enter session ID dialog-->
-    <dialog open id="sessionDialog" class="fixedcenterhorizontal top hidden">
+    <dialog open id="sessionDialog" class="toolpopup top middle hidden">
         <div><h2>Enter a valid Session ID to continue</h2></div>
         <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
         <div><h3>6 character code supplied by the host</h3></div>
@@ -182,13 +182,11 @@
     </dialog>
 
     <!--enter username, select camera and microphone dialog-->
-    <dialog id="settingsDialog" class="fixedcenterhorizontal top hidden">
+    <dialog id="settingsDialog" class="toolpopup top middle hidden">
         <div class="table">
             <div id="camPreview" style="grid-column: 1 / span 2;">
-                <span id="cameraFill" class="cameraFill"></span>
                 <video id="camera" class="camera " autoplay playsinline poster=""></video>
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
-                <audio id="microphone" class="loginaudio" autoplay></audio>
             </div>
             <div>Name</div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="(Required)" contenteditable="true" autocomplete="off"></div>
             <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
@@ -199,8 +197,7 @@
         <!-- duplicate elements not used (so use same logic in stream and client) -->
         <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
         <div class="hidden">Audio source</div><div class="custom-select hidden"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
-        <div style="grid-column: 1 / span 2; hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
-       
+        <div style="grid-column: 1 / span 2 hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
     </dialog>
 
     <!----- popup color menu ------>
@@ -224,17 +221,17 @@
     </dialog>
     
     <!----- popup menu microphone mute ------>
-    <dialog id="popupMicMuted" class="centerhorizontal hidden warning">
+    <dialog id="popupMicMuted" class="toolpopup top middle hidden warning">
         <h2 style="color: var(--color-light-bg)">Warning : Your microphone is muted</h2>
     </dialog>
 
     <!----- popup menu microphone mute ------>
-    <dialog id="popupCamMuted" class="centerhorizontal hidden notification">
+    <dialog id="popupCamMuted" class="toolpopup top middle  hidden notification">
         <h2>Your camera has been turned off</h2>
     </dialog>
 
     <!----- popup menu microphone mute ------>
-    <dialog id="popupStreamMuted" class="centerhorizontal hidden notification">
+    <dialog id="popupStreamMuted" class="toolpopup top middle  hidden notification">
         <h2>Incoming stream muted (You will still hear participants)</h2>
     </dialog>
 
@@ -377,10 +374,10 @@ function setupSession() {
         animateAndFocus(nameInput);
         return;
     }
-    if (micSelect.selectedIndex === 0) {
-        animateAndFocus(microphoneSource);
-        return;
-    } 
+    // if (micSelect.selectedIndex === 0) {
+    //     animateAndFocus(microphoneSource);
+    //     return;
+    // } 
     //flash error
     function animateAndFocus(element) {
         element.style.animation = "pulse 500ms";
@@ -401,7 +398,7 @@ function setupSession() {
     document.body.style.backgroundImage = "none";
 
     //reset settings dialog to be a settings dialog not a login dialog
-    document.getElementById("settingsDialog").classList.remove("top", "middle", "fixedcenterhorizontal");        
+    document.getElementById("settingsDialog").classList.remove("top", "middle");        
     document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
     document.getElementById("camPreview").style.display = "none";
     document.getElementById("checkLogin").innerHTML = "Change settings";
@@ -422,6 +419,6 @@ function setupSession() {
     viewerStream(); //from initvdo.js
     setTimeout(function(){   
         viewMainStream();//from initvdo.js
-    },1000);
+    },500);
 }
 </script>

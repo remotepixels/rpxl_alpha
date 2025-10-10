@@ -129,7 +129,7 @@
       vuInterval = setInterval(() => {
         if (mainAnalyser?.node) updateVU(mainAnalyser.node, mainVU);
         if (userAnalyser?.node) updateVU(userAnalyser.node, userVU);
-      }, 100);
+      }, 10);
     }
 
     async function stopAll() {
@@ -146,11 +146,11 @@
       userVU.style.height = "0%";
     }
 
-    function showSelectedDevices() {
-      const mainAudio = mainAudioSelect.options[mainAudioSelect.selectedIndex]?.text || 'None';
-      const mainVideo = mainVideoSelect.options[mainVideoSelect.selectedIndex]?.text || 'None';
-      const userAudio = userAudioSelect.options[userAudioSelect.selectedIndex]?.text || 'None';
-      const userVideo = userVideoSelect.options[userVideoSelect.selectedIndex]?.text || 'None';
+    // function showSelectedDevices() {
+    //   const mainAudio = mainAudioSelect.options[mainAudioSelect.selectedIndex]?.text || 'None';
+    //   const mainVideo = mainVideoSelect.options[mainVideoSelect.selectedIndex]?.text || 'None';
+    //   const userAudio = userAudioSelect.options[userAudioSelect.selectedIndex]?.text || 'None';
+    //   const userVideo = userVideoSelect.options[userVideoSelect.selectedIndex]?.text || 'None';
 
 //       selectedDevicesDiv.textContent = `
 // Selected Devices:
@@ -163,7 +163,7 @@
 // - Microphone: ${userAudio}
 // - Camera: ${userVideo}
 // `.trim();
-    }
+//    }
 
     // startButton.addEventListener('click', () => {
     //   stopAll();

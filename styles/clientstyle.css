@@ -21,14 +21,16 @@
         light-dark(var(--color-light-bg), var(--color-dark-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
         light-dark(var(--color-light-bg), var(--color-dark-grey)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
 }
-.table {
+/* .table {
     position: relative;
     display: grid;
     grid-template-columns: auto auto;
     column-gap: 15px;
     row-gap: 10px;
-}
-.cameraFill {
+} */
+
+
+/* .cameraFill {
     display: block;
     position: absolute;
     top:10px;
@@ -40,19 +42,19 @@
     border-radius: 100%;
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     z-index: 2;
-}
+} */
 .camera {
     /* display: block; */
     position: relative;
     top:10px;
-    left: 25px;
+    left: 22px;
     margin-bottom: 30px;;
     object-fit: cover;
     width: 260px;
     height: 260px;
     border-radius: 100%;
     /* background-color: black; */
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+    background-color: light-dark(var(--color-light-white), var(--color-dark-bg))!important;
     opacity: 1;
     z-index: 3;
 }
@@ -69,24 +71,7 @@
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     background-color: light-dark(white, var(--color-dark-bg));
 }
-.meter{
-    position: absolute;
-    display: inline-block;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: dodgerblue;
-    left:0px;
-    width: 100%;
-    height: 0px;
-    bottom:0px;
-}
 
-.fixedcenterhorizontal {
-    position: fixed;
-    top: calc(var(--button-height) + 15px);
-    margin: auto;
-    margin-bottom: 5px;
-    /* box-shadow: 0 0 100px 0px rgba(0, 0, 0, 0.5); */
-}
 
 .blur {
 	-webkit-backdrop-filter:  brightness(.8) blur(50px) contrast(0.8);

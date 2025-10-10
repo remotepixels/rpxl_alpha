@@ -240,7 +240,7 @@ eventer(messageEvent, function(e) {
             document.getElementById('mainStream').style.width = "100%";
             //console.log("resized frame to get correct top and left positions for canvas");
         } 
-        if (width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) {
+        if ((width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) && (width >= 1) && (height != 1)) {
             // turn on the annotation tools and place canvas
             //offst canvas depending if in director or client view        
             // var leftOffset = left + offsetViewFrame;

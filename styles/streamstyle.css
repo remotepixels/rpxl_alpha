@@ -22,29 +22,22 @@
     cursor: pointer;
     z-index:10;
 }
-.table {
-    position: relative;
-    display: grid;
-    grid-template-columns: 105px 200px auto auto;
-    column-gap: 10px;
-    row-gap: 5px;
-    width: 100%;
-}
+
 .videosource, .camera {
     display: inline;
     position: relative;
     object-fit: contain;
     width: 254px;
-    height: 175px;
+    height: 185px;
     border-top-left-radius: var(--radius-big);
     border-bottom-left-radius: var(--radius-big);
-    background-color: light-dark(var(--color-mid-grey), var(--color-dark-bg));
+    background-color: light-dark(var(--color-light-white), var(--color-dark-bg))!important;
 }
 .meterGraph{
     position: relative;
     display: inline-block;
     overflow: hidden;
-    height: 175px;
+    height: 185px;
     width:10px;
     left: 1px;
     border-top-right-radius: var(--radius-big);
@@ -52,16 +45,7 @@
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-.meter{
-    position: absolute;
-    display: inline-block;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: dodgerblue;
-    width: 100%;
-    height: 0%;
-    bottom: 0px;
-    transition: height 0.1s;
-}
+
 .buttonmoresettings {
     position: relative;
     display: inline;
@@ -88,4 +72,5 @@
     background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
     border-radius: var(--radius-big);
     z-index: 10;
+    box-shadow: none!important;
 }

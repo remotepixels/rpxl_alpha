@@ -69,7 +69,7 @@
             <div class="toolset toolspacer">
                 <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
                 <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
-                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
             </div>
             <!--Mute main stream-->
             <div class="toolset ">
@@ -84,7 +84,7 @@
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--Setup screen, also used as setting panel later-->
-    <dialog open id="settingsDialog" class="centerhorizontal top">
+    <dialog open id="settingsDialog" class="toolpopup top middle">
         <div class="table" id="settingsDialogTitleCreate">
             <div style="grid-column: 1 / span 4;"><h2 id="createHeadingSession" style="height:30px; top:-5px;">Create live session</h2><a href="help.html" target="_blank" class="helpicon"><span class="material-symbols-outlined">help</span></a></div>
         </div>
@@ -104,7 +104,7 @@
             <div style="grid-column: 1 / span 4;"><hr></div>
         </div>
         <div class="table hidden collapsed"  id="moresettings">
-            <div style="grid-column: 1 / span 2;"><h2 id="createOptional" >Optional user settings</h2></div>
+            <div style="grid-column: 1 / span 2;"><h2 id="createOptional" >Optional user settings<br></h2></div>
             <div>Username</div><div><input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Optional)" contenteditable="true" autocomplete="off"></div>
             <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
             <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>                     
@@ -148,22 +148,22 @@
     </dialog>
     
     <!----- popup menu microphone mute ------>
-    <dialog id="popupMicMuted" class="centerhorizontal hidden warning">
+    <dialog id="popupMicMuted" class="toolpopup top middle hidden warning">
         <h2 style="color: var(--color-light-bg)">Warning : Your microphone is muted</h2>
     </dialog>
 
     <!----- popup menu microphone mute ------>
-    <dialog id="popupCamMuted" class="centerhorizontal hidden notification">
+    <dialog id="popupCamMuted" class="toolpopup top middle hidden notification">
         <h2>Your camera has been turned off</h2>
     </dialog>
 
     <!----- stream mute ------>
-    <dialog id="popupStreamMuted" class="centerhorizontal hidden">
+    <dialog id="popupStreamMuted" class="toolpopup top middle hidden notification">
         <h2>Broadcast stream audio muted locally.</h2><br>Participants will still hear you and the stream.
     </dialog>
 
     <!----- Copied links to clipboard ------>
-    <dialog id="popupClipboard" class="centerhorizontal hidden">
+    <dialog id="popupClipboard" class="toolpopup top middle hidden notification">
         <h2>Link copied to clipboard</h2>
     </dialog>
 </body>
@@ -295,7 +295,7 @@ function setupSessionUI() {
     var encodedSession = btoa(sessionAndProject);
 
     //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
-    addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
+    //addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
 
     //hide stream settings creation dialog
     settingsDialog.classList.add("hidden");
@@ -303,16 +303,17 @@ function setupSessionUI() {
     document.body.style.backgroundImage = "none";
 
     //Change create dialog layout for settings to re-use it
-    settingsDialog.style.width = "360px";
-    settingsDialog.classList.remove("centerhorizontal", "top");
+    //settingsDialog.style.width = "360px";
+    settingsDialog.classList.remove("middle", "top");
     settingsDialog.classList.add("toolpopup", "bottom", "left");
     createHeadingSession.innerHTML = "Session settings";
     settingsDialogProjectID.classList.add("hidden");
     settingsDialogSessionSettings.style.gridTemplateColumns = "105px 200px";
     settingsDialogVideoAudioPreview.classList.add("hidden");
     settingsDialogTitleOptional.classList.remove("collapsed", "hidden");
+    createOptional.innerHTML = "User settings";
     moresettings.classList.remove("collapsed", "hidden");
-    moresettings.style.gridTemplateColumns = "105px 200px";
+    //moresettings.style.gridTemplateColumns = "105px 200px";
     settingsDialogCameraMicPreview.classList.add("hidden");
     buttonMoreSettings.classList.add("hidden");
     settingsDialogButtons.style.justifyContent = "center";

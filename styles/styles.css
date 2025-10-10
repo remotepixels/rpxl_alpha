@@ -16,7 +16,7 @@
     --button-wide-width: 80px;
     --border-width: 1px;
 
-    --shadows: 0px 0px 40px 0px rgba(0,0,0,0.05);
+    --shadows: 0px 0px 40px 0px rgba(0,0,0,.25);
 }
 * {
     font-family: "Roboto", serif;
@@ -98,6 +98,7 @@ dialog {
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     z-index: 10;
     box-shadow: var(--shadows);
+    transition: opacity 0.3s ease;
 } 
 dialog::backdrop {
   background: var(--color-mid-grey);
@@ -112,9 +113,30 @@ dialog:open {
 }
 
 /*table styles shared*/
+.table {
+    position: relative;
+    display: grid;
+    /* grid-template-columns: auto auto auto auto; */
+    column-gap: 10px;
+    row-gap: 5px;
+    width: 100%;
+}
 .table > div {
     text-align: left;
     align-content: center;
+}
+
+
+.meter{
+    position: absolute;
+    display: inline-block;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    background-color: dodgerblue;
+    left:0px;
+    width: 100%;
+    height: 0px;
+    bottom:0px;
+    transition: height 0.05s ease;
 }
 
 /*Iframe settings for the main content area*/
@@ -151,12 +173,12 @@ iframe {
 }
 
 /*center elements horizontally used for login and popup dialogs*/
-.centerhorizontal {
+/* .centerhorizontal {
     position: relative;
     top: calc(var(--button-height) + 15px);
     margin: auto;
     margin-bottom: 5px;
-}
+} */
 
 /*remove system highlight around forms etc */
 [contenteditable] {
@@ -486,17 +508,22 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translate(-50%, 0px);
     bottom: -20px;
 }
-.toolpopup.top::before {
+/* .toolpopup.top::before {
+
+} */
+.toolpopup.top.left::before {
     position: absolute;
     content: "";
     border: 10px solid transparent;
     border-color: transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey)) transparent;
-}
-.toolpopup.top.left::before {
     left: 25px;
     top: -20px;
 }
 .toolpopup.top.right::before {
+    position: absolute;
+    content: "";
+    border: 10px solid transparent;
+    border-color: transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey)) transparent;
     right: 20px;
     top: -20px;
 }
@@ -532,6 +559,7 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 .warning {
+    position:relative!important;
     justify-content: center;
     align-items: center;
     justify-items: center;
@@ -540,6 +568,7 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: var(--color-red);
 }
 .notification {
+    position:relative!important;
     justify-content: center;
     align-items: center;
     justify-items: center;

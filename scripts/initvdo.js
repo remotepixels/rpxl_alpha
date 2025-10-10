@@ -53,31 +53,31 @@ function viewerStream () {
         document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&cleanish"+
             "&showlabels"+
-            //"&fontsize=100"+
             "&label="+sanitizedUserName+camSetup+micSetup+
             "&hidehome"+
             "&style=6"+
-            "&meterstyle=2"+
-            //"&mutestatus"+
-            //"&minipreview&minipreviewoffset"+
-            //"&unmutestatus"+
+            "&meterstyle=1"+
             "&webcam"+
             "&notify"+
             "&disablehotkeys"+
             "&clearstorage"+
-            //"&showall"+
             "&autostart"+
             "&nocontrols"+
             "&signalmeter"+
+            "&chroma=3c3c3c"+
+            "&nomouseevents"+
+            "&group=Client"+
+            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
+            //"&fontsize=100"+
+            //"&mutestatus"+
+            //"&minipreview&minipreviewoffset"+
+            //"&unmutestatus"+
+            //"&showall"+
             //"&showconnections"+
             // "&cleanoutput"+
-            "&chroma=3c3c3c"+
             //"&transparent"+
-            "&nomouseevents"+
             // "&groupview=Client"+
-            "&group=Client"+
             // "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
             //"&safemode"+
             //"&intro"+
             //"&dataonly"+
@@ -108,9 +108,9 @@ function viewMainStream () {
         "&autostart"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
-        "&clean"+//remove all interface bits
-        "&style=1"+
-        "&meterstyle=3"+
+        "&cleanish"+//remove all interface bits
+        //"&style=1"+
+        "&meterstyle=1"+
         "&hideplaybutton"+//hides big play button if autoplay is disabled
         "&chroma=3c3c3c"+
         "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
@@ -121,10 +121,10 @@ function viewMainStream () {
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         "";    
-    reactivateTools();
+    //reactivateTools();
     setTimeout(function(){   
-        document.getElementById("mainStream").classList.remove("hidden");
-    },1000);
+        document.getElementById("zoomdiv").classList.remove("hidden");
+    },2000);
 }
 
 //used to start main stream by presenter
@@ -151,7 +151,7 @@ function startMainStream() {
         }
         console.log("Main stream settings changed, reloading...")
         
-        deactivateTools(); //turn off tools while reloading frame - initui.js
+        //deactivateTools(); //turn off tools while reloading frame - initui.js
         storeSelectedDevices(0,1,0); //store new user only settings and reload frame - initui.js
 
         let resolution = sessionStorage.getItem("resolution"); //default to 
@@ -160,14 +160,22 @@ function startMainStream() {
         let sanitizedAudio = sessionStorage.getItem("audioDevice"); //default
 
         console.log("Starting main stream with settings :", resolution, quality, sanitizedVideo, sanitizedAudio);
-
+        if ((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null") ) {
+            var camSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
+        } else {
+            var camSetup = "&"+sanitizedVideo;
+        }
+        if ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null") ) {
+            var micSetup = "&noaudio"; //really shouldn't happen buuuuuuuuuttttttt........
+        } else {
+            var micSetup = "&audiodevice="+sanitizedAudio;
+        }
         // document.getElementById("mainStream").allow = "autoplay;screen-wake-lock;camera *;microphone *;display-capture;encrypted-media;sync-xhr;usb;web-share;";
         // document.getElementById("mainStream").setAttribute("allowtransparency", "true");
         // document.getElementById("mainStream").setAttribute("crossorigin", "anonymous");
         // document.getElementById("mainStream").setAttribute("credentialless", "true");
         document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&push=Stream_"+sanitizedSessionID+
-            //"&nopush"+
             "&directoronly"+
             "&mirror"+//mirror the video
             "&rampuptime=6000"+//ramp up time of 6 seconds
@@ -184,18 +192,19 @@ function startMainStream() {
             "&showlist=0"+//show hidden guest list
             "&hideplaybutton"+//hides big play button if autoplay is disabled
             "&chroma=3c3c3c"+
+            "&meterstyle=1"+
             "&agc=0"+//turns off auto gain control
             "&denoise=0"+//turns off denoiser
             "&ab=128"+//constant audio bitrate
             "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
             "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js";
-
+            //"&nopush"+
             //"&stats"+
             //"&showconnections"+
             //"&signalmeter"+
             //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
             //"&showlabels"+
-        reactivateTools(); //reactivate tools - initui.js
+        //reactivateTools(); //reactivate tools - initui.js
         setTimeout(function(){   
             document.getElementById("mainStream").classList.remove("hidden");
         },1000);
