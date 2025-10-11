@@ -55,16 +55,7 @@ function reactivateUserTools() {
 }
 
 //process selected devices and store them in sessionStorage
-function storeSelectedDevices(sessionID, session, user) {
-    if (sessionID == 1){  //store session ID changes only
-        let sessionID = document.getElementById("sessionID").value.trim();;
-        let sessionIDUppercase = sessionID.toUpperCase();
-        let sanitizedSessionID = encodeURIComponent(sessionIDUppercase);
-    
-        sessionStorage.setItem("sessionID", sanitizedSessionID);
-        // console.log("Storing Session ID :", sanitizedSessionID);
-    }
-
+function storeSelectedDevices(session, user) {
     if (session == 1){  //store session changes only
         let resolution = getCheckedRadioValue("resolution");
         let quality = getCheckedRadioValue("quality");
@@ -88,7 +79,6 @@ function storeSelectedDevices(sessionID, session, user) {
             sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
             // console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
         }
-
 
         sessionStorage.setItem("resolution", resolution);
         sessionStorage.setItem("quality", quality);

@@ -6,11 +6,19 @@ function viewerStream () {
     let cameraIndex = sessionStorage.getItem("cameraSource");
     let micIndex = sessionStorage.getItem("microphoneSource");
 
-    let currentUsername = document.getElementById("name").value; //current values in form`
+    let currentUsername = document.getElementById("name").value.trim(); //current values in form`
+    let sanitizedCurrentUserName = encodeURIComponent(currentUsername); 
+
     let currentCamera = document.getElementById("cameraSource");
     let currentMic = document.getElementById("microphoneSource");
 
-    if (currentUsername == null) { currentUsername = "Presenter"; }
+    if (!sanitizedCurrentUserName) {
+        document.getElementById("name").style.animation = "pulse 500ms";
+        setTimeout(() => { document.getElementById("name").style.animation = "none"; }, 500);
+        document.getElementById("name").focus();
+        return;
+    } 
+        
     if (avatar == "") {
         // pick a random avatar image
         const numberArray = Array.from({ length: 43 }, (_, i) => String(i).padStart(3, '0'));
@@ -18,32 +26,29 @@ function viewerStream () {
         avatar = `${randomNum}.png`;
     }
     //compare form values with stored values, if they're different then reload the iframe
-    if ((currentUsername != sanitizedUserName) || (currentCamera.selectedIndex != cameraIndex) || (currentMic.selectedIndex != micIndex)) {
+    if ((sanitizedCurrentUserName != sanitizedUserName) || (currentCamera.selectedIndex != cameraIndex) || (currentMic.selectedIndex != micIndex)) {
         if (!document.getElementById("viewersStream").classList.contains("hidden") ) { 
             document.getElementById("viewersStream").classList.add("hidden"); 
         }
+        document.getElementById("popupBG").classList.add("hidden"); 
+        viewersStream.contentWindow.postMessage({ close: true }, "*"); // hangup connection on video ninja
         console.log("Viewer settings changed, reloading...");
 
         deactivateUserTools(); //turn off tools while reloading frame - initui.js
-        storeSelectedDevices(0,0,1); //store new user only settings and reload frame - initui.js
+        storeSelectedDevices(0,1); //store new user only settings - initui.js
+        //reload the stored values and use to reload viewers frame
         let sanitizedSessionID = sessionStorage.getItem("sessionID");   //retrieve session ID
-
         let sanitizedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
         let sanitizedCamera = sessionStorage.getItem("cameraDevice");
         let sanitizedMicrophone = sessionStorage.getItem("microphoneDevice");
-        
-        document.getElementById("popupBG").classList.add("hidden"); 
 
-        if (!document.getElementById("viewersStream").classList.contains("hidden")) {
-            document.getElementById("viewersStream").classList.add("hidden");
-        }
-        
         //if no video source is selected or the camera is disabled in the browser then set to connect as miconly
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
             var camSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
         } else {
-            var camSetup = "&"+sanitizedCamera+"&videobitrate=96";
+            var camSetup = "&"+sanitizedCamera+"&videobitrate=64";
         }
+
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
             var micSetup = "&noaudio";
         } else {
@@ -67,7 +72,8 @@ function viewerStream () {
             "&chroma=3c3c3c"+
             "&nomouseevents"+
             "&group=Client"+
-            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css";
+            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+
+            ""; 
             //"&fontsize=100"+
             //"&mutestatus"+
             //"&minipreview&minipreviewoffset"+
@@ -144,7 +150,7 @@ function startMainStream() {
         }
         console.log("Main stream settings changed, reloading...")
 
-        storeSelectedDevices(0,1,0); //store new user only settings and reload frame - initui.js
+        storeSelectedDevices(1,0); //store new user only settings and reload frame - initui.js
 
         let resolution = sessionStorage.getItem("resolution"); //default to 
         let quality = sessionStorage.getItem("quality"); //default to low quality
@@ -186,7 +192,8 @@ function startMainStream() {
             "&denoise=0"+//turns off denoiser
             "&ab=128"+//constant audio bitrate
             "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-            "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js";
+            "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+            ""; 
             //"&nopush"+
             //"&stats"+
             //"&showconnections"+

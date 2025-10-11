@@ -33,17 +33,13 @@
 <body id="body">
         
     <div id="shmeg" class="shmeg">
-        <div class="toolbar">
-            <div class="toolspacer"></div>           
-            <div class="toolset">
-                <button class="tool toolblue" id="toolJoinSession" aria-expanded="false" style="width:250px;"><span>Join a live session</span></button>
-            </div>
-        </div>
         <div class="siteHeader">
-            <img src="icons/android-chrome-192x192.png" class="siteMainIcon"/>
-            <div class="siteTitle">RPXL</div>
-            <p></p>
-            <div class="siteSubTitle">Simple,<br>secure,<br>server less,<br>remote collaboration.</div>
+            <div class="text">
+                <img src="icons/android-chrome-192x192.png" class="siteMainIcon"/>
+                <div class="siteTitle">RPXL</div>
+                <p></p>
+                <div class="siteSubTitle">Simple,<br>secure,<br>server less,<br>remote collaboration.</div>
+            </div>
         </div>
 
         <div class="textBackground">
@@ -146,11 +142,11 @@
         <!--top menu bar-->
         <div id="topmenu" class="toolbar top">	
             <div style="width:20px"></div>
-            <h3 id="sessionTitle">RPXL</h3>
+            <h3 id="sessionTitle">RPXL</h3>&nbsp;<h3 id="sessionID">RPXL</h3>
             <div class="toolspacer"></div>           
             <div class="toolset">
                 <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
-                    <button class="botton buttonblue buttonWider" id="vdoninja">Powered by vdo.ninja</button>
+                    <button class="botton buttonblue" id="vdoninja">&nbsp;&nbsp;Powered by vdo.ninja&nbsp;&nbsp;</button>
                 </a>
             </div>
         </div>
@@ -178,14 +174,14 @@
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--enter session ID dialog-->
-    <dialog open id="sessionDialog" class="toolpopup top middle hidden">
+    <!-- <dialog open id="sessionDialog" class="toolpopup top middle hidden">
         <div class="dialogContent">
             <div><h2>Enter a valid Session ID to continue</h2></div>
             <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
             <div><h3>6 character code supplied by the host</h3></div>
             <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
         </div>
-    </dialog>
+    </dialog> -->
 
     <!--enter username, select camera and microphone dialog-->
     <dialog id="settingsDialog" class="toolpopup top middle hidden">
@@ -247,7 +243,6 @@
 </body>
 </html>
 
-<script src="scripts/github.js"></script>   <!-- check github issues for session ID -->
 <script src="scripts/deviceselect.js"></script>
 <script src="scripts/cookies.js"></script>  <!-- check and store cookies -->
 <script src="scripts/initui.js"></script>
@@ -256,103 +251,45 @@
 <script src="scripts/annotations.js"></script>
 
 <script lang="javascript">
-var gitresults = [ ]; //array to hold the results we get back from github
 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 
-//get the session id's for the past X days in github.js and then check the session ID against the github issues
-getList(); //github.js
-
-//join session button code
-const joinSession = document.getElementById("toolJoinSession");
-if (joinSession) { joinSession.addEventListener("click", function () { openDialog(sessionDialog, toolJoinSession); 
-    document.getElementById("sessionID").focus();
-    document.getElementById("popupBG").classList.add("blur");
-});}
-
-//checks if an url parameter supplied, if valid, skips the session ID screen goes straight ti user screen
-function checkSessionURL (result) {
+checkSessionURL ()
+//checks if an url parameter supplied, if valid, shows the client login dialog
+function checkSessionURL () {
     //console.log("getlist result :",result);
-    let query = location.search;
-    let sessionIDURL = query.slice(1);
-    let sessionIDUppercase = sessionIDURL.toUpperCase();
-    let	sessionID = encodeURIComponent(sessionIDUppercase); 
+    const queryURL = window.location.search.slice(1);
+    const decodeURL = window.atob(queryURL);
+    const params = new URLSearchParams(decodeURL);
 
-    result.items.forEach(i=>{
-        if (i.title == "SessionID" && i.author_association == "OWNER") { //every item we get back made by owner and has sessionID in the title
-            const decodedBody = atob(i.body);   //decrypt and split
-            const splitBody = decodedBody.split("&");
+    console.log("params",params);
+
+
+    if (params.has('SID')) {
+        const SID = params.get('SID');
+        const sanitizedSessionID = encodeURIComponent(SID); 
         
-            gitresults.push (splitBody);
+        if (!sanitizedSessionID || sanitizedSessionID.length !== 9) {
+            console.log('INCORRECTLY FORMATED SESSION ID');
+            return;
+        } else {
+            checkCookie("username", "camera", "mic"); //cookies.js
+            sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
 
-            if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
-                checkCookie("username", "camera", "mic"); //cookies.js check cookie data for username, camera and microphone
-                
-                clientEncoded = splitBody[1];
-                client = decodeURIComponent(clientEncoded); //decode the client name
+            shmeg.classList.add("hidden");
+            settingsDialog.classList.remove("hidden");
+            settingsDialog.show();
+            document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
 
-                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";                //fill in client name and session ID in the interface
-                document.getElementById("sessionID").value = sessionID;
-
-                sessionDialog.classList.add("hidden");                //hide session dialog & show user, camera and microphone dialog
-                sessionDialog.close();
-
-                openDialog(settingsDialog, toolJoinSession)
-                document.getElementById("popupBG").classList.add("blur");
-                document.getElementById("name").focus();
-                storeSelectedDevices(1,0,0)     //store session ID only
-            } 
+            document.getElementById("name").focus();
+            if (params.has('PN')) {
+                const PN = params.get('PN');
+                const decodePN = decodeURI(PN);
+                console.log('Name parameter exists',decodePN);
+                document.getElementById("sessionTitle").innerHTML = decodePN;
+            }
         }
-    })
-}
-
-//submit session ID on enter or click, focus field, run checkEnteredSession() function
-document.getElementById("sessionID").focus();
-document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
-document.getElementById("sessionID").addEventListener("keypress", function(event) {
-	if (event.key === "Enter") {
-		event.preventDefault();
-		document.getElementById("checkSession").click();
-		}
-	});
-
-//if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
-function checkEnteredSession() {
-    const dialogContent = document.querySelector('#sessionDialog .dialogContent');
-    const sessionIDEntered = sessionID.value;
-    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
-    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
-
-    //check if there is a session ID and if it is 6 characters long
-    if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
-        //dialogContent.classList.remove('shake'); // reset if already animating
-        void dialogContent.offsetWidth; // force reflow to restart animation
-        sessionID.value = "";
-        sessionID.focus();
-        dialogContent.classList.add('shake');
-        setTimeout(() => { dialogContent.classList.remove('shake') }, 500);
-        return;
-    }
-    
-    const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //compare sanitized ID to results we got from github using async getlist()
-
-    if (found) { //if we found a match then show the user, camera and microphone dialog
-        //check cookie data for username, camera and microphone
-        storeSelectedDevices(1,0,0) //store session ID only
-        checkCookie("username", "camera", "mic"); //cookies.js
-
-        const clientEncoded = found[1];
-        const client = decodeURIComponent(clientEncoded);
-        document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
-        //hide the seeion dialog & show user, camera and microphone dialog
-        sessionDialog.close();
-        sessionDialog.classList.add("hidden");
-        openDialog(settingsDialog, toolJoinSession)
-        document.getElementById("name").focus();
-
-    } else {
-        showError();
     }
 }
 
@@ -360,58 +297,54 @@ function checkEnteredSession() {
 document.getElementById("checkLogin").addEventListener("click", setupSession);
 document.getElementById("name").addEventListener("keypress", function(event) {
 	if (event.key === "Enter") {
-		event.preventDefault();        
+		event.preventDefault();        //stop form submitting before we check values
 		document.getElementById("checkLogin").click();
 		}
 	});
 
-//check that the user has entered a name and selected a microphone, if yes then start the vdo ninja streams and change the interface
+//check that the user has entered a name
 function setupSession() {
     const nameInput = document.getElementById("name");
-    const micSelect = document.getElementById("microphoneSource");
 
     let username = nameInput.value.trim();
     sanitizedUserName = encodeURIComponent(username); 
+    //console.log("sanitized name",sanitizedUserName)
     //check if the username is empty or no microphone selected
     if (!sanitizedUserName) {
-        animateAndFocus(nameInput);
+        //animateAndFocus(nameInput);
+        nameInput.style.animation = "pulse 500ms";
+        setTimeout(() => { nameInput.style.animation = "none"; }, 500);
+        nameInput.focus();
         return;
+    } else {
+        //hide the user, camera and microphone dialog
+        settingsDialog.close();     
+        document.getElementById("settingsDialog").classList.add("hidden");  
+        document.getElementById("popupBG").classList.add("hidden");
+        document.getElementById("shmeg").classList.add("hidden");
+        document.getElementById("mainWindow").classList.remove("hidden");      
+        document.body.style.backgroundImage = "none";
+
+        //change login dialog layout (remove camera preview)
+        document.getElementById("settingsDialog").classList.remove("top", "middle");        
+        document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
+        document.getElementById("camPreview").style.display = "none";
+        document.getElementById("checkLogin").innerHTML = "Change settings";
+        checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
+        // Events
+        window.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("mousedown", onMouseDown);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+
+        checkLogin.addEventListener("click",() => {
+            viewerStream() ; //from initvdo.js
+        });
+
+        viewerStream(); //from initvdo.js
+        setTimeout(function(){   
+            viewMainStream();//from initvdo.js
+        },250);
     }
-
-    function animateAndFocus(element) {
-        element.style.animation = "pulse 500ms";
-        setTimeout(() => { element.style.animation = "none"; }, 500);
-        element.focus();
-    }
-
-    //hide the user, camera and microphone dialog
-    settingsDialog.close();     
-    document.getElementById("settingsDialog").classList.add("hidden");  
-    document.getElementById("popupBG").classList.remove("blur");  
-    document.getElementById("popupBG").classList.add("hidden");
-    document.getElementById("shmeg").classList.add("hidden");
-    document.getElementById("mainWindow").classList.remove("hidden");      
-    document.body.style.backgroundImage = "none";
-
-    //reset settings dialog to be a settings dialog not a login dialog
-    document.getElementById("settingsDialog").classList.remove("top", "middle");        
-    document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
-    document.getElementById("camPreview").style.display = "none";
-    document.getElementById("checkLogin").innerHTML = "Change settings";
-    checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
-    // Events
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-
-    checkLogin.addEventListener("click",() => {
-        viewerStream() ; //from initvdo.js
-    });
-
-    viewerStream(); //from initvdo.js
-    setTimeout(function(){   
-        viewMainStream();//from initvdo.js
-    },250);
 }
 </script>

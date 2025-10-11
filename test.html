@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VDO.Ninja Director Control Panel</title>
+</head>
+<body>
+    <h1>Director Control Panel</h1>
+    
+    <div id="container"></div>
+    
+    <div id="controls">
+        <h2>Guest Controls</h2>
+        <select id="guest-select">
+            <option value="1">Guest 1</option>
+            <option value="2">Guest 2</option>
+            <option value="3">Guest 3</option>
+        </select>
+        
+        <button onclick="controlGuest('mic', 'toggle')">Toggle Mic</button>
+        <button onclick="controlGuest('camera', 'toggle')">Toggle Camera</button>
+        <button onclick="controlGuest('addScene', 1)">Add to Scene 1</button>
+        <button onclick="controlGuest('forward', 'lobby')">Send to Lobby</button>
+        <button onclick="controlGuest('zoom', 0.1)">Zoom In</button>
+        <button onclick="controlGuest('zoom', -0.1)">Zoom Out</button>
+    </div>
+    
+    <div id="log"></div>
+
+    <script>
+    // Create iframe with director permissions
+    const iframe = document.createElement("iframe");
+    iframe.allow = "camera;microphone;fullscreen;display-capture;autoplay;";
+    iframe.src = "https://vdo.ninja/?director=myroom&cleanoutput&api=mykey";
+    iframe.style.width = "800px";
+    iframe.style.height = "600px";
+    document.getElementById("container").appendChild(iframe);
+    
+    // Control function
+    function controlGuest(action, value) {
+        const target = document.getElementById("guest-select").value;
+        
+        const message = {
+            action: action,
+            target: target
+        };
+        
+        if (value !== undefined) {
+            message.value = value;
+        }
+        
+        // Generate callback ID
+        const callbackId = `cb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        message.cib = callbackId;
+        
+        iframe.contentWindow.postMessage(message, "*");
+        log(`Sent: ${JSON.stringify(message)}`);
+    }
+    
+    // Listen for responses
+    window.addEventListener("message", function(e) {
+        if (e.source !== iframe.contentWindow) return;
+        
+        log(`Received: ${JSON.stringify(e.data)}`);
+        
+        // Handle specific events
+        if (e.data.action === "guest-connected") {
+            log(`Guest connected: ${e.data.streamID}`);
+        } else if (e.data.guestList) {
+            updateGuestList(e.data.guestList);
+        }
+    });
+    
+    // Logging
+    function log(message) {
+        const logDiv = document.getElementById("log");
+        const entry = document.createElement("div");
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logDiv.appendChild(entry);
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    // Update guest list
+    function updateGuestList(guests) {
+        const select = document.getElementById("guest-select");
+        select.innerHTML = "";
+        
+        guests.forEach((guest, index) => {
+            const option = document.createElement("option");
+            option.value = guest.id || (index + 1);
+            option.textContent = guest.label || `Guest ${index + 1}`;
+            select.appendChild(option);
+        });
+    }
+    
+    // Get initial guest list
+    setTimeout(() => {
+        iframe.contentWindow.postMessage({
+            action: "getGuestList",
+            cib: "initial-guests"
+        }, "*");
+    }, 2000);
+    </script>
+</body>
+</html>

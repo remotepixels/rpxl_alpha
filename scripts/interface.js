@@ -1,16 +1,3 @@
-//limit session ID to letters and numbers only
-var regex = /^[a-zA-Z0-9]*$/;
-var lastValue = "";
-
-function restrictInput(e) {
-	var currentValue = e.target.value;
-
-	if (!currentValue.match(regex))
-		e.target.value = lastValue;
-	else
-		lastValue = currentValue;
-}
-
 
 //toolbar code
 var openModal = "";

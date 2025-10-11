@@ -54,7 +54,7 @@
     height: 260px;
     border-radius: 100%;
     /* background-color: black; */
-    background-color: light-dark(var(--color-light-white), var(--color-dark-bg))!important;
+    background-color: light-dark(var(--color-light-white), var(--color-dark-grey))!important;
     opacity: 1;
     z-index: 3;
 }
@@ -79,8 +79,9 @@
 }
 .siteHeader{
     position: relative;
+    width:100%;
     display: block;
-    height: 700px;
+    height: 650px;
     width: 100%;
  	-webkit-backdrop-filter:  brightness(0.7);
 	backdrop-filter:  brightness(0.7);
@@ -90,8 +91,8 @@
 .siteMainIcon {
 	position: relative;
 	display: inline;
-	top: 90px;
-	left: 90px;
+	top: 45px;
+	left: -150px;
 	height: 120px;
 	width: 120px;
 	}
@@ -101,17 +102,17 @@
 	font-size: 110px;
 	font-weight: 500;
 	color: #ffffff;
-	top: 70px;
-	left: 110px;
+	top: 25px;
+	left: -130px;
 	}
 .siteSubTitle {
 	position: relative;
 	display: inline-block;
-	left: 90px;
+	/* left: 90px; */
 	font-size: 78px;
 	font-weight: 300;
 	color: #ffffff;
-	top: 90px;
+	top: 45px;
 	}
 
 h4 {

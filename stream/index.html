@@ -86,7 +86,7 @@
         </div>
         <div class="table" id="settingsDialogProjectID">
             <div style="grid-column: 1 / span 3;">Project  &nbsp;<input type="text" maxlength="26" class="textinput" id="project" name="clientName" placeholder="(Optional)" contenteditable="true" style="width:320px;"></div>
-            <div>SID &nbsp;<input type="text" maxlength="6" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase; width:160px; background-color: light-dark(var(--color-light-white), var(--color-mid-grey));  color: light-dark(var(--color-light-grey), var(--color-light-grey));" oninput="restrictInput(event)"></input><span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span></div>
+            <div>SID &nbsp;<input type="text" maxlength="9" class="textinput" id="sessionID" name="sessionID" placeholder="(Required)" contenteditable="true" autocomplete="off" style="text-transform:uppercase; width:160px; background-color: light-dark(var(--color-light-white), var(--color-mid-grey));  color: light-dark(var(--color-light-grey), var(--color-light-grey));" oninput="restrictInput(event)"></input><span class="material-symbols-outlined refreshicon" id="generateSessionIcon">autorenew</span></div>
             <div style="grid-column: 1 / span 4;"><hr></div>
         </div>
         <div class="table" id="settingsDialogSessionSettings">
@@ -166,12 +166,11 @@
 </html>
 
 <script src="../scripts/deviceselect.js"></script>
-<script src="../scripts/cookies.js"></script> <!-- check and store cookies -->
+<!-- <script src="../scripts/cookies.js"></script> check and store cookies -->
 <script src="../scripts/initui.js"></script>
 <script src="../scripts/interface.js"></script>
 <script src="../scripts/initvdo.js"></script>
 <script src="../scripts/annotations.js"></script>
-<script src="../scripts/github.js"></script>  <!-- add github issues for session ID and Project name (to cheap to have my own DB server)-->
 
 <script type="text/javascript"> 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
@@ -180,11 +179,13 @@ sessionStorage.clear(); //clear session storage on load to avoid issues with old
 //toolbar code for stream page only, not shared anywhere else
 //share and quit menu, blind stream tool
 copyMainLink.addEventListener("click", () => {
-    copyToClipboard("https://alpha.rpxl.app/?" + sessionID.value);
+    let ShareURL = sessionStorage.getItem("ShareURL");
+    copyToClipboard("https://alpha.rpxl.app/?" + ShareURL);
 });
 
 copyQuickLink.addEventListener("click", () => {
-    copyToClipboard("https://alpha.rpxl.app/qv/?" + sessionID.value);
+    let ShareURL = sessionStorage.getItem("ShareURL");
+    copyToClipboard("https://alpha.rpxl.app/qv/?" + ShareURL);
 });
 
 function copyToClipboard(text) {
@@ -239,9 +240,22 @@ generateSessionIcon.addEventListener("click", () => {
 document.getElementById("project").focus();
 
 //generate random code and prefil
-function generateSessionID(length = 6) {
+function generateSessionID(length = 9) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+}
+
+//limit session ID to letters and numbers only
+var regex = /^[a-zA-Z0-9]*$/;
+var lastValue = "";
+
+function restrictInput(e) {
+	var currentValue = e.target.value;
+
+	if (!currentValue.match(regex))
+		e.target.value = lastValue;
+	else
+		lastValue = currentValue;
 }
 
 sessionID.value = generateSessionID();
@@ -254,7 +268,7 @@ function getCheckedRadioValue(name) {
 
 //check if session id is valid (6 characters long) before prepping session
 function checkSessionID() {
-    if (!sessionID.value || sessionID.value.length !== 6) {
+    if (!sessionID.value || sessionID.value.length !== 9) {
         sessionID.style.animation = "pulse 300ms";
         setTimeout(() => sessionID.style.animation = "none", 300);
         sessionID.focus();
@@ -262,7 +276,6 @@ function checkSessionID() {
     }
 
     //stuff to run once and once only when starting session 
-    storeSelectedDevices(1,0,0)
     setupSessionUI();
     viewerStream();
     setTimeout(function(){   
@@ -273,24 +286,23 @@ function checkSessionID() {
 //setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
 function setupSessionUI() {
     //encode project name to URI
-    const projectName = document.getElementById("project").value || "";
+    const projectName = document.getElementById("project").value.trim() || "";
     const sanitizedProject = encodeURIComponent(projectName);
 
     //encode session ID to URI
     const sessionIDEntered = sessionID.value;
-    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase(); 
-    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
+    const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
 
-    // Set Session Title & Copy Session Quick Link to Clipboard
-    sessionName.innerHTML = projectName + " Live session (" + sessionIDEnteredSanitized + ")";
-    navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?" + sessionIDEnteredSanitized );
+    var SIDAndProject = "SID="+sessionIDEnteredSanitized+"&PN="+sanitizedProject;
+    var encodedSIDAndProject = btoa(SIDAndProject);
+    
+    //save values to local storage
+    sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
+    sessionStorage.setItem("ShareURL", encodedSIDAndProject);
 
-    //create a new issue on github (used to track sessions) encode session ID
-    var sessionAndProject = sessionIDEnteredSanitized+"&"+sanitizedProject
-    var encodedSession = btoa(sessionAndProject);
-
-    //console.log("Encoded issue for github Session ID & Client name :", encodedSession );
-    //addIssue(encodedSession);  //github.js adds issue to github repo usedd to track sessions
+    //Set Session Title & Copy Session Quick Link to Clipboard
+    sessionName.innerHTML = projectName + " (" + sessionIDEnteredSanitized + ")";
+    navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?" + encodedSIDAndProject );
 
     //hide stream settings creation dialog
     settingsDialog.classList.add("hidden");

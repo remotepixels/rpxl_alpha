@@ -146,31 +146,6 @@
       userVU.style.height = "0%";
     }
 
-    // function showSelectedDevices() {
-    //   const mainAudio = mainAudioSelect.options[mainAudioSelect.selectedIndex]?.text || 'None';
-    //   const mainVideo = mainVideoSelect.options[mainVideoSelect.selectedIndex]?.text || 'None';
-    //   const userAudio = userAudioSelect.options[userAudioSelect.selectedIndex]?.text || 'None';
-    //   const userVideo = userVideoSelect.options[userVideoSelect.selectedIndex]?.text || 'None';
-
-//       selectedDevicesDiv.textContent = `
-// Selected Devices:
-// -----------------------
-// Main Stream:
-// - Audio: ${mainAudio}
-// - Video: ${mainVideo}
-
-// User Stream:
-// - Microphone: ${userAudio}
-// - Camera: ${userVideo}
-// `.trim();
-//    }
-
-    // startButton.addEventListener('click', () => {
-    //   stopAll();
-    //   showSelectedDevices();
-    // });
-
-    // Setup
     getDevices().then(() => {
       [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
         sel.addEventListener('change', handleSelectionChange);
