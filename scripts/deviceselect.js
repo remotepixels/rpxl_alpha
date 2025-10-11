@@ -24,8 +24,8 @@
       const audioInputs = devices.filter(d => d.kind === 'audioinput');
       const videoInputs = devices.filter(d => d.kind === 'videoinput');
 
-      [mainAudioSelect, userAudioSelect].forEach(sel => sel.innerHTML = '<option value="">None</option>');
-      [mainVideoSelect, userVideoSelect].forEach(sel => sel.innerHTML = '<option value="">None</option>');
+      [mainAudioSelect, userAudioSelect].forEach(sel => sel.innerHTML = '<option value="" selected>None</option>');
+      [mainVideoSelect, userVideoSelect].forEach(sel => sel.innerHTML = '<option value="" selected>None</option>');
 
       audioInputs.forEach(device => {
         if (device.deviceId !== 'default') {

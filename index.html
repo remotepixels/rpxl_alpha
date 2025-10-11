@@ -56,7 +56,7 @@
 
                 <h4>No sign-ups, no downloads, <br>no watermarks, no time limits.<sup>**</sup></h4>
                 <p></p>
-                <img src="images/interface.jpg" width="800" height="483" style="border-radius: 5px; overflow: hidden; position: relative; display: inline-block;">
+                <img src="images/interface.jpg" width="750" height="453" style="border-radius: 5px; overflow: hidden; position: relative; display: inline-block;">
                 <p> </p>
                 As this app is essentially server-less there are no costs in running this service. 
                 <p></p>
@@ -173,16 +173,6 @@
 
     <div class="popupBG hidden" id="popupBG"></div>
 
-    <!--enter session ID dialog-->
-    <!-- <dialog open id="sessionDialog" class="toolpopup top middle hidden">
-        <div class="dialogContent">
-            <div><h2>Enter a valid Session ID to continue</h2></div>
-            <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
-            <div><h3>6 character code supplied by the host</h3></div>
-            <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
-        </div>
-    </dialog> -->
-
     <!--enter username, select camera and microphone dialog-->
     <dialog id="settingsDialog" class="toolpopup top middle hidden">
         <div class="table">
@@ -190,10 +180,10 @@
                 <video id="camera" class="camera " autoplay playsinline poster=""></video>
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
             </div>
-            <div>Name</div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="(Required)" contenteditable="true" autocomplete="off"></div>
-            <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
-            <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="" selected disabled>None</option></select></div>
-            <div style="grid-column: 1 / span 2;"><hr></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource"><option value="" disabled>Microphone</option></select></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource"><option value="" disabled>Camera</option></select></div>
+            <div></div><div></div>
             <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Join live session</button></div>
         </div>
         <!-- duplicate elements not used (so use same logic in stream and client) -->
@@ -258,39 +248,47 @@ sessionStorage.clear(); //clear session storage on load to avoid issues with old
 checkSessionURL ()
 //checks if an url parameter supplied, if valid, shows the client login dialog
 function checkSessionURL () {
-    //console.log("getlist result :",result);
-    const queryURL = window.location.search.slice(1);
-    const decodeURL = window.atob(queryURL);
-    const params = new URLSearchParams(decodeURL);
+        const queryURL = window.location.search.slice(1);
+        let decodeURL;
 
-    console.log("params",params);
-
-
-    if (params.has('SID')) {
-        const SID = params.get('SID');
-        const sanitizedSessionID = encodeURIComponent(SID); 
-        
-        if (!sanitizedSessionID || sanitizedSessionID.length !== 9) {
-            console.log('INCORRECTLY FORMATED SESSION ID');
-            return;
-        } else {
-            checkCookie("username", "camera", "mic"); //cookies.js
-            sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
-
-            shmeg.classList.add("hidden");
-            settingsDialog.classList.remove("hidden");
-            settingsDialog.show();
-            document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
-
-            document.getElementById("name").focus();
-            if (params.has('PN')) {
-                const PN = params.get('PN');
-                const decodePN = decodeURI(PN);
-                console.log('Name parameter exists',decodePN);
-                document.getElementById("sessionTitle").innerHTML = decodePN;
+        try {
+            decodeURL = window.atob(queryURL); 
+                // Throws DOMException if invalid characters
+            } catch (error) {
+            if ((error instanceof URIError) || (error instanceof DOMException && error.message.includes("invalid character")) || (error instanceof TypeError)) {
+                alert("Invalid Session ID provided in URL.\n\nIf you are seeing this the link supplied has been corrupted or is incomplete.\n\nPlease check with the sender.");
+            } else {
+                console.error("Unexpected error:", error);
             }
         }
-    }
+
+        const params = new URLSearchParams(decodeURL);
+        if (params.has('SID')) {
+            const SID = params.get('SID');
+            const sanitizedSessionID = encodeURIComponent(SID); 
+            
+            if (!sanitizedSessionID || sanitizedSessionID.length !== 9) {
+                console.log('INCORRECTLY FORMATED SESSION ID');
+                return;
+            } else {
+                checkCookie("username", "camera", "mic"); //cookies.js
+                sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
+
+                shmeg.classList.add("hidden");
+                settingsDialog.classList.remove("hidden");
+                settingsDialog.show();
+                document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
+
+                document.getElementById("name").focus();
+                if (params.has('PN')) {
+                    const PN = params.get('PN') || "RPXl";
+                    const decodePN = decodeURI(PN);
+                    //console.log('Name parameter exists',decodePN);
+                    document.getElementById("sessionTitle").innerHTML = decodePN;
+                }
+            }
+        }
+        
 }
 
 //User, camera and microphone dialogue window submit button and enter actions (run setupSession())
@@ -308,10 +306,8 @@ function setupSession() {
 
     let username = nameInput.value.trim();
     sanitizedUserName = encodeURIComponent(username); 
-    //console.log("sanitized name",sanitizedUserName)
-    //check if the username is empty or no microphone selected
-    if (!sanitizedUserName) {
-        //animateAndFocus(nameInput);
+
+    if (!sanitizedUserName) {           //if no username flash and select;
         nameInput.style.animation = "pulse 500ms";
         setTimeout(() => { nameInput.style.animation = "none"; }, 500);
         nameInput.focus();
@@ -331,7 +327,7 @@ function setupSession() {
         document.getElementById("camPreview").style.display = "none";
         document.getElementById("checkLogin").innerHTML = "Change settings";
         checkLogin.removeEventListener("click", setupSession);    // Remove start session listener and add settings change listener
-        // Events
+        // Events to allow zooming in of stream
         window.addEventListener("wheel", onWheel, { passive: false });
         window.addEventListener("mousedown", onMouseDown);
         window.addEventListener("mousemove", onMouseMove);

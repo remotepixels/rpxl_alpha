@@ -83,7 +83,7 @@ h3 {
 
 /*dialog boxes shared settings*/
 dialog {
-    transition: all 200ms allow-discrete;
+    /* transition: all 200ms allow-discrete; */
     position: absolute;
     display: block;
     left: 0px;
@@ -91,7 +91,7 @@ dialog {
     height: fit-content;
     justify-items: center;
     text-align: center;
-    padding: 20px;
+    padding: 20px!important;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     border-radius: var(--radius-big);
@@ -111,15 +111,15 @@ dialog:open {
     opacity: 0;
   }
 }
-.dialogContent.shake {
+/* .dialogContent.shake {
     animation: shake 0.4s ease;
-}
+} */
 /*table styles shared*/
 .table {
     position: relative;
     display: grid;
     /* grid-template-columns: auto auto auto auto; */
-    column-gap: 10px;
+    column-gap: 5px;
     row-gap: 5px;
     width: 100%;
 }
@@ -215,7 +215,8 @@ button {
     background-color: dodgerblue;
 }
 .buttonWider {
-    padding: 0px 80px 0px 80px;
+      width:240px;  
+    /* padding: 0px 80px 0px 80px; */
 }
 
 /*custom dropdown selector*/
@@ -236,6 +237,7 @@ select {
     height: var(--button-height);
     border-radius: var(--radius-big);
 }
+
 select:hover, select:active{
     color: light-dark(var(--color-dark-bg), var(--color-light-white));
 }
@@ -265,7 +267,12 @@ select:hover, select:active{
     pointer-events: none;
     transition: transform ease-in-out 0.3s;
 }
-
+.hideoption { 
+    display:none; 
+    visibility:hidden; 
+    height:0; 
+    font-size:0; 
+}
 /*radio button customization*/
 .radioset {
     position: relative;
@@ -281,7 +288,7 @@ select:hover, select:active{
 label:has([type=radio]) {
     display: inline-flex;
     align-items: center;
-    width: 94px;
+    width: 100px;
     height: var(--button-height);
     justify-content: center;
     padding: 10px;

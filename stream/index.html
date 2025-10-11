@@ -90,7 +90,7 @@
             <div style="grid-column: 1 / span 4;"><hr></div>
         </div>
         <div class="table" id="settingsDialogSessionSettings">
-            <div>Resolution</div><div class="radioset" role="radiogroup" aria-labelledby="resolution"><label class="disable"><input type="radio" name="resolution" id="res4k" disabled value="&width=3840&height=2160">4K</label><label><input type="radio" name="resolution" id="res1080P" value="0">1080P</label><label><input type="radio" name="resolution" id="res720P"checked value="1">720P</label></div>
+            <div>Resolution</div><div class="radioset" role="radiogroup" aria-labelledby="resolution"><label><input type="radio" name="resolution" id="res1080P" value="0">1080P</label><label><input type="radio" name="resolution" id="res720P"checked value="1">720P</label></div>
             <div>Quality</div><div class="radioset" role="radiogroup" aria-labelledby="quality"><label><input type="radio" name="quality" id="qualityHigh" value="16000">High</label><label><input type="radio" name="quality" id="qualityMed" value="8000" checked>Med</label><label><input type="radio" name="quality" id="qualityLow" value="4000">Low</label></div>
             <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
             <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
@@ -166,7 +166,7 @@
 </html>
 
 <script src="../scripts/deviceselect.js"></script>
-<!-- <script src="../scripts/cookies.js"></script> check and store cookies -->
+<script src="../scripts/cookies.js"></script>
 <script src="../scripts/initui.js"></script>
 <script src="../scripts/interface.js"></script>
 <script src="../scripts/initvdo.js"></script>
@@ -285,20 +285,19 @@ function checkSessionID() {
 
 //setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
 function setupSessionUI() {
-    //encode project name to URI
+    //encode project name and session ID to URI
     const projectName = document.getElementById("project").value.trim() || "";
     const sanitizedProject = encodeURIComponent(projectName);
-
-    //encode session ID to URI
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
+    let user = document.getElementById("name").value.trim() || "Presenter";
 
     var SIDAndProject = "SID="+sessionIDEnteredSanitized+"&PN="+sanitizedProject;
     var encodedSIDAndProject = btoa(SIDAndProject);
     
-    //save values to local storage
-    sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
+    sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);    //save values to local storage
     sessionStorage.setItem("ShareURL", encodedSIDAndProject);
+    sessionStorage.setItem("username", user); 
 
     //Set Session Title & Copy Session Quick Link to Clipboard
     sessionName.innerHTML = projectName + " (" + sessionIDEnteredSanitized + ")";
