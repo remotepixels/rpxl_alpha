@@ -1,3 +1,21 @@
+function randomBG () {
+    // Detect dark mode preference
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Pick random image from 1-10
+    const numberArrayBG = Array.from({ length: 6 }, (_, i) => String(i).padStart(3, '0'));
+    const randomBG = numberArrayBG[Math.floor(Math.random() * numberArrayBG.length)];
+
+    const theme = isDarkMode ? 'dark' : 'light';
+    const imageUrl = `/backgrounds/${theme}_${randomBG}.jpg`;
+
+    // Apply background with styling
+    document.body.style.backgroundImage = `url('${imageUrl}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
+}
+
 //check quality and resolution radio buttons
 function getCheckedRadioValue(name) {
   const selected = document.querySelector(`input[name="${name}"]:checked`);

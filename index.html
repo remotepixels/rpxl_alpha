@@ -232,6 +232,19 @@
 <script src="scripts/annotations.js"></script>
 
 <script lang="javascript">
+randomBG (); //initui.js
+
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+if (isMobileDevice()) {
+  console.log("User is on a mobile device.");
+} else {
+  console.log("User is on a desktop device.");
+}
+
+
 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
