@@ -111,9 +111,6 @@ dialog:open {
     opacity: 0;
   }
 }
-/* .dialogContent.shake {
-    animation: shake 0.4s ease;
-} */
 /*table styles shared*/
 .table {
     position: relative;
@@ -660,15 +657,6 @@ input[type="range"]::-webkit-slider-thumb {
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 var(--color-red); }
     100% {  box-shadow: 0 0 0 10px rgba(200, 60, 60, 0); }
-}
-@keyframes shake {
-	0% {transform: translateX(0px); }
-	15% {transform: translateX(-5px);}
-	30% {transform: translateX(10px);}
-	45% {transform: translateX(-15px);}
-	60% {transform: translateX(15px);}
-	75% {transform: translateX(-5px);}
-	100% {transform: translateX(0px); animation-timing-function: ease-in;}
 }
 @keyframes fadeIn {
   0% {opacity: 0;}

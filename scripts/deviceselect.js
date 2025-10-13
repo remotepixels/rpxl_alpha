@@ -8,7 +8,6 @@
     const mainVU = document.getElementById('audiometer');
     const userVU = document.getElementById('micmeter');
     const startButton = document.getElementById('start-button');
-    // const selectedDevicesDiv = document.getElementById('selected-devices');
 
     let devices = [];
     let mainAudioStream = null, userAudioStream = null;
@@ -18,7 +17,42 @@
     let vuInterval;
 
     async function getDevices() {
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true }); // trigger permission
+      const permissionStreamer = document.getElementById("permissionsDialogStream");
+      const permissionClient = document.getElementById("permissionsDialogClient");
+
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      } catch (e) {
+        if (permissionStreamer) {
+          permissionsDialogStream.classList.remove("hidden");
+          permissionsDialogStream.show();
+          settingsDialog.classList.add("hidden");
+          //console.log("Video access was denied.");
+        } else {      
+          cameraSource.disabled = true; }
+      }
+
+      try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        if (permissionStreamer) {
+          permissionsDialogStream.classList.remove("hidden");
+          permissionsDialogStream.show();
+          settingsDialog.classList.add("hidden");
+          //console.log("Audio access was denied.");
+        }
+        if (permissionClient && shmeg.classList.contains("hidden")) {
+          permissionClient.classList.remove("hidden");
+          permissionClient.show();
+          permissionIgnore.focus();
+          document.getElementById("permissionIgnore").addEventListener("click", function () {
+            document.getElementById("permissionsCheck").classList.add("hidden");
+          });
+          microphoneSource.disabled = true; 
+          //console.log("Microphone access was denied.");
+        }
+      }
+
       devices = await navigator.mediaDevices.enumerateDevices();
 
       const audioInputs = devices.filter(d => d.kind === 'audioinput');

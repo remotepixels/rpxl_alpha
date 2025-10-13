@@ -122,7 +122,7 @@
 
 
     <!--iframes for vdo ninja and annotations canvas-->
-    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;screen-wake-lock;camera *;microphone *;display-capture;"></iframe>
+    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
     <div class="mainZoom hidden" id="zoomdiv">
         <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -172,8 +172,8 @@
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
             </div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
-            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource"><option value="" disabled>Microphone</option></select></div>
-            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource"><option value="" disabled>Camera</option></select></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource"><option value="" disabled>None</option></select></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource"><option value="" disabled>None</option></select></div>
             <div></div><div></div>
             <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Join live session</button></div>
         </div>
@@ -195,14 +195,23 @@
     </dialog>
 
     <!----- Permissions ------>
-    <dialog id="permissionsDialog" class="toolpopup top middle hidden">
-        <h2>Warning : Microphone or Camera permissions blocked</h2>
-        <p>Please check your browser settings to allow access<br>to the microphone and camera for streaming.</p>
-        <p>You will be able to mute them at any time.</p>
-        <hr>
-        <button id="permissionMicHelp" class="botton buttonblue buttonWider"> Click here for more information </button>
-    </dialog>
-    
+    <div id="permissionsCheck" class="">
+        <dialog id="permissionsDialogClient" class="toolpopup top middle hidden">
+            <span class="material-symbols-outlined" style="font-size:125px">error</span><br>
+            <h2>Access to your microphone<br>
+                or camera is blocked.</h2>
+            <p>If you choose to join without a<br>
+                microphone or camera other<br>
+                guests will not be able to<br>
+                hear or see you.</p>
+            <p>For help on how to allow<br>
+            access, <a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new">click here.</a></p>
+            <p>If you wish to join anyway</p>
+            <button id="permissionIgnore" class="botton buttonblue buttonWider" autofocus> Join anyway </button>
+            <!-- <h5>Mic and camera can be muted.</h4> -->
+        </dialog>
+    </div>
+
     <!----- popup menu microphone mute ------>
     <dialog id="popupMicMuted" class="toolpopup top middle hidden warning">
         <h2 style="color: var(--color-light-bg)">Warning : Your microphone is muted</h2>
@@ -233,18 +242,6 @@
 
 <script lang="javascript">
 randomBG (); //initui.js
-
-function isMobileDevice() {
-  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-if (isMobileDevice()) {
-  console.log("User is on a mobile device.");
-} else {
-  console.log("User is on a desktop device.");
-}
-
-
 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
@@ -289,7 +286,7 @@ function checkSessionURL () {
                     const decodePN = decodeURI(PN);
                     //console.log('Name parameter exists',decodePN);
                     document.getElementById("sessionTitle").innerHTML = decodePN;
-                }
+                }                
             }
         }
         
