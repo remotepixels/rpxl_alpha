@@ -46,7 +46,7 @@ function viewerStream () {
         if ((sanitizedCamera == "0") || (sanitizedCamera == "disabled_in_browser") || (sanitizedCamera == null) || (sanitizedCamera == "null") ) {
             var camSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
         } else {
-            var camSetup = "&"+sanitizedCamera+"&videobitrate=64";
+            var camSetup = "&videodevice="+sanitizedCamera+"&videobitrate=64";
         }
 
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
@@ -172,7 +172,7 @@ function startMainStream() {
             if ((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null") ) {
                 var videoSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
             } else {
-                var videoSetup = "&"+sanitizedVideo;
+                var videoSetup = "&videodevice="+sanitizedVideo;
             }
             if ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null") ) {
                 var audioSetup = "&noaudio"; 
@@ -202,6 +202,7 @@ function startMainStream() {
                 "&denoise=0"+//turns off denoiser
                 "&ab=128"+//constant audio bitrate
                 "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+                "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
                 "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
                 ""; 
                 //"&nopush"+
