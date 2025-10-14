@@ -68,7 +68,7 @@ function constrainPan() {
       const winH = window.innerHeight - 45; // 45px offset from top
 
       const maxX = Math.max((scaledWidth - winW), 0) / 2;
-      const maxY = Math.max((scaledHeight - winH), 0) / 2;
+      const maxY = Math.max((scaledHeight - winH), 0) / 2 + 100;
 
       translate.x = clamp(translate.x, -maxX, maxX);
       translate.y = clamp(translate.y, -maxY, maxY);
@@ -310,8 +310,8 @@ eventer(messageEvent, function(e) {
             
             document.getElementById("annotationsCanvas").width = width;
             document.getElementById("annotationsCanvas").height = height;
-            document.getElementById("annotationsCanvas").style.width = width+5+"px";
-            document.getElementById("annotationsCanvas").style.height = height+5+"px";
+            document.getElementById("annotationsCanvas").style.width = width+"px";
+            document.getElementById("annotationsCanvas").style.height = height+"px";
             document.getElementById("annotationsCanvas").style.top = topOffset+"px";
             document.getElementById("annotationsCanvas").style.left = left+"px";
 

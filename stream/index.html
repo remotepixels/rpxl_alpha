@@ -191,6 +191,9 @@
 <script src="../scripts/annotations.js"></script>
 
 <script type="text/javascript"> 
+localStorage.clear(); //clear local storage on load to avoid issues with old settings
+sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+
 function isMobileDevice() {
     return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -205,8 +208,6 @@ if (isMobileDevice()) {
     console.log("User is on a mobile device.");
 } 
 
-localStorage.clear(); //clear local storage on load to avoid issues with old settings
-sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 
 //toolbar code for stream page only, not shared anywhere else
 //share and quit menu, blind stream tool
@@ -311,7 +312,7 @@ function checkSessionID() {
     //setupSessionUI();
 
 
-       const projectName = document.getElementById("project").value.trim() || "";
+    const projectName = document.getElementById("project").value.trim() || "";
     const sanitizedProject = encodeURIComponent(projectName);
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
@@ -352,6 +353,7 @@ function checkSessionID() {
 
     startSessionButton.removeEventListener("click", checkSessionID);    // Remove start session listener and add settings change listener
 
+
     startSessionButton.addEventListener("click",() => {
         // let openModals = document.querySelectorAll("dialog:not(.hidden)");
         // openModals.forEach(openModal => {
@@ -368,6 +370,11 @@ function checkSessionID() {
         },500);
 
     });
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
 
     viewerStream();
     setTimeout(function(){   

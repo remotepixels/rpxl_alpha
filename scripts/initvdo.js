@@ -2,16 +2,19 @@
 var avatar = "";
 
 function viewerStream () {
-    let sanitizedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
-    let cameraIndex = sessionStorage.getItem("cameraSource");
-    let micIndex = sessionStorage.getItem("microphoneSource");
+    let storedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
+    let storedCameraIndex = sessionStorage.getItem("cameraSourceIndex");
+    let storedMicIndex = sessionStorage.getItem("microphoneSourceIndex");
 
     let currentUsername = document.getElementById("name").value.trim() || "Presenter"; //current values in form`
     let sanitizedCurrentUserName = encodeURIComponent(currentUsername); 
 
-    let currentCamera = document.getElementById("cameraSource");
-    let currentMic = document.getElementById("microphoneSource");
-
+    let currentCamera = document.getElementById("cameraSource").selectedIndex;
+    let currentMic = document.getElementById("microphoneSource").selectedIndex;
+// console.log("stored cam",storedCameraIndex,"stored mic",storedMicIndex)
+// console.log("current mic",currentMic,"current cam",currentCamera)
+// console.log("stored user",storedUserName)
+// console.log("current user",currentUsername)
     if (!sanitizedCurrentUserName) {
         document.getElementById("name").style.animation = "pulse 500ms";
         setTimeout(() => { document.getElementById("name").style.animation = "none"; }, 500);
@@ -26,7 +29,7 @@ function viewerStream () {
         avatar = `${randomNum}.png`;
     }
     //compare form values with stored values, if they're different then reload the iframe
-    if ((sanitizedCurrentUserName != sanitizedUserName) || (currentCamera.selectedIndex != cameraIndex) || (currentMic.selectedIndex != micIndex)) {
+    if ((sanitizedCurrentUserName != storedUserName) || (currentCamera != storedCameraIndex) || (currentMic != storedMicIndex)) {
         if (!document.getElementById("viewersStream").classList.contains("hidden") ) { 
             document.getElementById("viewersStream").classList.add("hidden"); 
         }
@@ -34,8 +37,10 @@ function viewerStream () {
         viewersStream.contentWindow.postMessage({ close: true }, "*"); // hangup connection on video ninja
         console.log("Viewer settings changed, reloading...");
 
+        storeSelectedDevicesUser(); //store new user only settings - initui.js
+
         deactivateUserTools(); //turn off tools while reloading frame - initui.js
-        storeSelectedDevices(0,1); //store new user only settings - initui.js
+
         //reload the stored values and use to reload viewers frame
         let sanitizedSessionID = sessionStorage.getItem("sessionID");   //retrieve session ID
         let sanitizedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
@@ -109,7 +114,7 @@ function viewMainStream () {
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
         "&cleanish"+//remove all interface bits
-        "&meterstyle=1"+
+        "&meterstyle=3"+
         "&hideplaybutton"+//hides big play button if autoplay is disabled
         "&chroma=3c3c3c"+
         "&preloadbitrate=-1"+//preloads the video, might not be necessary as only use scene 1
@@ -136,15 +141,17 @@ function startMainStream() {
     
     let storedResolution = sessionStorage.getItem("resolution");
     let storedQuality = sessionStorage.getItem("quality");
-    let storedVideo = sessionStorage.getItem("videoSource");
-    let storedAudio = sessionStorage.getItem("audioSource"); 
-    
+    let storedVideoIndex = sessionStorage.getItem("videoSourceIndex");
+    let storedAudiondex = sessionStorage.getItem("audioSourceIndex"); 
+
+    console.log("stored video:",storedVideoIndex,"storedadeo",storedAudiondex)
     let currentResolution = getCheckedRadioValue("resolution");
     let currentQuality = getCheckedRadioValue("quality");
-    let currentVideo = document.getElementById("videoSource").selectedIndex;
-    let currentAudio = document.getElementById("audioSource").selectedIndex;
+    let currentVideoIndex = document.getElementById("videoSource").selectedIndex;
+    let currentAudioIndex = document.getElementById("audioSource").selectedIndex;
 
-    if ((storedResolution != currentResolution) || (storedQuality != currentQuality) || (storedVideo != currentVideo) || (storedAudio != currentAudio)) {
+    console.log("current video",currentVideoIndex,"current audio",currentAudioIndex)
+    if ((storedResolution != currentResolution) || (storedQuality != currentQuality) || (storedVideoIndex != currentVideoIndex) || (storedAudiondex != currentAudioIndex)) {
         if (!document.getElementById("mainStream").classList.contains("hidden") ) { 
             document.getElementById("mainStream").classList.add("hidden"); 
             document.getElementById("zoomdiv").classList.add("hidden");
@@ -152,7 +159,7 @@ function startMainStream() {
         mainStream.contentWindow.postMessage({ close: true }, "*"); // hangup connection on video ninja
         console.log("Main stream settings changed, reloading...")
 
-        storeSelectedDevices(1,0); //store new user only settings and reload frame - initui.js
+        storeSelectedDevicesSession(); //store new user only settings and reload frame - initui.js
 
         let resolution = sessionStorage.getItem("resolution"); 
         let quality = sessionStorage.getItem("quality"); 
@@ -182,6 +189,7 @@ function startMainStream() {
 
             document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
                 "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
+                //"&view"+
                 "&directoronly"+
                 "&mirror"+//mirror the video
                 "&rampuptime=6000"+//ramp up time of 6 seconds
@@ -196,11 +204,11 @@ function startMainStream() {
                 "&showlist=0"+//show hidden guest list
                 "&hideplaybutton"+//hides big play button if autoplay is disabled
                 "&chroma=3c3c3c"+
-                "&style=6"+
+                //"&style=6"+
                 "&meterstyle=1"+
-                "&agc=0"+//turns off auto gain control
-                "&denoise=0"+//turns off denoiser
-                "&ab=128"+//constant audio bitrate
+                //"&agc=0"+//turns off auto gain control
+                //"&denoise=0"+//turns off denoiser
+                //"&ab=128"+//constant audio bitrate
                 "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
                 "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
                 "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
@@ -217,7 +225,7 @@ function startMainStream() {
         setTimeout(function(){   
             document.getElementById("mainStream").classList.remove("hidden");
             document.getElementById("zoomdiv").classList.remove("hidden");
-        },1000);
+        },2000);
         }
     } else {
         console.log("Main stream settings unchanged, not reloading")
