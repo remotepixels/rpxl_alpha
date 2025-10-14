@@ -111,18 +111,18 @@
                 <p></p>
                 <a href="https://ndi.video/tools/">ndi tools</a><br>
                 <a href="https://obsproject.com">obs studio</a><br>
-                <p style="text-align: right;">
-                    <a href="#top">back to top</a>
-                </p>
+                <p style="text-align: right;"><a href="#top">back to top</a></p>
                 <p>&nbsp;</p>
             </div>
-
         </div>
     </div>
 
 
     <!--iframes for vdo ninja and annotations canvas-->
-    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
+    <div id="viewerMobile" class="">
+        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
+    </div>
+
     <div class="mainZoom hidden" id="zoomdiv">
         <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
@@ -288,8 +288,7 @@ function checkSessionURL () {
                     document.getElementById("sessionTitle").innerHTML = decodePN;
                 }                
             }
-        }
-        
+        }      
 }
 
 //User, camera and microphone dialogue window submit button and enter actions (run setupSession())

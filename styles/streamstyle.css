@@ -63,14 +63,17 @@
 /*quit menu confirmation*/
 .confirmpopup {
     position: absolute;
-    display: block;
-    height: 40px;
-    right: 4px;
-    top: 5px;
+    display: inline-block;
+    height: var(--button-height);
+    right: 5px;
+    top: -15px;
     border: 0px;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
     border-radius: var(--radius-big);
     z-index: 10;
     box-shadow: none!important;
+
+    padding:0px; margin:0px; left:auto; width:260px
+
 }

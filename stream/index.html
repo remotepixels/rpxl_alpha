@@ -30,9 +30,12 @@
 
 <body>
     <!--iframes for vdo ninja-->   
-    <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
-        <div class="mainZoom" id="zoomdiv">
-        <iframe class="mainstreamiframe hidden" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
+    <div id="viewerMobile" class="">
+        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
+    </div>
+
+    <div class="mainZoom hidden" id="zoomdiv">
+        <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>   
         <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
     </div>
 
@@ -71,7 +74,7 @@
             <div class="toolset ">
                 <button class="tool streamtool red disable" aria-expanded="false" id="toolBlindStream" disabled><span class="material-symbols-outlined">movie_off</span></button> 
                 <button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
-                <span class="volume streamtool" ><input type="range" id="toolStreamVolume" value="0" min="0" max="100" disabled class="disable"/></span>    
+                <span class="volume streamtool" ><input type="range" id="toolStreamVolume" value="0" min="0" max="100" disabled class="disable streamtool"/></span>    
             </div>
         </div>
 
@@ -121,8 +124,8 @@
     </dialog>
 
     <!----- quit dialog ------>
-    <dialog id="quitDialog" class="confirmpopup hidden" style="padding:0px; margin:0px; left:auto; width:263px">
-        <button id="confirmQuit" class="botton toolred buttonWider"> Confirm quit </button>
+    <dialog id="quitDialog" class="confirmpopup hidden">
+        <button id="confirmQuit" class="button toolred buttonWider"> Confirm quit </button>
     </dialog>
 
     <!----- color menu ------>
@@ -174,14 +177,17 @@
     <dialog id="popupClipboard" class="toolpopup top middle hidden notification">
         <h2>Link copied to clipboard</h2>
     </dialog>
+    <!----- popup stream zoomed popup------>
+    <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+
 </body>
 </html>
 
 <script src="../scripts/deviceselect.js"></script>
-<script src="../scripts/cookies.js"></script>
+<script src="../scripts/cookies.js"></script>  <!-- check and store cookies -->
 <script src="../scripts/initui.js"></script>
-<script src="../scripts/interface.js"></script>
 <script src="../scripts/initvdo.js"></script>
+<script src="../scripts/interface.js"></script>
 <script src="../scripts/annotations.js"></script>
 
 <script type="text/javascript"> 
@@ -198,8 +204,6 @@ if (isMobileDevice()) {
     });
     console.log("User is on a mobile device.");
 } 
-
-
 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
@@ -304,17 +308,10 @@ function checkSessionID() {
     }
 
     //stuff to run once and once only when starting session 
-    setupSessionUI();
-    viewerStream();
-    setTimeout(function(){   
-        startMainStream();
-    },1000);
-}
+    //setupSessionUI();
 
-//setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
-function setupSessionUI() {
-    //encode project name and session ID to URI
-    const projectName = document.getElementById("project").value.trim() || "";
+
+       const projectName = document.getElementById("project").value.trim() || "";
     const sanitizedProject = encodeURIComponent(projectName);
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
@@ -335,6 +332,7 @@ function setupSessionUI() {
     settingsDialog.classList.add("hidden");
     settingsDialog.close();
     document.body.style.backgroundImage = "none";
+    mainWindow.classList.remove("hidden");
 
     //Change create dialog layout for settings to re-use it
     settingsDialog.classList.remove("middle", "top", "min-width");
@@ -351,25 +349,91 @@ function setupSessionUI() {
     buttonMoreSettings.classList.add("hidden");
     settingsDialogButtons.style.justifyContent = "center";
     startSessionButton.innerHTML = "Change settings";
+
     startSessionButton.removeEventListener("click", checkSessionID);    // Remove start session listener and add settings change listener
 
     startSessionButton.addEventListener("click",() => {
-        let openModals = document.querySelectorAll("dialog:not(.hidden)");
-        openModals.forEach(openModal => {
-        openModal.close();
-        openModal.classList.add("hidden");
-        openIcon.setAttribute("aria-expanded", "false"); 
-        openIcon.classList.remove("selected"); 
-        document.getElementById("popupBG").classList.add("hidden");
-        });
+        // let openModals = document.querySelectorAll("dialog:not(.hidden)");
+        // openModals.forEach(openModal => {
+        // openModal.close();
+        // openModal.classList.add("hidden");
+        // openIcon.setAttribute("aria-expanded", "false"); 
+        // openIcon.classList.remove("selected"); 
+        // document.getElementById("popupBG").classList.add("hidden");
+        // });
 
         viewerStream();
         setTimeout(function(){   
             startMainStream();
-        },1000);
+        },500);
 
     });
 
-    mainWindow.classList.remove("hidden");
+    viewerStream();
+    setTimeout(function(){   
+        startMainStream();
+    },500);
 }
+
+// //setup UI, change create session to re-use for setting dialog, turn on toolbars create github issue with session id and project name
+// function setupSessionUI() {
+//     //encode project name and session ID to URI
+//     const projectName = document.getElementById("project").value.trim() || "";
+//     const sanitizedProject = encodeURIComponent(projectName);
+//     const sessionIDEntered = sessionID.value;
+//     const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
+//     let user = document.getElementById("name").value.trim() || "Presenter";
+
+//     var SIDAndProject = "SID="+sessionIDEnteredSanitized+"&PN="+sanitizedProject;
+//     var encodedSIDAndProject = btoa(SIDAndProject);
+    
+//     sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);    //save values to local storage
+//     sessionStorage.setItem("ShareURL", encodedSIDAndProject);
+//     sessionStorage.setItem("username", user); 
+
+//     //Set Session Title & Copy Session Quick Link to Clipboard
+//     sessionName.innerHTML = projectName + " (" + sessionIDEnteredSanitized + ")";
+//     navigator.clipboard.writeText("https://alpha.rpxl.app/qv/?" + encodedSIDAndProject );
+
+//     //hide stream settings creation dialog
+//     settingsDialog.classList.add("hidden");
+//     settingsDialog.close();
+//     document.body.style.backgroundImage = "none";
+
+//     //Change create dialog layout for settings to re-use it
+//     settingsDialog.classList.remove("middle", "top", "min-width");
+//     settingsDialog.style.minWidth = "fit-content";
+//     settingsDialog.classList.add("toolpopup", "bottom", "left");
+//     createHeadingSession.innerHTML = "Session settings";
+//     settingsDialogProjectID.classList.add("hidden");
+//     settingsDialogSessionSettings.style.gridTemplateColumns = "105px 200px";
+//     settingsDialogVideoAudioPreview.classList.add("hidden");
+//     settingsDialogTitleOptional.classList.remove("collapsed", "hidden");
+//     createOptional.innerHTML = "User settings";
+//     moresettings.classList.remove("collapsed", "hidden");
+//     settingsDialogCameraMicPreview.classList.add("hidden");
+//     buttonMoreSettings.classList.add("hidden");
+//     settingsDialogButtons.style.justifyContent = "center";
+//     startSessionButton.innerHTML = "Change settings";
+//     startSessionButton.removeEventListener("click", checkSessionID);    // Remove start session listener and add settings change listener
+
+//     startSessionButton.addEventListener("click",() => {
+//         // let openModals = document.querySelectorAll("dialog:not(.hidden)");
+//         // openModals.forEach(openModal => {
+//         // openModal.close();
+//         // openModal.classList.add("hidden");
+//         // openIcon.setAttribute("aria-expanded", "false"); 
+//         // openIcon.classList.remove("selected"); 
+//         // document.getElementById("popupBG").classList.add("hidden");
+//         // });
+
+//         viewerStream();
+//         setTimeout(function(){   
+//             startMainStream();
+//         },500);
+
+//     });
+
+//    // mainWindow.classList.remove("hidden");
+// }
 </Script>

@@ -50,7 +50,7 @@ function viewerStream () {
         }
 
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
-            var micSetup = "&noaudio&audiodevice=0";
+            var micSetup = "&audiodevice=0";
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
@@ -147,63 +147,77 @@ function startMainStream() {
     if ((storedResolution != currentResolution) || (storedQuality != currentQuality) || (storedVideo != currentVideo) || (storedAudio != currentAudio)) {
         if (!document.getElementById("mainStream").classList.contains("hidden") ) { 
             document.getElementById("mainStream").classList.add("hidden"); 
+            document.getElementById("zoomdiv").classList.add("hidden");
         }
+        mainStream.contentWindow.postMessage({ close: true }, "*"); // hangup connection on video ninja
         console.log("Main stream settings changed, reloading...")
 
         storeSelectedDevices(1,0); //store new user only settings and reload frame - initui.js
 
-        let resolution = sessionStorage.getItem("resolution"); //default to 
-        let quality = sessionStorage.getItem("quality"); //default to low quality
-        let sanitizedVideo = sessionStorage.getItem("videoDevice"); //default       
-        let sanitizedAudio = sessionStorage.getItem("audioDevice"); //default
-
-        console.log("Starting main stream with settings :", resolution, quality, sanitizedVideo, sanitizedAudio);
-        if ((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null") ) {
-            var camSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
+        let resolution = sessionStorage.getItem("resolution"); 
+        let quality = sessionStorage.getItem("quality"); 
+        let sanitizedVideo = sessionStorage.getItem("videoDevice"); 
+        let sanitizedAudio = sessionStorage.getItem("audioDevice"); 
+        
+        if (((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null")) &&
+            ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null")))
+        {
+            console.log("no audio or video stream starting data only stream")
+            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+                "&push=Stream_"+sanitizedSessionID+
+                "&dataonly"+
+                "";
         } else {
-            var camSetup = "&"+sanitizedVideo;
-        }
-        if ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null") ) {
-            var micSetup = "&noaudio"; //really shouldn't happen buuuuuuuuuttttttt........
-        } else {
-            var micSetup = "&audiodevice="+sanitizedAudio;
-        }
+            console.log("Starting main stream with settings :", resolution, quality, sanitizedVideo, sanitizedAudio);
+            if ((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null") ) {
+                var videoSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
+            } else {
+                var videoSetup = "&"+sanitizedVideo;
+            }
+            if ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null") ) {
+                var audioSetup = "&noaudio"; 
+            } else {
+                var audioSetup = "&audiodevice="+sanitizedAudio;
+            }
 
-        document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
-            "&push=Stream_"+sanitizedSessionID+
-            "&directoronly"+
-            "&mirror"+//mirror the video
-            "&rampuptime=6000"+//ramp up time of 6 seconds
-            "&hidehome"+//hide vdo ninja homepage	
-            "&webcam"+
-            "&cleanoutput"+//remove all interface bits
-            "&ovb="+quality+//outbound video bitrate for main (obs stream)
-            "&quality="+resolution+//1 720p set to 0 for 1080p
-            "&videodevice="+sanitizedVideo+//video source
-            "&audiodevice="+sanitizedAudio+//audio source
-            "&autostart"+//autostart directors feed
-            "&trb=50000"+//total room bit rate
-            "&hiddenscenebitrate=50000"+//50mbps, highest quality
-            "&showlist=0"+//show hidden guest list
-            "&hideplaybutton"+//hides big play button if autoplay is disabled
-            "&chroma=3c3c3c"+
-            "&meterstyle=1"+
-            "&agc=0"+//turns off auto gain control
-            "&denoise=0"+//turns off denoiser
-            "&ab=128"+//constant audio bitrate
-            "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
-            "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
-            ""; 
-            //"&nopush"+
-            //"&stats"+
-            //"&showconnections"+
-            //"&signalmeter"+
-            //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-            //"&showlabels"+
+            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+                "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
+                "&directoronly"+
+                "&mirror"+//mirror the video
+                "&rampuptime=6000"+//ramp up time of 6 seconds
+                "&hidehome"+//hide vdo ninja homepage	
+                "&webcam"+
+                "&cleanish"+//remove all interface bits
+                "&ovb="+quality+//outbound video bitrate for main (obs stream)
+                "&quality="+resolution+//1 720p set to 0 for 1080p
+                "&autostart"+//autostart directors feed
+                "&trb=50000"+//total room bit rate
+                "&hiddenscenebitrate=50000"+//50mbps, highest quality
+                "&showlist=0"+//show hidden guest list
+                "&hideplaybutton"+//hides big play button if autoplay is disabled
+                "&chroma=3c3c3c"+
+                "&style=6"+
+                "&meterstyle=1"+
+                "&agc=0"+//turns off auto gain control
+                "&denoise=0"+//turns off denoiser
+                "&ab=128"+//constant audio bitrate
+                "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
+                "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
+                ""; 
+                //"&nopush"+
+                //"&stats"+
+                //"&showconnections"+
+                //"&signalmeter"+
+                //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
+                //"&showlabels"+
+                //"&videodevice="+sanitizedVideo+//video source
+                //"&audiodevice="+sanitizedAudio+//audio source
 
         setTimeout(function(){   
             document.getElementById("mainStream").classList.remove("hidden");
+            document.getElementById("zoomdiv").classList.remove("hidden");
         },1000);
+        }
     } else {
         console.log("Main stream settings unchanged, not reloading")
     }

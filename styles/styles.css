@@ -633,26 +633,6 @@ input[type="range"]::-webkit-slider-thumb {
 .fadeout {
     opacity: 0;
 }
-/*display customizations based on screen size for mobile devices*/
-@media (max-width: 760px) {
-    .volume, .text {
-        display: none;
-    }
-}
-@media (max-width: 520px) {
-    .volume, .text, #toolAnnotations, #viewersStream {
-        display: none;
-    }
-}
-@media (max-height: 430px) {
-    #topmenu {
-        display: none;
-    }
-    .viewersiframe, .mainstreamiframe {
-        top: 0px;
-    }
-}
-
 /*animations*/  
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 var(--color-red); }
