@@ -67,8 +67,8 @@ function constrainPan() {
       const winW = window.innerWidth - 100; // 100px offset from left
       const winH = window.innerHeight - 45; // 45px offset from top
 
-      const maxX = Math.max((scaledWidth - winW), 0) / 2;
-      const maxY = Math.max((scaledHeight - winH), 0) / 2 + 100;
+      const maxX = Math.max((scaledWidth - winW), 0) / 2 + 50;
+      const maxY = Math.max((scaledHeight - winH), 0) / 2 + 50;
 
       translate.x = clamp(translate.x, -maxX, maxX);
       translate.y = clamp(translate.y, -maxY, maxY);
@@ -149,15 +149,11 @@ function endDrawing() {
     isDrawing = false;
     
     if (currentPath.length > 1) {
-        // Save path to history
-        // drawingHistory.push(currentPath);
         drawingHistory.push({
             color: color,
             width: 3,
             points: [...currentPath]
         });
-        // Send path to peers
-        //sendDrawingData(currentPath);
         sendDrawingData({
             color: color,
             width: 3,
@@ -179,21 +175,6 @@ function toolEraserSelect() {
     }, "*");
 }
 
-// //sends the drawing data to the main stream iframe and the peers
-// function sendDrawingData(pathPoints) {
-//     const drawingData = {
-//         t: 'path',
-//         p: pathPoints,
-//         c: color,  // Color
-//         w: 3       // Width
-//     };
-//     //console.log("Sending drawing data:", drawingData);
-//     iframe.contentWindow.postMessage({
-//         sendData: { overlayNinja: { drawingData: drawingData } },
-//         type: "pcs"
-//     }, "*");
-// }
-
 function sendDrawingData(drawing) {
     const drawingData = {
         t: 'path',
@@ -208,25 +189,6 @@ function sendDrawingData(drawing) {
     }, "*");
 }
 
-//redraws canvas if size is changed
-// function redrawCanvas() {
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//     for (const path of drawingHistory) {
-//         if (path.length > 1) {
-//             ctx.beginPath();
-//             ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
-//             for (let i = 1; i < path.length; i++) {
-//                 ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
-//             }
-//             ctx.lineWidth = 3;
-//             ctx.lineCap = 'round';
-//             ctx.strokeStyle = 'black'; // default color in case one isn't provided
-//             // You can improve this by storing color/width info per path later
-//             ctx.stroke();
-//         }
-//     }
-// }
 function redrawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -268,8 +230,7 @@ eventer(messageEvent, function(e) {
         // var offsetViewFrame = 0;
         // if (viewersFrame) {var offsetViewFrame = 100;} //director view has a sidebar so we need to offset the canvas
         var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
-        //console.log ("frame offset:",offsetViewFrame);
-        //console.log ("frame top offset:",offsetViewFrameTop);
+
         if (width == 0 || height == 0) {
             let streamtools = document.querySelectorAll(".streamtool");
 
@@ -297,9 +258,6 @@ eventer(messageEvent, function(e) {
             //console.log("resized frame to get correct top and left positions for canvas");
         } 
         if ((width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) && (width >= 1) && (height != 1)) {
-            // turn on the annotation tools and place canvas
-            //offst canvas depending if in director or client view        
-            // var leftOffset = left + offsetViewFrame;
             var topOffset = top + offsetViewFrameTop;
 
             let streamtools = document.querySelectorAll(".streamtool");
@@ -321,7 +279,6 @@ eventer(messageEvent, function(e) {
             canvasCurrentTop = top;
             canvasCurrentWidth = width;
             canvasCurrentHeight = height;
-            //document.getElementById("annotationsCanvas").style.border = "1px solid red";
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     }    
@@ -374,20 +331,7 @@ eventer(messageEvent, function(e) {
                         width: data.drawingData.w,
                         points: data.drawingData.p
                     });
-                    
-                    // Draw it
-                    // if (pathPoints && pathPoints.length > 1) {
-                    //     ctx.beginPath();
-                    //     ctx.moveTo(pathPoints[0].x * canvas.width, pathPoints[0].y * canvas.height);
-                        
-                    //     for (let i = 1; i < pathPoints.length; i++) {
-                    //         ctx.lineTo(pathPoints[i].x * canvas.width, pathPoints[i].y * canvas.height);
-                    //     }
-                    //     ctx.lineWidth = 3;
-                    //     ctx.lineCap = 'round';
-                    //     ctx.strokeStyle = pathColor;
-                    //     ctx.stroke();
-                    // }
+
                     if (data.drawingData.p && data.drawingData.p.length > 1) {
                         const points = data.drawingData.p;
                         ctx.beginPath();
@@ -404,30 +348,7 @@ eventer(messageEvent, function(e) {
 
                 }
             }
-            
-            // Handle initial state sync
-            // if (data.drawingHistory) {
-            //     // Clear current state
-            //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-            //     // Apply all paths from history
-            //     data.drawingHistory.forEach(path => {
-            //         if (path.length > 1) {
-            //             ctx.beginPath();
-            //             ctx.moveTo(path[0].x * canvas.width, path[0].y * canvas.height);
-                        
-            //             for (let i = 1; i < path.length; i++) {
-            //                 ctx.lineTo(path[i].x * canvas.width, path[i].y * canvas.height);
-            //             }
-                        
-            //             ctx.stroke();
-            //         }
-            //     });
-                
-            //     // Update local history
-            //     drawingHistory.length = 0;
-            //     drawingHistory.push(...data.drawingHistory);
-            // }
+
             if (data.drawingHistory) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
