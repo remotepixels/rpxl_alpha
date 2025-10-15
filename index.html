@@ -171,7 +171,8 @@
                 <video id="camera" class="camera " autoplay playsinline poster=""></video>
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
             </div>
-            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div><div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div>
+            <div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource"><option value="" disabled>None</option></select></div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource"><option value="" disabled>None</option></select></div>
             <div></div><div></div>
@@ -275,7 +276,7 @@ function checkSessionURL () {
                 getDevices().then(() => {
                 [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
                     sel.addEventListener('change', handleSelectionChange);
-                });
+                    });
                 });
 
 

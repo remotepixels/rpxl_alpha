@@ -3,8 +3,9 @@
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
-    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Expires" content="-1"/>
     <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
     <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
     <meta name="robots" content="index, follow"/>
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -28,46 +29,72 @@
 
     <title>alpha.rpxl.app v3 | Quickview</title>
 </head>
-
+<style>
+    .mainZoom {
+        left: 0px;
+        top: 0px;
+        height: calc(100% - 50px);
+        width:100%;
+        /* z-index:5; */
+    }
+    .viewersiframe{
+        z-index:0;
+    }
+</style>
 <body id="body">
-    <!--iframes for vdo ninja-->
-    <iframe class="hidden" id="viewersStream" style="width: 0px; left:0px;"></iframe>   
-    <iframe class="mainstreamiframe hidden" id="mainStream" style="width: 100%; left:0px; top:0px; height: calc(100% - 50px)"></iframe>   
+    <!--iframes for vdo ninja and annotations canvas-->
+    <div id="viewerMobile" class="hidden">
+        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
+    </div>
 
-    <!--canvas for drawing annotations-->
-    <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+    <div class="mainZoom hidden" id="zoomdiv">
+        <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;screen-wake-lock;display-capture;"></iframe>   
+        <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+    </div>
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
-            <div style="width:20px"></div>
-            <h3 id="sessionTitle">RPXL</h3>
-            <div class="toolspacer"></div>  
-            <div class="toolset" id="toolAnnotations">
-                <button class="tool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                <button class="tool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
-                <button class="tool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
+            <div class="toolset" style="width:200px; outline: 0px;">
+                <button class="tool toolmoresettings hidden" id="toolSettings" aria-expanded="false"><span class="material-symbols-outlined">settings</span></button>
             </div>
             <div class="toolspacer"></div>
-            <div class="toolset"><button class="tool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
-                <span class="volume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="disable"></span>        
+            <div class="toolset" id="toolAnnotations">
+                <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
+            </div>
+            <div class="toolspacer"></div>
+            <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
+                <span class="volume streamtool"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
             </div>
         </div>
     </div>
 
     <div class="popupBG hidden" id="popupBG"></div>
 
-    <!--enter session ID dialog-->
-    <dialog open id="sessionDialog" class="centerhorizontal top">
-        <div><h2>Enter a valid Session ID to continue</h2></div>
-        <div><input type="text" maxlength="6" class="sessionID" id="sessionID" contenteditable="true" oninput="restrictInput(event)" style="text-transform:uppercase" autofocus autocomplete="off"></div>
-        <div><h3>6 character code supplied by the host</h3></div>
-        <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
+    <dialog id="settingsDialog" class="toolpopup top middle hidden">
+        <div class="table">
+            <div id="camPreview" style="grid-column: 1 / span 2;" style="display:none;">
+                <video id="camera" class="camera hidden" autoplay playsinline poster=""  style="display:none;"></video>
+                <span id="meterGraph" class="meterGraph hidden"><span id="micmeter" class="meter"  style="display:none;"></span></span>
+            </div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div>
+            <div><input type="text" maxlength="25" class="textinput" id="name" value="Quickviewer" contenteditable="true" autocomplete="off"></div>
+            <div class="custom-select hidden"><select id="microphoneSource"><option value="">None</option></select></div>
+            <div class="custom-select hidden"><select id="cameraSource"><option value="">None</option></select></div>
+            <div></div><div></div>
+            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Change settings</button></div>
+        </div>
+        <!-- duplicate elements not used (so use same logic in stream and client) -->
+        <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+        <div class="hidden">Audio source</div><div class="custom-select hidden"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
+        <div style="grid-column: 1 / span 2 hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
     </dialog>
 
     <!----- popup color menu ------>
-    <dialog id="paletteDialog" class="toolpopup bottom middle hidden ">
+    <dialog id="paletteDialog" class="toolpopup bottom middle hidden " style="margin-right:auto;">
             <div>
                 <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
                 <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
@@ -86,114 +113,128 @@
 </html>
 
 <!--user microphone and camera selection and display-->
-<script src="../scripts/initui.js"></script>
-<script src="../scripts/initvdo.js"></script>
-<script src="../scripts/interface.js"></script>
-<script src="../scripts/annotations.js"></script>
-<script src="../scripts/github.js"></script>
+<!-- <script src="/scripts/deviceselect.js"></script> -->
+<script src="/scripts/cookies.js"></script>
+<script src="/scripts/initui.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/interface.js"></script>
+<script src="/scripts/annotations.js"></script>
 
 <script lang="javascript">
-var gitresults = [ ]; // the only global I can't seem to get rid of :(
+randomBG (); //initui.js
 
-//get the session id's for the past X days in github.js and then check the session ID against the github issues
-getList();
-async function getList() {
-    const url = "https://api.github.com/search/issues?q=repo:remotepixels/rpxl type:issue created:"+backDateyyyymmdd+".."+currentDateyyyymmdd
-    const response = await fetch(url, {
-        "method": "GET"
-    })
-    const result = await response.json()
-    checkSessionURL(result);
-}
+localStorage.clear(); //clear local storage on load to avoid issues with old settings
+sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 
-//check session ID against github issues, checks the url parameter supplied, if valid sskips the session ID screen
-function checkSessionURL (result) {
-    let query = location.search;
-    let sessionIDURL = query.slice(1);
-    let sessionIDUppercase = sessionIDURL.toUpperCase();
-    let	sessionID = encodeURIComponent(sessionIDUppercase); 
+checkSessionURL ()
+//checks if an url parameter supplied, if valid, shows the client login dialog
+function checkSessionURL () {
+    const queryURL = window.location.search.slice(1);
+    if (!queryURL) {       
+        alert("Invalid Session ID provided in URL.\n\nIf you are seeing this the link supplied has been corrupted or is incomplete.\n\nPlease check with the streamer.");
+        //window.location.href = "https://alpha.rpxl.app";
+        return;
+    };
 
-    result.items.forEach(i=>{
-        if (i.title == "SessionID" && i.author_association == "OWNER") { //every item we get back made by owner and has sessionID in the title
-            const decodedBody = atob(i.body);   //decrypt and split
-            const splitBody = decodedBody.split("&");
-        
-            gitresults.push (splitBody);
-            if (splitBody[0] == sessionID) {  //check against the suplied URL, if it matches decode client name
-                clientEncoded = splitBody[1];
-                client = decodeURIComponent(clientEncoded); //decode the client name
+    let decodeURL;
 
-                document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionID+")";
-                sessionDialog.classList.add("hidden");
-                sessionDialog.close();
-                mainWindow.classList.remove("hidden");
-                document.body.style.backgroundImage = "none";
-
-                sessionStorage.setItem("sessionID", sessionID);
-                sessionStorage.setItem("username", "Quickview%20Client");
-                sessionStorage.setItem("camerDevice", "0");
-                sessionStorage.setItem("microphoneDevice", "0");
-
-                viewMainstream();
-                viewerStream(); //used to send annotations and other data back and forth
-            } 
+    try {
+        decodeURL = window.atob(queryURL); 
+            // Throws DOMException if invalid characters
+        } catch (error) {
+        if ((error instanceof URIError) || (error instanceof DOMException && error.message.includes("invalid character")) || (error instanceof TypeError)) {
+            alert("Invalid Session ID provided in URL.\n\nIf you are seeing this the link supplied has been corrupted or is incomplete.\n\nPlease check with the streamer.");
+            //window.location.href = "https://alpha.rpxl.app";
+            return;
+        } else {
+            console.error("Unexpected error:", error);
+            return;
         }
-    })
-}
+    }
+
+    const params = new URLSearchParams(decodeURL);
+    if (params.has('SID')) {
+        const SID = params.get('SID');
+        const sanitizedSessionID = encodeURIComponent(SID); 
+        
+        if (!sanitizedSessionID || sanitizedSessionID.length !== 9) {
+            alert("Invalid Session ID provided in URL.\n\nIf you are seeing this the link supplied has been corrupted or is incomplete.\n\nPlease check with the streamer.");
+            //window.location.href = "https://alpha.rpxl.app";
+            return;
+        } else {
+            sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
+            sessionStorage.setItem("username", "Quickview")
+            sessionStorage.setItem("camerDevice", "0");
+            sessionStorage.setItem("microphoneDevice", "0");
+
+            document.body.style.backgroundImage = "none";
+            mainWindow.classList.remove("hidden");
+
+            viewerStream(); //from initvdo.js
+            setTimeout(function(){   
+                viewMainStream();//from initvdo.js
+            },250);
+        }
+
+    // checkCookie("username", "camera", "mic"); //cookies.js
+
+    
+    }
+}      
 
 //submit session ID on enter or click, focus field
-document.getElementById("sessionID").focus();
-document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
-document.getElementById("sessionID").addEventListener("keypress", function(event) {
-	if (event.key === "Enter") {
-		event.preventDefault();
-		document.getElementById("checkSession").click();
-		}
-	});
+// document.getElementById("sessionID").focus();
+// document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
+// document.getElementById("sessionID").addEventListener("keypress", function(event) {
+// 	if (event.key === "Enter") {
+// 		event.preventDefault();
+// 		document.getElementById("checkSession").click();
+// 		}
+// 	});
 
 //quick check to make sure the session ID is 6 characters long, if not then shake the box and clear input
 //if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
-function checkEnteredSession() {
-    const sessionIDEntered = sessionID.value.trim();
-    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
-    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
+// function checkEnteredSession() {
+//     const sessionIDEntered = sessionID.value.trim();
+//     const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
+//     const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
 
-    // Shake dialog if session ID incorrect
-    function showError() {
-        sessionDialog.style.animation = "shake 500ms";
-        setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
-        sessionID.value = "";
-        sessionID.focus();
-    }
+//     // Shake dialog if session ID incorrect
+//     function showError() {
+//         sessionDialog.style.animation = "shake 500ms";
+//         setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
+//         sessionID.value = "";
+//         sessionID.focus();
+//     }
 
-    if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
-        showError();
-        return;
-    }
+//     if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
+//         showError();
+//         return;
+//     }
 
-    const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
+//     const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
 
-    if (found) {
-        const clientEncoded = found[1];
-        const client = decodeURIComponent(clientEncoded);
+//     if (found) {
+//         const clientEncoded = found[1];
+//         const client = decodeURIComponent(clientEncoded);
 
-        sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
-        sessionStorage.setItem("username", "Quickview%20Client");
-        sessionStorage.setItem("camerDevice", "0");
-        sessionStorage.setItem("microphoneDevice", "0");
+//         sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
+//         sessionStorage.setItem("username", "Quickview%20Client");
+//         sessionStorage.setItem("camerDevice", "0");
+//         sessionStorage.setItem("microphoneDevice", "0");
 
-        sessionDialog.close();
-        sessionDialog.classList.add("hidden");
-        document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
-        mainWindow.classList.remove("hidden");
-        document.body.style.backgroundImage = "none";
+//         sessionDialog.close();
+//         sessionDialog.classList.add("hidden");
+//         document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
+//         mainWindow.classList.remove("hidden");
+//         document.body.style.backgroundImage = "none";
 
 
-        viewMainstream();
-        viewerStream();
+//         viewMainstream();
+//         viewerStream();
 
-    } else {
-        showError();
-    }
-}
+//     } else {
+//         showError();
+//     }
+// }
 </script>
