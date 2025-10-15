@@ -11,10 +11,7 @@ function viewerStream () {
 
     let currentCamera = document.getElementById("cameraSource").selectedIndex;
     let currentMic = document.getElementById("microphoneSource").selectedIndex;
-// console.log("stored cam",storedCameraIndex,"stored mic",storedMicIndex)
-// console.log("current mic",currentMic,"current cam",currentCamera)
-// console.log("stored user",storedUserName)
-// console.log("current user",currentUsername)
+
     if (!sanitizedCurrentUserName) {
         document.getElementById("name").style.animation = "pulse 500ms";
         setTimeout(() => { document.getElementById("name").style.animation = "none"; }, 500);
@@ -55,7 +52,7 @@ function viewerStream () {
         }
 
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
-            var micSetup = "&noaudio";
+            var micSetup = "&audiodevice=0";
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
