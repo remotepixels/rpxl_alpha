@@ -193,6 +193,11 @@
 <script type="text/javascript"> 
 localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+getDevices().then(() => {
+    [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
+        sel.addEventListener('change', handleSelectionChange);
+    });
+});
 
 function isMobileDevice() {
     return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
