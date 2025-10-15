@@ -105,7 +105,7 @@ function storeSelectedDevicesUser() {
     const cameraList = document.getElementById("cameraSource");
     const microphoneList = document.getElementById("microphoneSource");
 
-    let username = document.getElementById("name").value.trim() || "Presenter";
+    let username = document.getElementById("name").value.trim() || "Streamer";
     let sanitizedUserName = encodeURIComponent(username);
     sessionStorage.setItem("username", sanitizedUserName);
     setCookie("username", sanitizedUserName, 7);

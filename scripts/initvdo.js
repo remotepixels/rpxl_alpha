@@ -6,7 +6,7 @@ function viewerStream () {
     let storedCameraIndex = sessionStorage.getItem("cameraSourceIndex");
     let storedMicIndex = sessionStorage.getItem("microphoneSourceIndex");
 
-    let currentUsername = document.getElementById("name").value.trim() || "Presenter"; //current values in form`
+    let currentUsername = document.getElementById("name").value.trim() || "Streamer"; //current values in form`
     let sanitizedCurrentUserName = encodeURIComponent(currentUsername); 
 
     let currentCamera = document.getElementById("cameraSource").selectedIndex;
