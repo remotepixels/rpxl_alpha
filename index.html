@@ -272,6 +272,13 @@ function checkSessionURL () {
                 console.log('INCORRECTLY FORMATED SESSION ID');
                 return;
             } else {
+                getDevices().then(() => {
+                [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
+                    sel.addEventListener('change', handleSelectionChange);
+                });
+                });
+
+
                 checkCookie("username", "camera", "mic"); //cookies.js
                 sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
 

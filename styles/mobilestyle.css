@@ -1,4 +1,7 @@
 @media (max-width: 760px) {
+        .volume, #toolAnnotations, #viewersStream {
+        display: none;
+    }
     .volume {
         display: none;
     }
@@ -27,12 +30,23 @@
     #topmenu {
         display: none;
     }
+    #bottomMenu {
+        height:70px;
+        bottom:0px;
+        padding-bottom: 20px;
+        /* margin-bottom:20px; */
+    }
+    .toolpopup.bottom {
+        bottom: calc(35px + var(--button-height));
+    }
     .mainZoom {
         left: 0px;
-        top: 0px;
+        top: 5px;
+        height: calc(100% - var(--toolbarheight));
+        width:100%;
     }
 }
-@media (max-width: 375px) {
+@media (max-width: 420px) {
     .volume, #toolAnnotations, #viewersStream {
         display: none;
     }
@@ -71,14 +85,25 @@
     }
     .mainZoom {
         left: 0px;
-        top: 0px;
+        top: 5px;
+        height: calc(100% - var(--toolbarheight));
+        width:100%;
     }
 }
 @media (max-height: 430px) {
     #topmenu {
         display: none;
     }
-    .viewersiframe, .mainstreamiframe {
+        .viewersiframe {
+        display:none;
+    }
+    /* .viewersiframe, .mainstreamiframe {
         top: 0px;
+    } */
+        .mainZoom {
+        left: 0px;
+        top: 5px;
+        height: calc(100% - var(--toolbarheight));
+        width:100%;
     }
 }

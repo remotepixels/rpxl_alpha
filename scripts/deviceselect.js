@@ -180,8 +180,8 @@
       userVU.style.height = "0%";
     }
 
-    getDevices().then(() => {
-      [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
-        sel.addEventListener('change', handleSelectionChange);
-      });
-    });
+    // getDevices().then(() => {
+    //   [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
+    //     sel.addEventListener('change', handleSelectionChange);
+    //   });
+    // });

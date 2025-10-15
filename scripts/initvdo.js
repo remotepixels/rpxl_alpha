@@ -55,7 +55,7 @@ function viewerStream () {
         }
 
         if ((sanitizedMicrophone == "0") || (sanitizedMicrophone == "disabled_in_browser") || (sanitizedMicrophone == null) || (sanitizedMicrophone == "null") ) {
-            var micSetup = "&audiodevice=0";
+            var micSetup = "&noaudio";
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
