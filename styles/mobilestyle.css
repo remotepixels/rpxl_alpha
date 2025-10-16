@@ -25,7 +25,10 @@
         transform-origin: 0%;
     }
     .viewersiframe {
-        display:none;
+        opacity:0px;
+        left:-100px;
+        width:1px;
+        height:1px;
     }
     #topmenu {
         display: none;
@@ -69,7 +72,10 @@
         scale:1;
     }
     .viewersiframe {
-        display:none;
+        opacity:0px;
+        left:-100px;
+        width:1px;
+        height:1px;
     }
     #topmenu {
         display: none;
@@ -95,12 +101,12 @@
         display: none;
     }
         .viewersiframe {
-        display:none;
+        opacity:0px;
+        left:-100px;
+        width:1px;
+        height:1px;
     }
-    /* .viewersiframe, .mainstreamiframe {
-        top: 0px;
-    } */
-        .mainZoom {
+.mainZoom {
         left: 0px;
         top: 5px;
         height: calc(100% - var(--toolbarheight));
