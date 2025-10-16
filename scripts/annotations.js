@@ -212,23 +212,14 @@ function redrawCanvas() {
 const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
 const eventer = window[eventMethod];
 const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-//var canvasSet = null;
-var canvasCurrentLeft = 0;
-var canvasCurrentTop = 0;
-var canvasCurrentWidth = 0;
-var canvasCurrentHeight = 0;
+var canvasCurrentLeft = 0, canvasCurrentTop = 0, canvasCurrentWidth = 0, canvasCurrentHeight = 0;
 
 eventer(messageEvent, function(e) {
     const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
 
-    // Make sure the message is from our VDO.Ninja iframe
-    //if ((e.source != iframe.contentWindow) || (e.source != streamFrame.contentWindow)) return;
-    //check if there is a amin stream and if there is then turn on annotations tools
-    if (e.data && e.data.sendData === 'mainstreamSize') {
+    if (e.data && e.data.sendData === 'mainstreamSize') { //check if there is a amin stream and if there is then turn on annotations tools
         const { width, height, top, left } = e.data;
         
-        // var offsetViewFrame = 0;
-        // if (viewersFrame) {var offsetViewFrame = 100;} //director view has a sidebar so we need to offset the canvas
         var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
 
         if (width == 0 || height == 0) {
@@ -240,16 +231,20 @@ eventer(messageEvent, function(e) {
                 tool.setAttribute("aria-expanded", "false");
                 tool.disabled = true;
             });
-            document.getElementById("annotationsCanvas").width = 0;
-            document.getElementById("annotationsCanvas").height = 0;
-            document.getElementById("annotationsCanvas").style.width = 0+"px";
-            document.getElementById("annotationsCanvas").style.height = 0+"px";
-            document.getElementById("annotationsCanvas").style.top = 0+"px";
-            document.getElementById("annotationsCanvas").style.left = 0+"px";
-            canvasCurrentLeft = 0;
-            canvasCurrentTop = 0;
-            canvasCurrentWidth = 0;
-            canvasCurrentHeight = 0;
+
+            //const canvas = document.getElementById("annotationsCanvas");
+
+            canvas.width = 0;
+            canvas.height = 0;
+
+            Object.assign(canvas.style, {
+            width: `${0}px`,
+            height: `${0}px`,
+            top: `${0}px`,
+            left: `${0}px`
+            });
+
+            canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
         }
         //sometimes the video stream is not ready yet, so we need to check if width and height are 0
         //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
@@ -266,19 +261,19 @@ eventer(messageEvent, function(e) {
                 tool.disabled = false;
             });
             
-            document.getElementById("annotationsCanvas").width = width;
-            document.getElementById("annotationsCanvas").height = height;
-            document.getElementById("annotationsCanvas").style.width = width+"px";
-            document.getElementById("annotationsCanvas").style.height = height+"px";
-            document.getElementById("annotationsCanvas").style.top = topOffset+"px";
-            document.getElementById("annotationsCanvas").style.left = left+"px";
+            canvas.width = width;
+            canvas.height = height;
+
+            Object.assign(canvas.style, {
+            width: `${width}px`,
+            height: `${height}px`,
+            top: `${topOffset}px`,
+            left: `${left}px`
+            });
 
             redrawCanvas(); //redraw canvas once resized
             
-            canvasCurrentLeft = left;
-            canvasCurrentTop = top;
-            canvasCurrentWidth = width;
-            canvasCurrentHeight = height;
+            canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
             console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
         }
     }    

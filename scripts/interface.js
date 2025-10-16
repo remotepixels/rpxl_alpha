@@ -15,23 +15,23 @@ const toolMuteMicrophone = document.getElementById("toolMuteMicrophone");
 const toolMuteCamera = document.getElementById("toolMuteCamera");
 
 
-if (toolShare) { toolShare.addEventListener("click", function () { openDialog(shareDialog, toolShare); });}
-if (toolQuit) { toolQuit.addEventListener("click", function () { openDialog(quitDialog, toolQuit); });}
+if (toolShare) { toolShare.addEventListener("pointerdown", function () { openDialog(shareDialog, toolShare); });}
+if (toolQuit) { toolQuit.addEventListener("pointerdown", function () { openDialog(quitDialog, toolQuit); });}
 
-if (toolSettings) { toolSettings.addEventListener("click", function () { 
+if (toolSettings) { toolSettings.addEventListener("pointerdown", function () { 
     recalSelectedDevices(); //from initui.js - reset settings dialog to current selected devices
     openDialog(settingsDialog, toolSettings); });
 }
 
-if (toolMuteStream) { toolMuteStream.addEventListener("click", function() { toggleIcon(toolMuteStream); toolMuteStreamSelect(); });}
-if (toolStreamVolume) { toolStreamVolume.addEventListener("click", function() { toolStreamVolumeSelect(); });}
+if (toolMuteStream) { toolMuteStream.addEventListener("pointerdown", function() { toggleIcon(toolMuteStream); toolMuteStreamSelect(); });}
+if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerdown", function() { toolStreamVolumeSelect(); });}
 
-if (toolDraw) { toolDraw.addEventListener("click", function() { toggleIcon(toolDraw); toolDrawSelect(); });}
-if (toolPalette) { toolPalette.addEventListener("click", function () { openDialog(paletteDialog, toolPalette); });}
-if (toolEraser) { toolEraser.addEventListener("click", function() { toolEraserSelect(); });}
+if (toolDraw) { toolDraw.addEventListener("pointerdown", function() { toggleIcon(toolDraw); toolDrawSelect(); });}
+if (toolPalette) { toolPalette.addEventListener("pointerdown", function () { openDialog(paletteDialog, toolPalette); });}
+if (toolEraser) { toolEraser.addEventListener("pointerdown", function() { toolEraserSelect(); });}
 
-if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("click", function() { toolMuteMicrophoneSelect(); });}
-if (toolMuteCamera) { toolMuteCamera.addEventListener("click", function() { toolMuteCameraSelect(); });}
+if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("pointerdown", function() { toolMuteMicrophoneSelect(); });}
+if (toolMuteCamera) { toolMuteCamera.addEventListener("pointerdown", function() { toolMuteCameraSelect(); });}
 
 //toggle toolbar icons on and off
 function toggleIcon (toolIcon) {
@@ -64,9 +64,7 @@ function closeDialog (dialog, toolIcon) {
     openIcon = "";
 }
 
-
-// Close the dropdown if the user clicks outside of it
-window.onclick = function(e) {
+window.addEventListener("pointerdown", function(e) {
     if (e.target.matches("div#popupBG")) {
         openModal.close();
         openModal.classList.add("hidden");
@@ -75,9 +73,8 @@ window.onclick = function(e) {
         document.getElementById("popupBG").classList.add("hidden");
         openModal = "";
         openIcon = "";
-    } 
-}
-
+    }
+});
 //main stream mute and volume
 function toolMuteStreamSelect () {
     if (toolMuteStream.getAttribute("aria-expanded") == "false") {
@@ -117,22 +114,22 @@ function toolStreamVolumeSelect () {
         console.log("main stream volume",vol)
 }
 
-//drawing tool
+//drawing tools
 function toolDrawSelect () {
     if (toolDraw.getAttribute("aria-expanded") == "true") {
         document.getElementById("annotationsCanvas").style.display = "block";
         document.getElementById("annotationsCanvas").style.cursor = "crosshair";
 
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', endDrawing);
+        canvas.addEventListener('pointerdown', startDrawing);
+        canvas.addEventListener('pointermove', draw);
+        canvas.addEventListener('pointerup', endDrawing);
         canvas.addEventListener('mouseout', endDrawing);
     } else {
         document.getElementById("annotationsCanvas").style.cursor = "default";
 
-        canvas.removeEventListener('mousedown', startDrawing);
-        canvas.removeEventListener('mousemove', draw);
-        canvas.removeEventListener('mouseup', endDrawing);
+        canvas.removeEventListener('pointerdown', startDrawing);
+        canvas.removeEventListener('pointermove', draw);
+        canvas.removeEventListener('pointerup', endDrawing);
         canvas.removeEventListener('mouseout', endDrawing);
     }
 }
@@ -140,12 +137,11 @@ function toolDrawSelect () {
 // specific for annotations and color pots popup
 // Get all the color elements and select the one clicked on
 var color = "white";
-
 const colorPots = document.querySelectorAll('.colorpot');
 
 // Add a click event listener to each color element
 colorPots.forEach(colorPot => {
-    colorPot.addEventListener('click', () => {
+    colorPot.addEventListener('pointerdown', () => {
         // 1. Get the selected color value
         const newSelectedColor = colorPot.getAttribute('value');
         color = newSelectedColor;

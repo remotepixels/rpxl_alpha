@@ -35,7 +35,6 @@ function viewerStream () {
         console.log("Viewer settings changed, reloading...");
 
         storeSelectedDevicesUser(); //store new user only settings - initui.js
-
         deactivateUserTools(); //turn off tools while reloading frame - initui.js
 
         //reload the stored values and use to reload viewers frame
@@ -76,20 +75,6 @@ function viewerStream () {
             "&group=Client"+
             "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fviewersstream.css"+
             ""; 
-            //"&fontsize=100"+
-            //"&mutestatus"+
-            //"&minipreview&minipreviewoffset"+
-            //"&unmutestatus"+
-            //"&showall"+
-            //"&showconnections"+
-            // "&cleanoutput"+
-            //"&transparent"+
-            // "&groupview=Client"+
-            // "&avatar=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
-            //"&safemode"+
-            //"&intro"+
-            //"&dataonly"+
-            //"&meterstyle=5&bgimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2Favatar.png"+
 
         reactivateUserTools(); //reactivate tools - initui.js
         setTimeout(function(){   
@@ -122,9 +107,6 @@ function viewMainStream () {
         "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
         "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
         ""; 
-        //"&style=1"+
-        //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-        //"&directoronly"+
 
     setTimeout(function(){   
         document.getElementById("zoomdiv").classList.remove("hidden");
@@ -186,7 +168,6 @@ function startMainStream() {
 
             document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
                 "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
-                //"&view"+
                 "&directoronly"+
                 "&mirror"+//mirror the video
                 "&rampuptime=6000"+//ramp up time of 6 seconds
@@ -201,23 +182,14 @@ function startMainStream() {
                 "&showlist=0"+//show hidden guest list
                 "&hideplaybutton"+//hides big play button if autoplay is disabled
                 "&chroma=3c3c3c"+
-                //"&style=6"+
                 "&meterstyle=1"+
-                //"&agc=0"+//turns off auto gain control
-                //"&denoise=0"+//turns off denoiser
-                //"&ab=128"+//constant audio bitrate
+                "&agc=0"+//turns off auto gain control
+                "&denoise=0"+//turns off denoiser
+                "&ab=128"+//constant audio bitrate
                 "&waitimage=https%3A%2F%2Falpha.rpxl.app%2Fimages%2FnosignalHD.png"+
                 "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2Fmainstream.css"+
                 "&js=https%3A%2F%2Falpha.rpxl.app%2Fscripts%2Fvdomain.js"+
                 ""; 
-                //"&nopush"+
-                //"&stats"+
-                //"&showconnections"+
-                //"&signalmeter"+
-                //"&label=RPXL-"+sanitizedSessionID+//sets livestream as label for director connection
-                //"&showlabels"+
-                //"&videodevice="+sanitizedVideo+//video source
-                //"&audiodevice="+sanitizedAudio+//audio source
 
         setTimeout(function(){   
             document.getElementById("mainStream").classList.remove("hidden");

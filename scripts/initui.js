@@ -22,7 +22,6 @@ function getCheckedRadioValue(name) {
   return selected ? selected.value : null;
 }
 
-
 function deactivateUserTools() {
     let mytools = document.querySelectorAll(".tool");
     
@@ -31,8 +30,7 @@ function deactivateUserTools() {
         if (tool.id === "toolMuteMicrophone") {
             tool.disabled = true;
             tool.classList.add("disable");
-            tool.classList.remove("selected");
-            tool.classList.remove("selectedred");
+            tool.classList.remove("selected", "selectedred");
             tool.setAttribute("aria-expanded", "false");
             tool.lastElementChild.innerHTML = "mic";
         }
@@ -80,7 +78,6 @@ function storeSelectedDevicesSession() {
     const videoList = document.getElementById("videoSource");
     const audioList = document.getElementById("audioSource");
 
-
         let videoSelectedIndex = videoList.selectedIndex;
         let sanitizedVideo = videoList.options[videoSelectedIndex].text.toLowerCase().replace(/[\W]+/g, "_");
         if (sanitizedVideo === "none") sanitizedVideo = "0";
@@ -94,7 +91,6 @@ function storeSelectedDevicesSession() {
         sessionStorage.setItem("audioSourceIndex", audioSelectedIndex || "0"); //selected index for audio source (main stream)
         sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
         // console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
-
 
     sessionStorage.setItem("resolution", resolution);
     sessionStorage.setItem("quality", quality);
@@ -110,24 +106,23 @@ function storeSelectedDevicesUser() {
     sessionStorage.setItem("username", sanitizedUserName);
     setCookie("username", sanitizedUserName, 7);
 
+    let cameraSelected = cameraList.selectedIndex;
+    let rawCamera = cameraList.options[cameraSelected].text; //used to store cookie for client
+    let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+    if (sanitizedCamera === "none") sanitizedCamera = "0";
+    sessionStorage.setItem("cameraSourceIndex", cameraSelected); //selected index for camera source (user webcam)
+    sessionStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
+    setCookie("camera", rawCamera, 7);
+    //console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
 
-        let cameraSelected = cameraList.selectedIndex;
-        let rawCamera = cameraList.options[cameraSelected].text; //used to store cookie for client
-        let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
-        if (sanitizedCamera === "none") sanitizedCamera = "0";
-        sessionStorage.setItem("cameraSourceIndex", cameraSelected); //selected index for camera source (user webcam)
-        sessionStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
-        setCookie("camera", rawCamera, 7);
-        //console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
-
-        let microphoneSelected = microphoneList.selectedIndex;
-        let rawMicrophone = microphoneList.options[microphoneSelected].text; //used to store cookie for client
-        let sanitizedMicrophone = microphoneList.options[microphoneSelected].text.toLowerCase().replace(/[\W]+/g, "_");
-        if (sanitizedMicrophone === "none") sanitizedMicrophone = "0";
-        sessionStorage.setItem("microphoneSourceIndex", microphoneSelected); //selected index for microphone source (user microphone)
-        sessionStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
-        setCookie("mic", rawMicrophone, 7);
-        //console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
+    let microphoneSelected = microphoneList.selectedIndex;
+    let rawMicrophone = microphoneList.options[microphoneSelected].text; //used to store cookie for client
+    let sanitizedMicrophone = microphoneList.options[microphoneSelected].text.toLowerCase().replace(/[\W]+/g, "_");
+    if (sanitizedMicrophone === "none") sanitizedMicrophone = "0";
+    sessionStorage.setItem("microphoneSourceIndex", microphoneSelected); //selected index for microphone source (user microphone)
+    sessionStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
+    setCookie("mic", rawMicrophone, 7);
+    //console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
 
 }
 
@@ -138,8 +133,6 @@ function recalSelectedDevices() { //used in interface.js
     let cameraDeviceRecal = document.getElementById("cameraSource");
     let microphoneDeviceRecal = document.getElementById("microphoneSource");
 
-    console.log ("sessionStorage", sessionStorage);
-    
     if (videoDeviceRecal) { videoDeviceRecal.selectedIndex = sessionStorage.getItem("videoSourceIndex") || 0; }
     if (audioDeviceRecal) { audioDeviceRecal.selectedIndex = sessionStorage.getItem("audioSourceIndex") || 0; }
     if (cameraDeviceRecal) { cameraDeviceRecal.selectedIndex = sessionStorage.getItem("cameraSourceIndex") || 0; }

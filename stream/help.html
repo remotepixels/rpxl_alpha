@@ -69,23 +69,23 @@
     <span class="h2">Resolution</span>
         <p class="pointItem">The target resolution of the main stream that will be created.    </p>
         <p class="pointItem">Currently supported are full HD 1080P and 720P, 4K is still experimental at this time.    </p>
-        <p class="pointItem">A higher resolution will require a more powerful machine to encode, this is changable later in the session.    </p>
+        <p class="pointItem">A higher resolution will require a more powerful machine to encode, this is changeable later in the session.    </p>
     <span class="point">5</span>
     <span class="h2">Quality</span>
         <p class="pointItem">This is the quality of the main stream that will be created.    </p>
         <p class="pointItem">Equivalent bitrate values are High : 16Mbps, Med : 8Mbps and Low : 4Mbps.    </p>
-        <p class="pointItem">This is changable later in the session.    </p>
+        <p class="pointItem">This is changeable later in the session.    </p>
     <span class="point">6</span>
     <span class="h2">Video Source</span>
         <p class="pointItem">This is the source of the video for the main stream you wish to publish.    </p>
         <p class="pointItem">Normally this would be a the video output of your editing or comping application looped back to a capture device, or a virtual camera source such as NDI or OBS Virtual camera.<br>
             Note: RPXL does not support Blackmagic or AJA capture devices as they do not present themselves to the browser as a webcam source.    </p>
-        <p class="pointItem">This is changable later in the session.    </p>
+        <p class="pointItem">This is changeable later in the session.    </p>
         <span class="point">7</span>
     <span class="h2">Audio Source</span>
         <p class="pointItem">This is the source of the audio for the main stream you wish to publish.    </p>
         <p class="pointItem">Normally this would be a the audio output of your editing or comping application looped back to a capture device, or a virtual audio source such as NDI or OBS Virtual camera.    </p>
-        <p class="pointItem">This is changable later in the session.    </p>
+        <p class="pointItem">This is changeable later in the session.    </p>
     <span class="point">8</span>
     <span class="h2">Video source preview</span>
         <p class="pointItem">Preview of the video source you have selected.    </p>
@@ -131,12 +131,14 @@
     <p>The main interface is divided into two main sections, users are listed on the left and the main stream is to the right. With toolbars on the top and bottom.</p>
     <span class="point">1</span>
         <span class="h2">Share menu</span>
-        <p class="pointItem">Allows you to share a link to the session with your clients. There are 2 options available. </p>
+        <p class="pointItem">Allows you to share a link to the session with your clients. There are 3 options available. </p>
         <p class="pointItem">A main share link that will enable full comms with clients requiring them to connect with a microphone and enter a username.<br>
-        They will be able to annotate the main stream and chat with you within the application.<br></p>
+            They will be able to annotate the main stream and chat with you within the application.<br></p>
         <p class="pointItem">A quick link that will allow clients to view the main stream without a microphone or username.<br>
             This is useful for clients who just want to watch the stream without interacting, or if you already have them on another communication channel such as Zoom or Teams and want to quickly share with them. Clients can still annotate on the stream for feedback.</p>
-    <span class="point">2</span>
+        <p class="pointItem">A OBS source link that that can be used to ingest the main stream into OBS<br>
+            Use if you need to output the main stream through a Blackmagic or AJA video card to a monitor.<br></p>
+        <span class="point">2</span>
     <span class="h2">Quit menu</span>
         <p class="pointItem">Will end the stream and disconnect you from the session.</p>
         <p class="pointItem">
@@ -145,7 +147,7 @@
     <span class="point">3</span>
         <span class="h2">Connected users</span>
         <p class="pointItem">List of connected users. <br>
-        You will appear in this list as "Presenter" if you have not added your name in the more settings section.<br>
+            You will appear in this list as "Streamer" if you have not added your name in the more settings section.<br>
             If you have selected a Camera source, you will appear in the circle, otherwise a placeholder image will appear.<br>
             Hover over to show user names (collapsed by default).</p>
     <span class="point">4</span>
@@ -157,7 +159,7 @@
         <span class="h2">Settings menu</span>
         <p class="pointItem">Allows you to change the Resolution, Quality, Video and audio source of the main stream.<br>
             See the Creating a stream section for more details.</p>
-        <p class="pointItem">Also allows you to change yoour username, camera and microphone settings<br>
+        <p class="pointItem">Also allows you to change your username, camera and microphone settings<br>
             See the More settings section for more details.</p>
     <span class="point">6</span>
         <span class="h2">Mute Microphone</span>
@@ -181,7 +183,7 @@
         <span class="h2">Mute main stream locally</span>
         <p class="pointItem">Will mute the main stream for you alone<br>
             This is useful if to stop feedback or if you already have audio output from another source.</p>
-        <p class="pointItem">Note : Participants will still recieve audio from the main stream and your microphone if enabled.</p>
+        <p class="pointItem">Note : Participants will still receive audio from the main stream and your microphone if enabled.</p>
     <span class="point">A</span>
         <span class="h2">Main Stream local volume</span>
         <p class="pointItem">Adjusts the local volume of the main stream, it does not affect any other users, or user volume, only local the local volume of the main stream.</p>

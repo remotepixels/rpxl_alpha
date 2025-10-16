@@ -57,17 +57,17 @@
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
             <div class="toolset" style="width:200px; outline: 0px;">
-                <button class="tool toolmoresettings hidden" id="toolSettings" aria-expanded="false"><span class="material-symbols-outlined">settings</span></button>
+                <button class="tool toolmoresettings hidden" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
             </div>
             <div class="toolspacer"></div>
             <div class="toolset" id="toolAnnotations">
-                <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled><span class="material-symbols-outlined">palette</span></button>
-                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
             </div>
             <div class="toolspacer"></div>
-            <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled><span class="material-symbols-outlined">volume_up</span></button>   
-                <span class="volume streamtool"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
+            <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>   
+                <span class="volume streamtool" role="button"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
             </div>
         </div>
     </div>
@@ -96,11 +96,11 @@
     <!----- popup color menu ------>
     <dialog id="paletteDialog" class="toolpopup bottom middle hidden " style="margin-right:auto;">
             <div>
-                <span class="colorpot" value="black" aria-expanded="false" style="background-color: black;"></span>
-                <span class="colorpot selectedcolorpot" value="white" aria-expanded="true" style="background-color: white;"></span>
-                <span class="colorpot" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
-                <span class="colorpot" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
-                <span class="colorpot" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
+                <span class="colorpot" role="button" value="black" aria-expanded="false" style="background-color: black;"></span>
+                <span class="colorpot selectedcolorpot" role="button" value="white" aria-expanded="true" style="background-color: white;"></span>
+                <span class="colorpot" role="button" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
+                <span class="colorpot" role="button" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
+                <span class="colorpot" role="button" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
             </div>
     </dialog>
 
@@ -181,60 +181,4 @@ function checkSessionURL () {
     
     }
 }      
-
-//submit session ID on enter or click, focus field
-// document.getElementById("sessionID").focus();
-// document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
-// document.getElementById("sessionID").addEventListener("keypress", function(event) {
-// 	if (event.key === "Enter") {
-// 		event.preventDefault();
-// 		document.getElementById("checkSession").click();
-// 		}
-// 	});
-
-//quick check to make sure the session ID is 6 characters long, if not then shake the box and clear input
-//if the session ID is 6 characters long then check it against the github issues, if valid then show the client login screen
-// function checkEnteredSession() {
-//     const sessionIDEntered = sessionID.value.trim();
-//     const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
-//     const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
-
-//     // Shake dialog if session ID incorrect
-//     function showError() {
-//         sessionDialog.style.animation = "shake 500ms";
-//         setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
-//         sessionID.value = "";
-//         sessionID.focus();
-//     }
-
-//     if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !== 6) {
-//         showError();
-//         return;
-//     }
-
-//     const found = gitresults.find(([id]) => id === sessionIDEnteredSanitized); //results we got from github using async getlist()
-
-//     if (found) {
-//         const clientEncoded = found[1];
-//         const client = decodeURIComponent(clientEncoded);
-
-//         sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
-//         sessionStorage.setItem("username", "Quickview%20Client");
-//         sessionStorage.setItem("camerDevice", "0");
-//         sessionStorage.setItem("microphoneDevice", "0");
-
-//         sessionDialog.close();
-//         sessionDialog.classList.add("hidden");
-//         document.getElementById("sessionTitle").innerHTML = client + " Live session ("+sessionIDEnteredSanitized+")";
-//         mainWindow.classList.remove("hidden");
-//         document.body.style.backgroundImage = "none";
-
-
-//         viewMainstream();
-//         viewerStream();
-
-//     } else {
-//         showError();
-//     }
-// }
 </script>
