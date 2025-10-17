@@ -355,13 +355,14 @@ function checkSessionID() {
     window.addEventListener("pointerup", onMouseUp);
 
     startSessionButton.addEventListener("pointerdown",() => {
-        viewerStream();
+        viewerStreamDirector();
         setTimeout(function(){   
             startMainStream();
         },500);
 
     });
-    viewerStream();
+    
+    viewerStreamDirector();
     setTimeout(function(){   
         startMainStream();
     },500);
