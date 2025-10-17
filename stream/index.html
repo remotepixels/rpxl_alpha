@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="../styles/streamstyle.css">
     <link rel="stylesheet" href="../styles/styles.css">
     
-    <title>alpha.rpxl.app v3 | Stream</title>
+    <title>alpha.rpxl.app v3 | Stream (beta)</title>
 </head>
 
 <body>
@@ -256,7 +256,10 @@ buttonMoreSettings.addEventListener("pointerdown", () => {
     buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
     buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
     ["settingsDialogTitleOptional", "moresettings"].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
+        document.getElementById(id).classList.toggle("hidden");
+    }); 
+    ["settingsDialogTitleOptional", "moresettings"].forEach(id => {
+        document.getElementById(id).classList.toggle("collapsed");
     }); 
 });
 
