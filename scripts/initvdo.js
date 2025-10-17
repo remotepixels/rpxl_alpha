@@ -5,7 +5,7 @@ function viewerStream () {
     let storedUserName = sessionStorage.getItem("username"); //retrieve username, camera and mic settings from storage
     let storedCameraIndex = sessionStorage.getItem("cameraSourceIndex");
     let storedMicIndex = sessionStorage.getItem("microphoneSourceIndex");
-    let storedIsDirector = sessionStorage.getItem("director");
+    //let storedIsDirector = sessionStorage.getItem("director");
     let joinAsDirector = "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoViewer.css";
 
     let currentUsername = document.getElementById("name").value.trim() || "Streamer"; //current values in form`
@@ -57,11 +57,12 @@ function viewerStream () {
         } else {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
-        if (storedIsDirector == "true") { 
-            joinAsDirector = "&director&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoDirector.css"
-        }
+        // if (storedIsDirector == "true") { 
+        //     joinAsDirector = "&director&exclude="+sanitizedSessionID//+//"&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoDirector.css"
+        // }
         document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&cleanish"+joinAsDirector+
+            "&graphs"+
             "&showlabels"+
             "&label="+sanitizedUserName+camSetup+micSetup+
             "&hidehome"+
@@ -172,6 +173,8 @@ function startMainStream() {
             document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
                 "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
                 "&view"+
+                //"&solo"+
+                //"&graphs"+
                 "&directoronly"+
                 "&mirror"+//mirror the video
                 "&rampuptime=6000"+//ramp up time of 6 seconds
