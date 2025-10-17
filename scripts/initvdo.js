@@ -261,10 +261,10 @@ function viewerStreamDirector () {
         document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&cleanish"+
             "&director"+
-            "&showlabels"+
+            //"&showlabels"+
             "&label="+sanitizedUserName+camSetup+micSetup+
             "&hidehome"+
-            "&style=6"+
+            //"&style=6"+
             "&meterstyle=1"+
             "&webcam"+
             "&notify"+
