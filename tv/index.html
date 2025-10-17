@@ -127,6 +127,8 @@ function checkEnteredSession() {
     }
     sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
     sessionStorage.setItem("username", "Smart TV Viewer")
+    sessionStorage.setItem("director", "false");        
+
     sessionDialog.close();
     sessionDialog.classList.add("hidden");
     document.body.style.backgroundImage = "none";

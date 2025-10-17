@@ -6,7 +6,7 @@ function viewerStream () {
     let storedCameraIndex = sessionStorage.getItem("cameraSourceIndex");
     let storedMicIndex = sessionStorage.getItem("microphoneSourceIndex");
     let storedIsDirector = sessionStorage.getItem("director");
-    let joinAsDirector = "";
+    let joinAsDirector = "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoViewer.css";
 
     let currentUsername = document.getElementById("name").value.trim() || "Streamer"; //current values in form`
     let sanitizedCurrentUserName = encodeURIComponent(currentUsername); 
@@ -58,7 +58,7 @@ function viewerStream () {
             var micSetup = "&audiodevice="+sanitizedMicrophone;
         }
         if (storedIsDirector == "true") { 
-            joinAsDirector = "&director"
+            joinAsDirector = "&director&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoDirector.css"
         }
         document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
             "&cleanish"+joinAsDirector+
@@ -77,7 +77,6 @@ function viewerStream () {
             "&chroma=3c3c3c"+
             "&nomouseevents"+
             "&group=Client"+
-            "&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoViewer.css"+
             ""; 
 
         reactivateUserTools(); //reactivate tools - initui.js
@@ -160,7 +159,7 @@ function startMainStream() {
         } else {
             console.log("Starting main stream with settings :", resolution, quality, sanitizedVideo, sanitizedAudio);
             if ((sanitizedVideo == "0") || (sanitizedVideo == "disabled_in_browser") || (sanitizedVideo == null) || (sanitizedVideo == "null") ) {
-                var videoSetup = "&avatar=https%3A%2F%2Falpha.rpxl.app%2Favatars%2F"+avatar+"&videodevice=0";//"&novideo&videodevice=0";
+                var videoSetup = "&videodevice=0&novideo";//"&novideo&videodevice=0";
             } else {
                 var videoSetup = "&videodevice="+sanitizedVideo;
             }
@@ -172,6 +171,7 @@ function startMainStream() {
 
             document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
                 "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
+                "&view"+
                 "&directoronly"+
                 "&mirror"+//mirror the video
                 "&rampuptime=6000"+//ramp up time of 6 seconds

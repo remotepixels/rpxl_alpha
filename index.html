@@ -309,6 +309,9 @@ function setupSession() {
         });    
         document.getElementById("mainWindow").classList.remove("hidden");      
         document.body.style.backgroundImage = "none";
+        
+        sessionStorage.setItem("director", "false");        
+        sessionStorage.setItem("username", sanitizedUserName);
 
         //change login dialog layout (remove camera preview)
         document.getElementById("settingsDialog").classList.remove("top", "middle");        
