@@ -123,3 +123,198 @@ canvas {
 #context-menu-video{
 	display:none!important;
 }
+
+
+
+#guestFeeds{
+    /*! left:0px; */
+    /*! top:0px; */
+    margin:0px!important;
+}
+.signal-meter{
+	left: 266px;
+	top: 0px;
+	pointer-events:none;
+	background-color: #00000000;
+	font-size: 18px;
+	color: #e0e0e0!important;
+    opacity:0.5;
+}
+#context-menu-video{
+	display:none!important;
+}
+
+.video-meter2 {
+    display: inline-block;
+    padding: 0px;
+    width: 10px;
+    bottom: -50px;
+    left: 290px;
+    position: absolute;
+    border-radius: 0px;
+    pointer-events: none;
+    transition: height 0.1s ease, background-color 0.1s ease;
+    z-Index: 2;
+    opacity: 0.3!important;
+}
+.directorMargins {
+    background-color: transparent!important;
+}
+.streamID {
+    overflow: visible;
+    text-align: left;
+    margin: 0px;
+    padding:0px;
+    background-color: transparent;
+    text-overflow: hidden;
+    overflow: hidden;
+    position: absolute;
+    top:35px;
+    left:95px;
+    width: 227px;
+    display: inline;
+    color: transparent;
+}
+.contolboxLabel{
+    
+    display:inline!important;
+    font-size:15px;
+    color:#949494;
+    position: relative;
+    width:160px;
+    top:0px;
+    left:0px;
+    text-align: left;
+    background-color: transparent;
+}
+.shift {
+    display:none;
+}
+.user-select{
+    display:none;
+}
+.la-window-minimize{
+        display:none;
+}
+.la-copy {
+        display:none;
+}
+input[data-action-type="volume"] {
+    display:none;
+}
+input[type=range] {
+    display:none;   
+}
+div.row.three.advanced {
+    display:none;
+}
+button[data-action-type="direct-chat"] {
+    display:none;
+}
+button[data-action-type="forward"] {
+    display:none;
+}
+button[data-action-type="solo-video"] {
+    display:none;
+}
+button[data-action-type="mute-video-guest"] {
+    display:none;
+}
+button[data-action-type="toggle-remote-speaker"] {
+    display:none;
+}
+button[data-action-type="hide-guest"] {
+    display:none;
+}
+button[data-action-type="refresh-mic"] {
+    display:none;
+}
+button[data-action-type="addToScene"] {
+    display:none;
+}
+button.hideDropMenu.advanced {
+    display:none;
+}
+div.row.two.settingsWrapper {
+    display:none;
+}
+div.soloButton {
+    display:none;
+}
+div.flexBreak {
+    display:none;
+}
+button[data-action-type="toggle-group"] {
+    display:none;
+}
+div.row.three {
+    display:none;
+}
+.controlsGrid .row {
+    width:30px;
+}
+.controlsGrid .tooltip {
+      display:none;
+}
+button[data-action-type="mute-guest"] {
+    position:relative;
+    display: inline-block;
+    left:255px!important;
+    top:-14px;
+    height:30px;
+    width:30px;
+    border-radius : 10px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    background-color: #3c3c3c;
+    border-color: #949494!important;
+    box-shadow: 0 0 0;
+    opacity:0.5; 
+}
+button[data-action-type="mute-guest"]:hover {
+    border-color: white!important;
+    opacity:0.8; 
+}
+.la-microphone-slash {
+    color: white!important;
+    font-size: 20px!important;
+    font-weight:900!important;
+}
+.pressed {
+    margin:0px;
+    padding:0px;
+    background-color: grey!important;
+    color:white;
+    border-color: white!important;
+    opacity:1!important;
+}
+span[data-translate="mute"] {
+      display:none;    
+}
+button[data-action-type="hangup"] {
+    position:relative;
+    height:30px;
+    width:30px;
+    top:15px;
+    left:220px;
+    border-radius : 0px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #3c3c3c;
+    border-color: #949494!important;
+    box-shadow: 0 0 0;
+    opacity:0.5; 
+}
+button[data-action-type="hangup"]:hover {
+    background-color: red;
+    border-color: white!important;
+    opacity:0.8; 
+}
+.la-sign-out-alt {
+    color: white!important;
+    font-size: 20px!important;
+    font-weight:900!important;
+}
+span[data-translate="disconnect-guest"] {
+      display:none;    
+}

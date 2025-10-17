@@ -322,6 +322,7 @@ function checkSessionID() {
     sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);    //save values to local storage
     sessionStorage.setItem("ShareURL", encodedSIDAndProject);
     sessionStorage.setItem("username", user); 
+    sessionStorage.setItem("director", "true"); 
 
     //Set Session Title & Copy Session Quick Link to Clipboard
     sessionName.innerHTML = projectName + " (" + sessionIDEnteredSanitized + ")";
@@ -355,14 +356,14 @@ function checkSessionID() {
     window.addEventListener("pointerup", onMouseUp);
 
     startSessionButton.addEventListener("pointerdown",() => {
-        viewerStreamDirector();
+        viewerStream();
         setTimeout(function(){   
             startMainStream();
         },500);
 
     });
 
-    viewerStreamDirector();
+    viewerStream();
     setTimeout(function(){   
         startMainStream();
     },500);
