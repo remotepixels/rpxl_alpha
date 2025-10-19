@@ -609,7 +609,7 @@ input[type="range"]::-webkit-slider-thumb {
     top: var(--toolbarheight);
     width: calc(100% - 105px);
     left:100px;
-    overflow:hidden;
+    overflow:auto;
     transform: translate(0, 0) scale(1);
     transform-origin: center center;
     will-change: transform;

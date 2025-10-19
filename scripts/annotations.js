@@ -31,7 +31,7 @@ function getMousePosInDiv(e) {
 
 function onWheel(e) {
     e.preventDefault();
-    if (canvasCurrentWidth >= 2) {
+    if (annotationsCanvas.offsetWidth >= 2) {
         const prevScale = scale;
         const delta = -e.deltaY * 0.001;
         scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
