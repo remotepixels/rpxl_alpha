@@ -335,6 +335,7 @@ label:has([type=colorpot]:checked) {
 }
 .toolbar.bottom {
     bottom: 0px;
+    /* padding-bottom: env(safe-area-inset-bottom); */
 }
 .toolset {
     border-radius: var(--radius-big);
