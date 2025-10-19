@@ -48,10 +48,10 @@ a:hover {
 body {
     margin: 0px;
     background-color: var(--color-mid-grey);
-    background-attachment: fixed ;
+    background-attachment: scroll;
     background-position: top center;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 100%;
     overflow: auto;
 }
 /* @media (prefers-color-scheme: dark) {
