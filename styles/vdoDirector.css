@@ -1,22 +1,31 @@
 video {
 	position:absolute;
+    display: inline;
+    top:-10px;
+    left:0px;
 	width:80px!important;
 	height:80px!important;
 	border-radius:100%!important;
 	object-fit:cover!important;
 	background-size: cover;
 	opacity:0.6!important;
+    margin:0px!important;
+    padding:0px!important;
+    
 }	
 
 #guestFeeds{
+    position:relative;
+    top:0px;
     margin:0px!important;
     padding:0px!important;
     background-color: transparent!important;
 }
 
 .signal-meter{
-	left: 266px;
-	top: 0px;
+	left: 261px;
+	top: -10px;
+    
 	pointer-events:none;
 	background-color: #00000000;
 	font-size: 18px;
@@ -30,9 +39,10 @@ video {
 .video-meter2 {
     display: inline-block;
     padding: 0px;
-    width: 10px;
-    bottom: -50px;
-    left: 290px;
+    width:7px;
+    bottom: -41px;
+    border:0px;
+    left: 287px;
     position: absolute;
     border-radius: 0px;
     pointer-events: none;
@@ -40,33 +50,29 @@ video {
     z-Index: 2;
     opacity: 0.3!important;
 }
+
 .directorMargins {
+    position:relative;
+    height:90px;
+    width:300px;
+    margin:0px!important;
+    padding:5px!important;
     background-color: transparent!important;
 }
 .streamID {
-    overflow: visible;
     text-align: left;
-    margin: 0px;
-    padding:0px;
-    background-color: transparent;
-    text-overflow: hidden;
-    overflow: hidden;
-    position: absolute;
-    top:35px;
-    left:95px;
-    width: 227px;
+    position:relative;
     display: inline;
     color: transparent;
 }
 .contolboxLabel{
-    
-    display:inline!important;
+    margin:0px!important;
+    padding:0px!important;
+    display:inline;
     font-size:15px;
     color:#949494;
-    position: relative;
-    width:160px;
-    top:0px;
-    left:0px;
+    top:35px;
+    left:95px;
     text-align: left;
     background-color: transparent;
 }
@@ -75,6 +81,7 @@ video {
 }
 .user-select{
     display:none;
+    
 }
 .la-window-minimize{
         display:none;
@@ -82,46 +89,10 @@ video {
 .la-copy {
         display:none;
 }
-input[data-action-type="volume"] {
-    display:none;
-}
-input[type=range] {
-    display:none;   
-}
-div.row.three.advanced {
-    display:none;
-}
 button[data-action-type="direct-chat"] {
     display:none;
 }
-button[data-action-type="forward"] {
-    display:none;
-}
-button[data-action-type="solo-video"] {
-    display:none;
-}
-button[data-action-type="mute-video-guest"] {
-    display:none;
-}
-button[data-action-type="toggle-remote-speaker"] {
-    display:none;
-}
-button[data-action-type="hide-guest"] {
-    display:none;
-}
-button[data-action-type="refresh-mic"] {
-    display:none;
-}
-button[data-action-type="addToScene"] {
-    display:none;
-}
-button.hideDropMenu.advanced {
-    display:none;
-}
 div.row.two.settingsWrapper {
-    display:none;
-}
-div.soloButton {
     display:none;
 }
 div.flexBreak {
@@ -130,20 +101,18 @@ div.flexBreak {
 button[data-action-type="toggle-group"] {
     display:none;
 }
-div.row.three {
-    display:none;
-}
 .controlsGrid .row {
     width:30px;
+    height:30px;
 }
 .controlsGrid .tooltip {
       display:none;
 }
 button[data-action-type="mute-guest"] {
     position:relative;
-    display: inline-block;
-    left:255px!important;
-    top:-14px;
+    display: inline;
+    left:250px!important;
+    top:-24px;
     height:30px;
     width:30px;
     border-radius : 10px;
@@ -178,8 +147,8 @@ button[data-action-type="hangup"] {
     position:relative;
     height:30px;
     width:30px;
-    top:15px;
-    left:220px;
+    top:5px;
+    left:215px;
     border-radius : 0px;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -200,4 +169,7 @@ button[data-action-type="hangup"]:hover {
 }
 span[data-translate="disconnect-guest"] {
       display:none;    
+}
+span[data-translate="add-a-label"] {
+       display:none;   
 }

@@ -314,7 +314,7 @@ function checkSessionID() {
     const sanitizedProject = encodeURIComponent(projectName);
     const sessionIDEntered = sessionID.value;
     const sessionIDEnteredSanitized = sessionIDEntered.toUpperCase(); 
-    let user = document.getElementById("name").value.trim() || "Presenter";
+    let user = document.getElementById("name").value.trim() || "Streamer";
 
     var SIDAndProject = "SID="+sessionIDEnteredSanitized+"&PN="+sanitizedProject;
     var encodedSIDAndProject = btoa(SIDAndProject);
