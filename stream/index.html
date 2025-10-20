@@ -121,7 +121,7 @@
     <dialog id="shareDialog" class="toolpopup top left share hidden">
         <button class="link" id="copyMainLink"><h2>Main share link</h2><br>Copy Main share link to clipboard <br> Allows full voice and video communications and live annotations</button>
         <button class="link" id="copyQuickLink"><h2>Quick share link</h2><br>Copy Quick share link to clipboard <br> No voice or video communications, streamer and clients can annotate</button>
-        <button class="link" id="copyOBSLink"><h2>OBS source link</h2><br>Copy OBS source link to clipboard <br> Main stream URL for OBS browser source</button>
+        <button class="link" id="copyOBSLink"><h2>OBS source link</h2><br>Copy OBS share link to clipboard <br> Main stream URL for input to OBS browser source</button>
     </dialog>
 
     <!----- quit dialog ------>
@@ -219,6 +219,11 @@ copyMainLink.addEventListener("pointerdown", () => {
 copyQuickLink.addEventListener("pointerdown", () => {
     let ShareURL = sessionStorage.getItem("ShareURL");
     copyToClipboard("https://alpha.rpxl.app/qv/?" + ShareURL);
+});
+
+copyOBSLink.addEventListener("pointerdown", () => {
+    let ShareURL = sessionStorage.getItem("sessionID");
+    copyToClipboard("https://alpha.rpxl.app/?view=Stream_"+ShareURL+"&room=RPXL_"+ShareURL);
 });
 
 function copyToClipboard(text) {
