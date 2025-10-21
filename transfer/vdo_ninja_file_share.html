@@ -46,8 +46,9 @@
     <div id="left">
       <div style="margin-bottom:10px">
         <label class="small">Room name:</label>
-        <input id="roomInput" placeholder="room-name" value="demo-files-room" />
+        <input id="roomInput" placeholder="room-name" value="demoFilesRoom2764" />
         <button id="joinBtn">Join Room</button>
+        <button id="sendMessageBtn">send message</button>
       </div>
 
       <div id="container"></div>
@@ -114,6 +115,8 @@
   const sendAllBtn = document.getElementById('sendAllBtn');
   const clearBtn = document.getElementById('clearBtn');
 
+      const sendMessageBtn = document.getElementById('sendMessageBtn');
+
   function log(...args) { console.log(...args); logEl.textContent += args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; }
 
   // --- Join room / create iframe ---
@@ -136,29 +139,113 @@
     iframe.src = `https://vdo.ninja/?room=${encodeURIComponent(room)}&dataonly&cleanish`;
     iframe.style.width = '100%';
     iframe.style.height = '180px';
+    iframe.id = 'iframe';
     container.appendChild(iframe);
-
-    // set up message listener
-    const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
-    const eventer = window[eventMethod];
-    const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
-    eventer(messageEvent, function(e){
-      if (!iframe || e.source !== iframe.contentWindow) return;
-      // debug
-      // log('iframe message', JSON.stringify(e.data));
-      if ('action' in e.data) handleAction(e.data);
-      if ('dataReceived' in e.data) handleDataReceived(e.data.dataReceived, e.data.UUID);
-      if ('streamIDs' in e.data) handleStreamIDs(e.data.streamIDs);
-      if ('detailedState' in e.data) log('detailedState', e.data.detailedState);
-    }, false);
-
-    log('Joined room:', room);
   }
+    // set up message listener
+    // const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
+    // const eventer = window[eventMethod];
+    // const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
+  //   eventer(messageEvent, function(e){
+  //     //if (!iframe || e.source !== iframe.contentWindow) return;
+  //     // debug
+  //     // log('iframe message', JSON.stringify(e.data));
+  //     if ('action' in e.data) handleAction(e.data);
+  //     if ('dataReceived' in e.data) 
+  //             {
+  //                 if ("fileNinja" in e.data.dataReceived) {
+  //                 const data = e.data.dataReceived.fileNinja;
+
+  //                 console.log('Received fileNinja message:', data);
+  //                 }
+  //                 handleDataReceived(e.data.dataReceived, e.data.UUID);
+  //             }
+      
+      
+  //    // handleDataReceived(e.data.dataReceived, e.data.UUID);
+  //     if ('streamIDs' in e.data) handleStreamIDs(e.data.streamIDs);
+  //     if ('detailedState' in e.data) log('detailedState', e.data.detailedState);
+  //     console.log('iframe message', e.data);
+  //   }, false);
+
+  //   log('Joined room:', room);
+  // }
+// window.addEventListener("message", (e) => {
+//   // TEMP: log everything to inspect what comes in
+//   console.log("Message received:", e);
+
+//   // Check data shape first, not e.source
+//   if (e.data?.dataReceived?.fileNinja) {
+//     const data = e.data.dataReceived.fileNinja;
+//     console.log("Received fileNinja message:", data);
+//   }
+// });
+
+      // simple example code of sending messages p2p to a remote listener, via the VDO.Ninja IFRAME API
+      
+      // var connectionID = "uniqueConnectionID"; // A unique ID for the VDO.Ninja stream
+
+      // function sendCommandToOBS(command) {
+      //   var iframe = document.getElementById("obsCommander");
+      //   if (iframe) {
+      //     iframe.contentWindow.postMessage({"sendData": command}, '*');
+      //   }
+      // }
+
+      // // Example buttons for starting and stopping a broadcast
+      // function startBroadcast() { sendCommandToOBS('StartStreaming'); }
+      // function stopBroadcast() { sendCommandToOBS('StopStreaming'); }
+
+      // // Embedding VDO.Ninja iframe for sending commands
+      // window.onload = function() {
+      //   var iframe = document.createElement("iframe");
+      //   iframe.src = "https://vdo.ninja/?datamode&push=" + connectionID;
+      //   iframe.style.display = "none"; // Hide the iframe
+      //   iframe.id = "obsCommander";
+      //   document.body.appendChild(iframe);
+      // };
+      sendMessageBtn.addEventListener('click', () => {
+        var iframe = document.getElementById('iframe');
+        if (iframe) {
+          iframe.contentWindow.postMessage({
+            sendData: {
+              fileNinja: {
+                filename: "example.txt",
+                content: "Hello from VDO.Ninja iframe!"
+              }
+            },
+            type: "pcs"
+          }, "*");
+          console.log('Sent message to iframe');
+        } else {
+          console.log('Iframe not found');
+        }
+      });
+  
+  
+      window.addEventListener("message", (e) => {
+  if (e.origin !== "https://vdo.ninja") return;
+  if (!e.data) return;
+
+  console.log("Raw message:", e.data);
+
+  const data = e.data.dataReceived
+  if (data) {
+    console.log("✅ Received fileNinja message:", data);
+  }
+});
+
+  // window.addEventListener("message", function (e) {
+  //   if ("dataReceived" in e.data) {
+  //     console.log( e.data.dataReceived);
+  //   }
+  // });
 
   function handleAction(data){
     // see iframe docs: guest-connected, view-connection, push-connection, etc.
     if (data.action === 'guest-connected' && data.streamID){
       connectedPeers[data.streamID] = data.value?.label || 'Guest';
+      console.log("Guest connected:", data.streamID, "Label:", connectedPeers[data.streamID]);
       updatePeersUI();
       log('Guest connected:', data.streamID, connectedPeers[data.streamID]);
     } else if (data.action === 'push-connection' && data.value === false && data.streamID){
