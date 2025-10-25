@@ -21,7 +21,7 @@
         <label class="small">Room name:</label>
         <input id="roomInput" placeholder="room-name" value="demoFilesRoom2764" />
         <button id="joinBtn">Join Room</button>
-        <button id="requestList">request list</button>
+        <!-- <button id="requestList">request list</button> -->
       </div>
 
       <div id="container" style="display: none;"></div>
@@ -31,10 +31,9 @@
 
       <div class="file-list" id="fileList"></div>
 
-      <div style="margin-top:12px">
-        <button id="sendAllBtn">Send All Files to Room</button>
-        <button id="clearBtn" class="secondary">Clear Files</button>
-      </div>
+      <!-- <div style="margin-top:12px"> -->
+        <!-- <button id="sendAllBtn">Send All Files to Room</button> -->
+      <!-- </div> -->
 
       <h3 style="margin-top:18px">Logs</h3>
       <pre class="log" id="log"></pre>
@@ -44,574 +43,687 @@
       <div class="peers">
         <h3 style="margin:0 0 8px">Connected Peers</h3>
         <div id="peersList" class="small">(no peers yet)</div>
-        <div style="margin-top:8px">
-          <button id="refreshPeers">Refresh Peer List</button>
-        </div>
+        <div style="margin-top:8px"><button id="refreshPeers">Refresh Peer List</button></div>
       </div>
 
       <div class="peers" style="margin-top:12px">
         <h3 style="margin:0 0 8px">Sender Status</h3>
         <div id="senderStatus" class="small">Idle</div>
       </div>
-
-      <div class="peers" style="margin-top:12px">
-        <h3 style="margin:0 0 8px">Hints</h3>
-        <div class="small">This demo uses VDO.Ninja's IFRAME API and p2p data channels. For docs see the iframe API
-          &amp; data transmission guide in VDO.Ninja docs.</div>
-      </div>
     </div>
   </div>
-  <script>
-    // ---------------- CONFIG ----------------
-    // Chunk size (bytes) for file transfer. Lower = more messages, smaller memory.
-    const CHUNK_SIZE = 256 * 1024; // 256 KB
+</body>
 
-    // Namespace used in messages sent through VDO.Ninja
-    const APP_NS = 'p2pFileShareDemo';
+</html>
 
-    // ----------------------------------------
+<script lang="javascript">
+  // ---------------- CONFIG ----------------
+  // Chunk size (bytes) for file transfer. Lower = more messages, smaller memory.
+  const CHUNK_SIZE = 256 * 1024; // 256 KB
 
-    let iframe = null;
-    let connectedPeers = {}; // map streamID -> label
-    let roomName = '';
-    const files = {}; // id -> {file, name, size, chunks:[], progress}
-    const folderMap = {}; // keeps track of folder DOM nodes
-    const incomingGroups = {}; // { groupId: { files: {}, name: "folderName" } }
+  // Namespace used in messages sent through VDO.Ninja
+  const APP_NS = 'p2pFileShareDemo';
 
-    const dropArea = document.getElementById('dropArea');
-    const fileList = document.getElementById('fileList');
-    const logEl = document.getElementById('log');
-    const peersList = document.getElementById('peersList');
-    const senderStatus = document.getElementById('senderStatus');
-    const roomInput = document.getElementById('roomInput');
-    const joinBtn = document.getElementById('joinBtn');
-    const refreshPeersBtn = document.getElementById('refreshPeers');
-    const sendAllBtn = document.getElementById('sendAllBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const requestList = document.getElementById('requestList')
+  // ----------------------------------------
 
-    function log(...args) { console.log(...args); logEl.textContent += args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+  let iframe = null;
+  let connectedPeers = {}; // map streamID -> label
+  let roomName = '';
+  const files = {}; // id -> {file, name, size, chunks:[], progress}
+  const folderMap = {}; // keeps track of folder DOM nodes
+  const incomingGroups = {}; // { groupId: { files: {}, name: "folderName" } }
 
-    // --- Join room / create iframe ---
-    joinBtn.addEventListener('click', () => {
-      roomName = (roomInput.value || '').trim();
-      if (!roomName) return alert('Please enter a room name');
-      createIframe(roomName);
-    });
+  const dropArea = document.getElementById('dropArea');
+  const fileList = document.getElementById('fileList');
+  const logEl = document.getElementById('log');
+  const peersList = document.getElementById('peersList');
+  const senderStatus = document.getElementById('senderStatus');
+  const roomInput = document.getElementById('roomInput');
+  const joinBtn = document.getElementById('joinBtn');
+  const refreshPeersBtn = document.getElementById('refreshPeers');
+  //const sendAllBtn = document.getElementById('sendAllBtn');
+  //const clearBtn = document.getElementById('clearBtn');
 
-    refreshPeersBtn.addEventListener('click', () => {
-      requestPeerList();
-    });
+  function log(...args) { console.log(...args); logEl.textContent += args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; }
 
-    requestList.addEventListener('click', () => {
-      if (!iframe) return alert('Join a room first');
-      //const keys = Object.keys(files);
+  // --- Join room / create iframe ---
+  joinBtn.addEventListener('click', () => {
+    roomName = (roomInput.value || '').trim();
+    if (!roomName) return alert('Please enter a room name');
+    createIframe(roomName);
+  });
 
-      postToIframe({
-        sendData: { [APP_NS]: { type: 'request-list' } },
-        type: 'pcs',
-      });
-      log(`Requested list for group ${files[id].groupId}`);
+  refreshPeersBtn.addEventListener('click', () => {
+    requestPeerList();
+  });
 
-    });
+  function createIframe(room) {
+    if (iframe) iframe.remove();
+    const container = document.getElementById('container');
+    iframe = document.createElement('iframe');
+    iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
+    // dataonly & cleanish = opens data channels only with minimal GUI
+    iframe.src = `https://vdo.ninja/?director&room=${encodeURIComponent(room)}&dataonly&cleanish`;
+    iframe.style.width = '100%';
+    iframe.style.height = '180px';
+    container.appendChild(iframe);
 
-    function createIframe(room) {
-      if (iframe) iframe.remove();
-      const container = document.getElementById('container');
-      iframe = document.createElement('iframe');
-      iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
-      // dataonly & cleanish = opens data channels only with minimal GUI
-      iframe.src = `https://vdo.ninja/?director&room=${encodeURIComponent(room)}&dataonly&cleanish`;
-      iframe.style.width = '100%';
-      iframe.style.height = '180px';
-      container.appendChild(iframe);
+    // set up message listener
+    const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
+    const eventer = window[eventMethod];
+    const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
+    eventer(messageEvent, function (e) {
+      if ('action' in e.data) handleAction(e.data);
+      if ('dataReceived' in e.data) handleDataReceived(e.data.dataReceived, e.data.UUID);
+      if ('streamIDs' in e.data) handleStreamIDs(e.data.streamIDs);
+      if ('detailedState' in e.data) log('detailedState', e.data.detailedState);
+    }, false);
 
-      // set up message listener
-      const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
-      const eventer = window[eventMethod];
-      const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
-      eventer(messageEvent, function (e) {
-        //if (!iframe || e.source !== iframe.contentWindow) return;
-        // debug
-        // log('iframe message', JSON.stringify(e.data));
-        if ('action' in e.data) handleAction(e.data);
-        if ('dataReceived' in e.data) handleDataReceived(e.data.dataReceived, e.data.UUID);
-        if ('streamIDs' in e.data) handleStreamIDs(e.data.streamIDs);
-        if ('detailedState' in e.data) log('detailedState', e.data.detailedState);
-        console.log('iframe message', e.data);
-      }, false);
+    log('Joined room:', room);
+  }
 
-      log('Joined room:', room);
+  window.addEventListener("message", function (e) {
+    if ("dataReceived" in e.data) {
+      console.log(e.data.dataReceived);
     }
-
-    window.addEventListener("message", function (e) {
-      if ("dataReceived" in e.data) {
-        console.log(e.data.dataReceived);
-      }
-    });
+  });
 
 
-    function handleAction(data) {
-      // see iframe docs: guest-connected, view-connection, push-connection, etc.
-      if (data.action === 'guest-connected' && data.streamID) {
-        connectedPeers[data.streamID] = data.value?.label || 'Guest';
-        updatePeersUI();
-        handleGuestJoin(data.streamID);
-        log('Guest connected:', data.streamID, connectedPeers[data.streamID]);
-      } else if (data.action === 'push-connection' && data.value === false && data.streamID) {
-        log('Peer disconnected:', data.streamID);
-        delete connectedPeers[data.streamID];
-        updatePeersUI();
-      } else if (data.action === 'view-connection') {
-        if (data.value) { connectedPeers[data.streamID] = 'Viewer'; } else { delete connectedPeers[data.streamID]; }
-        updatePeersUI();
-        handleGuestJoin(data.streamID);
-      }
-    }
-
-
-    async function handleGuestJoin(guestUUID) {
-      log('Guest joined:', guestUUID);
-
-      // Optional: small delay to ensure peer connection is ready
-      await sleep(500);
-
-      const keys = Object.keys(files);
-      if (keys.length > 0) {
-        log(`Auto-sending ${keys.length} files to new guest ${guestUUID}...`);
-        await sendAllFilesToPeer(guestUUID);
-      } else {
-        log('No files to send.');
-      }
-    }
-
-    async function sendAllFilesToPeer(targetUUID = null) {
-      if (!iframe) return alert('Join a room first');
-      const keys = Object.keys(files);
-      if (!keys.length) return alert('No files');
-
-      senderStatus.textContent = 'Sending...';
-      for (const id of keys) {
-        await sendFile(id, targetUUID);
-      }
-      senderStatus.textContent = 'All files queued';
-    }
-
-    function handleStreamIDs(ids) {
-      connectedPeers = ids; // object mapping streamID->label
+  function handleAction(data) {
+    // see iframe docs: guest-connected, view-connection, push-connection, etc.
+    if (data.action === 'guest-connected' && data.streamID) {
+      connectedPeers[data.streamID] = data.value?.label || 'Guest';
       updatePeersUI();
+      handleGuestJoin(data.streamID);
+      log('Guest connected:', data.streamID, connectedPeers[data.streamID]);
+    } else if (data.action === 'push-connection' && data.value === false && data.streamID) {
+      log('Peer disconnected:', data.streamID);
+      delete connectedPeers[data.streamID];
+      updatePeersUI();
+    } else if (data.action === 'view-connection') {
+      if (data.value) { connectedPeers[data.streamID] = 'Viewer'; } else { delete connectedPeers[data.streamID]; }
+      updatePeersUI();
+      handleGuestJoin(data.streamID);
     }
+  }
 
-    function updatePeersUI() {
-      const keys = Object.keys(connectedPeers);
-      if (!keys.length) peersList.textContent = '(no peers yet)';
-      else peersList.innerHTML = keys.map(k => `<div><strong>${connectedPeers[k]}</strong><div class="small">${k}</div></div>`).join('');
+
+  async function handleGuestJoin(guestUUID) {
+    log('Guest joined:', guestUUID);
+    //delay to ensure peer connection is ready
+    await sleep(500);
+
+    const keys = Object.keys(files);
+    if (keys.length > 0) {
+      log(`Auto-sending ${keys.length} files to new guest ${guestUUID}...`);
+      await sendAllFilesToPeer(guestUUID);
+    } else {
+      log('No files to send.');
     }
+  }
 
-    function requestPeerList() {
-      if (!iframe) return log('Not connected');
-      iframe.contentWindow.postMessage({ getStreamIDs: true }, '*');
-    }
 
-    // --- drag & drop / file handling ---
-    dropArea.addEventListener('click', () => {
-      const ip = document.createElement('input'); ip.type = 'file'; ip.multiple = true; ip.webkitdirectory = true;
-      ip.addEventListener('change', (ev) => { handleFileList(ev.target.files); });
-      ip.click();
-    });
+  function handleStreamIDs(ids) {
+    connectedPeers = ids; // object mapping streamID->label
+    updatePeersUI();
+  }
 
-    ['dragenter', 'dragover'].forEach(ev => {
-      dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropArea.classList.add('dragover'); });
-    });
-    ['dragleave', 'drop'].forEach(ev => {
-      dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('dragover'); });
-    });
+  function updatePeersUI() {
+    const keys = Object.keys(connectedPeers);
+    if (!keys.length) peersList.textContent = '(no peers yet)';
+    else peersList.innerHTML = keys.map(k => `<div><strong>${connectedPeers[k]}</strong><div class="small">${k}</div></div>`).join('');
+  }
 
-    dropArea.addEventListener('drop', async (e) => {
-      const items = e.dataTransfer.items;
-      if (!items) return handleFileList(e.dataTransfer.files);
-      // Use directory traversal when available
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
-        if (entry && entry.isDirectory) {
-          await readDirectory(entry);
-        } else if (entry && entry.isFile) {
-          entry.file(file => addFile(file));
-        } else if (it.getAsFile) {
-          addFile(it.getAsFile());
-        }
+  function requestPeerList() {
+    if (!iframe) return log('Not connected');
+    iframe.contentWindow.postMessage({ getStreamIDs: true }, '*');
+  }
+
+  // --- drag & drop / file handling ---
+  dropArea.addEventListener('click', () => {
+    const ip = document.createElement('input'); ip.type = 'file'; ip.multiple = true; ip.webkitdirectory = true;
+    ip.addEventListener('change', (ev) => { handleFileList(ev.target.files); });
+    ip.click();
+  });
+
+  ['dragenter', 'dragover'].forEach(ev => {
+    dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropArea.classList.add('dragover'); });
+  });
+  ['dragleave', 'drop'].forEach(ev => {
+    dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('dragover'); });
+  });
+
+  dropArea.addEventListener('drop', async (e) => {
+    const items = e.dataTransfer.items;
+    if (!items) return handleFileList(e.dataTransfer.files);
+    // Use directory traversal when available
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+      if (entry && entry.isDirectory) {
+        await readDirectory(entry);
+      } else if (entry && entry.isFile) {
+        entry.file(file => addFile(file));
+      } else if (it.getAsFile) {
+        addFile(it.getAsFile());
       }
-    });
-
-
-    // Recursive directory traversal
-    async function readDirectory(dirEntry, path = '') {
-      const reader = dirEntry.createReader();
-      const readEntries = () => new Promise((res, rej) => reader.readEntries(res, rej));
-      let entries = await readEntries();
-      while (entries.length) {
-        for (const e of entries) {
-          if (e.isDirectory) {
-            await readDirectory(e, path + dirEntry.name + '/');
-          } else if (e.isFile) {
-            e.file((file) => {
-              file.relativePath =
-                (path ? path + dirEntry.name + '/' : dirEntry.name + '/') + file.name;
-              addFile(file);
-            });
-          }
-        }
-        entries = await readEntries();
-      }
     }
+  });
 
-    // Called when user drops files/folders
-    function handleFileList(list) {
-      for (let i = 0; i < list.length; i++) addFile(list[i]);
-    }
-
-    function addFile(file) {
-      const id = generateId();
-      const relativePath = file.relativePath || file.name;
-      const pathParts = relativePath.split('/');
-      const fileName = pathParts.pop();
-      const folderPath = pathParts.join('/');
-
-      files[id] = {
-        id,
-        file,
-        name: fileName,
-        size: file.size,
-        folderPath,
-        uploadedBy: null,
-        chunks: {},
-        progress: 0
-      };
-
-      renderTreeItem(files[id]);
-      log(`Added: ${relativePath} (${formatBytes(file.size)})`);
-    }
-
-    // Build folder tree recursively
-    function renderTreeItem(f) {
-      const treeRoot = document.getElementById('fileList');
-      const pathParts = f.folderPath ? f.folderPath.split('/') : [];
-      let currentContainer = treeRoot;
-      let currentPath = '';
-
-      for (const part of pathParts) {
-        currentPath = currentPath ? `${currentPath}/${part}` : part;
-
-        // Skip if folder DOM already exists
-        if (!folderMap[currentPath]) {
-          const folderDiv = document.createElement('div');
-          folderDiv.className = 'folder';
-          folderDiv.dataset.path = currentPath;
-          folderDiv.innerHTML = `
-        <div class="folder-header" data-folder="${currentPath}">
-        <span class="material-symbols-outlined">folder</span>
-          <strong>${escapeHtml(part)}</strong>
-        </div>
-        <div class="folder-contents" style="margin-left:30px; display:block;"></div>
-      `;
-          currentContainer.appendChild(folderDiv);
-          folderMap[currentPath] = folderDiv.querySelector('.folder-contents');
-
-          // Toggle expand/collapse
-          folderDiv.querySelector('.folder-header').addEventListener('click', (e) => {
-            const contents = folderDiv.querySelector('.folder-contents');
-            contents.style.display =
-              contents.style.display === 'none' ? 'block' : 'none';
+  // Recursive directory traversal
+  async function readDirectory(dirEntry, path = '') {
+    const reader = dirEntry.createReader();
+    const readEntries = () => new Promise((res, rej) => reader.readEntries(res, rej));
+    let entries = await readEntries();
+    while (entries.length) {
+      for (const e of entries) {
+        if (e.isDirectory) {
+          await readDirectory(e, path + dirEntry.name + '/');
+        } else if (e.isFile) {
+          e.file((file) => {
+            file.relativePath =
+              (path ? path + dirEntry.name + '/' : dirEntry.name + '/') + file.name;
+            addFile(file);
           });
         }
-
-        // Move down into that folder's content div
-        currentContainer = folderMap[currentPath];
       }
-
-      // Create file entry under its final folder
-      const fileDiv = document.createElement('div');
-      fileDiv.className = 'file-item';
-      fileDiv.style.display = 'flex';
-      fileDiv.style.justifyContent = 'space-between';
-      fileDiv.style.alignItems = 'center';
-      fileDiv.style.padding = '3px 0';
-      fileDiv.innerHTML = `
-    <span>${escapeHtml(f.name)}</span>
-    <span class="small">${formatBytes(f.size)}</span>
-  `;
-      currentContainer.appendChild(fileDiv);
+      entries = await readEntries();
     }
+  }
 
-    clearBtn.addEventListener('click', () => { Object.keys(files).forEach(k => { const el = document.getElementById('file-' + k); if (el) el.remove(); delete files[k]; }); });
-    sendAllBtn.addEventListener('click', () => sendAllFilesToPeer());
+  // Called when user drops files/folders
+  function handleFileList(list) {
+    for (let i = 0; i < list.length; i++) addFile(list[i]);
+  }
 
-    async function sendFile(id, targetUUID = null) {
-      const meta = files[id];
-      const fileMeta = {
-        type: 'file-meta',
-        id: id,
-        name: meta.name,
-        size: meta.size,
-        groupId: meta.groupId,
-        timestamp: Date.now()
-      };
+  function addFile(file) {
+    const id = generateId();
+    const relativePath = file.relativePath || file.name;
+    const pathParts = relativePath.split('/');
+    const fileName = pathParts.pop();
+    const folderPath = pathParts.join('/');
 
-      const msg = {
-        sendData: { [APP_NS]: { type: 'announce', payload: fileMeta } },
-        type: 'pcs'
-      };
+    files[id] = {
+      id,
+      file,
+      name: fileName,
+      size: file.size,
+      folderPath,
+      uploadedBy: null,
+      chunks: {},
+      progress: 0
+    };
 
-      // If a specific peer UUID is given, send directly
-      if (targetUUID) msg.to = targetUUID;
+    renderTreeItem(files[id]);
+    log(`Added: ${relativePath} (${formatBytes(file.size)})`);
 
-      postToIframe(msg);
+    // Notify peers
+    sendFile(id);
+  }
 
-      log(`Announced file ${meta.name} (${meta.groupId})${targetUUID ? ` → ${targetUUID}` : ''}`);
-    }
+  // Build folder tree recursively
+  function renderTreeItem(f) {
+    const treeRoot = document.getElementById('fileList');
+    const pathParts = f.folderPath ? f.folderPath.split('/') : [];
+    let currentContainer = treeRoot;
+    let currentPath = '';
 
-    function handleDataReceived(dataReceived, senderUUID) {
-      if (!dataReceived || !dataReceived[APP_NS]) return;
-      const payload = dataReceived[APP_NS];
+    for (const part of pathParts) {
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
 
-      switch (payload.type) {
-        case 'announce': {
-          const meta = payload.payload;
-          log('Received announce from', senderUUID, meta.name);
+      // Skip if folder DOM already exists
+      if (!folderMap[currentPath]) {
+        const folderDiv = document.createElement('div');
+        folderDiv.className = 'folder';
+        folderDiv.dataset.path = currentPath;
+        folderDiv.innerHTML = `
+            <div class="folder-header" data-folder="${currentPath}">
+              <span class="material-symbols-outlined">folder</span>
+              <strong>${escapeHtml(part)}</strong>
+              <span class="material-symbols-outlined folder-delete" 
+                    style="cursor:pointer; font-size:18px; color:#c33; margin-right:16px; margin-left:auto;">
+                delete
+              </span>
+            </div>
+            <div class="folder-contents" style="margin-left:30px; display:block;"></div>
+          `;
+        currentContainer.appendChild(folderDiv);
+        folderMap[currentPath] = folderDiv.querySelector('.folder-contents');
 
-          if (!incomingGroups[meta.groupId]) {
-            incomingGroups[meta.groupId] = { files: {}, senderUUID };
-            renderFolder(meta.groupId);
-          }
-
-          incomingGroups[meta.groupId].files[meta.id] = meta;
-          renderFileInFolder(meta.groupId, meta);
-          break;
-        }
-
-        case 'request-file': {
-          const req = payload.payload;
-          const meta = files[req.id];
-          if (meta && meta.file) {
-            sendFileChunks(senderUUID, req.id);
-          }
-          break;
-        }
-
-        case 'request-folder': {
-          const groupId = payload.payload.groupId;
-          const groupFiles = Object.values(files).filter(f => f.groupId === groupId);
-          log(`Peer requested folder ${groupId} (${groupFiles.length} files)`);
-          for (const file of groupFiles) {
-            sendFileChunks(senderUUID, file.id);
-          }
-          break;
-        }
-
-        case 'request-list': {
-          log(`Peer requested file list from ${senderUUID}`);
-          break;
-        }
-
-        case 'chunk': handleIncomingChunk(senderUUID, payload.payload); break;
-        case 'complete': finalizeReceivedFile(senderUUID, payload.payload.id); break;
-      }
-    }
-
-
-
-    async function sendFileChunks(targetUUID, id) {
-      const meta = files[id];
-      const f = meta.file;
-      const totalChunks = Math.ceil(f.size / CHUNK_SIZE);
-      let offset = 0, index = 0;
-
-      log(`Uploading ${meta.name} (${meta.size} bytes) to ${targetUUID}`);
-      while (offset < f.size) {
-        const slice = f.slice(offset, offset + CHUNK_SIZE);
-        const chunk = await readAsArrayBuffer(slice);
-        const b64 = arrayBufferToBase64(chunk);
-        postToIframe({
-          sendData: {
-            [APP_NS]: {
-              type: 'chunk',
-              payload: { id, index, total: totalChunks, data: b64 }
-            }
-          },
-          type: 'pcs',
-          UUID: targetUUID
+        // Folder toggle expand/collapse
+        folderDiv.querySelector('.folder-header').addEventListener('click', (e) => {
+          const contents = folderDiv.querySelector('.folder-contents');
+          contents.style.display =
+            contents.style.display === 'none' ? 'block' : 'none';
         });
-        offset += CHUNK_SIZE;
-        index++;
-        await sleep(15);
+
+        // Folder delete
+        folderDiv.querySelector('.folder-delete').addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const folderPath = e.target.closest('.folder-header').dataset.folder;
+          if (confirm(`Delete entire directory "${folderPath}" and all its files?`)) {
+            await deleteDirectory(folderPath);
+          }
+        });
       }
 
+      currentContainer = folderMap[currentPath];
+    }
+
+    // Create file entry under its final folder
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'file-item';
+    fileDiv.dataset.id = f.id;
+    fileDiv.style.display = 'flex';
+    fileDiv.style.justifyContent = 'space-between';
+    fileDiv.style.alignItems = 'center';
+    fileDiv.style.padding = '2px 10px';
+    fileDiv.innerHTML = `
+        <span>${escapeHtml(f.name)}</span>
+        <span class="small">${formatBytes(f.size)}</span>
+        <span class="material-symbols-outlined file-delete" 
+              style="cursor:pointer; font-size:18px; color:#c33; margin-left:8px;">
+          delete
+        </span>
+      `;
+    currentContainer.appendChild(fileDiv);
+
+    // Delete handler
+    fileDiv.querySelector('.file-delete').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      deleteFile(f.id);
+    });
+  }
+
+  //delete files and folders
+  async function deleteDirectory(path) {
+    if (!path) return;
+    log(`Deleting directory: ${path}`);
+
+    // Find all file IDs inside that folder (recursively)
+    const toDelete = Object.keys(files).filter(id =>
+      files[id].folderPath.startsWith(path)
+    );
+
+    // Delete contained files
+    for (const id of toDelete) {
+      const el = document.querySelector(`.file-item[data-id="${id}"]`);
+      if (el) el.remove();
+      await sendFileRemoved(id);
+      delete files[id];
+    }
+
+    // Remove the folder DOM
+    const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
+    if (folderDiv) folderDiv.remove();
+
+    // Remove from folderMap
+    delete folderMap[path];
+
+    //announce directory removal to peers
+    await sendDirectoryRemoved(path);
+
+    //clean any now-empty parents
+    cleanupEmptyFolders(path);
+  }
+
+  async function sendDirectoryRemoved(path, targetUUID = null) {
+    const msg = {
+      sendData: {
+        [APP_NS]: {
+          type: 'directory-removed',
+          payload: { path, timestamp: Date.now() }
+        }
+      },
+      type: 'pcs'
+    };
+
+    if (targetUUID) msg.to = targetUUID;
+
+    postToIframe(msg);
+    log(`Announced directory removal: ${path}${targetUUID ? ` → ${targetUUID}` : ''}`);
+  }
+
+  async function deleteFile(id) {
+    const file = files[id];
+    if (!file) return;
+
+    const folderPath = file.folderPath || '';
+    // Remove from files map
+    delete files[id];
+
+    // Remove from DOM
+    const el = document.querySelector(`.file-item[data-id="${id}"]`);
+    if (el) el.remove();
+
+    log(`Deleted: ${file.name}`);
+
+    // Clean up empty folders (locally)
+    cleanupEmptyFolders(folderPath);
+    // Send updated file list to peers
+    await sendFileRemoved(id);
+  }
+
+  async function sendFileRemoved(id, targetUUID = null) {
+    const msg = {
+      sendData: {
+        [APP_NS]: {
+          type: 'file-removed',
+          payload: { id, timestamp: Date.now() }
+        }
+      },
+      type: 'pcs'
+    };
+
+    if (targetUUID) msg.to = targetUUID;
+
+    postToIframe(msg);
+    log(`Announced file removal: ${id}${targetUUID ? ` → ${targetUUID}` : ''}`);
+  }
+
+  //file sending
+  //sendAllBtn.addEventListener('click', () => sendAllFilesToPeer());
+
+  async function sendAllFilesToPeer(targetUUID = null) {
+    if (!iframe) return alert('Join a room first');
+    const keys = Object.keys(files);
+    if (!keys.length) return alert('No files');
+
+    senderStatus.textContent = 'Sending...';
+    for (const id of keys) {
+      await sendFile(id, targetUUID);
+    }
+    senderStatus.textContent = 'All files queued';
+  }
+
+  async function sendFile(id, targetUUID = null) {
+    const meta = files[id];
+    const fileMeta = {
+      type: 'file-meta',
+      id: id,
+      name: meta.name,
+      size: meta.size,
+      folderPath: meta.folderPath || '',
+      groupId: meta.groupId,
+      timestamp: Date.now()
+    };
+
+    const msg = {
+      sendData: { [APP_NS]: { type: 'announce', payload: fileMeta } },
+      type: 'pcs'
+    };
+
+    // If a specific peer UUID is given, send directly
+    if (targetUUID) msg.to = targetUUID;
+
+    postToIframe(msg);
+
+    log(`Announced file ${meta.name} (${meta.groupId})${targetUUID ? ` → ${targetUUID}` : ''}`);
+  }
+
+  //client side data receiving
+  function handleDataReceived(msg) {
+    const data = msg[APP_NS];
+    if (!data || !data.type) return;
+
+    switch (data.type) {
+      case 'announce': {
+        const f = data.payload;
+        files[f.id] = {
+          id: f.id,
+          name: f.name,
+          size: f.size,
+          folderPath: f.folderPath || '',
+          uploadedBy: msg.from || null
+        };
+        renderTreeItemReceiver(files[f.id]);
+        log(`Received file meta: ${f.folderPath}/${f.name}`);
+        break;
+      }
+
+      case 'file-removed': {
+        const { id } = data.payload;
+        const file = files[id];
+        if (file) {
+          const folderPath = file.folderPath || '';
+          delete files[id];
+          const el = document.querySelector(`.file-item[data-id="${id}"]`);
+          if (el) el.remove();
+          log(`File removed remotely: ${file.name}`);
+          cleanupEmptyFolders(folderPath);
+        }
+        break;
+      }
+
+      case 'directory-removed': {
+        const { path } = data.payload;
+        log(`Directory removed remotely: ${path}`);
+
+        // Remove folder DOM
+        const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
+        if (folderDiv) folderDiv.remove();
+
+        // Clean folder map reference
+        delete folderMap[path];
+
+        // Remove any remaining files (if not already cleaned)
+        for (const id of Object.keys(files)) {
+          if (files[id].folderPath.startsWith(path)) {
+            delete files[id];
+            const el = document.querySelector(`.file-item[data-id="${id}"]`);
+            if (el) el.remove();
+          }
+        }
+        cleanupEmptyFolders(path);
+        break;
+      }
+    }
+  }
+  // Remove any empty parent folders (recursively up)
+  function cleanupEmptyFolders(startPath = null) {
+    // climb up the tree from there and clean each ancestor if empty.
+    if (startPath) {
+      let parts = startPath.split('/');
+      while (parts.length > 0) {
+        const currentPath = parts.join('/');
+        const folder = document.querySelector(`.folder[data-path="${currentPath}"]`);
+        if (!folder) {
+          parts.pop();
+          continue;
+        }
+
+        const contents = folder.querySelector('.folder-contents');
+        if (!contents || contents.children.length === 0) {
+          log(`Removing empty folder: ${currentPath}`);
+          folder.remove();
+          delete folderMap[currentPath];
+        }
+
+        parts.pop(); // move up one level
+      }
+      return;
+    }
+
+    // If no path specified, do a full cleanup sweep
+    const folders = document.querySelectorAll('.folder');
+    for (const folder of folders) {
+      const contents = folder.querySelector('.folder-contents');
+      if (!contents || contents.children.length === 0) {
+        const path = folder.dataset.path;
+        log(`Removing empty folder: ${path}`);
+        folder.remove();
+        delete folderMap[path];
+      }
+    }
+  }
+
+  async function sendFileChunks(targetUUID, id) {
+    const meta = files[id];
+    const f = meta.file;
+    const totalChunks = Math.ceil(f.size / CHUNK_SIZE);
+    let offset = 0, index = 0;
+
+    log(`Uploading ${meta.name} (${meta.size} bytes) to ${targetUUID}`);
+    while (offset < f.size) {
+      const slice = f.slice(offset, offset + CHUNK_SIZE);
+      const chunk = await readAsArrayBuffer(slice);
+      const b64 = arrayBufferToBase64(chunk);
       postToIframe({
         sendData: {
-          [APP_NS]: { type: 'complete', payload: { id } }
+          [APP_NS]: {
+            type: 'chunk',
+            payload: { id, index, total: totalChunks, data: b64 }
+          }
         },
         type: 'pcs',
         UUID: targetUUID
       });
-
-      log(`Finished sending ${meta.name} to ${targetUUID}`);
+      offset += CHUNK_SIZE;
+      index++;
+      await sleep(15);
     }
 
-    const incomingTransfers = {};
+    postToIframe({
+      sendData: {
+        [APP_NS]: { type: 'complete', payload: { id } }
+      },
+      type: 'pcs',
+      UUID: targetUUID
+    });
 
-    function handleIncomingChunk(senderUUID, chunk) {
-      if (!incomingTransfers[chunk.id]) {
-        incomingTransfers[chunk.id] = { chunks: [], total: chunk.total };
-      }
-      incomingTransfers[chunk.id].chunks[chunk.index] = chunk.data;
+    log(`Finished sending ${meta.name} to ${targetUUID}`);
+  }
 
-      const receivedCount = Object.keys(incomingTransfers[chunk.id].chunks).length;
-      log(`Receiving ${chunk.id} (${receivedCount}/${chunk.total}) from ${senderUUID}`);
+  const incomingTransfers = {};
 
-      if (receivedCount === chunk.total) {
-        finalizeReceivedFile(senderUUID, chunk.id);
-      }
+  function handleIncomingChunk(senderUUID, chunk) {
+    if (!incomingTransfers[chunk.id]) {
+      incomingTransfers[chunk.id] = { chunks: [], total: chunk.total };
     }
+    incomingTransfers[chunk.id].chunks[chunk.index] = chunk.data;
 
-    function finalizeReceivedFile(senderUUID, id) {
-      const transfer = incomingTransfers[id];
-      if (!transfer) return;
+    const receivedCount = Object.keys(incomingTransfers[chunk.id].chunks).length;
+    log(`Receiving ${chunk.id} (${receivedCount}/${chunk.total}) from ${senderUUID}`);
 
-      const joined = Object.keys(transfer.chunks)
-        .sort((a, b) => a - b)
-        .map(i => transfer.chunks[i])
-        .join('');
-
-      const ab = base64ToArrayBuffer(joined);
-      const blob = new Blob([ab]);
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = files[id]?.name || `file-${id}`;
-      a.textContent = `Download ${files[id]?.name || id}`;
-      a.className = 'download-link';
-      document.getElementById('fileList').appendChild(a);
-
-      log(`File ${id} received and ready to download`);
-      delete incomingTransfers[id];
+    if (receivedCount === chunk.total) {
+      finalizeReceivedFile(senderUUID, chunk.id);
     }
+  }
 
+  function finalizeReceivedFile(senderUUID, id) {
+    const transfer = incomingTransfers[id];
+    if (!transfer) return;
 
-    function renderFolder(groupId) {
-      const container = document.getElementById('fileList');
-      const folderDiv = document.createElement('div');
-      folderDiv.id = `folder-${groupId}`;
-      folderDiv.className = 'folder';
+    const joined = Object.keys(transfer.chunks)
+      .sort((a, b) => a - b)
+      .map(i => transfer.chunks[i])
+      .join('');
 
-      folderDiv.innerHTML = `
-    <div class="folder-header">
-      <strong>${groupId}</strong>
-      <button id="showHide-folder-${groupId}">show/hide</button>
-      <button id="dl-folder-${groupId}">Download All</button>
-    </div>
-    <div class="folder-files" id="folder-files-${groupId}" style="margin-left:1em;"></div>
-  `;
+    const ab = base64ToArrayBuffer(joined);
+    const blob = new Blob([ab]);
+    const url = URL.createObjectURL(blob);
 
-      container.appendChild(folderDiv);
-      document.getElementById(`showHide-folder-${groupId}`).addEventListener('click', () => {
-        const filesDiv = document.getElementById(`folder-files-${groupId}`);
-        if (filesDiv.style.display === 'none') {
-          filesDiv.style.display = 'block';
-        } else {
-          filesDiv.style.display = 'none';
-        }
-      });
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = files[id]?.name || `file-${id}`;
+    a.textContent = `Download ${files[id]?.name || id}`;
+    a.className = 'download-link';
+    document.getElementById('fileList').appendChild(a);
 
-      // When "Download All" clicked
-      document.getElementById(`dl-folder-${groupId}`).addEventListener('click', () => {
-        const senderUUID = incomingGroups[groupId].senderUUID;
-        postToIframe({
-          sendData: { [APP_NS]: { type: 'request-folder', payload: { groupId } } },
-          type: 'pcs',
-          UUID: senderUUID
+    log(`File ${id} received and ready to download`);
+    delete incomingTransfers[id];
+  }
+
+  //client side tree rendering
+  function renderTreeItemReceiver(f) {
+    const treeRoot = document.getElementById('fileList');
+    const pathParts = f.folderPath ? f.folderPath.split('/') : [];
+    let currentContainer = treeRoot;
+    let currentPath = '';
+
+    for (const part of pathParts) {
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+      if (!folderMap[currentPath]) {
+        const folderDiv = document.createElement('div');
+        folderDiv.className = 'folder';
+        folderDiv.dataset.path = currentPath;
+        folderDiv.innerHTML = `
+        <div class="folder-header" data-folder="${currentPath}">
+          <span class="material-symbols-outlined">folder</span>
+          <strong>${escapeHtml(part)}</strong>
+          <span class="material-symbols-outlined folder-download"
+                style="cursor:pointer; font-size:18px; color:#2b7; margin-left:8px;">
+            download
+          </span>
+        </div>
+        <div class="folder-contents" style="margin-left:30px; display:block;"></div>
+      `;
+        currentContainer.appendChild(folderDiv);
+        folderMap[currentPath] = folderDiv.querySelector('.folder-contents');
+
+        // Expand/collapse
+        folderDiv.querySelector('.folder-header').addEventListener('click', (e) => {
+          if (e.target.classList.contains('folder-download')) return;
+          const contents = folderDiv.querySelector('.folder-contents');
+          contents.style.display =
+            contents.style.display === 'none' ? 'block' : 'none';
         });
-        log(`Requested all files from folder ${groupId}`);
-      });
-    }
 
-    function renderFileInFolder(groupId, meta) {
-      const folderFiles = document.getElementById(`folder-files-${groupId}`);
-      const div = document.createElement('div');
-      div.className = 'file-item';
-      div.innerHTML = `
-    <span>${escapeHtml(meta.name)}</span>
-    <button id="req-${meta.id}">Download</button>
-  `;
-      folderFiles.appendChild(div);
-
-      document.getElementById(`req-${meta.id}`).addEventListener('click', () => {
-        const senderUUID = incomingGroups[groupId].senderUUID;
-        postToIframe({
-          sendData: { [APP_NS]: { type: 'request-file', payload: { id: meta.id, name: meta.name } } },
-          type: 'pcs',
-          UUID: senderUUID
+        // Directory download request
+        folderDiv.querySelector('.folder-download').addEventListener('click', (e) => {
+          e.stopPropagation();
+          const folderPath = e.target.closest('.folder-header').dataset.folder;
+          requestDownload(folderPath, true); // true = folder
         });
-        log(`Requested file ${meta.name} (${meta.id}) from ${senderUUID}`);
-      });
+      }
+
+      currentContainer = folderMap[currentPath];
     }
 
+    // File entry with download icon
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'file-item';
+    fileDiv.dataset.id = f.id;
+    fileDiv.style.display = 'flex';
+    fileDiv.style.justifyContent = 'space-between';
+    fileDiv.style.alignItems = 'center';
+    fileDiv.style.padding = '3px 0';
+    fileDiv.innerHTML = `
+    <span>${escapeHtml(f.name)}</span>
+    <span class="small">${formatBytes(f.size)}</span>
+    <span class="material-symbols-outlined file-download"
+          style="cursor:pointer; font-size:18px; color:#2b7; margin-left:8px;">
+      download
+    </span>
+  `;
+    currentContainer.appendChild(fileDiv);
 
+    fileDiv.querySelector('.file-download').addEventListener('click', (e) => {
+      e.stopPropagation();
+      requestDownload(f.id, false); // false = single file
+    });
+  }
 
+  // --- helpers: post message wrapper ---
+  function postToIframe(obj) {
+    if (!iframe) return log('No iframe');
+    iframe.contentWindow.postMessage(obj, '*');
+  }
 
+  // // utility: read arrayBuffer from slice
+  function readAsArrayBuffer(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsArrayBuffer(blob); }); }
 
-    // function renderIncomingList(senderUUID, meta) {
-    //   const container = document.getElementById('fileList');
-    //   const div = document.createElement('div');
-    //   div.className = 'file-item';
-    //   div.innerHTML = `
-    //     <div>
-    //       <strong>${escapeHtml(meta.name)}</strong> 
-    //       <div class="small">${formatBytes(meta.size)}</div>
-    //     </div>
-    //     <button id="req-${meta.id}">Download</button>
-    //   `;
-    //   container.appendChild(div);
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    //   // On click: request that specific file
-    //   document.getElementById(`req-${meta.id}`).addEventListener('click', () => {
-    //     postToIframe({
-    //       sendData: {
-    //         [APP_NS]: {
-    //           type: 'request-file',
-    //           payload: { id: meta.id, name: meta.name }
-    //         }
-    //       },
-    //       type: 'pcs',
-    //       UUID: senderUUID   // send directly back to that sender peer
-    //     });
-    //     log(`Requested file ${meta.name} from ${senderUUID}`);
-    //   });
-    // }
+  function generateId() { return Math.random().toString(36).slice(2, 10); }
 
-    // --- helpers: post message wrapper ---
-    function postToIframe(obj) {
-      if (!iframe) return log('No iframe');
-      iframe.contentWindow.postMessage(obj, '*');
-    }
+  function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
+  function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
 
-    // // utility: read arrayBuffer from slice
-    function readAsArrayBuffer(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsArrayBuffer(blob); }); }
+  // // base64 helpers
+  function arrayBufferToBase64(buffer) { let binary = ''; const bytes = new Uint8Array(buffer); const len = bytes.byteLength; for (let i = 0; i < len; i++) { binary += String.fromCharCode(bytes[i]); } return btoa(binary); }
+  function base64ToArrayBuffer(base64) { const binary_string = atob(base64); const len = binary_string.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i); return bytes.buffer; }
+  function base64ByteSize(b64) { return Math.floor((b64.length * 3) / 4); }
 
-    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    function generateId() { return Math.random().toString(36).slice(2, 10); }
-
-    function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
-    function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
-
-    // // base64 helpers
-    function arrayBufferToBase64(buffer) { let binary = ''; const bytes = new Uint8Array(buffer); const len = bytes.byteLength; for (let i = 0; i < len; i++) { binary += String.fromCharCode(bytes[i]); } return btoa(binary); }
-    function base64ToArrayBuffer(base64) { const binary_string = atob(base64); const len = binary_string.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i); return bytes.buffer; }
-    function base64ByteSize(b64) { return Math.floor((b64.length * 3) / 4); }
-
-  </script>
-</body>
-
-</html>
+</script>
