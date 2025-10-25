@@ -30,18 +30,18 @@
         width:1px;
         height:1px;
     }
-    #topmenu {
+    /* #topmenu {
         display: none;
-    }
-    #bottomMenu {
+    } */
+    /* #bottomMenu {
         height:70px;
         bottom:0px;
         padding-bottom: 20px;
-        /* margin-bottom:20px; */
-    }
-    .toolpopup.bottom {
+        margin-bottom:20px;
+    } */
+    /* .toolpopup.bottom {
         bottom: calc(35px + var(--button-height));
-    }
+    } */
     .mainZoom {
         left: 0px;
         top: 5px;
@@ -50,7 +50,7 @@
     }
 }
 @media (max-width: 420px) {
-    .volume, #toolMuteCamera, #toolMuteMicrophone{
+    .volume, #toolMuteCamera, #toolPalette, #toolEraser{
         display: none;
     }
     .siteHeader {
@@ -80,15 +80,15 @@
     #topmenu {
         display: none;
     }
-    #bottomMenu {
+    /* #bottomMenu {
         height:70px;
         bottom:0px;
         padding-bottom: 20px;
         /* margin-bottom:20px; */
-    }
-    .toolpopup.bottom {
+    } */
+    /* .toolpopup.bottom {
         bottom: calc(35px + var(--button-height));
-    }
+    } */
     .mainZoom {
         left: 0px;
         top: 5px;
@@ -97,18 +97,18 @@
     }
 }
 @media (max-height: 430px) {
-    #topmenu {
+    /* #topmenu {
         display: none;
-    }
-    #bottomMenu {
+    } */
+    /* #bottomMenu {
         height:70px;
         bottom:0px;
         padding-bottom: 20px;
-        /* margin-bottom:20px; */
+        margin-bottom:20px;
     }
     .toolpopup.bottom {
         bottom: calc(35px + var(--button-height));
-    }
+    } */
     .viewersiframe {
         opacity:0px;
         left:-100px;

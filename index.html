@@ -127,7 +127,7 @@
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
         <!--top menu bar-->
-        <div id="topmenu" class="toolbar top">	
+        <!-- <div id="topmenu" class="toolbar top">	
             <div style="width:20px"></div>
             <h3 id="sessionTitle">RPXL</h3>&nbsp;<h3 id="sessionID">RPXL</h3>
             <div class="toolspacer"></div>           
@@ -136,13 +136,13 @@
                     <button class="botton buttonblue" id="vdoninja">&nbsp;&nbsp;Powered by vdo.ninja&nbsp;&nbsp;</button>
                 </a>
             </div>
-        </div>
+        </div> -->
         <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
             <div class="toolset">
                 <button class="tool toolmoresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
             </div>
-            <div class="toolset toolspacer">
+            <div id="micCamControls" class="toolset toolspacer">
                 <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
                 <button class="tool disable" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
             </div>
@@ -155,6 +155,9 @@
             <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>   
                 <span class="volume streamtool" role="button"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
             </div>
+        </div>
+        <div>
+            <h3 class="copyCredit">Powered by vdo.ninja</h3>
         </div>
     </div>
 
@@ -277,14 +280,14 @@ function checkSessionURL () {
                 shmeg.classList.add("hidden");
                 settingsDialog.classList.remove("hidden");
                 settingsDialog.show();
-                document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
+                //document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
 
                 document.getElementById("name").focus();
                 if (params.has('PN')) {
                     const PN = params.get('PN') || "RPXl";
                     const decodePN = decodeURI(PN);
-                    //console.log('Name parameter exists',decodePN);
-                    document.getElementById("sessionTitle").innerHTML = decodePN;
+                    console.log('Name parameter exists',decodePN);
+                    //document.getElementById("sessionTitle").innerHTML = decodePN;
                 }                
             }
         }      

@@ -334,6 +334,9 @@ label:has([type=colorpot]:checked) {
     top: 0px;
 }
 .toolbar.bottom {
+    height:70px;
+    bottom:0px;
+    padding-bottom: 20px;
     bottom: 0px;
     /* padding-bottom: env(safe-area-inset-bottom); */
 }
@@ -346,6 +349,18 @@ label:has([type=colorpot]:checked) {
     margin: 5px;
 }
 
+.copyCredit {
+    position:fixed; 
+    display:inline-block; 
+    bottom:0px;
+    width:100%;
+    font-size: 14px;
+    color: light-dark(var(--color-light-grey), var(--color-light-grey));
+    text-align: center;
+    margin-bottom: 5px;
+    padding: 0px;
+    z-index:2;
+}
 /*flexible spacer for gaps between tool sets*/
 .toolspacer {
     margin-right:auto;
@@ -475,7 +490,7 @@ input[type="range"]::-webkit-slider-thumb {
     top: calc(15px + var(--button-height));
 }
 .toolpopup.bottom {
-    bottom: calc(15px + var(--button-height));
+    bottom: calc(35px + var(--button-height));
 }
 .toolpopup.right {
     right: 5px;
@@ -606,7 +621,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .mainZoom {
     position:fixed;
-	height: calc(100% - var(--toolbarheight)*2);
+	height: calc(100% - 20px - var(--toolbarheight)*2);
     top: var(--toolbarheight);
     width: calc(100% - 105px);
     left:100px;

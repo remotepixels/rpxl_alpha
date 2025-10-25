@@ -1,0 +1,134 @@
+
+body {
+    /* font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; */
+    margin:16px;
+    background:#f7f8fb;
+    color:#111
+}
+* {
+    font-family: "Roboto", serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    border: 0px;
+    box-sizing: border-box;
+}
+*:focus {
+    outline: none;
+}
+h1{
+    font-size:20px;
+    margin:0 0 12px}
+.row{
+    display:flex;
+    gap:10px
+}
+#left{
+    flex:1
+}
+#right{
+    width:320px
+}
+.drop{
+    border:2px dashed #bbb;
+    padding:20px;
+    border-radius:8px;
+    text-align:center;
+    background:white
+}
+.drop.dragover{
+    border-color:#3b82f6;
+    box-shadow:0 4px 14px rgba(59,130,246,0.12)
+}
+.file-list{
+    margin-top:12px
+}
+.file-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:2px;
+    border-radius:6px;
+    background:#fff;
+    margin-bottom:0px;
+    border:1px solid #eee}
+.progress{
+    height:8px;
+    background:#e6eefc;
+    border-radius:6px;
+    overflow:hidden;
+    width:200px;
+    margin-left:12px
+}
+.bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#60a5fa,#2563eb)
+}
+button{
+    padding:8px 12px;
+    border-radius:6px;
+    border:0;
+    background:#2563eb;
+    color:white;
+    cursor:pointer
+}
+button.secondary{
+    background:#6b7280
+}
+.small{
+    font-size:12px;
+    color:#555
+}
+.peers{
+    background:#fff;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #eee
+}
+a.download-link{
+    color:#111;
+    text-decoration:none
+}
+pre.log{
+    height:140px;
+    overflow:auto;
+    padding:8px;
+    background:#0f172a;
+    color:#c7d2fe;
+    border-radius:6px;
+    font-size:12px
+}
+footer{
+    margin-top:12px;
+    font-size:12px;
+    color:#666
+}
+.folder {
+  margin-bottom: 0px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fafafa;
+  padding: 0px 0px;
+}
+.folder-header {
+  font-weight: bold;
+  background: #f1f1f1;
+  padding: 0px 0px;
+  border-radius: 4px;
+  vertical-align: middle;
+  justify-content: center;;
+}
+.file-item:hover {
+  background: #f9f9f9;
+}
+.folder-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.material-symbols-outlined{
+    vertical-align: middle;
+    margin: 5px;
+    font-size: 30px;
+}

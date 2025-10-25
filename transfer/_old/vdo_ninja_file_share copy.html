@@ -1,0 +1,423 @@
+<!doctype html>
+<!--
+  VDO.Ninja-powered P2P File Share (single-file demo)
+
+  How to use:
+  1. Set `ROOM_NAME` below to the room you want to use (or let users enter it).
+  2. Open this page and allow it to load the embedded VDO.Ninja iframe.
+  3. On the sender side: drag & drop files or folders into the drop area.
+  4. Click "Send All" to transmit files to all connected peers via VDO.Ninja data channels.
+
+  Notes & limitations:
+  - This is a demo using base64-chunked transfer. For very large files or production use,
+    consider a streaming/arrayBuffer transfer and server-assisted handoff.
+  - The demo relies on VDO.Ninja's IFRAME API (`postMessage`) and p2p data channels.
+    See VDO.Ninja docs for iframe/data channel details.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VDO.Ninja P2P File Share — Demo</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:16px;background:#f7f8fb;color:#111}
+    h1{font-size:20px;margin:0 0 12px}
+    .row{display:flex;gap:16px}
+    #left{flex:1}
+    #right{width:320px}
+    .drop{border:2px dashed #bbb;padding:20px;border-radius:8px;text-align:center;background:white}
+    .drop.dragover{border-color:#3b82f6;box-shadow:0 4px 14px rgba(59,130,246,0.12)}
+    .file-list{margin-top:12px}
+    .file-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:6px;background:#fff;margin-bottom:8px;border:1px solid #eee}
+    .progress{height:8px;background:#e6eefc;border-radius:6px;overflow:hidden;width:200px;margin-left:12px}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#2563eb)}
+    button{padding:8px 12px;border-radius:6px;border:0;background:#2563eb;color:white;cursor:pointer}
+    button.secondary{background:#6b7280}
+    .small{font-size:12px;color:#555}
+    .peers{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+    a.download-link{color:#111;text-decoration:none}
+    pre.log{height:140px;overflow:auto;padding:8px;background:#0f172a;color:#c7d2fe;border-radius:6px;font-size:12px}
+    footer{margin-top:12px;font-size:12px;color:#666}
+  </style>
+</head>
+<body>
+  <h1>VDO.Ninja P2P File Share — Demo</h1>
+  <div class="row">
+    <div id="left">
+      <div style="margin-bottom:10px">
+        <label class="small">Room name:</label>
+        <input id="roomInput" placeholder="room-name" value="demoFilesRoom2764" />
+        <button id="joinBtn">Join Room</button>
+      </div>
+
+      <div id="container"></div>
+
+      <div class="drop" id="dropArea">Drag & drop files or folders here<br><span class="small">(or click to pick)</span></div>
+
+      <div class="file-list" id="fileList"></div>
+
+      <div style="margin-top:12px">
+        <button id="sendAllBtn">Send All Files to Room</button>
+        <button id="clearBtn" class="secondary">Clear Files</button>
+      </div>
+
+      <h3 style="margin-top:18px">Logs</h3>
+      <pre class="log" id="log"></pre>
+    </div>
+
+    <div id="right">
+      <div class="peers">
+        <h3 style="margin:0 0 8px">Connected Peers</h3>
+        <div id="peersList" class="small">(no peers yet)</div>
+        <div style="margin-top:8px">
+          <button id="refreshPeers">Refresh Peer List</button>
+        </div>
+      </div>
+
+      <div class="peers" style="margin-top:12px">
+        <h3 style="margin:0 0 8px">Sender Status</h3>
+        <div id="senderStatus" class="small">Idle</div>
+      </div>
+
+      <div class="peers" style="margin-top:12px">
+        <h3 style="margin:0 0 8px">Hints</h3>
+        <div class="small">This demo uses VDO.Ninja's IFRAME API and p2p data channels. For docs see the iframe API &amp; data transmission guide in VDO.Ninja docs.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Demo — not for production. Uses base64 chunking for simplicity.</footer>
+
+  <script>
+  // ---------------- CONFIG ----------------
+  // Chunk size (bytes) for file transfer. Lower = more messages, smaller memory.
+  const CHUNK_SIZE = 256 * 1024; // 256 KB
+
+  // Namespace used in messages sent through VDO.Ninja
+  const APP_NS = 'p2pFileShareDemo';
+
+  // ----------------------------------------
+
+  let iframe = null;
+  let connectedPeers = {}; // map streamID -> label
+  let roomName = '';
+  const files = {}; // id -> {file, name, size, chunks:[], progress}
+
+  const dropArea = document.getElementById('dropArea');
+  const fileList = document.getElementById('fileList');
+  const logEl = document.getElementById('log');
+  const peersList = document.getElementById('peersList');
+  const senderStatus = document.getElementById('senderStatus');
+  const roomInput = document.getElementById('roomInput');
+  const joinBtn = document.getElementById('joinBtn');
+  const refreshPeersBtn = document.getElementById('refreshPeers');
+  const sendAllBtn = document.getElementById('sendAllBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  function log(...args) { console.log(...args); logEl.textContent += args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+
+  // --- Join room / create iframe ---
+  joinBtn.addEventListener('click', () => {
+    roomName = (roomInput.value || '').trim();
+    if (!roomName) return alert('Please enter a room name');
+    createIframe(roomName);
+  });
+
+  refreshPeersBtn.addEventListener('click', () => {
+    requestPeerList();
+  });
+
+  function createIframe(room){
+    if (iframe) iframe.remove();
+    const container = document.getElementById('container');
+    iframe = document.createElement('iframe');
+    iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
+    // dataonly & cleanish = opens data channels only with minimal GUI
+    iframe.src = `https://vdo.ninja/?director&room=${encodeURIComponent(room)}&dataonly&cleanish`;
+    iframe.style.width = '100%';
+    iframe.style.height = '180px';
+    container.appendChild(iframe);
+
+    // set up message listener
+    const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent';
+    const eventer = window[eventMethod];
+    const messageEvent = eventMethod === 'attachEvent' ? 'onmessage' : 'message';
+    eventer(messageEvent, function(e){
+      //if (!iframe || e.source !== iframe.contentWindow) return;
+      // debug
+      // log('iframe message', JSON.stringify(e.data));
+      if ('action' in e.data) handleAction(e.data);
+      if ('dataReceived' in e.data) handleDataReceived(e.data.dataReceived, e.data.UUID);
+      if ('streamIDs' in e.data) handleStreamIDs(e.data.streamIDs);
+      if ('detailedState' in e.data) log('detailedState', e.data.detailedState);
+      console.log('iframe message', e.data);
+    }, false);
+
+    log('Joined room:', room);
+  }
+
+    window.addEventListener("message", function (e) {
+    if ("dataReceived" in e.data) {
+      console.log( e.data.dataReceived);
+    }
+  });
+  
+  function handleAction(data){
+    // see iframe docs: guest-connected, view-connection, push-connection, etc.
+    if (data.action === 'guest-connected' && data.streamID){
+      connectedPeers[data.streamID] = data.value?.label || 'Guest';
+      updatePeersUI();
+      log('Guest connected:', data.streamID, connectedPeers[data.streamID]);
+    } else if (data.action === 'push-connection' && data.value === false && data.streamID){
+      log('Peer disconnected:', data.streamID);
+      delete connectedPeers[data.streamID];
+      updatePeersUI();
+    } else if (data.action === 'view-connection'){
+      if (data.value) { connectedPeers[data.streamID] = 'Viewer'; } else { delete connectedPeers[data.streamID]; }
+      updatePeersUI();
+    }
+  }
+
+  function handleStreamIDs(ids){
+    connectedPeers = ids; // object mapping streamID->label
+    updatePeersUI();
+  }
+
+  function updatePeersUI(){
+    const keys = Object.keys(connectedPeers);
+    if (!keys.length) peersList.textContent = '(no peers yet)';
+    else peersList.innerHTML = keys.map(k => `<div><strong>${connectedPeers[k]}</strong><div class="small">${k}</div></div>`).join('');
+  }
+
+  function requestPeerList(){
+    if (!iframe) return log('Not connected');
+    iframe.contentWindow.postMessage({ getStreamIDs: true }, '*');
+  }
+
+  // --- drag & drop / file handling ---
+  dropArea.addEventListener('click', ()=>{
+    const ip = document.createElement('input'); ip.type='file'; ip.multiple=true; ip.webkitdirectory=true;
+    ip.addEventListener('change', (ev)=>{ handleFileList(ev.target.files); });
+    ip.click();
+  });
+
+  ['dragenter','dragover'].forEach(ev=>{
+    dropArea.addEventListener(ev,e=>{ e.preventDefault(); e.stopPropagation(); dropArea.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(ev=>{
+    dropArea.addEventListener(ev,e=>{ e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('dragover'); });
+  });
+
+  dropArea.addEventListener('drop', async (e)=>{
+    const items = e.dataTransfer.items;
+    if (!items) return handleFileList(e.dataTransfer.files);
+    // Use directory traversal when available
+    for (let i=0;i<items.length;i++){
+      const it = items[i];
+      const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+      if (entry && entry.isDirectory) {
+        await readDirectory(entry);
+      } else if (entry && entry.isFile) {
+        entry.file(file => addFile(file));
+      } else if (it.getAsFile) {
+        addFile(it.getAsFile());
+      }
+    }
+  });
+
+  async function readDirectory(dirEntry, path=''){
+    const reader = dirEntry.createReader();
+    const readEntries = ()=> new Promise((res,rej)=> reader.readEntries(res,rej));
+    let entries = await readEntries();
+    while (entries.length){
+      for (const e of entries){
+        if (e.isDirectory) await readDirectory(e, path + dirEntry.name + '/');
+        else if (e.isFile) e.file(file=>{ file.relativePath = (path?path+dirEntry.name+'/':dirEntry.name+'/') + file.name; addFile(file); });
+      }
+      entries = await readEntries();
+    }
+  }
+
+  function handleFileList(list){
+    for (let i=0;i<list.length;i++) addFile(list[i]);
+  }
+
+  function addFile(file){
+    const id = generateId();
+    files[id] = { id, file, name: file.relativePath || file.name, size: file.size, uploadedBy: null, chunks: {}, progress: 0 };
+    renderFileItem(files[id]);
+    log('Added', files[id].name, files[id].size);
+  }
+
+  function renderFileItem(f){
+    const el = document.createElement('div'); el.className='file-item'; el.id='file-'+f.id;
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${escapeHtml(f.name)}</strong></div><div class="small">${formatBytes(f.size)}</div>`;
+    const right = document.createElement('div');
+    const progressContainer = document.createElement('div'); progressContainer.className='progress'; const bar = document.createElement('div'); bar.className='bar'; bar.id='bar-'+f.id; progressContainer.appendChild(bar);
+    const status = document.createElement('div'); status.className='small'; status.id='status-'+f.id; status.textContent='Waiting';
+    right.appendChild(progressContainer); right.appendChild(status);
+    el.appendChild(left); el.appendChild(right);
+    fileList.appendChild(el);
+  }
+
+  clearBtn.addEventListener('click', ()=>{ Object.keys(files).forEach(k=>{ const el=document.getElementById('file-'+k); if(el)el.remove(); delete files[k]; }); });
+
+  // --- Sending logic ---
+  sendAllBtn.addEventListener('click', async ()=>{
+    if (!iframe) return alert('Join a room first');
+    const keys = Object.keys(files);
+    if (!keys.length) return alert('No files');
+    senderStatus.textContent = 'Sending...';
+    for (const id of keys){
+      await sendFile(id);
+    }
+    senderStatus.textContent = 'All files queued';
+  });
+
+  async function sendFile(id){
+    const meta = files[id];
+    const f = meta.file;
+    // notify peers about file metadata
+    const fileMeta = { type: 'file-meta', id: id, name: meta.name, size: meta.size, timestamp: Date.now() };
+    postToIframe({ sendData: { [APP_NS]: { type: 'announce', payload: fileMeta } }, type: 'pcs' });
+    log('Announced file', meta.name);
+
+    // stream chunks
+    const totalChunks = Math.ceil(f.size / CHUNK_SIZE) || 1;
+    let offset = 0; let chunkIndex = 0;
+    const reader = new FileReader();
+
+    while (offset < f.size){
+      const slice = f.slice(offset, offset + CHUNK_SIZE);
+      const chunk = await readAsArrayBuffer(slice);
+      // convert to base64 to safely send inside JSON over postMessage
+      const b64 = arrayBufferToBase64(chunk);
+      const chunkMsg = { type: 'file-chunk', id, index: chunkIndex, total: totalChunks, data: b64 };
+      postToIframe({ sendData: { [APP_NS]: { type: 'chunk', payload: chunkMsg } }, type: 'pcs' });
+      offset += CHUNK_SIZE; chunkIndex++;
+      // update progress UI
+      const percent = Math.min(100, Math.round((offset / f.size) * 100));
+      const bar = document.getElementById('bar-'+id); if (bar) bar.style.width = percent + '%';
+      const st = document.getElementById('status-'+id); if (st) st.textContent = `Sending ${percent}%`;
+      await sleep(15); // slight yield to avoid hogging event loop and to avoid burst flooding
+    }
+
+    // send finalize
+    postToIframe({ sendData: { [APP_NS]: { type: 'complete', payload: { id } } }, type: 'pcs' });
+    log('Finished sending file', meta.name);
+    const st = document.getElementById('status-'+id); if (st) st.textContent = 'Sent';
+  }
+
+  // --- Receiving logic ---
+  // dataReceived messages come from the iframe and include e.data.dataReceived and e.data.UUID
+  const incomingFiles = {}; // senderUUID -> fileID -> {meta, chunks:[], receivedBytes}
+
+  function handleDataReceived(dataReceived, senderUUID){
+    // dataReceived is whatever was sent under sendData key on the sender side (we used APP_NS)
+    //if (!dataReceived || !dataReceived[APP_NS]) return;
+    const payload = dataReceived[APP_NS];
+    if (payload.type === 'announce'){
+      const meta = payload.payload;
+      ensureIncoming(senderUUID, meta.id).meta = meta;
+      log('Received announce from', senderUUID, meta.name || meta.id);
+      renderIncomingList();
+    } else if (payload.type === 'chunk'){
+      const chunk = payload.payload;
+      const obj = ensureIncoming(senderUUID, chunk.id);
+      obj.chunks[chunk.index] = chunk.data; // base64
+      obj.receivedBytes = Object.values(obj.chunks).reduce((acc, b)=> acc + (b? base64ByteSize(b):0), 0);
+      // update progress
+      updateIncomingProgress(senderUUID, chunk.id, (obj.receivedBytes / obj.meta.size) || 0);
+      // optional: when all chunks present, assemble
+      if (Object.keys(obj.chunks).length === chunk.total){
+        assembleFile(senderUUID, chunk.id);
+      }
+    } else if (payload.type === 'complete'){
+      log('Sender signalled complete for', payload.payload.id);
+    } else if (payload.type === 'ack'){
+      // acknowledgement that a particular peer downloaded a file
+      const info = payload.payload; // {id, downloaderLabel}
+      log('ACK received:', info.id, 'from', senderUUID);
+      // mark UI on sender side
+      markDownloaded(info.id, senderUUID, info.downloaderLabel);
+    }
+  }
+
+  function ensureIncoming(senderUUID, id){
+    incomingFiles[senderUUID] = incomingFiles[senderUUID] || {};
+    incomingFiles[senderUUID][id] = incomingFiles[senderUUID][id] || { meta: null, chunks: {}, receivedBytes: 0, assembled: false };
+    return incomingFiles[senderUUID][id];
+  }
+
+  function updateIncomingProgress(sender, id, fraction){
+    // simple UI: append to fileList an entry if not exists
+    const uid = `inc-${sender}-${id}`;
+    let el = document.getElementById(uid);
+    if (!el){ el = document.createElement('div'); el.id = uid; el.className='file-item'; fileList.appendChild(el); }
+    const obj = incomingFiles[sender][id];
+    const percent = Math.round((obj.receivedBytes / obj.meta.size) * 100) || 0;
+    el.innerHTML = `<div><strong>${escapeHtml(obj.meta.name || obj.meta.id)}</strong></div><div class="small">From: ${escapeHtml(connectedPeers[sender]||sender)} — ${percent}%</div>`;
+  }
+
+  function assembleFile(senderUUID, id){
+    const obj = ensureIncoming(senderUUID, id);
+    if (obj.assembled) return;
+    // concat base64 chunks -> binary
+    const b64 = Object.keys(obj.chunks).sort((a,b)=>a-b).map(i=>obj.chunks[i]).join('');
+    const ab = base64ToArrayBuffer(b64);
+    const blob = new Blob([ab]);
+    const url = URL.createObjectURL(blob);
+    // render a download link
+    const el = document.createElement('div'); el.className='file-item';
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${escapeHtml(obj.meta.name)}</strong></div><div class="small">${formatBytes(obj.meta.size)}</div>`;
+    const right = document.createElement('div');
+    const a = document.createElement('a'); a.href = url; a.download = obj.meta.name || 'file'; a.textContent = 'Download'; a.className='download-link';
+    a.addEventListener('click', ()=>{
+      // send ack to original sender that we downloaded the file
+      postToIframe({ sendData: { [APP_NS]: { type: 'ack', payload: { id, downloaderLabel: 'peer' } } }, type: 'pcs', UUID: senderUUID });
+    });
+    right.appendChild(a);
+    el.appendChild(left); el.appendChild(right);
+    fileList.appendChild(el);
+    obj.assembled = true;
+    log('Assembled file from', senderUUID, obj.meta.name);
+  }
+
+  function renderIncomingList(){
+    // optional: update fileList or a separate receive UI — kept simple here
+  }
+
+  // mark downloaded on sender side
+  function markDownloaded(fileId, downloaderUUID, downloaderLabel){
+    const el = document.getElementById('file-'+fileId);
+    if (!el) return;
+    let info = el.querySelector('.small.downloads');
+    if (!info){ info = document.createElement('div'); info.className='small downloads'; el.appendChild(info); }
+    const txt = `${downloaderLabel || (connectedPeers[downloaderUUID]||downloaderUUID)} downloaded at ${new Date().toLocaleTimeString()}`;
+    info.textContent = txt;
+  }
+
+  // --- helpers: post message wrapper ---
+  function postToIframe(obj){
+    if (!iframe) return log('No iframe');
+    iframe.contentWindow.postMessage(obj, '*');
+  }
+
+  // utility: read arrayBuffer from slice
+  function readAsArrayBuffer(blob){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=function(){ res(r.result); }; r.onerror=rej; r.readAsArrayBuffer(blob); }); }
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  function generateId(){ return Math.random().toString(36).slice(2,10); }
+
+  function formatBytes(a){ if(a===0) return '0 B'; const units=['B','KB','MB','GB','TB']; const e=Math.floor(Math.log(a)/Math.log(1024)); return (a/Math.pow(1024,e)).toFixed(2)+' '+units[e]; }
+  function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]); }
+
+  // base64 helpers
+  function arrayBufferToBase64(buffer){ let binary=''; const bytes=new Uint8Array(buffer); const len=bytes.byteLength; for (let i=0;i<len;i++){ binary += String.fromCharCode(bytes[i]); } return btoa(binary); }
+  function base64ToArrayBuffer(base64){ const binary_string = atob(base64); const len = binary_string.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i); return bytes.buffer; }
+  function base64ByteSize(b64){ return Math.floor((b64.length * 3) / 4); }
+
+  </script>
+</body>
+</html>
