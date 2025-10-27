@@ -1,0 +1,41 @@
+<!DOCTYPE html>     
+<html lang="en">    
+
+<head>
+    <title>Test Round Transfer</title>
+</head> 
+<style>
+
+.roundProgressBarBG {
+    width: 20px;
+    height: 20px;
+    background-color: lightgray;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+.roundProgressBarFill {
+    width: 100%;
+    height: 100%;
+    background-image: conic-gradient(dodgerblue 230deg, lightgrey 230deg);
+}
+.roundProgressBarCenter{
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background-color: white;        
+}
+
+</style>
+<body id="body">
+    <h1>Test Round progress bar</h1>
+<div class="roundProgressBarBG">
+    <div class="roundProgressBarFill"></div>
+        <div class="roundProgressBarCenter"></div>
+</div>
+</body>
+
+</html>

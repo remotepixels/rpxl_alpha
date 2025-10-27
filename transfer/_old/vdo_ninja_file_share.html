@@ -32,7 +32,7 @@
       <div class="file-list" id="fileList"></div>
 
       <!-- <div style="margin-top:12px"> -->
-      <!-- <button id="sendAllBtn">Send All Files to Room</button> -->
+        <!-- <button id="sendAllBtn">Send All Files to Room</button> -->
       <!-- </div> -->
 
       <h3 style="margin-top:18px">Logs</h3>
@@ -261,7 +261,7 @@
     sendFile(id);
   }
 
-  //Build folder tree recursively
+  // Build folder tree recursively
   function renderTreeItem(f) {
     const treeRoot = document.getElementById('fileList');
     const pathParts = f.folderPath ? f.folderPath.split('/') : [];
@@ -310,7 +310,6 @@
       currentContainer = folderMap[currentPath];
     }
 
-
     // Create file entry under its final folder
     const fileDiv = document.createElement('div');
     fileDiv.className = 'file-item';
@@ -320,10 +319,7 @@
     fileDiv.style.alignItems = 'center';
     fileDiv.style.padding = '2px 10px';
     fileDiv.innerHTML = `
-        <span class="file-name">${escapeHtml(f.name)}</span>
-        <!--<span class="file-status">${escapeHtml(f.status)}</span>-->
-        <!--<span class="right progress-bar"><span class="progress-fill" style="width:${escapeHtml(f.progress || 0)}"%;></span></span>-->
-        <span class="badge ready"></span>
+        <span>${escapeHtml(f.name)}</span>
         <span class="small">${formatBytes(f.size)}</span>
         <span class="material-symbols-outlined file-delete" 
               style="cursor:pointer; font-size:18px; color:#c33; margin-left:8px;">
@@ -466,12 +462,10 @@
   }
 
   //client side data receiving
-  async function handleDataReceived(msg) {
+  function handleDataReceived(msg) {
     const data = msg[APP_NS];
     if (!data || !data.type) return;
-    if (msg.data?.buffer) {
-      console.log("✅ Incoming transferable buffer:", msg.data.buffer.constructor.name, msg.data.buffer.byteLength);
-    }
+
     switch (data.type) {
       case 'announce': {
         const f = data.payload;
@@ -523,49 +517,8 @@
         cleanupEmptyFolders(path);
         break;
       }
-      case 'request-file': {
-        // remote peer asks us to stream file to them
-        const { id } = data.payload;
-        const from = msg.from || null;
-        respondToFileRequest(from, data.payload);
-        break;
-      }
-      case 'file-meta-announce': {
-        handleIncomingFileMeta(data.payload, msg.from || null);
-        break;
-      }
-      case 'file-chunk': {
-        handleIncomingChunk(data.payload);
-        break;
-      }
-
-      case 'file-chunk': {
-        await handleIncomingChunk(data.payload, msg);
-        break;
-      }
-
-      case 'file-transfer-complete': {
-        // finalize the file
-        const { id } = data.payload;
-        finalizeIncomingFile(id);
-        break;
-      }
-      case 'file-not-found': {
-        const { id } = data.payload;
-        log(`Peer reports file not found: ${id}`);
-        if (incomingFiles[id] && incomingFiles[id].reject) incomingFiles[id].reject(new Error('file-not-found'));
-        break;
-      }
-      case 'file-transfer-error': {
-        const { id, message } = data.payload;
-        log(`Peer reported transfer error for ${id}:`, message);
-        if (incomingFiles[id] && incomingFiles[id].reject) incomingFiles[id].reject(new Error(message || 'transfer-error'));
-        break;
-      }
     }
   }
-
-
   // Remove any empty parent folders (recursively up)
   function cleanupEmptyFolders(startPath = null) {
     // climb up the tree from there and clean each ancestor if empty.
@@ -604,6 +557,82 @@
     }
   }
 
+  async function sendFileChunks(targetUUID, id) {
+    const meta = files[id];
+    const f = meta.file;
+    const totalChunks = Math.ceil(f.size / CHUNK_SIZE);
+    let offset = 0, index = 0;
+
+    log(`Uploading ${meta.name} (${meta.size} bytes) to ${targetUUID}`);
+    while (offset < f.size) {
+      const slice = f.slice(offset, offset + CHUNK_SIZE);
+      const chunk = await readAsArrayBuffer(slice);
+      const b64 = arrayBufferToBase64(chunk);
+      postToIframe({
+        sendData: {
+          [APP_NS]: {
+            type: 'chunk',
+            payload: { id, index, total: totalChunks, data: b64 }
+          }
+        },
+        type: 'pcs',
+        UUID: targetUUID
+      });
+      offset += CHUNK_SIZE;
+      index++;
+      await sleep(15);
+    }
+
+    postToIframe({
+      sendData: {
+        [APP_NS]: { type: 'complete', payload: { id } }
+      },
+      type: 'pcs',
+      UUID: targetUUID
+    });
+
+    log(`Finished sending ${meta.name} to ${targetUUID}`);
+  }
+
+  const incomingTransfers = {};
+
+  function handleIncomingChunk(senderUUID, chunk) {
+    if (!incomingTransfers[chunk.id]) {
+      incomingTransfers[chunk.id] = { chunks: [], total: chunk.total };
+    }
+    incomingTransfers[chunk.id].chunks[chunk.index] = chunk.data;
+
+    const receivedCount = Object.keys(incomingTransfers[chunk.id].chunks).length;
+    log(`Receiving ${chunk.id} (${receivedCount}/${chunk.total}) from ${senderUUID}`);
+
+    if (receivedCount === chunk.total) {
+      finalizeReceivedFile(senderUUID, chunk.id);
+    }
+  }
+
+  function finalizeReceivedFile(senderUUID, id) {
+    const transfer = incomingTransfers[id];
+    if (!transfer) return;
+
+    const joined = Object.keys(transfer.chunks)
+      .sort((a, b) => a - b)
+      .map(i => transfer.chunks[i])
+      .join('');
+
+    const ab = base64ToArrayBuffer(joined);
+    const blob = new Blob([ab]);
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = files[id]?.name || `file-${id}`;
+    a.textContent = `Download ${files[id]?.name || id}`;
+    a.className = 'download-link';
+    document.getElementById('fileList').appendChild(a);
+
+    log(`File ${id} received and ready to download`);
+    delete incomingTransfers[id];
+  }
 
   //client side tree rendering
   function renderTreeItemReceiver(f) {
@@ -677,17 +706,13 @@
   }
 
   // --- helpers: post message wrapper ---
-  function postToIframe(msg, transferables = []) {
-    if (!iframe || !iframe.contentWindow) return;
-    try {
-      iframe.contentWindow.postMessage(msg, "*", transferables);
-    } catch (e) {
-      console.error("postToIframe failed:", e);
-    }
+  function postToIframe(obj) {
+    if (!iframe) return log('No iframe');
+    iframe.contentWindow.postMessage(obj, '*');
   }
 
   // // utility: read arrayBuffer from slice
-
+  function readAsArrayBuffer(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsArrayBuffer(blob); }); }
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -696,337 +721,9 @@
   function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
   function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
 
-
-
-
-  // ------------- Download + queue + chunking implementation -------------
-  // Config
-  const MAX_CONCURRENT_TRANSFERS = 5;    // browser concurrency limit
-  const FILE_CHUNK_BYTES = CHUNK_SIZE;   // reuse CHUNK_SIZE you already have
-  const CHUNK_SEND_DELAY = 10;           // ms between chunk sends to avoid congestion
-
-  // Queue state
-  const downloadQueue = [];   // items: { id, fromUUID }
-  let activeTransfers = 0;
-
-  // Keep partial incoming file assembly
-  // incomingFiles[id] = { chunks:[], totalChunks, receivedCount, meta: { name, size, folderPath, uploadedBy } }
-  const incomingFiles = {};
-
-  // Called by UI when user requests a download
-  // idOrPath: either file id (for single file) or folder path (when isFolder true)
-  async function requestDownload(idOrPath, isFolder = false) {
-    if (!iframe) return alert('Join a room first');
-    if (isFolder) {
-      // enqueue all files under this folder
-      const toDownload = Object.keys(files).filter(fid => files[fid].folderPath.startsWith(idOrPath));
-      if (!toDownload.length) return alert('No files in directory');
-      for (const fid of toDownload) enqueueDownload(fid);
-      log(`Enqueued ${toDownload.length} files for folder download: ${idOrPath}`);
-    } else {
-      // single file id
-      const fid = idOrPath;
-      if (!files[fid]) return alert('File not found');
-      enqueueDownload(fid);
-      log(`Enqueued file: ${files[fid].name}`);
-    }
-
-    processDownloadQueue();
-  }
-
-  // add to queue
-  function enqueueDownload(id, fromUUID = null) {
-    downloadQueue.push({ id, fromUUID });
-    files[id] = files[id] || {}; // ensure entry exists
-    files[id].status = 'queued';
-  }
-
-  // main queue worker
-  async function processDownloadQueue() {
-    if (activeTransfers >= MAX_CONCURRENT_TRANSFERS) return;
-    if (!downloadQueue.length) return;
-    while (activeTransfers < MAX_CONCURRENT_TRANSFERS && downloadQueue.length) {
-      const item = downloadQueue.shift();
-      activeTransfers++;
-      files[item.id].status = 'transferring';
-      log(`Starting download: ${item.id} (${files[item.id].name || 'meta not present yet'})`);
-      try {
-        await requestFileFromPeer(item.id, item.fromUUID);
-      } catch (err) {
-        log('Download failed for', item.id, err);
-        files[item.id].status = 'failed';
-      } finally {
-        activeTransfers--;
-      }
-    }
-  }
-
-  // ask peers for a file (will trigger peer-side responder)
-  function requestFileFromPeer(id, targetUUID = null) {
-    return new Promise((resolve, reject) => {
-      const reqMsg = {
-        sendData: {
-          [APP_NS]: {
-            type: 'request-file',
-            payload: { id, timestamp: Date.now() }
-          }
-        },
-        type: 'pcs'
-      };
-      if (targetUUID) reqMsg.to = targetUUID;
-
-      // Setup a timeout in case no one responds
-      let timedOut = false;
-      const timeout = setTimeout(() => {
-        timedOut = true;
-        log(`Request timed out for file ${id}`);
-        reject(new Error('request-timeout'));
-      }, 30_000); // 30s timeout - adjust as necessary
-
-      // Save callback to be invoked when file is fully received.
-      // We'll use incomingFiles to track; check completion in handleDataReceived.
-      incomingFiles[id] = incomingFiles[id] || { chunks: {}, totalChunks: null, receivedCount: 0, resolve, reject, meta: files[id] || {} };
-      incomingFiles[id].resolve = () => {
-        if (timedOut) return;
-        clearTimeout(timeout);
-        files[id].status = 'downloaded';
-        log(`Download complete: ${id}`);
-        resolve();
-      };
-      incomingFiles[id].reject = (err) => {
-        if (timedOut) return;
-        clearTimeout(timeout);
-        files[id].status = 'failed';
-        reject(err || new Error('receive-failed'));
-      };
-
-      postToIframe(reqMsg);
-      log(`Requested file: ${id}${targetUUID ? ` → ${targetUUID}` : ''}`);
-    });
-  }
-
-  // ---- Sender: respond to 'request-file' by streaming chunks ----
-  async function respondToFileRequest(fromUUID, payload) {
-    const { id } = payload;
-    const meta = files[id];
-    if (!meta || !meta.file) {
-      // tell requester file not found
-      postToIframe({
-        sendData: { [APP_NS]: { type: 'file-not-found', payload: { id } } },
-        type: 'pcs',
-        to: fromUUID
-      });
-      log('Requested file not found locally:', id);
-      return;
-    }
-
-    const file = meta.file;
-    const totalChunks = Math.ceil(file.size / FILE_CHUNK_BYTES);
-    log(`Streaming file ${meta.name} to ${fromUUID} in ${totalChunks} chunks`);
-
-    // send initial meta so receiver knows total / filename
-    postToIframe({
-      sendData: { [APP_NS]: { type: 'file-meta-announce', payload: { id, name: meta.name, size: meta.size, folderPath: meta.folderPath || '', totalChunks } } },
-      type: 'pcs',
-      to: fromUUID
-    });
-
-    // stream chunks sequentially
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * FILE_CHUNK_BYTES;
-      const end = Math.min(file.size, start + FILE_CHUNK_BYTES);
-      const blobSlice = file.slice(start, end);
-      try {
-        const buffer = await readBlobAsArrayBuffer(blobSlice);
-        await sendChunkToPeer(fromUUID, id, i, totalChunks, buffer);
-      } catch (err) {
-        log('Error reading/sending chunk', i, err);
-        // inform receiver of failure and abort
-        postToIframe({
-          sendData: { [APP_NS]: { type: 'file-transfer-error', payload: { id, message: err.message || 'chunk-read-error' } } },
-          type: 'pcs',
-          to: fromUUID
-        });
-        return;
-      }
-      // small delay to avoid exhausting the datachannel
-      await sleep(CHUNK_SEND_DELAY);
-    }
-
-    // finalise
-    postToIframe({
-      sendData: { [APP_NS]: { type: 'file-transfer-complete', payload: { id, totalChunks, timestamp: Date.now() } } },
-      type: 'pcs',
-      to: fromUUID
-    });
-    log(`Finished streaming file ${meta.name} → ${fromUUID}`);
-  }
-
-  // Try to post buffer directly; fallback to base64 if structured clone fails.
-  async function sendChunkToPeer(targetUUID, id, index, total, arrayBuffer) {
-    const payload = { id, index, total, isBase64: false, size: arrayBuffer.byteLength };
-
-    const msg = {
-      sendData: { [APP_NS]: { type: "file-chunk", payload } },
-      type: "pcs",
-      to: targetUUID,
-      buffer: arrayBuffer // include for easier debug
-    };
-
-    try {
-      const b64 = arrayBufferToBase64(arrayBuffer);
-      postToIframe({
-        sendData: { [APP_NS]: { type: 'file-chunk', payload: { id, index, total, isBase64: true, data: b64 } } },
-        type: 'pcs',
-        to: targetUUID
-      });
-
-      // ✅ Pass arrayBuffer as transferable
-      //postToIframe(msg, [arrayBuffer]);
-    } catch (err) {
-      console.warn("Transferable send failed, falling back to base64", err);
-      const b64 = arrayBufferToBase64(arrayBuffer);
-      const fallbackMsg = {
-        sendData: {
-          [APP_NS]: {
-            type: "file-chunk",
-            payload: { ...payload, isBase64: true, data: b64 },
-          },
-        },
-        type: "pcs",
-        to: targetUUID,
-      };
-      postToIframe(fallbackMsg);
-    }
-  }
-
-  // Below: helper functions and the extra cases you need to add to handleDataReceived
-  async function handleIncomingFileMeta(payload, from) {
-    const { id, name, size, folderPath, totalChunks } = payload;
-    incomingFiles[id] = incomingFiles[id] || { chunks: {}, totalChunks: totalChunks || null, receivedCount: 0, meta: { name, size, folderPath, uploadedBy: from } };
-    incomingFiles[id].meta.name = name;
-    incomingFiles[id].meta.size = size;
-    incomingFiles[id].meta.folderPath = folderPath;
-    incomingFiles[id].meta.uploadedBy = from;
-    files[id] = files[id] || {};
-    files[id].name = name;
-    files[id].size = size;
-    files[id].folderPath = folderPath;
-    files[id].uploadedBy = from;
-    files[id].status = 'transferring';
-    log(`Receiving file meta: ${id} ${folderPath}/${name} (${formatBytes(size)})`);
-  }
-  async function handleIncomingChunk(payload, rawEvent = null) {
-    const { id, index, total, isBase64 } = payload;
-    if (!incomingFiles[id]) incomingFiles[id] = { chunks: {}, totalChunks: total, receivedCount: 0, meta: {} };
-
-    let buffer = null;
-
-    // Try to read from rawEvent.data.buffer if present (flattened)
-    if (rawEvent?.data?.buffer instanceof ArrayBuffer) {
-      buffer = rawEvent.data.buffer;
-    }
-    // Or fallback to payload.buffer / payload.data / base64
-    else if (isBase64 && payload.data) {
-      buffer = base64ToArrayBuffer(payload.data);
-    } else if (payload.buffer instanceof ArrayBuffer) {
-      buffer = payload.buffer;
-    } else if (payload.data instanceof ArrayBuffer) {
-      buffer = payload.data;
-    }
-
-    if (!buffer) {
-      console.warn(" Failed to normalize buffer", payload);
-      return;
-    }
-
-    incomingFiles[id].chunks[index] = buffer;
-    incomingFiles[id].receivedCount = Object.keys(incomingFiles[id].chunks).length;
-    incomingFiles[id].totalChunks = total || incomingFiles[id].totalChunks;
-
-    log(`Chunk ${index + 1}/${incomingFiles[id].totalChunks} received for ${id}`);
-  }
-
-
-  async function finalizeIncomingFile(id) {
-    const entry = incomingFiles[id];
-    if (!entry) return;
-    const { chunks, totalChunks, meta } = entry;
-    // ensure we have all parts
-    if (totalChunks && Object.keys(chunks).length !== totalChunks) {
-      log(`Cannot finalize ${id} — missing chunks (${Object.keys(chunks).length}/${totalChunks})`);
-      if (entry.reject) entry.reject(new Error('missing-chunks'));
-      return;
-    }
-    // assemble
-    const buffers = [];
-    for (let i = 0; i < totalChunks; i++) {
-      const c = chunks[i];
-      if (!c) {
-        log('Missing chunk at index', i);
-        if (entry.reject) entry.reject(new Error('missing-chunk-' + i));
-        return;
-      }
-      // ensure ArrayBuffer (if view passed accidentally)
-      buffers.push(c instanceof ArrayBuffer ? c : (ArrayBuffer.isView(c) ? c.buffer : c));
-    }
-
-
-
-    const blob = new Blob(buffers);
-    // rename to RPXL - folder - sub - filename
-    const safeFolder = (meta.folderPath || '').replace(/\//g, ' - ');
-    const downloadName = `RPXL${safeFolder ? ' - ' + safeFolder : ''} - ${meta.name}`;
-    triggerBrowserDownload(blob, downloadName);
-    // mark status
-    files[id] = files[id] || {};
-    files[id].status = 'downloaded';
-    log(`Saved file: ${downloadName}`);
-    if (entry.resolve) entry.resolve();
-    // cleanup
-    delete incomingFiles[id];
-    // kick queue processing in case there are more queued
-    processDownloadQueue();
-  }
-
-  // convert base64 -> ArrayBuffer
-  function base64ToArrayBuffer(base64) {
-    const binary_string = atob(base64);
-    const len = binary_string.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i);
-    return bytes.buffer;
-  }
-  function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const chunkSize = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-    }
-    return btoa(binary);
-  }
-
-  // read Blob slice as ArrayBuffer
-  function readBlobAsArrayBuffer(blob) {
-    return new Promise((res, rej) => {
-      const fr = new FileReader();
-      fr.onload = () => res(fr.result);
-      fr.onerror = rej;
-      fr.readAsArrayBuffer(blob);
-    });
-  }
-
-  // do actual browser download
-  function triggerBrowserDownload(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
+  // // base64 helpers
+  function arrayBufferToBase64(buffer) { let binary = ''; const bytes = new Uint8Array(buffer); const len = bytes.byteLength; for (let i = 0; i < len; i++) { binary += String.fromCharCode(bytes[i]); } return btoa(binary); }
+  function base64ToArrayBuffer(base64) { const binary_string = atob(base64); const len = binary_string.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i); return bytes.buffer; }
+  function base64ByteSize(b64) { return Math.floor((b64.length * 3) / 4); }
 
 </script>
