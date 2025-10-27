@@ -42,8 +42,13 @@ h1{
     box-shadow:0 4px 14px rgba(59,130,246,0.12)
 }
 .file-list{
-    margin-top:12px
+    margin-top:12px;
+    max-height:calc(100vh - 420px);
+    overflow: auto;
+    border-radius: 8px;
+    border:1px solid #bbb
 }
+
 .file-item{
     display:flex;
     align-items:center;
@@ -110,7 +115,7 @@ footer{
 .folder {
   margin-bottom: 0px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   background: #f9f9f9;
   padding: 0px 0px;
 }
@@ -146,7 +151,7 @@ cursor: pointer;
   gap: 0.5em;
   margin: 4px 0;
   padding: 4px 8px;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   background: #f7f7f7;
 }
 
@@ -156,7 +161,7 @@ cursor: pointer;
   min-width: 80px;
 }
 
-.progress-bar {
+.file-progress-bar {
   flex: 1;
   height: 6px;
   background: #ddd;
@@ -194,7 +199,32 @@ cursor: pointer;
   color: white;
 }
 
+.transfer-progress { font-family: inherit; }
+.file-progress-bar { background: #4caf50; transition: width 160ms linear; }
+.file-progress-bar-bg { background: #222; width:100px;}
 
+.roundProgressBarBG {
+    width: 16px;
+    height: 16px;
+    background-color: lightgray;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+.roundProgressBarFill {
+    width: 100%;
+    height: 100%;
+    /* background-image: conic-gradient(dodgerblue 230deg, lightgrey 230deg); */
+}
+.roundProgressBarCenter{
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background-color: white;        
+}
 
 .right {
 /* position:relative; */
