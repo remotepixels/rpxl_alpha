@@ -574,6 +574,7 @@ console.log('Local Browser UUID:', localUUID);
   async function sendFile(id, targetUUID = null, resumeInfo = null) {
     const meta = files[id];
     if (!meta || !meta.file) {
+      deleteFile(id)
       log(`sendFile(): missing file or meta for id=${id}`);
       return;
     }
