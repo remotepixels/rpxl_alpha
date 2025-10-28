@@ -81,7 +81,7 @@ console.log('Local Browser UUID:', localUUID);
   joinBtn.addEventListener('click', () => {
     roomName = (roomInput.value || '').trim();
     if (!roomName) return alert('Please enter a room name');
-    navigator.clipboard.writeText("http://127.0.0.1:5500/transfer/vdo_ninja_file_share.html?SID=" + roomInput.value);
+    navigator.clipboard.writeText("http://alpha.rpxl.app/transfer/vdo_ninja_file_share.html?SID=" + roomInput.value);
     console.log('Session link copied to clipboard');
     createIframe(roomName);
   });
@@ -127,7 +127,7 @@ console.log('Local Browser UUID:', localUUID);
     iframe = document.createElement('iframe');
     iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
 
-    iframe.src = `https://vdo.ninja/?director&room=${encodeURIComponent(room)}&dataonly&cleanish`;
+    iframe.src = `https://alpha.rpxl.app/vdo/?director&room=${encodeURIComponent(room)}&dataonly&cleanish`;
     iframe.style.width = '100%';
     iframe.style.height = '180px';
     container.appendChild(iframe);
