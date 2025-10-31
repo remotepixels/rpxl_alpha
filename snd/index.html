@@ -6,12 +6,10 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
   <meta name="msapplication-TileColor" content="#2e2e2e" />
-  <meta name="description"
-    content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+  <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
   <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja" />
   <meta name="robots" content="index, follow" />
-  <meta name="viewport"
-    content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -24,8 +22,7 @@
   <title>File Share</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -87,7 +84,7 @@
 <script lang="javascript">
 
   // Namespace used in messages sent through VDO.Ninja
-  const APP_NS = 'FileShareDemo';
+  const APP_NS = 'SNDRPXL';
 
   // ----------------------------------------
   let iframe = null;
@@ -118,7 +115,6 @@
     crypto.getRandomValues(arr);
     return Array.from(arr, n => chars[n % chars.length]).join('');
   }
-
 
   function log(...args) {
     console.log(...args);
@@ -319,7 +315,6 @@
         }
         case 'file-transfer-complete': {
           // receiver finalization is handled in finalizeIncomingFile when all chunks present
-          // but optionally you can auto-check and finalize if all chunks already present
           console.log('file-transfer-complete', payload);
           break;
         }
@@ -361,7 +356,7 @@
     log(`Auto-sending ${ids.length} files to new guest ${guestUUID}...`);
 
     for (const id of ids) {
-      const meta = files[id];               // ✅ this was missing
+      const meta = files[id];   
       sendToPeer(guestUUID, "file-announce", meta);
     }
   }
@@ -376,7 +371,7 @@
   }
 
   shareBtn.addEventListener('pointerdown', () => {
-    navigator.clipboard.writeText(`${devURL}/transfer/snd.html?SID=${roomName}`);
+    navigator.clipboard.writeText(`${devURL}/snd/?SID=${roomName}`);
     popupClipboard.classList.remove("hidden");
     setTimeout(() => {
       popupClipboard.classList.add("hidden");
