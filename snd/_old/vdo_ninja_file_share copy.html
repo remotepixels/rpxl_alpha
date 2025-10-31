@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta name="msapplication-TileColor" content="#2e2e2e" />
+  <meta name="description"
+    content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+  <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja" />
+  <meta name="robots" content="index, follow" />
+  <meta name="viewport"
+    content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="/icons/favicon.ico">
+  <meta name="color-scheme" content="light dark">
+
+  <title>File Share</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="mainWindow" class="mainWindow">
+    <!--top menu bar-->
+    <div id="topmenu" class="toolbar top hidden">
+      <div class="toolset" id="shareTools">
+        <button class="tool" id="shareBtn" aria-expanded="false" role="button">
+          <span class="material-symbols-outlined">ios_share</span>
+        </button>
+      </div>
+      <div class="toolset">
+        <span class="tool toolwider">Status : <span id="senderStatus">Idle</span></span>
+        <span class="tool toolwider">Peers : <span id="peersList">(0)</span></span>
+      </div>
+      <div class="toolset">
+        <button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button">
+          <span class="material-symbols-outlined">terminal</span></button>
+      </div>
+    </div>
+    <div class="logAndFiles">
+      <pre class="log hidden" id="log"></pre>
+      <div class="file-list" id="fileList"></div>
+      <div class="copyCredit"><a href="https://vdo.ninja" target="_blank">Powered by vdo.ninja</a></div>
+    </div>
+
+  </div>
+
+  <div id="container" class="" style="display:block; position:fixed; width:100%; height:200px; bottom:0px;z-index:12">
+  </div>
+
+  <div class="drop" id="dropArea">
+    <div class="material-symbols-outlined largeIcon">drive_folder_upload</div>
+    <div>
+      <h1>Drag & drop files or folders here</h1>
+    </div>
+  </div>
+
+  <!----- Copied links to clipboard ------>
+  <div id="popupClipboard" class="toolpopup hidden">
+    <div class="material-symbols-outlined largeIcon">assignment_turned_in</div>
+    <div>
+      <h1>Link copied to clipboard</h1>
+    </div>
+  </div>
+</body>
+
+</html>
+
+<script lang="javascript">
+
+  // Namespace used in messages sent through VDO.Ninja
+  const APP_NS = 'FileShareDemo';
+
+  // ----------------------------------------
+  let iframe = null;
+  let connectedPeers = {}; // map streamID -> label
+  let roomName = '';
+  const files = {}; // id -> {file, name, size, chunks:[], progress}
+  const folderMap = {}; // keeps track of folder DOM nodes
+
+  const dropArea = document.getElementById('dropArea');
+  const fileList = document.getElementById('fileList');
+  const logEl = document.getElementById('log');
+  const peersList = document.getElementById('peersList');
+  const senderStatus = document.getElementById('senderStatus');
+  const shareBtn = document.getElementById('shareBtn');
+  const logBtn = document.getElementById('logBtn');
+  const popupClipboard = document.getElementById('popupClipboard');
+
+  const devURL = window.location.origin;
+
+  let localUUID = crypto.randomUUID();
+
+// senddata schema ref
+//   {
+//   sendData: {
+//     [APP_NS]: {
+//       dataType: "<type>",
+//       payload: { ... }
+//     }
+//   },
+//   type: "pcs",
+//   streamID: "<targetStreamID>"   // optional → broadcast if omitted
+// }
+
+  log('Local Browser UUID:', localUUID);
+
+  function log(...args) {
+    console.log(...args);
+    logEl.textContent += args.join(' ') + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  shareBtn.addEventListener('pointerdown', () => {
+    navigator.clipboard.writeText(`${devURL}/transfer/vdo_ninja_file_share.html?SID=${roomName}`);
+    popupClipboard.classList.remove("hidden");
+    setTimeout(() => {
+      popupClipboard.classList.add("hidden");
+    }, 2000);
+    console.log('Session link copied to clipboard');
+  });
+
+  logBtn.addEventListener('pointerdown', () => {
+    document.getElementById('log').classList.toggle('hidden');
+  });
+
+  checkSessionURL();  //autoconnect if session ID in URL
+
+  //check if session ID is present in URL and autoconnect
+  function checkSessionURL() {
+    const queryURL = window.location.search.slice(1);
+    //let decodeURL;
+    const params = new URLSearchParams(queryURL);
+    if (params.has('SID')) {
+      const SID = params.get('SID');
+      roomName = encodeURIComponent(SID);
+      if (!roomName || roomName.length !== 20) {
+        //console.log('INCORRECTLY FORMATED SESSION ID');
+        return;
+      } else {
+        console.log('SESSION ID FOUND IN URL:', roomName);
+        createIframe(roomName)
+        document.getElementById('shareTools').classList.add('hidden');
+        document.getElementById('dropArea').classList.add('hidden');
+        document.getElementById('topmenu').classList.remove('hidden');
+        //document.getElementById('file-list').classList.remove('hidden');
+        return;
+      }
+    } else {
+      var length = 20;
+      const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      roomName = Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+      console.log('NO SESSION ID IN URL, GENERATING NEW ONE : ', roomName);
+      createIframe(roomName);
+    }
+  }
+
+  // --- Join room / create iframe ---
+  function createIframe(room) {
+    if (iframe) iframe.remove();
+    const container = document.getElementById('container');
+    iframe = document.createElement('iframe');
+    iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
+    iframe.src = `https://alpha.rpxl.app/vdo/?director&room=${room}&push=${localUUID}&dataonly&cleanish`;
+    iframe.style.width = '100%';
+    iframe.style.height = '200px';
+    container.appendChild(iframe);
+  }
+
+  // Set up event listener (cross-browser compatible)
+  var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+  var eventer = window[eventMethod];
+  var messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+
+  // Add the event listener
+  eventer(messageEvent, function (e) {
+    if (e.source !== iframe.contentWindow) return;
+    //console.log("events",e);
+    // --- Connection events ---
+    if ("action" in e.data) {
+      if (e.data.action === "guest-connected" && e.data.streamID) {
+        connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
+        console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);
+      }
+      else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {
+        console.log("Guest disconnected:", e.data.streamID);
+        delete connectedPeers[e.data.streamID];
+      }
+      else if (e.data.action === "view-connection") {
+        if (e.data.value) {
+          connectedPeers[e.data.streamID] = "Viewer";
+          handleGuestJoin(e.data.streamID);
+        } else {
+          delete connectedPeers[e.data.streamID];
+        }
+        updatePeersUI();
+      }
+    }
+
+
+if (e.data.dataReceived && e.data.dataReceived[APP_NS]) {
+  const msg = e.data.dataReceived[APP_NS];
+  const dt = msg.dataType;
+  const payload = msg.payload;
+    //console.log("handling recieved data:", msg);// print the messages inbound to the console log
+    // console.log("!!!!!!!!! Received P2P message:", msg, "datatype :", dt);
+    if (!msg && !dt) return;
+
+    switch (msg.dataType) {
+      //file and directory listing and removal
+      case 'file-announce': {
+        const f = data.payload || data;
+        //Ignore files that were uploaded by yourself
+        if (f.uploadedBy === localUUID) {
+          console.log(`Ignoring file ${f.name} (uploaded by self)`);
+          break;
+        }
+        //Optionally ignore duplicates if already have this file
+        if (files[f.id]) {
+          console.log(`Ignoring file ${f.name} (already listed)`);
+          break;
+        }
+        files[f.id] = {
+          id: f.id,
+          name: f.name,
+          size: f.size,
+          folderPath: f.folderPath || '',
+          uploadedBy: f.uploadedBy || null
+        };
+        renderTreeItem(files[f.id]);
+        log(`Received file meta : ${f.folderPath} / ${f.name} - from ${f.uploadedBy}`);
+        break;
+      }
+      case 'file-removed': {
+        const f = data.payload || data;
+        const id = f.id;
+        const file = files[id];
+
+        if (file) {
+          delete files[id];
+          const el = document.querySelector(`.file-item[data-id="${id}"]`);
+          if (el) el.remove();
+          log(`File removed remotely: ${file.name}`);
+          cleanupEmptyFolders(file.folderPath);
+        }
+        break;
+      }
+      case 'directory-removed': {
+        const { path } = data.payload || data;
+        log(`Directory removed remotely: ${path}`);
+        // Remove folder DOM
+        const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
+        if (folderDiv) folderDiv.remove();
+        // Clean folder map reference
+        delete folderMap[path];
+        // Remove any remaining files (if not already cleaned)
+        for (const id of Object.keys(files)) {
+          if (files[id].folderPath.startsWith(path)) {
+            delete files[id];
+            const el = document.querySelector(`.file-item[data-id="${id}"]`);
+            if (el) el.remove();
+          }
+        }
+        cleanupEmptyFolders(path);
+        break;
+      }
+
+//   switch (dt) {
+    case 'request-file':
+      // payload: { id, requester, isFolder }
+      // Only hosts should call respondToFileRequest; ensure you are the file owner
+      // payload.requester is streamID of requester
+      respondToFileRequest(payload.id, /* filehostStreamID */ localUUID /*or your own streamID*/, payload.requester);
+      break;
+
+    case 'file-chunk':
+      // payload delivered to receiver
+      handleIncomingChunk(payload, msg);
+      break;
+
+    case 'chunk-group-ack':
+      handleChunkGroupAck(payload);
+      break;
+
+    case 'request-missing':
+      // payload: { id, missing: [idx...] }
+      // If we're the sender and have the file, resend those indices
+      if (outgoingFiles[payload.id]) {
+        const of = outgoingFiles[payload.id];
+        // resending requested indices sequentially
+        (async () => {
+          const file = of.file;
+          for (const idx of payload.missing || []) {
+            const start = idx * FILE_CHUNK_BYTES;
+            const end = Math.min(file.size, start + FILE_CHUNK_BYTES);
+            const slice = file.slice(start, end);
+            try {
+              const buffer = await readBlobAsArrayBuffer(slice);
+              const chunkMsg = {
+                sendData: {
+                  [APP_NS]: {
+                    dataType: "file-chunk",
+                    payload: {
+                      id: payload.id,
+                      index: idx,
+                      totalChunks: of.totalChunks,
+                      buffer: arrayBufferToBase64(buffer),
+                      target: of.to,
+                      from: localUUID
+                    }
+                  }
+                }
+              };
+              postToIframeTarget(chunkMsg, of.to);
+              await sleep(CHUNK_SEND_DELAY);
+            } catch (err) {
+              console.error('Failed resend chunk', idx, err);
+            }
+          }
+        })();
+      }
+      break;
+
+    case 'file-transfer-complete':
+      // receiver finalization is handled in finalizeIncomingFile when all chunks present
+      // but optionally you can auto-check and finalize if all chunks already present
+      console.log('file-transfer-complete', payload);
+      break;
+
+    case 'file-not-found':
+      log('Peer reports file not found:', payload.id);
+      break;
+
+    case 'file-transfer-error':
+      log('Peer transfer error:', payload.id, payload.message);
+      break;
+
+    // keep your other handlers...
+    default:
+      console.warn('Unhandled dataType', dt, payload);
+  }
+}
+  }, false);
+
+  //handle user connects and disconnects
+  function handleAction(data) {
+    if (data.action === 'view-connection') {
+      if (data.value) { connectedPeers[data.streamID] = 'Viewer'; } else { delete connectedPeers[data.streamID]; }
+      updatePeersUI();
+      handleGuestJoin(data.streamID);
+     }
+  }
+
+  async function handleGuestJoin(guestUUID) {
+    log('Guest connected :', guestUUID);
+    //delay to ensure peer connection is ready
+    await sleep(500);
+
+    const keys = Object.keys(files);
+    if (keys.length > 0) {
+      log(`Auto-sending ${keys.length} files to new guest ${guestUUID}...`);
+      //await sendAllFilesToPeer(guestUUID);
+      for (const id of keys) {
+        await sendToPeer(targetStreamID, "file-announce", meta);
+      }
+    } else {
+      log('No files to send.');
+    }
+  }
+
+  function updatePeersUI() {
+    const total = Object.keys(connectedPeers).length;
+    let statusText = '';
+
+//must status bits here eventually but you know, other more important things to dofor now in stead of writing really long comments so i can find this spot again
+    peersList.textContent = total === 0
+      ? '(0)'
+      : `(${total})`;
+  }
+
+  //--- drag & drop / file handling ---
+  dropArea.addEventListener('pointerdown', () => {
+    const ip = document.createElement('input'); ip.type = 'file'; ip.multiple = true; ip.webkitdirectory = true;
+    ip.addEventListener('change', (ev) => { handleFileList(ev.target.files); });
+    ip.click();
+  });
+
+  const dropOverlay = document.getElementById('dropArea');
+  let dragCounter = 0; // helps handle nested dragenter/dragleave events
+
+  window.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    dropOverlay.classList.add('dragover');
+  });
+
+  window.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) dropOverlay.classList.remove('dragover');
+  });
+
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('dragover');
+  });
+
+  dropArea.addEventListener('drop', async (e) => {
+    const items = e.dataTransfer.items;
+    if (!items) return handleFileList(e.dataTransfer.files);
+
+    //hide dop area after 1st drop and show main interface
+    document.getElementById('dropArea').classList.add('hidden');
+    document.getElementById('topmenu').classList.remove('hidden');
+
+    // Use directory traversal when available
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+      if (entry && entry.isDirectory) {
+        await readDirectory(entry);
+      } else if (entry && entry.isFile) {
+        entry.file(file => addFile(file));
+      } else if (it.getAsFile) {
+        addFile(it.getAsFile());
+      }
+    }
+  });
+
+  //filter hidden files
+  function isHiddenFile(fileOrPath) {
+    const name = typeof fileOrPath === 'string' ? fileOrPath : fileOrPath.name || '';
+    return name.startsWith('.') || name === ''; // covers .DS_Store, .gitignore, etc.
+  }
+
+  // Recursive directory traversal
+  async function readDirectory(dirEntry, path = '') {
+    const reader = dirEntry.createReader();
+    const readEntries = () => new Promise((res, rej) => reader.readEntries(res, rej));
+    let entries = await readEntries();
+    while (entries.length) {
+      for (const e of entries) {
+        if (e.isDirectory && !e.name.startsWith('.')) {
+          await readDirectory(e, path + dirEntry.name + '/');
+        } else if (e.isFile) {
+          e.file((file) => {
+            file.relativePath =
+              (path ? path + dirEntry.name + '/' : dirEntry.name + '/') + file.name;
+            if (!isHiddenFile(file)) addFile(file);
+          });
+        }
+      }
+      entries = await readEntries();
+    }
+  }
+
+  // Called when user drops files/folders
+  function handleFileList(list) {
+    for (let i = 0; i < list.length; i++) {
+      const file = list[i];
+      if (!isHiddenFile(file)) addFile(file);
+      else log(`Skipping hidden file: ${file.name}`);
+    }
+  }
+
+  function addFile(file) {
+    const id = generateId();
+    const relativePath = file.relativePath || file.name;
+    const pathParts = relativePath.split('/');
+    const fileName = pathParts.pop();
+    const folderPath = pathParts.join('/');
+
+    files[id] = {
+      id,
+      name: fileName,
+      size: file.size,
+      folderPath,
+      uploadedBy: localUUID,
+      timestamp: Date.now()
+    };
+
+    renderTreeItem(files[id]);
+    log(`Added: ${relativePath} (${formatBytes(file.size)})`);
+
+    // Notify peers
+    sendBroadcast("file-announce", meta);
+  }
+
+  //send file data when one is added or deleted
+function sendFile(id, targetStreamID = null) {
+  const meta = files[id];
+  if (!meta) return;
+
+  if (targetStreamID) {
+    sendToPeer(targetStreamID, "file-announce", meta);
+  } else {
+    sendBroadcast("file-announce", meta);
+  }
+}
+  
+
+//wrap all post to iframe
+function sendToPeer(targetStreamID, dataType, payload = {}) {
+  postToIframe({
+    sendData: {
+      [APP_NS]: {
+        dataType,
+        payload
+      }
+    },
+    type: "pcs",
+    streamID: targetStreamID   // ✅ critical: VDO.Ninja sends only to target
+  });
+}
+
+function sendBroadcast(dataType, payload = {}) {
+  postToIframe({
+    sendData: {
+      [APP_NS]: {
+        dataType,
+        payload
+      }
+    },
+    type: "pcs"
+  });
+}
+
+  //Build folder tree recursively (for hosts add delete icon, for clients add a download icon)
+  function renderTreeItem(f) {
+    const isReceiver = f.uploadedBy !== localUUID; // true if file came from another peer
+
+    const treeRoot = document.getElementById('fileList');
+    const pathParts = f.folderPath ? f.folderPath.split('/') : [];
+    let currentContainer = treeRoot;
+    let currentPath = '';
+
+    for (const part of pathParts) {
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+      if (!folderMap[currentPath]) {
+        const folderDiv = document.createElement('div');
+        folderDiv.className = 'folder';
+        folderDiv.dataset.path = currentPath;
+
+        const iconType = isReceiver ? 'folder-download' : 'folder-delete';
+        const iconLabel = isReceiver ? 'download' : 'delete';
+
+        folderDiv.innerHTML = `
+        <div class="folder-header" data-folder="${currentPath}">
+          <span class="material-symbols-outlined folder-icon">folder</span>
+          <strong class="folder-text">${escapeHtml(part)}</strong>
+          <span class="material-symbols-outlined ${iconType}">${iconLabel}</span>
+        </div>
+        <div class="folder-contents"></div>
+      `;
+
+        currentContainer.appendChild(folderDiv);
+        folderMap[currentPath] = folderDiv.querySelector('.folder-contents');
+
+        // Expand/collapse folder
+        folderDiv.querySelector('.folder-header').addEventListener('pointerdown', (e) => {
+          if (e.target.classList.contains(iconType)) return; // skip toggle when clicking icon
+          const contents = folderDiv.querySelector('.folder-contents');
+          contents.style.display =
+            contents.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Folder action (download or delete)
+        folderDiv.querySelector(`.${iconType}`).addEventListener('pointerdown', async (e) => {
+          e.stopPropagation();
+          const folderPath = e.target.closest('.folder-header').dataset.folder;
+
+          if (isReceiver) {
+            requestDownload(folderPath, true); // download folder
+          } else {
+            if (confirm(`Delete entire directory "${folderPath}" and all its files?`)) {
+              await deleteDirectory(folderPath);
+            }
+          }
+        });
+      }
+
+      currentContainer = folderMap[currentPath];
+    }
+
+    // Create file entry
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'file-item';
+    fileDiv.id = `data-${f.id}`;
+    fileDiv.dataset.id = f.id;
+    fileDiv.style.display = 'flex';
+    fileDiv.style.justifyContent = 'space-between';
+    fileDiv.style.alignItems = 'center';
+    fileDiv.style.padding = '2px 10px';
+
+    const fileIconClass = isReceiver ? 'file-download' : 'file-delete';
+    const fileIconLabel = isReceiver ? 'download' : 'delete';
+
+    fileDiv.innerHTML = `
+    <span class="file-name">${escapeHtml(f.name)}</span>
+    <span class="file-size">${formatBytes(f.size)}</span>
+    <span class="material-symbols-outlined ${fileIconClass}">${fileIconLabel}</span>
+  `;
+    currentContainer.appendChild(fileDiv);
+
+    // File action (download or delete)
+    fileDiv.querySelector(`.${fileIconClass}`).addEventListener('pointerdown', async (e) => {
+      e.stopPropagation();
+      if (isReceiver) {
+        requestDownload(f.id, false); // single file download
+      } else {
+        deleteFile(f.id);
+      }
+    });
+  }
+
+  //handle file delete and folders deletes
+  async function deleteDirectory(path) {
+    if (!path) return;
+    log(`Deleting directory: ${path}`);
+
+    // Find all file IDs inside that folder (recursively)
+    const toDelete = Object.keys(files).filter(id =>
+      files[id].folderPath.startsWith(path)
+    );
+
+    // Delete contained files
+    for (const id of toDelete) {
+      const el = document.querySelector(`.file-item[data-id="${id}"]`);
+      if (el) el.remove();
+      await sendFileRemoved(id, path);
+      delete files[id];
+    }
+
+    // Remove the folder DOM
+    const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
+    if (folderDiv) folderDiv.remove();
+
+    // Remove from folderMap
+    delete folderMap[path];
+
+    //announce directory removal to peers
+    await sendDirectoryRemoved(path);
+
+    //clean any now-empty parents
+    cleanupEmptyFolders(path);
+  }
+
+  async function sendDirectoryRemoved(path, targetUUID = null) {
+    const peerKeys = Object.keys(connectedPeers);
+    if (peerKeys.length === 0) {
+      console.log("No connected guests");
+      return;
+    }
+
+    sendBroadcast("directory-removed", { path });
+
+    log(`Announced directory removal: ${path}`);
+  }
+
+  async function deleteFile(id) {
+    const file = files[id];
+    if (!file) return;
+
+    const folderPath = file.folderPath || '';
+    // Remove from files map and DOM
+    delete files[id];
+    const el = document.querySelector(`.file-item[data-id="${id}"]`);
+    if (el) el.remove();
+
+    log(`Deleted file : / ${folderPath} / ${file.name}`);
+
+    // Clean up empty folders (locally)
+    cleanupEmptyFolders(folderPath);
+    // Send updated file list to peers
+    await sendFileRemoved(id, folderPath);
+  }
+
+  async function sendFileRemoved(id, path) {
+    const total = Object.keys(connectedPeers).length;
+    if (total == 0) {
+      console.log("no peers");
+      return;
+    }
+
+    sendBroadcast("file-removed", { id });
+
+    log(`Announced file removal`);
+  }
+
+  // Remove any empty parent folders (recursively up)
+  function cleanupEmptyFolders(startPath = null) {
+    // climb up the tree from there and clean each ancestor if empty.
+    if (startPath) {
+      let parts = startPath.split('/');
+      while (parts.length > 0) {
+        const currentPath = parts.join('/');
+        const folder = document.querySelector(`.folder[data-path="${currentPath}"]`);
+        if (!folder) {
+          parts.pop();
+          continue;
+        }
+
+        const contents = folder.querySelector('.folder-contents');
+        if (!contents || contents.children.length === 0) {
+          log(`Removing empty folder: ${currentPath}`);
+          folder.remove();
+          delete folderMap[currentPath];
+        }
+
+        parts.pop(); // move up one level
+      }
+      return;
+    }
+
+    // If no path specified, do a full cleanup sweep
+    const folders = document.querySelectorAll('.folder');
+    for (const folder of folders) {
+      const contents = folder.querySelector('.folder-contents');
+      if (!contents || contents.children.length === 0) {
+        const path = folder.dataset.path;
+        log(`Removing empty folder: / ${path}`);
+        folder.remove();
+        delete folderMap[path];
+      }
+    }
+  }
+
+  function createFileProgressUI(id, name) {
+    const item = document.getElementById(`${id}_icon`);
+    if (!item) return;
+
+    const progress = document.createElement('div');
+
+    item.innerHTML = `
+      <div class="roundProgressBarBG">
+      <div class="roundProgressBarFill" id="progress-bar-${id}" style=""></div>
+          <div class="roundProgressBarCenter"></div>
+      </div>`
+  }
+
+  function updateFileProgressUI(id, percent) {
+    const bar = document.getElementById(`progress-bar-${id}`);
+    const pct = Math.max(0, Math.min(100, Number(percent) || 0));
+    const deg = pct * 3.6; // 100% -> 360°
+    bar.style.backgroundImage = `conic-gradient(dodgerblue ${deg}deg, light-dark(var(--color-light-white), var(--color-dark-grey)) ${deg}deg)`;
+  }
+
+// utility: read arrayBuffer from slice
+// function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+ function generateId() { return Math.random().toString(36).slice(2, 10); }
+ function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
+ function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
+
+
+
+// ========================================================
+//  FILE TRANSFER ENGINE — CLEAN & UNIFIED
+//  Uses: sendToPeer(), sendBroadcast()
+// ========================================================
+
+const FILE_CHUNK_BYTES = 64 * 1024;
+const GROUP_SIZE = 8;
+const ACK_TIMEOUT_MS = 2000;
+const MAX_CHUNK_RETRIES = 4;
+const CHUNK_SEND_DELAY = 8;
+
+const outgoingFiles = {};
+const incomingFiles = {};
+let activeTransfers = 0;
+
+// ------------------------- UTILITIES ---------------------------
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+function base64ToArrayBuffer(base64) {
+  const bin = atob(base64);
+  const len = bin.length;
+  const out = new Uint8Array(len);
+  for (let i = 0; i < len; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
+}
+
+function readBlobAsArrayBuffer(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsArrayBuffer(blob);
+  });
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ========================================================
+// 1) RECEIVER REQUESTS FILE
+// ========================================================
+
+function requestDownload(fileID, isFolder = false) {
+  const meta = files[fileID];
+  if (!meta) return console.error("requestDownload: no such file");
+
+  const hostStreamID = meta.uploadedBy; // MUST be streamID of host
+
+  sendToPeer(hostStreamID, "request-file", {
+    id: fileID,
+    requester: localUUID,
+    isFolder
+  });
+
+  log(`Requested file ${fileID} from ${hostStreamID}`);
+}
+
+// ========================================================
+// 2) HOST RECEIVES REQUEST → starts sending
+// ========================================================
+
+async function respondToFileRequest(fileID, requesterStreamID) {
+  const meta = files[fileID];
+  const file = meta?.file;
+
+  if (!file) {
+    sendToPeer(requesterStreamID, "file-not-found", { id: fileID });
+    return;
+  }
+
+  const totalChunks = Math.ceil(file.size / FILE_CHUNK_BYTES);
+
+  outgoingFiles[fileID] = {
+    id: fileID,
+    file,
+    meta,
+    totalChunks,
+    to: requesterStreamID,
+    groupStatus: {}
+  };
+
+  activeTransfers++;
+
+  try {
+    await sendChunksToPeer(fileID, requesterStreamID);
+  } catch (err) {
+    sendToPeer(requesterStreamID, "file-transfer-error", {
+      id: fileID,
+      message: err.message || "transfer-failed"
+    });
+  }
+
+  delete outgoingFiles[fileID];
+  activeTransfers--;
+}
+
+// ========================================================
+// 3) HOST → send chunks in groups
+// ========================================================
+
+async function sendChunksToPeer(fileID, targetStreamID) {
+  const of = outgoingFiles[fileID];
+  const file = of.file;
+  const total = of.totalChunks;
+
+  const groupCount = Math.ceil(total / GROUP_SIZE);
+
+  for (let group = 0; group < groupCount; group++) {
+    let acknowledged = false;
+
+    for (let attempt = 0; attempt <= MAX_CHUNK_RETRIES; attempt++) {
+      // ----- send group -----
+      const start = group * GROUP_SIZE;
+      const end = Math.min(total, start + GROUP_SIZE);
+
+      for (let idx = start; idx < end; idx++) {
+        const s = idx * FILE_CHUNK_BYTES;
+        const e = Math.min(file.size, s + FILE_CHUNK_BYTES);
+        const buf = await readBlobAsArrayBuffer(file.slice(s, e));
+
+        sendToPeer(targetStreamID, "file-chunk", {
+          id: fileID,
+          index: idx,
+          totalChunks: total,
+          buffer: arrayBufferToBase64(buf),
+          target: targetStreamID,
+          from: localUUID
+        });
+
+        await sleep(CHUNK_SEND_DELAY);
+      }
+
+      // ----- wait for ACK -----
+      acknowledged = await waitForGroupAck(fileID, group, targetStreamID);
+      if (acknowledged) break;
+    }
+
+    if (!acknowledged) throw new Error(`Group ${group} failed`);
+  }
+
+  // all done
+  sendToPeer(targetStreamID, "file-transfer-complete", {
+    id: fileID,
+    totalChunks: of.totalChunks
+  });
+}
+
+// ========================================================
+// 4) WAIT FOR GROUP ACK (Promise)
+// ========================================================
+
+const ackWaiters = {};  // key = `${id}:${group}` → resolve()
+
+function waitForGroupAck(id, group, fromStreamID) {
+  return new Promise(resolve => {
+    const key = `${id}:${group}`;
+    ackWaiters[key] = resolve;
+
+    setTimeout(() => {
+      if (ackWaiters[key]) {
+        delete ackWaiters[key];
+        resolve(false);
+      }
+    }, ACK_TIMEOUT_MS);
+  });
+}
+
+// ========================================================
+// 5) RECEIVER HANDLES CHUNK
+// ========================================================
+
+async function handleIncomingChunk(payload) {
+  const { id, index, totalChunks, buffer, target, from } = payload;
+
+  if (target !== localUUID) return;
+
+  if (!incomingFiles[id]) {
+    incomingFiles[id] = {
+      id,
+      totalChunks,
+      buffers: {},
+      received: 0,
+      sender: from
+    };
+  }
+
+  const inf = incomingFiles[id];
+  if (!inf.buffers[index]) {
+    inf.buffers[index] = buffer;
+    inf.received++;
+  }
+
+  const group = Math.floor(index / GROUP_SIZE);
+  const groupComplete = isGroupComplete(inf, group);
+
+  if (groupComplete) {
+    sendToPeer(from, "chunk-group-ack", {
+      id,
+      groupIndex: group,
+      from: localUUID
+    });
+  }
+
+  if (inf.received === inf.totalChunks) finalizeIncomingFile(id);
+}
+
+function isGroupComplete(inf, groupIndex) {
+  const start = groupIndex * GROUP_SIZE;
+  const end = Math.min(inf.totalChunks, start + GROUP_SIZE);
+  for (let i = start; i < end; i++) {
+    if (!inf.buffers[i]) return false;
+  }
+  return true;
+}
+
+// ========================================================
+// 6) RECEIVER SENDS GROUP ACK → notify sender
+// ========================================================
+
+function handleChunkGroupAck(payload) {
+  const { id, groupIndex, from } = payload;
+  const key = `${id}:${groupIndex}`;
+
+  if (ackWaiters[key]) {
+    ackWaiters[key](true);
+    delete ackWaiters[key];
+  }
+}
+
+// ========================================================
+// 7) RECEIVER FINALIZES FILE
+// ========================================================
+
+function finalizeIncomingFile(id) {
+  const inf = incomingFiles[id];
+  if (!inf) return;
+
+  const buffers = [];
+  for (let i = 0; i < inf.totalChunks; i++) {
+    const b64 = inf.buffers[i];
+    if (!b64) {
+      requestMissingChunks(id, inf.sender);
+      return;
+    }
+    buffers.push(base64ToArrayBuffer(b64));
+  }
+
+  const blob = new Blob(buffers);
+  const meta = files[id];
+  const filename = meta?.name || `file-${id}`;
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+  delete incomingFiles[id];
+
+  log(`Completed download: ${filename}`);
+}
+
+// ========================================================
+// 8) REQUEST MISSING CHUNKS
+// ========================================================
+
+function requestMissingChunks(id, senderStreamID) {
+  const inf = incomingFiles[id];
+  if (!inf) return;
+
+  const missing = [];
+  for (let i = 0; i < inf.totalChunks; i++) {
+    if (!inf.buffers[i]) missing.push(i);
+  }
+
+  sendToPeer(senderStreamID, "request-missing", {
+    id,
+    missing
+  });
+}
+
+// ========================================================
+// 9) SENDER HANDLES request-missing
+// ========================================================
+
+async function handleRequestMissing(payload) {
+  const { id, missing } = payload;
+  const of = outgoingFiles[id];
+  if (!of) return;
+
+  const file = of.file;
+
+  for (const idx of missing) {
+    const s = idx * FILE_CHUNK_BYTES;
+    const e = Math.min(file.size, s + FILE_CHUNK_BYTES);
+    const buf = await readBlobAsArrayBuffer(file.slice(s, e));
+
+    sendToPeer(of.to, "file-chunk", {
+      id,
+      index: idx,
+      totalChunks: of.totalChunks,
+      buffer: arrayBufferToBase64(buf),
+      target: of.to,
+      from: localUUID
+    });
+
+    await sleep(CHUNK_SEND_DELAY);
+  }
+}
+</script>
