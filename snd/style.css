@@ -111,6 +111,26 @@ h2 {
   height: 100svh;
   overflow: hidden;
 }
+/*botton styles, including red / blue and more settings*/
+button {
+  position: relative;
+  height: var(--button-height);
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: var(--radius-big);
+  border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+  cursor: pointer;
+  color: light-dark(var(--color-light-grey), var(--color-light-grey));
+  background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+
+button:hover {
+  color: light-dark(var(--color-light-bg), var(--color-light-white));
+  background-color: dodgerblue;
+}
+
+
 .copyCredit {
   border-top: 2px solid transparent;
   border-image: linear-gradient(to right, light-dark(var(--color-light-bg), var(--color-dark-bg)), light-dark(var(--color-light-white), var(--color-dark-grey)), light-dark(var(--color-light-bg), var(--color-dark-bg))) 1;
@@ -136,9 +156,10 @@ h2 {
   flex: 0 0 auto;
   max-height: 300px;
   overflow: auto;
-  padding: 20px;
-  padding-top:5px;
-  margin: 0px;
+  padding: 10px 20px 20px 20px;
+  /* padding-top:5px; */
+  margin:0px;
+  margin-bottom:10px;
   background: var(--color-mid-grey);
   color: var(--color-light-white);
   font-size: 12px;
@@ -146,10 +167,26 @@ h2 {
 }
 .log.hidden {
   max-height: 0;
-  padding-bottom:5px;
+  margin-bottom:10px;
+  padding: 0px 20px 0px 20px;
   opacity: 0;
 }
-
+#loadingMessage {
+  position: absolute;
+  margin-top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  height: fit-content;
+  justify-items: center;
+  text-align: center;
+  padding: 20px;
+  font-size:50px;
+  color: light-dark(var(--color-mid-grey), var(--color-mid-grey));
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
+}
 .file-list {
   flex: 1;
   overflow-y: auto;
@@ -157,7 +194,7 @@ h2 {
   padding-top:0px;
   padding-left:10px;
   padding-bottom: 30%;
-  margin: 0px;
+  margin: 0px 0px 0px 0px;
   background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
 }
 
@@ -193,10 +230,22 @@ h2 {
   margin-left:auto;
 }
 .folder-contents {
-  margin-left: 20px;
-  display: block;
-} 
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition:
+    max-height 0.3s ease-out,
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out;
+}
 
+/* Expanded state */
+.folder-contents.open {
+  max-height: 2000px; /* large enough to contain big folders */
+  opacity: 1;
+  transform: translateY(0);
+}
 .file-item {
   display: flex;
   align-items: left;
@@ -208,14 +257,64 @@ h2 {
 }
 
 .file-name{
-  padding: 5px;
+  padding: 5px 20px 5px 40px;
   color:light-dark(var(--color-dark-grey), var(--color-light-grey));
   min-width: 75%;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   margin-right: auto;
+  cursor: default;
 }
+
+
+.file-item.local {
+  color:light-dark(var(--color-light-grey), var(--color-light-grey));
+    padding-left: 30px;
+}
+/* .file-item.remote {
+  color: #1e90ff;     
+} */
+.file-item.remote .file-name {
+    color: #1e90ff;     
+  /* border-left: 3px solid #1e90ff; */
+  padding-left: 40px;
+}
+.folder.local .folder-header .folder-text {
+  color:light-dark(var(--color-dark-grey), var(--color-light-grey));
+  margin-right:10px;
+}
+
+.folder.remote .folder-header .folder-text {
+  color: #1e90ff;         /* blue for remote */
+  /* font-weight: 500;       optional */
+}
+
+/* Optional accent border */
+/* .folder.remote { */
+  /* border-left: 3px solid #1e90ff; */
+  /* margin-left: 2px; */
+  /* padding-left: 4px; */
+/* } */
+.folder.remote .folder-icon {
+  color: #1e90ff;
+}
+
+.folder.local .folder-icon {
+  color:light-dark(var(--color-dark-grey), var(--color-light-grey));
+  margin-right:10px;
+}
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+.fade-slide-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+
 .file-size {
   font-size: 12px;
   color:light-dark(var(--color-light-grey), var(--color-light-grey));
@@ -286,6 +385,7 @@ h2 {
   margin-right: auto;
 }
 
+
 /*tool buttons*/
 .tool {
   border-radius: 0px;
@@ -353,31 +453,6 @@ h2 {
   transform: rotate(180deg) translateY(50%);
 }
 
-/*botton styles, including red / blue and more settings*/
-button {
-  position: relative;
-  height: var(--button-height);
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  border-radius: var(--radius-big);
-  border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
-  cursor: pointer;
-  color: light-dark(var(--color-light-grey), var(--color-light-grey));
-  background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-}
-
-button:hover {
-  color: light-dark(var(--color-light-bg), var(--color-light-white));
-  background-color: dodgerblue;
-}
-
-.hidden {
-  opacity: 0 ;
-  pointer-events: none;
-  /* display: none; */
-}
-
 .toolpopup {
   position: absolute;
   margin-top: 30px;
@@ -400,4 +475,49 @@ button:hover {
 .largeIcon {
   font-size:256px;
   color: light-dark(var(--color-mid-grey), var(--color-light-grey));
+}
+
+.subtoolbar {
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  align-items: center;
+  width: fit-content;
+  margin: 0px;
+  padding: 0px 30px 10px 25px;
+  width: 100%;
+}
+.subToolSet {
+    height: 30px;
+      border-radius: 15px;
+  border:1px solid light-dark(var(--color-light-white), var(--color-dark-grey)); 
+  overflow: hidden;
+    margin: 0px;
+  padding: 0px;
+
+}
+.subTool {
+  width: fit-content;
+  border-radius: 0px;
+  border:0px;
+  cursor: pointer;
+margin:0px 0px 0px 0px;
+padding: 0px 20px 2px 20px;
+height:30px;
+
+}
+
+.active {
+  color: light-dark(var(--color-light-bg), var(--color-light-white));
+  background-color: dodgerblue;
+}
+#transferSpeed{
+  width:300px;
+  color: light-dark(var(--color-light-grey), var(--color-light-grey)); 
+}
+
+.hidden {
+  opacity: 0 ;
+  pointer-events: none;
+  /* display: none; */
 }

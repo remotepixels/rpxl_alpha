@@ -60,10 +60,11 @@ function viewerStream () {
         if (storedIsDirector == "true") { 
             joinAsDirector = "&director&novice&hidesolo&css=https%3A%2F%2Falpha.rpxl.app%2Fstyles%2FvdoDirector.css"
         }
-        document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
+        document.getElementById("viewersStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL"+sanitizedSessionID+
             "&cleanish"+
             //"&graphs"+
             "&showlabels"+
+            "&nochunked"+
             "&label="+sanitizedUserName+camSetup+micSetup+joinAsDirector+
             "&hidehome"+
             "&style=6"+
@@ -95,9 +96,10 @@ function viewerStream () {
 function viewMainStream () {
     let sanitizedSessionID = sessionStorage.getItem("sessionID");
 
-    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
-        "&view=Stream_"+sanitizedSessionID+
+    document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL"+sanitizedSessionID+
+        "&view=Stream"+sanitizedSessionID+
         "&autostart"+
+        "&nochunked"+
         "&hidehome"+//hide vdo ninja homepage
         "&solo"+//no login options, solos stream
         "&cleanish"+//remove all interface bits
@@ -157,8 +159,8 @@ function startMainStream() {
             ((sanitizedAudio == "0") || (sanitizedAudio == "disabled_in_browser") || (sanitizedAudio == null) || (sanitizedAudio == "null")))
         {
             console.log("no audio or video stream starting data only stream")
-            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
-                "&push=Stream_"+sanitizedSessionID+
+            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL"+sanitizedSessionID+
+                "&push=Stream"+sanitizedSessionID+
                 "&dataonly"+
                 "";
         } else {
@@ -174,9 +176,10 @@ function startMainStream() {
                 var audioSetup = "&audiodevice="+sanitizedAudio;
             }
 
-            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL_"+sanitizedSessionID+
-                "&push=Stream_"+sanitizedSessionID+videoSetup+audioSetup+
+            document.getElementById("mainStream").src = "https://alpha.rpxl.app/vdo/?room=RPXL"+sanitizedSessionID+
+                "&push=Stream"+sanitizedSessionID+videoSetup+audioSetup+
                 "&view"+
+                "&nochunked"+
                 //"&solo"+
                 //"&graphs"+
                 "&directoronly"+

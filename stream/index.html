@@ -225,7 +225,7 @@ copyQuickLink.addEventListener("pointerdown", () => {
 
 copyOBSLink.addEventListener("pointerdown", () => {
     let ShareURL = sessionStorage.getItem("sessionID");
-    copyToClipboard("https://alpha.rpxl.app/?view=Stream_"+ShareURL+"&room=RPXL_"+ShareURL);
+    copyToClipboard("https://alpha.rpxl.app/?view=Stream"+ShareURL+"&room=RPXL"+ShareURL);
 });
 
 function copyToClipboard(text) {
