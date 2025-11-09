@@ -53,21 +53,22 @@
         <button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span
             class="material-symbols-outlined">terminal</span></button>
       </div>
-   </div>
+    </div>
 
     <div class="logAndFiles">
       <pre class="log hidden" id="log"></pre>
+
       <div id="subToolBar" class="subtoolbar hidden">
         <span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
         <span class="toolspacer"></span>
         <span id="filterControls">Show &nbsp;&nbsp;&nbsp;</span>
-        <span class="subToolSet">
+        <span class="subToolSet filterSet">
           <button id="filterAll" class="active subTool">All</button><button id="filterLocal"
             class="subTool">Local</button><button id="filterRemote" class="subTool">Remote</button>
         </span>
         <span class="toolspacer"></span>
         <span id="sortControls">Sort by &nbsp;&nbsp;&nbsp;</span>
-        <span class="subToolSet">
+        <span class="subToolSet sortSet">
           <button id="sortByTime" class="active subTool">Latest</button><button id="sortByName"
             class="subTool">Name</button>
         </span>
@@ -116,6 +117,7 @@
   let currentFilter = 'all'; // values: 'all' | 'local' | 'remote'
   let localUUID = randomID(20);
   let firstInteraction = true;
+  let downloadQueue = [];        // holds pending fileIDs
 
   const dropArea = document.getElementById('dropArea');
   const fileList = document.getElementById('fileList');
@@ -184,7 +186,7 @@
     const container = document.getElementById('container');
     iframe = document.createElement('iframe');
     iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
-    iframe.src = `https://alpha.rpxl.app/vdo/?director&room=${room}&push=${localUUID}&dataonly`;
+    iframe.src = `https://alpha.rpxl.app/vdo/?director&room=${room}&push=${localUUID}&datamode&totalbitrate=5000000`;
     iframe.style.width = '100%';
     iframe.style.height = '200px';
     container.appendChild(iframe);
@@ -207,26 +209,25 @@
 
     //FILE AND DATA EVENT HANDLING
     if (e.data.dataReceived && e.data.dataReceived[APP_NS]) {
-      //console.log("<------- INCOMING:", e.data.dataReceived);
       const msg = e.data.dataReceived[APP_NS];
       const dt = msg.dataType;
       const payload = msg.payload;
       if (!msg && !dt) return;
 
       //log incoming and outgoing messages for debug
-      console.log("Datatype:", dt, "Payload:", payload);
+      //console.log("Datatype:", dt, "Payload:", payload);
 
       switch (msg.dataType) {
         //file and directory listing and removal
         case 'file-announce': {
           //Ignore files that were uploaded by yourself
           if (payload.uploadedBy === localUUID) {
-            console.log(`Ignoring file ${payload.name} (uploaded by self)`);
+            //console.log(`Ignoring file ${payload.name} (uploaded by self)`);
             break;
           }
           //Optionally ignore duplicates if already have this file
           if (files[payload.id]) {
-            console.log(`Ignoring file ${payload.name} (already listed)`);
+            //console.log(`Ignoring file ${payload.name} (already listed)`);
             break;
           }
           files[payload.id] = {
@@ -273,7 +274,7 @@
           break;
         }
         case 'request-file': {
-          console.log("file requested")
+          log(`file requested: ${payload.folderPath} / ${payload.name} -> ${payload.requester}`)
           respondToFileRequest(payload.id, payload.requester);
           break;
         }
@@ -287,7 +288,6 @@
           break;
         }
         case 'request-missing': {
-          // payload: { id, missing: [idx...] }
           // If we're the sender and have the file, resend those indices
           if (outgoingFiles[payload.id]) {
             const of = outgoingFiles[payload.id];
@@ -327,7 +327,7 @@
         }
         case 'file-transfer-complete': {
           // receiver finalization is handled in finalizeIncomingFile when all chunks present
-          console.log('file-transfer-complete', payload);
+          log('file transfer complete', payload.name);
           break;
         }
         case 'file-not-found': {
@@ -338,7 +338,12 @@
           log('Peer transfer error:', payload.id, payload.message);
           break;
         }
-        // keep your other handlers...
+        case "stop-download": {
+          const id = payload.id;
+          console.log("Sender: Stop requested for file:", id, payload.name);
+          pausedUploads[id] = "stop"; // mark special state
+          break;
+        }
         default:
           console.warn('Unhandled dataType', dt, payload);
       }
@@ -348,24 +353,21 @@
   //USER 'ACTION EVENTS' FOR USER CONNECTS AND DISCONNECTS 
   function handleAction(data) {
     if (!data.action) return;
-
     switch (data.action) {
       case 'guest-connected':
         connectedPeers[data.streamID] = data.value?.label || "Guest";
-        console.log("Guest connected:", data.streamID);
+        log("Guest connected:", data.streamID);
         updatePeersUI();
         handleGuestJoin(data.streamID);
         break;
-
       case 'push-connection':
         if (data.value === false && data.streamID) {
-          console.log("Guest disconnected:", data.streamID);
+          log("Guest disconnected:", data.streamID);
           delete connectedPeers[data.streamID];
           removePeerFiles(data.streamID);
           updatePeersUI();
         }
         break;
-
       case 'view-connection':
         if (data.value) {
           connectedPeers[data.streamID] = "Viewer";
@@ -376,15 +378,15 @@
         }
         updatePeersUI();
         break;
-
       default:
-        console.warn('Unhandled connection action', data.action);
+      //don't log other messages from vdo.ninja (viewstats etc.)
+      //keeps log window cleaner, because otherwise f'n hell
+      //console.warn('Unhandled connection action', data.action);
     }
   }
 
-  //when user connects send them the file list
+  //SEND FILE LIST TO USER WHEN THEY CONNECT (AFTER. SHORT DELAY)
   async function handleGuestJoin(guestUUID) {
-    log('Guest connected :', guestUUID);
     loadingEl.classList.remove('hidden');
     // delay to ensure the peer connection is ready
     await sleep(500);
@@ -402,12 +404,11 @@
     }
     // Optionally wait for all announcements to process
     await sleep(50 * ids.length); // small buffer for debounced rendering
-
     // Hide loading message once file list is rendered
     loadingEl.classList.add('hidden');
   }
 
-  //updated the connected peers count
+  //UPDATE THE CONNECTED PEERS COUNT IN UI
   function updatePeersUI() {
     const total = Object.keys(connectedPeers).length;
     let statusText = '';
@@ -441,11 +442,11 @@
   }
 
   //check if mobile and remove the webkit directory option for file inputs
+  //doesn't work???
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (isMobile) {
     filePicker.removeAttribute('webkitdirectory'); // optional
   }
-
 
   //INTERFACE BUTTONS
   //share
@@ -455,47 +456,48 @@
     setTimeout(() => {
       popupClipboard.classList.add("hidden");
     }, 2000);
-    console.log('Session link copied to clipboard');
+    //console.log('Session link copied to clipboard');
   });
   //show log window
   logBtn.addEventListener('pointerdown', () => {
     document.getElementById('log').classList.toggle('hidden');
   });
-  //sort by name
-  document.getElementById('sortByName').addEventListener('click', () => {
-    currentSort = 'name';
-    rerenderFileTree();
-  });
-  //sort by latest
-  document.getElementById('sortByTime').addEventListener('click', () => {
-    currentSort = 'latest';
-    rerenderFileTree();
-  });
-  //show all files
+  //sets active filter button
+  function setActiveButton(groupSelector, activeId) {
+    document.querySelectorAll(groupSelector + ' .subTool').forEach(btn => {
+      btn.classList.toggle('active', btn.id === activeId);
+    });
+  }
+  // Filter - all
   document.getElementById('filterAll').addEventListener('click', () => {
     currentFilter = 'all';
-    setActiveFilterButton('filterAll');
+    setActiveButton('.filterSet', 'filterAll');
     debouncedRerender();
   });
-  //show only local
+  // Filter - local
   document.getElementById('filterLocal').addEventListener('click', () => {
     currentFilter = 'local';
-    setActiveFilterButton('filterLocal');
+    setActiveButton('.filterSet', 'filterLocal');
     debouncedRerender();
   });
-  //show only remote
+  // Filter - remote
   document.getElementById('filterRemote').addEventListener('click', () => {
     currentFilter = 'remote';
-    setActiveFilterButton('filterRemote');
+    setActiveButton('.filterSet', 'filterRemote');
     debouncedRerender();
   });
-  //select button active
-  function setActiveFilterButton(id) {
-    document.querySelectorAll('#filterControls button').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    document.getElementById(id).classList.add('active');
-  }
+  // Sort - latest
+  document.getElementById('sortByTime').addEventListener('click', () => {
+    currentSort = 'latest';
+    setActiveButton('.sortSet', 'sortByTime');
+    rerenderFileTree();
+  });
+  // Sort - name
+  document.getElementById('sortByName').addEventListener('click', () => {
+    currentSort = 'name';
+    setActiveButton('.sortSet', 'sortByName');
+    rerenderFileTree();
+  });
 
   //DRAG AND DROP AND FILE ADDING HANDLING
   addBtn.addEventListener("pointerdown", () => {
@@ -653,14 +655,13 @@
 
     // const debouncedRerender = debounce(rerenderFileTree, 50);
     debouncedRerender()
-    //renderTreeItem(files[id]);
     log(`Added: ${relativePath} (${formatBytes(file.size)})`);
 
     // Notify peers
     sendFile(id);
   }
 
-  //send file data when one is added or deleted
+  //WRAPS FILE DATA AND PREPS TO SENDS TO EITHER SPECIFIC STREAMID OR TO ALL
   function sendFile(id, targetStreamID = null) {
     const meta = files[id];
     if (!meta) return;
@@ -672,8 +673,8 @@
     }
   }
 
-
   //WRAP DATA AND POST TO IFRAME EITHER TO INDIVIDAUL OR ALL (BROADCAST)
+  //send to specific peer (file requests and data transfers)
   function sendToPeer(targetStreamID, dataType, payload = {}) {
     const msg = {
       sendData: {
@@ -686,11 +687,9 @@
       streamID: targetStreamID
     };
 
-    console.log("OUTGOING to VDO.Ninja:", JSON.parse(JSON.stringify(msg)));
-
     postToIframe(msg);
   }
-
+  //send to all peers (connects, disconnects, adding or removing files)
   function sendBroadcast(dataType, payload = {}) {
     postToIframe({
       sendData: {
@@ -702,7 +701,7 @@
       type: "pcs"
     });
   }
-
+  //send above messages to vdoninja iframe
   function postToIframe(message) {
     if (!iframe || !iframe.contentWindow) {
       console.warn("postToIframe(): iframe not ready", message);
@@ -726,7 +725,7 @@
     };
   }
 
-  //natural file sorting(file 10 comes after file2)
+  //natural file sorting(file 10 comes after file 2)
   function naturalCompare(a, b) {
     const ax = [];
     const bx = [];
@@ -790,7 +789,6 @@
       filtered = filtered.filter(f => f.uploadedBy !== localUUID);
     }
 
-
     //Rebuild
     for (const f of filtered) {
       renderTreeItem(f);
@@ -801,7 +799,7 @@
       const contents = folderMap[path];
       if (!contents) continue;
 
-  contents.classList.add('open');
+      contents.classList.add('open');
     }
   }
 
@@ -876,7 +874,7 @@
       currentContainer = folderMap[currentPath];
     }
 
-    // Create file entry
+    // Create file entry (hidden id, name, size and icon)
     const fileDiv = document.createElement('div');
     fileDiv.className = 'file-item ' + (isReceiver ? 'remote' : 'local');
 
@@ -893,16 +891,17 @@
     fileDiv.innerHTML = `
     <span class="file-name">${escapeHtml(f.name)}</span>
     <span class="file-size">${formatBytes(f.size)}</span>
-    <span class="material-symbols-outlined ${fileIconClass}" id="${f.id}_icon">${fileIconLabel}</span>
+    <span class="file-icon-container" id="icon-container_${f.id}">
+      <span class="material-symbols-outlined ${fileIconClass}" id="${f.id}_icon">${fileIconLabel}</span>
+    </span>
   `;
     currentContainer.appendChild(fileDiv);
 
-    // File action (download or delete)
+    // File action (download or delete based on if it is local or remote)
     fileDiv.querySelector(`.${fileIconClass}`).addEventListener('pointerdown', async (e) => {
       e.stopPropagation();
       if (isReceiver) {
         requestDownload(f.id, false); // single file download
-        //createFileProgressUI(f.id);
       } else {
         deleteFile(f.id);
       }
@@ -924,6 +923,7 @@
     }, { once: true });
   }
 
+  //REMOVE DIRECTORY(S)
   async function deleteDirectory(path) {
     if (!path) return;
     log(`Deleting directory: ${path}`);
@@ -948,14 +948,13 @@
 
     // Remove from folderMap
     delete folderMap[path];
-
     //announce directory removal to peers
     await sendDirectoryRemoved(path);
-
     //clean any now-empty parents
     cleanupEmptyFolders(path);
   }
 
+  //ANNOUNCE DIRECTORY REMOVAL TO ALL PEERS
   async function sendDirectoryRemoved(path, targetUUID = null) {
     const peerKeys = Object.keys(connectedPeers);
     if (peerKeys.length === 0) {
@@ -967,6 +966,7 @@
     log(`Announced directory removal: ${path}`);
   }
 
+  //REMOVE FILE
   async function deleteFile(id) {
     const file = files[id];
     if (!file) return;
@@ -976,16 +976,15 @@
     delete files[id];
     const el = document.querySelector(`.file-item[data-id="${id}"]`);
     removeElementWithFade(el);
-    //if (el) el.remove();
 
     log(`Deleted file : / ${folderPath} / ${file.name}`);
-
     // Clean up empty folders (locally)
     cleanupEmptyFolders(folderPath);
     // Send updated file list to peers
     await sendFileRemoved(id, folderPath);
   }
 
+  //ANNOUNCE FILE REMOVAL TO ALL PEERS
   async function sendFileRemoved(id, path) {
     const total = Object.keys(connectedPeers).length;
     if (total == 0) {
@@ -997,7 +996,7 @@
     log(`Announced file removal`);
   }
 
-  // Remove any empty parent folders (recursively up)
+  //CLEANUP AND REMOVE ANY EMPTY FOLDERS
   function cleanupEmptyFolders(startPath = null) {
     // climb up the tree from there and clean each ancestor if empty.
     if (startPath) {
@@ -1035,48 +1034,81 @@
     }
   }
 
+  //FILE DOWNLOAD UI, CIRCLE, RESTORE BACK AND CALC DL SPEED PROGRESS BARS
   function createFileProgressUI(id) {
-    const item = document.getElementById(`${id}_icon`);
-    if (!item) return;
+    const container = document.getElementById(`icon-container_${id}`);
+    if (!container) return;
 
-    // Wrap the progress UI
-    item.innerHTML = `
+
+    // Clear previous content and insert progress UI
+    container.innerHTML = `
     <div class="roundProgressBarBG">
       <div class="roundProgressBarFill" id="progress-bar-${id}"></div>
       <div class="roundProgressBarCenter">
-        <div class="pause-btn" id="pause-btn-${id}">⏸</div>
+        <div class="stop-btn" id="stop-btn-${id}">✕</div>
       </div>
     </div>
   `;
 
-    // Style the pause button (you can move to CSS if preferred)
-    const pauseBtn = document.getElementById(`pause-btn-${id}`);
-    pauseBtn.style.position = "absolute";
-    pauseBtn.style.top = "50%";
-    pauseBtn.style.left = "50%";
-    pauseBtn.style.transform = "translate(-50%, -50%)";
-    pauseBtn.style.cursor = "pointer";
-    pauseBtn.style.fontSize = "0.8em";
-    pauseBtn.style.userSelect = "none";
+    const stopBtn = document.getElementById(`stop-btn-${id}`);
+    if (!stopBtn) return;
 
-    // Add click handler
-    pauseBtn.addEventListener("click", () => {
-      if (pausedDownloads.has(id)) {
-        pausedDownloads.delete(id);
-        pauseBtn.textContent = "⏸";
-        console.log(`Resumed download: ${id}`);
-        processDownloadQueue(); // pick up any paused downloads
-      } else {
-        pausedDownloads.add(id);
-        pauseBtn.textContent = "▶";
-        console.log(`Paused download: ${id}`);
-      }
+    // Style stop button
+    stopBtn.style.position = "absolute";
+    stopBtn.style.top = "50%";
+    stopBtn.style.left = "50%";
+    stopBtn.style.transform = "translate(-50%, -50%)";
+    stopBtn.style.cursor = "pointer";
+    stopBtn.style.fontSize = "0.8em";
+    stopBtn.style.userSelect = "none";
+    stopBtn.style.opacity = "0.5";
+
+    // Stop button handler
+    stopBtn.addEventListener("pointerdown", () => {
+      console.log(`Stopping download: ${id}`);
+
+      // stop local
+      pausedDownloads.delete(id);
+      delete incomingFiles[id];
+
+      // remove from queue
+      downloadQueue = downloadQueue.filter(job => job.fileID !== id);
+
+      // notify sender
+      sendToPeer(files[id].uploadedBy, "stop-download", { id });
+
+      // restore icon cleanly
+      restoreDownloadIcon(id);
     });
+  }
 
+  function restoreDownloadIcon(id) {
+    const container = document.getElementById(`icon-container_${id}`);
+    if (!container) return;
+
+    if (!container) return;
+
+    // Restore original icon
+    container.innerHTML = `
+    <span class="material-symbols-outlined file-download" id="${id}_icon">download</span>
+  `;
+
+    const icon = document.getElementById(`${id}_icon`);
+    if (!icon) return;
+
+    // Reattach the normal download behavior
+    icon.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      requestDownload(id, false);
+      createFileProgressUI(id);
+    });
   }
 
   function updateFileProgressUI(id, percent) {
     const bar = document.getElementById(`progress-bar-${id}`);
+    if (!bar) return; // safely ignore if element removed
+    if (pausedDownloads.has(id)) return;
+
     const pct = Math.max(0, Math.min(100, Number(percent) || 0));
     const deg = pct * 3.6; // 100% -> 360°
     bar.style.backgroundImage = `conic-gradient(dodgerblue ${deg}deg, light-dark(var(--color-light-white), var(--color-dark-grey)) ${deg}deg)`;
@@ -1085,7 +1117,6 @@
   //CALCULATE AND SHOW SPEED OF DOWNLOAD / UPLOAD
   let bytesReceivedInInterval = 0;
   let bytesSentInInterval = 0;
-
   // Called whenever a chunk is received
   function onChunkReceived(chunkSize) {
     bytesReceivedInInterval += chunkSize;
@@ -1105,36 +1136,32 @@
     const downloadSpeed = formatSpeed(bytesReceivedInInterval * 2); // interval 500ms → scale to 1s
     const uploadSpeed = formatSpeed(bytesSentInInterval * 2);
 
-    document.getElementById("transferSpeed").textContent =
-      `Download: ${downloadSpeed} | Upload: ${uploadSpeed}`;
-
+    document.getElementById("transferSpeed").textContent = `Download: ${downloadSpeed} | Upload: ${uploadSpeed}`;
     // Reset counters
     bytesReceivedInInterval = 0;
     bytesSentInInterval = 0;
   }, 500);
 
   // UTILITY, CREATE FILE ID'S, NICE FORMAT SIZE AND REMOVE ANY FUNNY CHARACTERS
-  // function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
   function generateId() { return Math.random().toString(36).slice(2, 10); }
   function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
   function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
 
-  //  FILE TRANSFER ENGINE — CLEAN & UNIFIED
-  //  Uses: sendToPeer(), sendBroadcast()
-  const FILE_CHUNK_BYTES = 64 * 512;
+  //  FILE TRANSFER ENGINE
+  const FILE_CHUNK_BYTES = 512 * 1024;
   const GROUP_SIZE = 16;
-  const ACK_TIMEOUT_MS = 2000;
+  const ACK_TIMEOUT_MS = 2500;
   const MAX_CHUNK_RETRIES = 4;
-  const CHUNK_SEND_DELAY = 4;
+  const CHUNK_SEND_DELAY = 2;
+  let activeFileDownloads = 0;     // how many are running
 
   const outgoingFiles = {};
   const incomingFiles = {};
   let activeTransfers = 0;
   const pausedDownloads = new Set(); // holds fileIDs of paused downloads
+  const MAX_PARALLEL_DOWNLOADS = 6; // 
+  const pausedUploads = {};  // sender-side pause flags
 
-  const downloadQueue = [];        // holds pending fileIDs
-  let activeFileDownloads = 0;     // how many are running
-  const MAX_PARALLEL_DOWNLOADS = 12; // 
 
   // UTILITIES 
   function arrayBufferToBase64(buffer) {
@@ -1173,7 +1200,7 @@
     //FOLDER DOWNLOAD HANDLED FIRST
     if (isFolder) {
       const folderPath = fileID;  // fileID *is* a folder path here
-      log(`Requesting folder download: ${folderPath}`);
+      log(`Requesting folder : ${folderPath}`);
 
       // Find all files whose folderPath starts with this folder
       const fileIDs = Object.keys(files).filter(id =>
@@ -1192,8 +1219,9 @@
 
     //SINGLE FILE DOWNLOAD
     const meta = files[fileID];
-    if (!meta) return console.error("requestDownload: no such file");
+    if (!meta) return log("requestDownload: no such file");
 
+    log(`Requesting file : ${fileID}`);
     const hostStreamID = meta.uploadedBy;
     queueDownload(fileID, hostStreamID, false);
     createFileProgressUI(fileID);
@@ -1271,7 +1299,7 @@
     const groupCount = Math.ceil(total / GROUP_SIZE);
 
     // How many chunks to send in one burst before yielding
-    const SEND_WINDOW = 6;  // you can tune this (4–8 is ideal)
+    const SEND_WINDOW = 10  // you can tune this (10 default)
 
     for (let group = 0; group < groupCount; group++) {
       let acknowledged = false;
@@ -1280,11 +1308,27 @@
         const start = group * GROUP_SIZE;
         const end = Math.min(total, start + GROUP_SIZE);
 
+        while (pausedUploads[fileID]) {
+          await sleep(200);
+        }
+
         // PIPELINED BURST SENDER
         for (let idx = start; idx < end; idx++) {
+          //abort if stopped
+          if (pausedUploads[fileID] === "stop") {
+            log("Upload aborted by user:", fileID);
+            delete pausedUploads[fileID];
+            return; // exit the entire upload function
+          }
+
           const s = idx * FILE_CHUNK_BYTES;
           const e = Math.min(file.size, s + FILE_CHUNK_BYTES);
-          const buf = await readBlobAsArrayBuffer(file.slice(s, e));
+
+          while (pausedUploads[fileID]) {
+            await sleep(200);
+          }
+
+          const buf = await file.slice(s, e).arrayBuffer();
 
           onChunkSent(buf.byteLength); // <-- track sent bytes
 
@@ -1296,14 +1340,9 @@
             target: targetStreamID,
             from: localUUID
           });
-
-          // Don't block the event loop on every chunk
-          // Yield occasionally to avoid datachannel congestion collapse
-          if ((idx - start) % SEND_WINDOW === 0) {
-            await new Promise(res => setTimeout(res, 0));
-          }
         }
 
+        await Promise.resolve();
         // Wait for GROUP ACK
         acknowledged = await waitForGroupAck(fileID, group, targetStreamID);
         if (acknowledged) break;
@@ -1368,6 +1407,7 @@
       inf.received++;
 
       const percent = (inf.received / inf.totalChunks) * 100;
+      //if (pausedDownloads.has(id)) return;
       updateFileProgressUI(id, percent);
     }
 
@@ -1422,26 +1462,14 @@
     while (activeFileDownloads < MAX_PARALLEL_DOWNLOADS && downloadQueue.length > 0) {
       const { fileID, hostStreamID, fromFolder } = downloadQueue.shift();
 
-      // Skip if paused
+      //If paused: stop processing to avoid infinite loop
       if (pausedDownloads.has(fileID)) {
-        // Put it back at the end of the queue so it can resume later
-        downloadQueue.push({ fileID, hostStreamID, fromFolder });
-        continue;
+        downloadQueue.unshift({ fileID, hostStreamID, fromFolder });
+        return; //prevent CPU lock
       }
 
       startFileDownload(fileID, hostStreamID, fromFolder);
     }
-  }
-  //pause and resume files
-  function pauseDownload(fileID) {
-    pausedDownloads.add(fileID);
-    console.log(`Paused download: ${fileID}`);
-  }
-
-  function resumeDownload(fileID) {
-    pausedDownloads.delete(fileID);
-    console.log(`Resumed download: ${fileID}`);
-    processDownloadQueue();
   }
 
   // RECEIVER FINALIZES FILE
@@ -1461,7 +1489,6 @@
 
     const blob = new Blob(buffers);
     const meta = files[id];
-    //const filename = meta?.name || `file-${id}`;
     let filename = meta?.name || `file-${id}`;
 
     //If part of a folder download → flatten name
@@ -1516,7 +1543,7 @@
     for (const idx of missing) {
       const s = idx * FILE_CHUNK_BYTES;
       const e = Math.min(file.size, s + FILE_CHUNK_BYTES);
-      const buf = await readBlobAsArrayBuffer(file.slice(s, e));
+      const buf = await file.slice(s, e).arrayBuffer();
 
       sendToPeer(of.to, "file-chunk", {
         id,
