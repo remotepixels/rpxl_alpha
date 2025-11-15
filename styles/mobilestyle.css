@@ -30,18 +30,6 @@
         width:1px;
         height:1px;
     }
-    /* #topmenu {
-        display: none;
-    } */
-    /* #bottomMenu {
-        height:70px;
-        bottom:0px;
-        padding-bottom: 20px;
-        margin-bottom:20px;
-    } */
-    /* .toolpopup.bottom {
-        bottom: calc(35px + var(--button-height));
-    } */
     .mainZoom {
         left: 0px;
         top: 5px;
@@ -80,15 +68,6 @@
     #topmenu {
         display: none;
     }
-    /* #bottomMenu {
-        height:70px;
-        bottom:0px;
-        padding-bottom: 20px;
-        /* margin-bottom:20px; */
-    } */
-    /* .toolpopup.bottom {
-        bottom: calc(35px + var(--button-height));
-    } */
     .mainZoom {
         left: 0px;
         top: 5px;
@@ -97,18 +76,6 @@
     }
 }
 @media (max-height: 430px) {
-    /* #topmenu {
-        display: none;
-    } */
-    /* #bottomMenu {
-        height:70px;
-        bottom:0px;
-        padding-bottom: 20px;
-        margin-bottom:20px;
-    }
-    .toolpopup.bottom {
-        bottom: calc(35px + var(--button-height));
-    } */
     .viewersiframe {
         opacity:0px;
         left:-100px;

@@ -258,37 +258,6 @@ button:hover {
   transform: translateY(0);
 }
 
-.file-item {
-  display: flex;
-  align-items: left;
-  background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
-}
-
-.file-item:hover {
-  background: light-dark(var(--color-light-white), var(--color-dark-grey));
-}
-
-.file-name {
-  padding: 5px 20px 5px 40px;
-  color: light-dark(var(--color-dark-grey), var(--color-light-grey));
-  min-width: 75%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  margin-right: auto;
-  cursor: default;
-}
-
-.file-item.local {
-  color: light-dark(var(--color-light-grey), var(--color-light-grey));
-  padding-left: 30px;
-}
-
-.file-item.remote .file-name {
-  color: #1e90ff;
-  padding-left: 40px;
-}
-
 .folder.local .folder-header .folder-text {
   color: light-dark(var(--color-dark-grey), var(--color-light-grey));
   margin-right: 10px;
@@ -307,15 +276,35 @@ button:hover {
   margin-right: 10px;
 }
 
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.3s ease-out;
+.file-item {
+  display: flex;
+  align-items: left;
+  background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
 }
 
-.fade-slide-out {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+.file-item:hover {
+  background: light-dark(var(--color-light-white), var(--color-dark-grey));
+}
+
+.file-item.local {
+  color: light-dark(var(--color-light-grey), var(--color-light-grey));
+  padding-left: 30px;
+}
+
+.file-item.remote .file-name {
+  color: #1e90ff;
+  padding-left: 40px;
+}
+
+.file-name {
+  padding: 5px 20px 5px 40px;
+  color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+  min-width: 75%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-right: auto;
+  cursor: default;
 }
 
 .file-size {
@@ -335,6 +324,17 @@ button:hover {
   width: 18px;
 }
 
+/* 
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+} */
+
+.fade-slide-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
 .roundProgressBarBG {
   margin: 0px;
   padding: 0px;
@@ -362,6 +362,13 @@ button:hover {
   height: 22px;
   border-radius: 50%;
   background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+}
+
+.download-btn.completed {
+    background: #4caf50;
+    color: white;
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 /*toolbars, top and bottom and tool sets (groups)*/
@@ -454,11 +461,11 @@ button:hover {
   pointer-events: none;
   transition: transform ease-in-out 0.3s;
 }
-
+/* 
 .disable {
   opacity: 0;
   cursor: default;
-}
+} */
 
 .toolmoresettings[aria-expanded="true"]::after {
   transform: rotate(180deg) translateY(50%);

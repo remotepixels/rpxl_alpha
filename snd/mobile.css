@@ -1,0 +1,32 @@
+@media (max-width: 900px) {
+    .log {
+        display: none;
+    }
+
+    .filterSet {
+        display: none;
+    }
+
+    #filterControls {
+        display: none;
+    }
+    .subtoolbar{
+        height:60px;
+    }
+}
+
+@media (max-width: 600px) {
+    #sortControls {
+        display: none;
+    }
+
+    .sortSet {
+        display: none;
+    }
+}
+
+@media (max-height: 430px) {
+    .subtoolbar {
+        display: none;
+    }
+}
