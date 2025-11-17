@@ -118,7 +118,7 @@
   const fileList = document.getElementById('fileList');
   const logEl = document.getElementById('log');
   const peersList = document.getElementById('peersList');
-  const senderStatus = document.getElementById('senderStatus');
+  //const senderStatus = document.getElementById('senderStatus');
   const shareBtn = document.getElementById('shareBtn');
   const addBtn = document.getElementById('addBtn');
   const filePicker = document.getElementById('filePicker');
@@ -170,7 +170,7 @@
         return;
       }
     } else {
-      var length = 20;
+    //  var length = 20;
       roomName = randomID(20);
       createIframe(roomName);
     }
@@ -409,7 +409,7 @@
   //UPDATE THE CONNECTED PEERS COUNT IN UI
   function updatePeersUI() {
     const total = Object.keys(connectedPeers).length;
-    let statusText = '';
+//    let statusText = '';
 
     peersList.textContent = total === 0
       ? '(0)'
@@ -436,13 +436,6 @@
       // Clean up empty folders up the tree
       cleanupEmptyFolders(folderPath);
     }
-  }
-
-  //check if mobile and remove the webkit directory option for file inputs
-  //doesn't work???
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    filePicker.removeAttribute('webkitdirectory'); // optional
   }
 
   //INTERFACE BUTTONS
@@ -500,95 +493,106 @@
     filePicker.click();
   });
 
+  // Always handle picking files on both desktop + mobile
   filePicker.addEventListener("change", (event) => {
     const files = event.target.files;
-    // If the user selects a FOLDER, files will contain all files inside
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (file.webkitRelativePath && file.webkitRelativePath !== "") {
-        //Folder was selected → preserve folder structure
         file.relativePath = file.webkitRelativePath;
       } else {
-        //Single file selected
         file.relativePath = file.name;
       }
+
       if (!isHiddenFile(file)) addFile(file);
-
-      firstInteraction = false;
-
-      document.getElementById('dropArea').classList.add('hidden');
-      document.getElementById('dropArea').style.pointerEvents = "none";
-
-      document.getElementById('topmenu').classList.remove('hidden');
-      document.getElementById('subToolBar').classList.remove('hidden');
     }
-  });
 
-  dropArea.addEventListener('pointerdown', () => {
-    if (!firstInteraction) return;
-    filePicker.click();
-  });
+    firstInteraction = false;
 
-  const dropOverlay = document.getElementById('dropArea');
-  let dragCounter = 0; // helps handle nested dragenter/dragleave events
-
-  window.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    dragCounter++;
-    dropOverlay.classList.add('dragover');
-  });
-
-  window.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    dragCounter--;
-    if (dragCounter === 0) dropOverlay.classList.remove('dragover');
-  });
-
-  window.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
-
-  window.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dragCounter = 0;
-    dropOverlay.classList.remove('dragover');
-  });
-
-  dropArea.addEventListener('drop', async (e) => {
-    e.preventDefault();
-
-    const items = e.dataTransfer.items;
-    if (!items) return handleFileList(e.dataTransfer.files);
-
-    // Hide drop area after 1st drop
     document.getElementById('dropArea').classList.add('hidden');
+    document.getElementById('dropArea').style.pointerEvents = "none";
+
     document.getElementById('topmenu').classList.remove('hidden');
     document.getElementById('subToolBar').classList.remove('hidden');
-
-    const promises = [];    // Process all top-level entries concurrently
-
-    for (let i = 0; i < items.length; i++) {
-      const it = items[i];
-      const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
-      if (!entry) {
-        if (it.getAsFile) addFile(it.getAsFile());
-        continue;
-      }
-
-      if (entry.isDirectory) {
-        promises.push(readDirectory(entry));
-      } else if (entry.isFile) {
-        // Wrap entry.file in a promise so we can await it
-        promises.push(new Promise(resolve => entry.file(file => {
-          addFile(file);
-          resolve();
-        })));
-      }
-    }
-
-    await Promise.all(promises);  // Wait for all top-level items to finish
   });
+
+  //check if desktop, set up drag and drop UI
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!isMobile) {
+    dropArea.addEventListener('pointerdown', () => {
+      if (!firstInteraction) return;
+      filePicker.click();
+    });
+
+    const dropOverlay = document.getElementById('dropArea');
+    let dragCounter = 0; // helps handle nested dragenter/dragleave events
+
+    window.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      dropOverlay.classList.add('dragover');
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter === 0) dropOverlay.classList.remove('dragover');
+    });
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      dropOverlay.classList.remove('dragover');
+    });
+
+    dropArea.addEventListener('drop', async (e) => {
+      e.preventDefault();
+
+      const items = e.dataTransfer.items;
+      if (!items) return handleFileList(e.dataTransfer.files);
+
+      // Hide drop area after 1st drop
+      document.getElementById('dropArea').classList.add('hidden');
+      document.getElementById('topmenu').classList.remove('hidden');
+      document.getElementById('subToolBar').classList.remove('hidden');
+
+      const promises = [];    // Process all top-level entries concurrently
+
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+        if (!entry) {
+          if (it.getAsFile) addFile(it.getAsFile());
+          continue;
+        }
+
+        if (entry.isDirectory) {
+          promises.push(readDirectory(entry));
+        } else if (entry.isFile) {
+          // Wrap entry.file in a promise so we can await it
+          promises.push(new Promise(resolve => entry.file(file => {
+            addFile(file);
+            resolve();
+          })));
+        }
+      }
+
+      await Promise.all(promises);  // Wait for all top-level items to finish
+    });
+  } else {
+    //hide if on mobile
+    dropArea.classList.add('hidden');
+    dropArea.style.display = "none";
+    filePicker.removeAttribute('webkitdirectory'); // optional
+    document.getElementById('topmenu').classList.remove('hidden');
+    document.getElementById('subToolBar').classList.remove('hidden');
+  }
 
   //PROCESS SINGLE FILE ENTRY 
   function readFileEntry(fileEntry, path = '') {
@@ -741,35 +745,35 @@
     };
   }
 
-  //natural file sorting(file 10 comes after file 2)
-  function naturalCompare(a, b) {
-    const ax = [];
-    const bx = [];
+  // //natural file sorting(file 10 comes after file 2)
+  // function naturalCompare(a, b) {
+  //   const ax = [];
+  //   const bx = [];
 
-    a.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-      ax.push([$1 || Infinity, $2 || ""]);
-    });
+  //   a.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
+  //     ax.push([$1 || Infinity, $2 || ""]);
+  //   });
 
-    b.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-      bx.push([$1 || Infinity, $2 || ""]);
-    });
+  //   b.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
+  //     bx.push([$1 || Infinity, $2 || ""]);
+  //   });
 
-    while (ax.length && bx.length) {
-      const an = ax.shift();
-      const bn = bx.shift();
+  //   while (ax.length && bx.length) {
+  //     const an = ax.shift();
+  //     const bn = bx.shift();
 
-      // Compare text
-      const textCompare = an[1].localeCompare(bn[1]);
-      if (textCompare !== 0) return textCompare;
+  //     // Compare text
+  //     const textCompare = an[1].localeCompare(bn[1]);
+  //     if (textCompare !== 0) return textCompare;
 
-      // Compare numbers
-      const numA = parseInt(an[0], 10);
-      const numB = parseInt(bn[0], 10);
-      if (numA !== numB) return numA - numB;
-    }
+  //     // Compare numbers
+  //     const numA = parseInt(an[0], 10);
+  //     const numB = parseInt(bn[0], 10);
+  //     if (numA !== numB) return numA - numB;
+  //   }
 
-    return ax.length - bx.length;
-  }
+  //   return ax.length - bx.length;
+  // }
 
   //SORTS THE FILETREE BY DATE/NAME LOCAL/REMOTE OR ALL
   function rerenderFileTree() {
@@ -781,7 +785,8 @@
       const folderDiv = folderMap[path]?.closest('.folder');
       if (!folderDiv) continue;
       const contents = folderDiv.querySelector('.folder-contents');
-      folderState[path] = contents && contents.style.display !== 'none';
+      //folderState[path] = contents && contents.style.display !== 'none';
+      folderState[path] = contents.classList.contains('open');
     }
 
     //Clear tree
@@ -809,12 +814,23 @@
       renderTreeItem(f);
     }
     //Restore folder states
-    for (const path in folderState) {
-      const contents = folderMap[path];
-      if (!contents) continue;
+    // for (const path in folderState) {
+    //   const contents = folderMap[path];
+    //   if (!contents) continue;
 
-      contents.classList.add('open');
-    }
+    //   contents.classList.add('open');
+    // }
+    for (const path in folderState) {
+  const contents = folderMap[path];
+  if (!contents) continue;
+
+  if (folderState[path]) {
+    contents.classList.add('open');
+  } else {
+    contents.classList.remove('open');
+  }
+}
+
   }
 
   //BUILDS THE FILE TREE
@@ -1178,7 +1194,7 @@
   //////////////////////////////////////////////////////////////////////////////
   //  FILE TRANSFER ENGINE
   const FILE_CHUNK_BYTES = 128 * 1024;
-  const GROUP_SIZE = 16;
+  const GROUP_SIZE = 32;
   const ACK_TIMEOUT_MS = 3000;
   const MAX_CHUNK_RETRIES = 3;
   const CHUNK_SEND_DELAY = 2;
@@ -1440,53 +1456,64 @@
   }
 
   // RECEIVER FINALIZES FILE
-  function finalizeIncomingFile(id) {
-    const inf = incomingFiles[id];
-    if (!inf) return;
-    downloadState.set(id, "done")
-    clearAckWaitersForFile(id)
+    function finalizeIncomingFile(id) {
+      const inf = incomingFiles[id];
+      if (!inf) return;
+      downloadState.set(id, "done")
+      clearAckWaitersForFile(id)
 
-    const buffers = [];
-    for (let i = 0; i < inf.totalChunks; i++) {
-      const b64 = inf.buffers[i];
-      if (!b64) {
-        requestMissingChunks(id, inf.sender);
-        return;
+      const buffers = [];
+      for (let i = 0; i < inf.totalChunks; i++) {
+        const b64 = inf.buffers[i];
+        if (!b64) {
+          //requestMissingChunks(id, inf.sender);
+          const missing = [];
+          for (let j = 0; j < inf.totalChunks; j++) {
+            if (!inf.buffers[j]) missing.push(j);
+          }
+
+          sendToPeer(inf.sender, "request-missing", {
+            id,
+            missing,
+            from: localUUID
+          });
+
+          return;
+        }
+        buffers.push(base64ToArrayBuffer(b64));
       }
-      buffers.push(base64ToArrayBuffer(b64));
-    }
 
-    const blob = new Blob(buffers);
-    const meta = files[id];
-    let filename = meta?.name || `file-${id}`;
+      const blob = new Blob(buffers);
+      const meta = files[id];
+      let filename = meta?.name || `file-${id}`;
 
-    //If part of a folder download → flatten name
-    if (meta.fromFolderRequest) {
-      if (meta.folderPath && meta.folderPath.trim() !== "") {
-        const parts = meta.folderPath.split("/").filter(Boolean);
-        filename = [...parts, meta.name].join(" - ");
+      //If part of a folder download → flatten name
+      if (meta.fromFolderRequest) {
+        if (meta.folderPath && meta.folderPath.trim() !== "") {
+          const parts = meta.folderPath.split("/").filter(Boolean);
+          filename = [...parts, meta.name].join(" - ");
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+
+      URL.revokeObjectURL(url);
+      delete incomingFiles[id];
+      delete meta.fromFolderRequest;
+
+      sendToPeer(inf.sender, "file-transfer-complete", { filename: filename, from: localUUID });
+      markDownloadCompleted(id);
+
+      log(`Completed download: ${filename}`);
+      if (activeFileDownloads > 0) {
+        activeFileDownloads--;
+        processDownloadQueue();
       }
     }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-
-    URL.revokeObjectURL(url);
-    delete incomingFiles[id];
-    delete meta.fromFolderRequest;
-
-    sendToPeer(inf.sender, "file-transfer-complete", { filename: filename, from: localUUID });
-    markDownloadCompleted(id);
-
-    log(`Completed download: ${filename}`);
-    if (activeFileDownloads > 0) {
-      activeFileDownloads--;
-      processDownloadQueue();
-    }
-  }
 
   //SENDER HANDLES request-missing
   async function handleRequestMissing(payload) {
