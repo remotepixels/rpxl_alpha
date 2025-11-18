@@ -24,13 +24,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="mobile.css">
   <title>RPXL | SND</title>
 </head>
 
 <body>
   <div id="mainWindow" class="mainWindow">
-    <!--top menu bar-->
     <div id="topmenu" class="toolbar top hidden">
       <div class="toolset" id="shareTools">
         <button class="tool" id="shareBtn" aria-expanded="false" role="button"><span
@@ -39,11 +37,10 @@
       <div class="toolset" id="addTools">
         <button class="tool" id="addBtn" aria-expanded="false" role="button"><span
             class="material-symbols-outlined">playlist_add</span></button>
-        <input id="filePicker" type="file" multiple webkitdirectory directory style="display:none">
+        <input id="filePicker" type="file" multiple>
       </div>
       <div class="toolspacer"></div>
       <div class="toolset">
-        <!-- <span class="tool toolwider">Status : <span id="senderStatus">Idle</span></span> -->
         <span class="tool toolwider">Peers : <span id="peersList">(0)</span></span>
       </div>
       <div class="toolspacer"></div>
@@ -97,7 +94,6 @@
     </div>
   </div>
 </body>
-
 </html>
 
 <script lang="javascript">
@@ -118,7 +114,6 @@
   const fileList = document.getElementById('fileList');
   const logEl = document.getElementById('log');
   const peersList = document.getElementById('peersList');
-  //const senderStatus = document.getElementById('senderStatus');
   const shareBtn = document.getElementById('shareBtn');
   const addBtn = document.getElementById('addBtn');
   const filePicker = document.getElementById('filePicker');
@@ -226,10 +221,6 @@
     const dt = msg.dataType;
     const payload = msg.payload;
 
-    // console.log("RX", e.data?.UUID || e.data?.streamID, "→ local", localUUID, "DT:", dt);
-    // console.log("RX data:", JSON.parse(JSON.stringify(e.data)));
-    // console.log("RX", e.data.streamID, "→ local", localUUID, "DT:", msg?.dataType );
-
     switch (msg.dataType) {
       //file and directory listing and removal
       case 'file-announce': {
@@ -265,6 +256,7 @@
       case 'directory-removed': {
         const path = payload.path;
         log(`Directory removed remotely: ${path}`);
+
         // Remove files inside folder first
         for (const id of Object.keys(files)) {
           if (files[id].folderPath.startsWith(path)) {
@@ -380,7 +372,6 @@
       }
       default:
       //don't log other messages from vdo.ninja (viewstats etc.)
-      //keeps log window cleaner, because otherwise f'n hell
       //console.warn('Unhandled connection action', data.action);
     }
   }
@@ -409,7 +400,6 @@
   //UPDATE THE CONNECTED PEERS COUNT IN UI
   function updatePeersUI() {
     const total = Object.keys(connectedPeers).length;
-//    let statusText = '';
 
     peersList.textContent = total === 0
       ? '(0)'
@@ -433,7 +423,6 @@
       const fileDiv = document.getElementById(`data-${id}`);
       if (fileDiv) fileDiv.remove();
 
-      // Clean up empty folders up the tree
       cleanupEmptyFolders(folderPath);
     }
   }
@@ -492,7 +481,6 @@
   addBtn.addEventListener("pointerdown", () => {
     filePicker.click();
   });
-
   // Always handle picking files on both desktop + mobile
   filePicker.addEventListener("change", (event) => {
     const files = event.target.files;
@@ -520,7 +508,12 @@
 
   //check if desktop, set up drag and drop UI
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   if (!isMobile) {
+    //set for desktop (folders and drag drop)
+    filePicker.setAttribute('webkitdirectory', "");
+    filePicker.setAttribute('directory', "");
+
     dropArea.addEventListener('pointerdown', () => {
       if (!firstInteraction) return;
       filePicker.click();
@@ -586,10 +579,13 @@
       await Promise.all(promises);  // Wait for all top-level items to finish
     });
   } else {
-    //hide if on mobile
+    //if mobile only allow multiple files and not folders (safer)
+    filePicker.removeAttribute('webkitdirectory');
+    filePicker.removeAttribute('directory');
+
     dropArea.classList.add('hidden');
     dropArea.style.display = "none";
-    filePicker.removeAttribute('webkitdirectory'); // optional
+
     document.getElementById('topmenu').classList.remove('hidden');
     document.getElementById('subToolBar').classList.remove('hidden');
   }
@@ -745,36 +741,6 @@
     };
   }
 
-  // //natural file sorting(file 10 comes after file 2)
-  // function naturalCompare(a, b) {
-  //   const ax = [];
-  //   const bx = [];
-
-  //   a.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-  //     ax.push([$1 || Infinity, $2 || ""]);
-  //   });
-
-  //   b.replace(/(\d+)|(\D+)/g, (_, $1, $2) => {
-  //     bx.push([$1 || Infinity, $2 || ""]);
-  //   });
-
-  //   while (ax.length && bx.length) {
-  //     const an = ax.shift();
-  //     const bn = bx.shift();
-
-  //     // Compare text
-  //     const textCompare = an[1].localeCompare(bn[1]);
-  //     if (textCompare !== 0) return textCompare;
-
-  //     // Compare numbers
-  //     const numA = parseInt(an[0], 10);
-  //     const numB = parseInt(bn[0], 10);
-  //     if (numA !== numB) return numA - numB;
-  //   }
-
-  //   return ax.length - bx.length;
-  // }
-
   //SORTS THE FILETREE BY DATE/NAME LOCAL/REMOTE OR ALL
   function rerenderFileTree() {
     const treeRoot = document.getElementById('fileList');
@@ -813,23 +779,17 @@
     for (const f of filtered) {
       renderTreeItem(f);
     }
-    //Restore folder states
-    // for (const path in folderState) {
-    //   const contents = folderMap[path];
-    //   if (!contents) continue;
 
-    //   contents.classList.add('open');
-    // }
     for (const path in folderState) {
-  const contents = folderMap[path];
-  if (!contents) continue;
+      const contents = folderMap[path];
+      if (!contents) continue;
 
-  if (folderState[path]) {
-    contents.classList.add('open');
-  } else {
-    contents.classList.remove('open');
-  }
-}
+      if (folderState[path]) {
+        contents.classList.add('open');
+      } else {
+        contents.classList.remove('open');
+      }
+    }
 
   }
 
@@ -1193,11 +1153,11 @@
 
   //////////////////////////////////////////////////////////////////////////////
   //  FILE TRANSFER ENGINE
-  const FILE_CHUNK_BYTES = 128 * 1024;
+  const FILE_CHUNK_BYTES = 128 * 1024;  //keep under 256 for compatibility between chrome / safari / firefox
   const GROUP_SIZE = 32;
   const ACK_TIMEOUT_MS = 3000;
   const MAX_CHUNK_RETRIES = 3;
-  const CHUNK_SEND_DELAY = 2;
+  const CHUNK_SEND_DELAY = 2;     //delay to not flood RTC channel
   let activeFileDownloads = 0;     // how many are running
 
   const outgoingFiles = {};
@@ -1242,10 +1202,7 @@
 
   // HOST RECEIVES REQUEST → starts sending
   async function respondToFileRequest(fileID, requesterStreamID) {
-    if (!fileID || !requesterStreamID) {
-      //console.error("File request error : missing fileID or requesterStreamID", { fileID, requesterStreamID });
-      return;
-    }
+    if (!fileID || !requesterStreamID) return;
 
     const meta = files[fileID];
     const file = meta?.file;
@@ -1253,7 +1210,6 @@
     if (pausedUploads[fileID]) delete pausedUploads[fileID];
 
     if (!file) {
-      //console.warn(`File not found for ID=${fileID}`);
       sendToPeer(requesterStreamID, "file-not-found", { id: fileID });
       return;
     }
@@ -1273,7 +1229,6 @@
     try {
       await sendChunksToPeer(fileID, requesterStreamID);
     } catch (err) {
-      //console.error("File transfer error:", err);
       sendToPeer(requesterStreamID, "file-transfer-error", {
         id: fileID,
         message: "file-not-found on host, possibly deleted from drive but not share"
@@ -1320,7 +1275,6 @@
 
         acknowledged = await waitForGroupAck(fileID, group, targetUUID);        // wait for ACK for this group
         if (acknowledged) break;
-        //console.warn(`Retrying group ${group} attempt ${attempt + 1}`);
       }
       if (!acknowledged) throw new Error(`Group ${group} failed`);
     }
@@ -1350,7 +1304,7 @@
     if (target !== localUUID) return;
 
     const chunkSize = base64ToArrayBuffer(buffer).byteLength;
-    onChunkReceived(chunkSize);  // <-- track received bytes
+    onChunkReceived(chunkSize);  //track received bytes
 
     if (!incomingFiles[id]) {
       incomingFiles[id] = {
@@ -1377,7 +1331,6 @@
 
     //handle group ACK
     if (isGroupComplete(inf, group)) {
-      //console.log(`ACK: group ${group} complete for file ${id}`);
       sendToPeer(from, "chunk-group-ack", {
         id,
         groupIndex: group,
@@ -1438,7 +1391,6 @@
 
     const meta = files[fileID];
     if (!meta) {
-      //console.error("startFileDownload: missing file", fileID);
       activeFileDownloads--;
       downloadState.delete(fileID);
       return processDownloadQueue();
@@ -1466,7 +1418,6 @@
       for (let i = 0; i < inf.totalChunks; i++) {
         const b64 = inf.buffers[i];
         if (!b64) {
-          //requestMissingChunks(id, inf.sender);
           const missing = [];
           for (let j = 0; j < inf.totalChunks; j++) {
             if (!inf.buffers[j]) missing.push(j);

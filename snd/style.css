@@ -50,7 +50,6 @@ body {
   font-weight: 300;
   font-style: normal;
   font-size: 30px;
-  /* Preferred icon size */
 }
 
 a {
@@ -93,7 +92,6 @@ h2 {
   box-shadow: var(--shadows);
   opacity: 0.5;
   cursor: pointer;
-  /* pointer-events: none; */
 }
 
 .drop>div {
@@ -105,6 +103,14 @@ h2 {
   opacity: 1;
   box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25);
   pointer-events: auto;
+}
+
+#filePicker {
+  opacity: 0;            
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;  
 }
 
 .mainWindow {
@@ -160,7 +166,6 @@ button:hover {
   max-height: 300px;
   overflow: auto;
   padding: 10px 20px 20px 20px;
-  /* padding-top:5px; */
   margin: 0px;
   margin-bottom: 10px;
   background: var(--color-mid-grey);
@@ -288,18 +293,16 @@ button:hover {
 
 .file-item.local {
   color: light-dark(var(--color-light-grey), var(--color-light-grey));
-  padding-left: 30px;
 }
 
 .file-item.remote .file-name {
   color: #1e90ff;
-  padding-left: 40px;
 }
 
 .file-name {
-  padding: 5px 20px 5px 40px;
+  padding: 5px 10px 5px 40px;
   color: light-dark(var(--color-dark-grey), var(--color-light-grey));
-  min-width: 75%;
+  min-width: 65%;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -323,12 +326,6 @@ button:hover {
   margin-left: 16px;
   width: 18px;
 }
-
-/* 
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.3s ease-out;
-} */
 
 .fade-slide-out {
   opacity: 0;
@@ -415,7 +412,6 @@ button:hover {
   display: inline-flex;
   cursor: pointer;
   color: light-dark(var(--color-light-grey), var(--color-light-grey));
-  /* background-color: light-dark(var(--color-light-bg), var(--color-dark-grey)); */
 }
 
 .toolwider {
@@ -461,11 +457,6 @@ button:hover {
   pointer-events: none;
   transition: transform ease-in-out 0.3s;
 }
-/* 
-.disable {
-  opacity: 0;
-  cursor: default;
-} */
 
 .toolmoresettings[aria-expanded="true"]::after {
   transform: rotate(180deg) translateY(50%);
@@ -538,4 +529,38 @@ button:hover {
 .hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Mobile exceptions */
+@media (max-width: 900px) {
+    #logBtn {
+        display: none;
+    }
+
+    .filterSet {
+        display: none;
+    }
+
+    #filterControls {
+        display: none;
+    }
+    .subtoolbar{
+        height:60px;
+    }
+}
+
+@media (max-width: 600px) {
+    #sortControls {
+        display: none;
+    }
+
+    .sortSet {
+        display: none;
+    }
+}
+
+@media (max-height: 430px) {
+    .subtoolbar {
+        display: none;
+    }
 }
