@@ -478,7 +478,7 @@
   });
 
   //DRAG AND DROP AND FILE ADDING HANDLING
-  addBtn.addEventListener("pointerdown", () => {
+  addBtn.addEventListener("click", () => {
     filePicker.click();
   });
   // Always handle picking files on both desktop + mobile
@@ -514,7 +514,7 @@
     filePicker.setAttribute('webkitdirectory', "");
     filePicker.setAttribute('directory', "");
 
-    dropArea.addEventListener('pointerdown', () => {
+    dropArea.addEventListener('click', () => {
       if (!firstInteraction) return;
       filePicker.click();
     });
