@@ -246,7 +246,7 @@ button:hover {
 }
 
 .folder-contents {
-  overflow: hidden;
+  /* overflow: hidden; */
   max-height: 0;
   opacity: 0;
   transform: translateY(-5px);
@@ -533,34 +533,34 @@ button:hover {
 
 /* Mobile exceptions */
 @media (max-width: 900px) {
-    #logBtn {
-        display: none;
-    }
-
-    .filterSet {
-        display: none;
-    }
-
-    #filterControls {
-        display: none;
-    }
-    .subtoolbar{
-        height:60px;
-    }
+  #logBtn {
+    display: none;
+  }
+  .largeIcon {
+    font-size: 128px;
+  }
+  .filterSet {
+    display: none;
+  }
+  #filterControls {
+    display: none;
+  }
+  .subtoolbar {
+    height: 60px;
+  }
 }
 
 @media (max-width: 600px) {
-    #sortControls {
-        display: none;
-    }
-
-    .sortSet {
-        display: none;
-    }
+  #sortControls {
+    display: none;
+  }
+  .sortSet {
+    display: none;
+  }
 }
 
 @media (max-height: 430px) {
-    .subtoolbar {
-        display: none;
-    }
+  .subtoolbar {
+    display: none;
+  }
 }
