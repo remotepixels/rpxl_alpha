@@ -109,6 +109,7 @@
   let localUUID = randomID(20);
   let firstInteraction = true;
   let downloadQueue = [];        // holds pending fileIDs
+  let wakeLock = null;
 
   const dropArea = document.getElementById('dropArea');
   const fileList = document.getElementById('fileList');
@@ -167,6 +168,7 @@
     } else {
     //  var length = 20;
       roomName = randomID(20);
+      enableWakeLock(); //if first peer, enable wakelock
       createIframe(roomName);
     }
   }
@@ -182,6 +184,37 @@
     container.appendChild(iframe);
     log('Joined room :', room);
   }
+
+  //WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
+  async function enableWakeLock() {
+    try {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {
+        console.log("Wake Lock was released");
+      });
+      //console.log("Wake Lock active");
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  }
+
+  async function disableWakeLock() {
+    if (!wakeLock) return;
+    try {
+      await wakeLock.release();
+      wakeLock = null;
+      //console.log("Wake Lock disabled");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // If the tab regains focus, re-request wake lock
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && wakeLock) {
+      enableWakeLock();
+    }
+  });
 
   //SETUP CROSS BROWSER EVENT LISTENER
   var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -277,6 +310,7 @@
       case 'request-file': {
         const fileMeta = files[payload.id];
         log(`file requested: ${fileMeta?.folderPath || ''} / ${fileMeta?.name || payload.id} from host : ${fileMeta?.uploadedBy} -> by: ${payload.requester}`);
+        enableWakeLock();
         respondToFileRequest(payload.id, payload.requester);
         break;
       }
@@ -327,7 +361,7 @@
         const { id, from } = payload;
         pausedUploads[id] = "stop";    // mark pausedUploads as stop — sendChunksToPeer will pick this up and return
         if (outgoingFiles[id]) delete outgoingFiles[id];
-        if (activeTransfers > 0) activeTransfers--;
+        if (activeFileDownloads > 0) activeFileDownloads--;
 
         log(`Receiver ${from} requested cancel for upload ${id}`);
         break;
@@ -1153,20 +1187,21 @@
 
   //////////////////////////////////////////////////////////////////////////////
   //  FILE TRANSFER ENGINE
-  const FILE_CHUNK_BYTES = 128 * 1024;  //keep under 256 for compatibility between chrome / safari / firefox
-  const GROUP_SIZE = 32;
+  const FILE_CHUNK_BYTES = 128 * 1024;  //128 seems to be upper liimit chrome / safari / firefox
+  const GROUP_SIZE = 64;             //how many chunks to send before waiting for ack 128 seems to be upper liimit
   const ACK_TIMEOUT_MS = 3000;
   const MAX_CHUNK_RETRIES = 3;
-  const CHUNK_SEND_DELAY = 2;     //delay to not flood RTC channel
-  let activeFileDownloads = 0;     // how many are running
-
+  const CHUNK_SEND_DELAY = 1;     //delay to not flood RTC channel minimum 1ms
+  let activeFileDownloads = 0;     //how many are running
+  const MAX_PARALLEL_DOWNLOADS = 6; // 
+  
   const outgoingFiles = {};
   const incomingFiles = {};
-  let activeTransfers = 0;
   const pausedDownloads = new Set(); // holds fileIDs of paused downloads
-  const MAX_PARALLEL_DOWNLOADS = 6; // 
   const pausedUploads = {};  // sender-side pause flags
-
+  const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
+  
+  
   // RECEIVER REQUESTS FILE
   function requestDownload(fileID, isFolder = false) {
 
@@ -1224,18 +1259,18 @@
       groupStatus: {}
     };
 
-    activeTransfers++;
+    activeFileDownloads++;
 
     try {
       await sendChunksToPeer(fileID, requesterStreamID);
     } catch (err) {
       sendToPeer(requesterStreamID, "file-transfer-error", {
         id: fileID,
-        message: "file-not-found on host, possibly deleted from drive but not share"
+        message: err.message || "Unknown error"
       });
     } finally {
       delete outgoingFiles[fileID];
-      activeTransfers--;
+      activeFileDownloads--;
     }
   }
 
@@ -1281,7 +1316,7 @@
     sendToPeer(targetUUID, "file-transfer-complete", { id: fileID, totalChunks });
   }
 
-  const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
+
 
   function waitForGroupAck(id, group, fromUUID) {
     return new Promise(resolve => {
@@ -1403,7 +1438,7 @@
       requester: localUUID,
       isFolder: fromFolder
     });
-
+    enableWakeLock();
     log(`Starting download: ${meta.name}`);
   }
 
@@ -1458,6 +1493,7 @@
 
       sendToPeer(inf.sender, "file-transfer-complete", { filename: filename, from: localUUID });
       markDownloadCompleted(id);
+      disableWakeLock();
 
       log(`Completed download: ${filename}`);
       if (activeFileDownloads > 0) {
