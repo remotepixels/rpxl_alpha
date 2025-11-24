@@ -133,7 +133,7 @@ hr {
     border-right:1px solid #333;
     }
 
-</style>>
+</style>
 <body>
 <div id="navbar" class="navbar">
     <a href="#top">Introduction</a>
@@ -167,7 +167,7 @@ hr {
 </div>
 <div id="Interface" class="content">
     <h1>Interface</h1>
-        <p></p><img src="interface.png" alt="Main interface"></p>'
+        <p></p><img src="interface.png" alt="Main interface"></p>
     <span class="point">1</span>
         <span class="h2">Share link</span>
         <p class="pointItem">Allows you to share a link to the session with your peers. Clicking this icon will copy the link to clipboard which you can then send via whatever method is convienient.<br>Share links are generated after you first add files and are unique for every session. </p>
@@ -201,13 +201,13 @@ hr {
     </div>
 <div id="Limitations" class="content">
     <h1>Limitations</h1>
-    <p>Being browser based there are a few limitations, file transfer speed is good, not great, this is more due to my limited understanding than anything to do with webRTC or vdoninja. If you run the browser tab in the background or minimize the window expect a performance hit, browsers throttle background tabs and this is no exception. Every peer connected to your machine will create an extra load if they are actively downloading, groups of about a dozen and under should be reasonable. Latency over Wifi can also become an issue if you’re really saturating the link, in which case we would recommend using ethernet.
+    <p>Being browser based there are a few limitations, file transfer speed is good, not great, this is more due to my limited understanding than anything to do with webRTC or vdoninja. If you run the browser tab in the background or minimize the window expect a performance hit, browsers throttle background tabs and this is no exception. Every peer connected to your machine will create an extra load if they are actively downloading, groups of about a dozen and under should be reasonable. Latency over Wifi can also become an issue if you're really saturating the link, in which case we would recommend using ethernet.
     <p>It has been tested in Chrome, Firefox and Safari, on Windows, macOs and Linux and works on both desktop and mobile. Mobile is limited that if you tab to another app or lock your device it will disconnect, but for smaller files it might still be useful.
 </div>
 <div id="Technical" class="content">
     <h1>Technical</h1>
-    <p>Everything is run through HTTPS, and webRTC is encrypted by default. We’re using vdoninjas public STUN and TURN servers for the initial handshake, after that all traffic is direct, peer to peer. The sharing key is a random 20 digit alpha-numeric (upper and lower case, case sensitive) created every time the page is loaded. I am not currently encrypting the key when copying to clipboard to send to a peer as these are meant to be for one time use and ephemeral shares.
-    <p>File chunking is simple base64, which does add significant data overhead, but it’s fast and it works and I’m not smart enough to figure out how to do it as RAW data. Same with the queue and missing chunk requests.  It works but your mileage may vary, if something is broken let me know, I’ll try sort it out. Some of the code was done with the help of AI, especially the data and file chunking as that is way above my level of skill, some of the file sorting too, as it’s approach was way simpler than my ham fisted attempt. </p>
+    <p>Everything is run through HTTPS, and webRTC is encrypted by default. We're using vdoninjas public STUN and TURN servers for the initial handshake, after that all traffic is direct, peer to peer. The sharing key is a random 20 digit alpha-numeric (upper and lower case, case sensitive) created every time the page is loaded. I am not currently encrypting the key when copying to clipboard to send to a peer as these are meant to be for one time use and ephemeral shares.
+    <p>File chunking is simple base64, which does add significant data overhead, but it's fast and it works and I'm not smart enough to figure out how to do it as RAW data. Same with the queue and missing chunk requests.  It works but your mileage may vary, if something is broken let me know, I'll try sort it out. Some of the code was done with the help of AI, especially the data and file chunking as that is way above my level of skill, some of the file sorting too, as it's approach was way simpler than my ham fisted attempt. </p>
     <p>If you find it useful feel free to use.</p>
 </div>
 <hr>
