@@ -85,6 +85,12 @@
       <h2>(or click to pick)</h2>
     </div>
   </div>
+  
+  <div style="position:absolute; right:25px; top:25px;   z-index: 101;" id="helpIcon">
+    <a href="help.html">
+      <span style="position:absolute; top:10px; right:50px; font-size: 24px;">Help</span><span class="material-symbols-outlined" style="font-size: 48px;">help</span>
+    </a>
+  </div>
 
   <!----- Copied links to clipboard ------>
   <div id="popupClipboard" class="toolpopup hidden">
@@ -159,6 +165,7 @@
       } else {
         log('SESSION ID FOUND IN URL:', roomName);
         createIframe(roomName)
+        document.getElementById('helpIcon').style.display = "none";
         document.getElementById('shareTools').style.display = "none";
         document.getElementById('dropArea').classList.add('hidden');
         document.getElementById('topmenu').classList.remove('hidden');
@@ -535,6 +542,7 @@
 
     document.getElementById('dropArea').classList.add('hidden');
     document.getElementById('dropArea').style.pointerEvents = "none";
+    document.getElementById('helpIcon').style.display = "none";
 
     document.getElementById('topmenu').classList.remove('hidden');
     document.getElementById('subToolBar').classList.remove('hidden');
@@ -586,6 +594,7 @@
 
       // Hide drop area after 1st drop
       document.getElementById('dropArea').classList.add('hidden');
+      document.getElementById('helpIcon').style.display = "none";
       document.getElementById('topmenu').classList.remove('hidden');
       document.getElementById('subToolBar').classList.remove('hidden');
 
@@ -1194,7 +1203,7 @@
   const CHUNK_SEND_DELAY = 1;     //delay to not flood RTC channel minimum 1ms
   let activeFileDownloads = 0;     //how many are running
   const MAX_PARALLEL_DOWNLOADS = 6; // 
-  
+
   const outgoingFiles = {};
   const incomingFiles = {};
   const pausedDownloads = new Set(); // holds fileIDs of paused downloads

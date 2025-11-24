@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+	<title>rpxl.app | snd - help</title>
+
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Expires" content="0"/>
+	<meta name="msapplication-TileColor" content="#2e2e2e"/>
+	<meta name="theme-color" content="#2e2e2e"/>
+	<meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+	<meta name="robots" content="index, follow"/>
+	<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<meta name="mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="icons/favicon.ico">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=tv" />
+	<link rel="stylesheet" href="style.css">
+</head>
+    
+<style>
+body {
+    margin-left: 200px;
+    padding: 0px;
+    display: flexbox;
+    position: relative;
+    width: calc(100% - 100px);
+    max-width: calc(100% - 200px);
+    height: 100%;
+    overflow: auto;
+    background-color: var(--color-mid-grey);
+    background-image: none;
+    }
+a:hover {
+    color: var(--color-light-bg); 
+}
+.content {
+    padding-bottom: 10px;
+    }
+h1 {
+	font-size: 28px;
+	font-weight: 400;
+    color: var(--color-light-bg); 
+	}
+.h2 {
+    margin-left: 15px;
+	font-size: 24px;
+	font-weight: 400;
+        color: var(--color-light-bg); 
+	}
+h3 {
+	font-size: 18px;
+	font-weight: 400;
+        color: var(--color-light-bg); 
+	}
+img {
+    position: relative;
+    left:0px;
+    padding-bottom: 0px;
+    max-width:100%;
+}
+.point {
+    display: inline-flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    font-size: 20px;
+	font-weight: 400;
+    width:20px;
+    height:10px;
+    border-radius: 5px;
+    color: var(--color-light-bg);  
+    background-color: dodgerblue;
+}
+.pointItem {
+    position: relative;
+    margin-left: 55px;
+    width:80%;
+    margin-bottom: 20px;
+}
+.navbarItem {
+    left: 0px;
+    width: 0px;
+    height: 30px;
+    padding-bottom: unset;
+    max-width: unset;
+    }
+.navbarItemDesc {
+    position: relative;
+    display: inline-block;
+    left: 10px;
+    top: -7px;
+    }
+p {
+        color: var(--color-light-bg); 
+    width:90%;
+    margin-bottom: 30px;
+}
+br {
+    margin-bottom: 30px;
+}
+hr {
+    margin: 20px;
+    width:90%;
+    border: 1px solid var(--color-light-grey);
+}
+#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0px;
+    padding-left: 20px;
+    padding-top: 60px;
+    padding-right: 20px;;
+    width: 150px;
+    height: 100%;
+    z-index: 100;
+    display: block;
+    text-align: right;
+    justify-content: center;
+    align-items: center;
+    border-right:1px solid #333;
+    }
+
+</style>>
+<body>
+<div id="navbar" class="navbar">
+    <a href="#Details">Details</a>
+    <p></p>
+    <a href="#Limitations">Limitations</a>
+    <p></p>
+    <a href="#Interface">Interface</a>
+    <p></p>
+    <a href="#Technical">Technical</a>
+    <p></p>
+    <a href="#Links">Links</a>
+</div>
+
+<div class="content">
+    &nbsp;
+    <h1>Browser based, peer to peer file sharing</h1>
+    <p>In short, SND is a browser based, peer to peer, file sharing app. Load the page in your browser, select files to share and send the link to anyone to allow them to download the files directly from your machine. Peers can download or share their own files. Transfers are encrypted and secure. Files remain shared as long as the peer is connected.</p>
+    <p>No installation, no signups.</p>
+    <p>Watch the short video bellow for a quick demonstration.</p>
+    <video width="720" height="480" controls style="width:90%"><source src="snd.mp4" type="video/mp4">Your browser does not support the video tag.</video>    
+</div>
+<hr>
+<div id="Details" class="content">
+    <h1>Details</h1>
+    <p>Came across the excellent, vdoninja project by Steve Seguin some time ago. It allows very clever video and file handling through WebRTC. Have been fiddling with it for some time and created a simple file sharing app that uses vdoninja to handle the webRTC back end.</p>
+    <p>Runs in the browser, is simple javascript, nothing to install or download. Simply drag individual or multiple files or folders to the browser window and that will generate a share key which you can send to peers to allow them access to those files.</p>
+    <p>Peers can only download shared files or folders, they can not edit them in place or delete them. Peers can also share files to the same link (by either dragging on to the browser window or using the add files button) and these will be available to all other others peers connected. </p>
+    <p>Remote files are displayed in blue, local files in grey. You can filter files by, all, remote or local. You can also sort files by either name or latest. If you delete a file from the share it will disappear for all peers but will remain on your local drive. You can only remove files you have shared. Downloads can be started or cancelled, not resumed, but there is a queueing system to download multiple files or entire directories. Unlike torrents, partial downloads are not shared between peers and if a peer disconnects all their shares are removed.</p>
+</div>
+<div id="Interface" class="content">
+    <h1>Interface</h1>
+        <p></p><img src="interface.png" alt="Main interface"></p>'
+    <span class="point">1</span>
+        <span class="h2">Share link</span>
+        <p class="pointItem">Allows you to share a link to the session with your peers. Clicking this icon will copy the link to clipboard which you can then send via whatever method is convienient.<br>Share links are generated after you first add files and are unique for every session. </p>
+        <span class="point">2</span>
+    <span class="h2">Add files</span>
+        <p class="pointItem">Open a browser file picker to add more files. <br> On desktop you can select mutliple files or folders to share but on mobile you can only share files.</p>
+    <span class="point">3</span>
+        <span class="h2">Connected users</span>
+        <p class="pointItem">Shows the number of peers currently connected to you</p>
+    <span class="point">4</span>
+    <span class="h2">Filter</span>
+        <p class="pointItem">Filter files by, all, local (files you have shared) or remote (files other peers have shared).</p>
+    <span class="point">5</span>
+        <span class="h2">Sort</span>
+        <p class="pointItem">Sort files alpabeticaly or by latest files first</p>
+    <span class="point">6</span>
+        <span class="h2">Log window</span>
+        <p class="pointItem">Open and close the log window for any more information on file transfers, requests or peers</p>
+    <span class="point">7</span>
+        <span class="h2">Transfer speeds</span>
+        <p class="pointItem">Will display Dowload and upload speeds if you are transfering any files.</p>
+    <span class="point">8</span>
+        <span class="h2">Local files (black)</span>
+        <p class="pointItem">Localy shared files (files shared by you) are displayed in black with their file sizes.<br>
+            You can remove them either individualy or a by folder by using the trash icon.</p>
+    <span class="point">9</span>
+        <span class="h2">Remote files (blue)</span>
+        <p class="pointItem">Files shared by other peers will appear in blue along with their size.<br>
+            Click on a folder to expand or collapse it.<br>
+            You can download them either individualy or a by folder by using the download icon.</p>
+    </div>
+<div id="Limitations" class="content">
+    <h1>Limitations</h1>
+    <p>Being browser based there are a few limitations, file transfer speed is good, not great, this is more due to my limited understanding than anything to do with webRTC or vdoninja. If you run the browser tab in the background or minimize the window expect a performance hit, browsers throttle background tabs and this is no exception. Every peer connected to your machine will create an extra load if they are actively downloading, groups of about a dozen and under should be reasonable. Latency over Wifi can also become an issue if you’re really saturating the link, in which case we would recommend using ethernet.
+    <p>It has been tested in Chrome, Firefox and Safari, on Windows, macOs and Linux and works on both desktop and mobile. Mobile is limited that if you tab to another app or lock your device it will disconnect, but for smaller files it might still be useful.
+</div>
+<div id="Technical" class="content">
+    <h1>Technical</h1>
+    <p>Everything is run through HTTPS, and webRTC is encrypted by default. We’re using vdoninjas public STUN and TURN servers for the initial handshake, after that all traffic is direct, peer to peer. The sharing key is a random 20 digit alpha-numeric (upper and lower case, case sensitive) created every time the page is loaded. I am not currently encrypting the key when copying to clipboard to send to a peer as these are meant to be for one time use and ephemeral shares.
+    <p>File chunking is simple base64, which does add significant data overhead, but it’s fast and it works and I’m not smart enough to figure out how to do it as RAW data. Same with the queue and missing chunk requests.  It works but your mileage may vary, if something is broken let me know, I’ll try sort it out. Some of the code was done with the help of AI, especially the data and file chunking as that is way above my level of skill, some of the file sorting too, as it’s approach was way simpler than my ham fisted attempt. </p>
+    <p>If you find it useful feel free to use.</p>
+</div>
+<hr>
+<div id="Links" class="content">
+    <h1>Links</h1>
+    <a href="https://github.com/remotepixels/rpxl/blob/d9e6b5dc85eff4fab7715c497ff6b66ee151578c/snd/index.html">SND source, hosted on github.<a> <br>
+    <a href="https://github.com/steveseguin/vdo.ninja">vdoninja source, hosted on github</a><br>
+    <a href="https://vdo.ninja">vdoninja main site</a><br>
+    <a href="https://rpxl.com">rpxl main site</a><br>
+</div>
+
+</body>
+</html>
+
