@@ -24,30 +24,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
   <title>RPXL | SND</title>
 </head>
 
 <body>
   <div id="mainWindow" class="mainWindow">
     <div id="topmenu" class="toolbar top hidden">
-      <div class="toolset" id="shareTools">
-        <button class="tool" id="shareBtn" aria-expanded="false" role="button"><span
-            class="material-symbols-outlined">ios_share</span></button>
-      </div>
-      <div class="toolset" id="addTools">
-        <button class="tool" id="addBtn" aria-expanded="false" role="button"><span
-            class="material-symbols-outlined">playlist_add</span></button>
-        <input id="filePicker" type="file" multiple>
-      </div>
+      <div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
+      <div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">playlist_add</span></button><input id="filePicker" type="file" multiple></div>
       <div class="toolspacer"></div>
-      <div class="toolset">
-        <span class="tool toolwider">Peers : <span id="peersList">(0)</span></span>
-      </div>
+      <div class="toolset"><span class="tool toolwider">Peers : <span id="peersList">(0)</span></span></div>
       <div class="toolspacer"></div>
-      <div class="toolset">
-        <button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span
-            class="material-symbols-outlined">terminal</span></button>
-      </div>
+      <div class="toolset"><button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">terminal</span></button></div>
     </div>
 
     <div class="logAndFiles">
@@ -57,16 +46,10 @@
         <span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
         <span class="toolspacer"></span>
         <span id="filterControls">Show &nbsp;&nbsp;&nbsp;</span>
-        <span class="subToolSet filterSet">
-          <button id="filterAll" class="active subTool">All</button><button id="filterLocal"
-            class="subTool">Local</button><button id="filterRemote" class="subTool">Remote</button>
-        </span>
+        <span class="subToolSet filterSet"><button id="filterAll" class="active subTool">All</button><button id="filterLocal" class="subTool">Local</button><button id="filterRemote" class="subTool">Remote</button></span>
         <span class="toolspacer"></span>
         <span id="sortControls">Sort by &nbsp;&nbsp;&nbsp;</span>
-        <span class="subToolSet sortSet">
-          <button id="sortByTime" class="active subTool">Latest</button><button id="sortByName"
-            class="subTool">Name</button>
-        </span>
+        <span class="subToolSet sortSet"><button id="sortByTime" class="active subTool">Latest</button><button id="sortByName" class="subTool">Name</button></span>
       </div>
 
       <div class="file-list" id="fileList">
@@ -87,17 +70,13 @@
   </div>
   
   <div style="position:absolute; right:25px; top:25px;   z-index: 101;" id="helpIcon">
-    <a href="help.html">
-      <span style="position:absolute; top:10px; right:50px; font-size: 24px;">Help</span><span class="material-symbols-outlined" style="font-size: 48px;">help</span>
-    </a>
+    <a href="help.html"><span style="position:absolute; top:10px; right:50px; font-size: 24px;">Help</span><span class="material-symbols-outlined" style="font-size: 48px;">help</span></a>
   </div>
 
   <!----- Copied links to clipboard ------>
   <div id="popupClipboard" class="toolpopup hidden">
     <div class="material-symbols-outlined largeIcon">assignment_turned_in</div>
-    <div>
-      <h1>Link copied to clipboard</h1>
-    </div>
+    <div><h1>Link copied to clipboard</h1></div>
   </div>
 </body>
 </html>
@@ -173,7 +152,6 @@
         return;
       }
     } else {
-    //  var length = 20;
       roomName = randomID(20);
       enableWakeLock(); //if first peer, enable wakelock
       createIframe(roomName);
@@ -197,7 +175,7 @@
     try {
       wakeLock = await navigator.wakeLock.request("screen");
       wakeLock.addEventListener("release", () => {
-        console.log("Wake Lock was released");
+       //console.log("Wake Lock was released");
       });
       //console.log("Wake Lock active");
     } catch (err) {
@@ -279,7 +257,6 @@
         log(`Received file meta : ${payload.folderPath} / ${payload.name} - from ${payload.uploadedBy}`);
         break;
       }
-
       case 'file-removed': {
         const id = payload.id;
         const file = files[id];
@@ -292,7 +269,6 @@
         }
         break;
       }
-
       case 'directory-removed': {
         const path = payload.path;
         log(`Directory removed remotely: ${path}`);
@@ -313,7 +289,6 @@
         cleanupEmptyFolders(path);
         break;
       }
-
       case 'request-file': {
         const fileMeta = files[payload.id];
         log(`file requested: ${fileMeta?.folderPath || ''} / ${fileMeta?.name || payload.id} from host : ${fileMeta?.uploadedBy} -> by: ${payload.requester}`);
@@ -321,49 +296,39 @@
         respondToFileRequest(payload.id, payload.requester);
         break;
       }
-
       case 'file-chunk': {
         handleIncomingChunk(payload);
         break;
       }
-
       case "chunk-group-ack": {
         //console.log("ACK received for group", payload.groupIndex, "file", payload.id);
         handleChunkGroupAck(payload); 
         break;
       }
-
       case 'request-missing': {
-        // If we're the sender and have the file, resend those indices
         if (outgoingFiles[payload.id]) {
           try {
             handleRequestMissing(payload)
-            console.log("Requesting missing chunks")
-            //await sleep(CHUNK_SEND_DELAY);
+            //console.log("Requesting missing chunks")
           } catch (err) {
             console.error('Failed resend chunk', idx, err);
           }
         }
         break;
       }
-
       case "file-transfer-complete": {
         const { from, filename } = payload;
         log(`Received file-transfer-complete from ${from} → ${filename}`);
-        console.log(payload)
         break;
       }
-
       case 'file-not-found': {
         log('Peer reports file not found:', payload.id);
         break;
       }
-
       case 'file-transfer-error': {
         log('Peer transfer error:', payload.message);
         break;
       }
-
       case "stop-download": {
         const { id, from } = payload;
         pausedUploads[id] = "stop";    // mark pausedUploads as stop — sendChunksToPeer will pick this up and return
@@ -373,10 +338,8 @@
         log(`Receiver ${from} requested cancel for upload ${id}`);
         break;
       }
-
       default:
         console.warn('Unhandled dataType', dt, payload);
-
     }
   }, false);
 
@@ -412,7 +375,6 @@
         break;
       }
       default:
-      //don't log other messages from vdo.ninja (viewstats etc.)
       //console.warn('Unhandled connection action', data.action);
     }
   }
@@ -457,7 +419,6 @@
     for (const id of toRemove) {
       const fileMeta = files[id];
       const folderPath = fileMeta.folderPath; // save for cleanup
-
       delete files[id];      // Remove from files object
 
       // Remove from DOM
@@ -468,7 +429,7 @@
     }
   }
 
-  //INTERFACE BUTTONS
+  //INTERFACE
   //share
   shareBtn.addEventListener('pointerdown', () => {
     navigator.clipboard.writeText(`${devURL}/snd/?SID=${roomName}`);
@@ -712,9 +673,7 @@
 
     debouncedRerender();  // update UI
     log(`Added: ${relativePath} (${formatBytes(file.size)})`);
-
-    // Notify peers
-    sendFile(id);
+    sendFile(id);    // Notify peers
   }
 
   //SEND FILE (TO PEER OR BROADCAST)
@@ -839,7 +798,6 @@
   //BUILDS THE FILE TREE
   function renderTreeItem(f) {
     const isReceiver = f.uploadedBy !== localUUID; // true if file came from another peer
-
     const treeRoot = document.getElementById('fileList');
     const pathParts = f.folderPath ? f.folderPath.split('/') : [];
     let currentContainer = treeRoot;
@@ -993,8 +951,8 @@
 
     const folderPath = file.folderPath || '';
     delete files[id];
-
     const el = document.querySelector(`.file-item[data-id="${id}"]`);
+
     if (el) await removeElementWithFade(el);
 
     log(`Deleted file : / ${folderPath} / ${file.name}`);
@@ -1203,13 +1161,11 @@
   const CHUNK_SEND_DELAY = 1;     //delay to not flood RTC channel minimum 1ms
   let activeFileDownloads = 0;     //how many are running
   const MAX_PARALLEL_DOWNLOADS = 6; // 
-
   const outgoingFiles = {};
   const incomingFiles = {};
   const pausedDownloads = new Set(); // holds fileIDs of paused downloads
   const pausedUploads = {};  // sender-side pause flags
   const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
-  
   
   // RECEIVER REQUESTS FILE
   function requestDownload(fileID, isFolder = false) {
@@ -1233,7 +1189,6 @@
       }
       return;
     }
-
     //SINGLE FILE DOWNLOAD
     const meta = files[fileID];
     if (!meta) return log("requestDownload: no such file");
@@ -1324,8 +1279,6 @@
     }
     sendToPeer(targetUUID, "file-transfer-complete", { id: fileID, totalChunks });
   }
-
-
 
   function waitForGroupAck(id, group, fromUUID) {
     return new Promise(resolve => {
@@ -1515,6 +1468,7 @@
   async function handleRequestMissing(payload) {
     const { id, missing } = payload;
     const of = outgoingFiles[id];
+    
     if (!of) return;
 
     const file = of.file;

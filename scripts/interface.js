@@ -1,8 +1,8 @@
-
-//toolbar code
+//toolbar and ui
 var openModal = "";
 var openIcon = "";
 
+const toolHistory = document.getElementById("toolHistory");
 const toolShare = document.getElementById("toolShare");
 const toolQuit = document.getElementById("toolQuit"); 
 const toolSettings = document.getElementById("toolSettings");
@@ -15,11 +15,14 @@ const toolMuteMicrophone = document.getElementById("toolMuteMicrophone");
 const toolMuteCamera = document.getElementById("toolMuteCamera");
 
 
+if (toolHistory) { toolHistory.addEventListener("pointerdown", function () { loadHistoryIntoDialog(); });}
+
 if (toolShare) { toolShare.addEventListener("pointerdown", function () { openDialog(shareDialog, toolShare); });}
 if (toolQuit) { toolQuit.addEventListener("pointerdown", function () { openDialog(quitDialog, toolQuit); });}
 
 if (toolSettings) { toolSettings.addEventListener("pointerdown", function () { 
-    recalSelectedDevices(); //from initui.js - reset settings dialog to current selected devices
+    if (APP_NS == "host-Alpha-RPXL") {  restoreSettingsHost(); }
+    if (APP_NS == "client-Alpha-RPXL") {  restoreSettingsClient(); }
     openDialog(settingsDialog, toolSettings); });
 }
 
@@ -54,27 +57,29 @@ function openDialog (dialog, toolIcon) {
     openIcon = toolIcon;
 }
 
-function closeDialog (dialog, toolIcon) {
+function closeDialog(dialog, toolIcon) {
+    if (!dialog) return; // safety check
+
     document.getElementById("popupBG").classList.add("hidden");
+
     dialog.classList.add("hidden");
-    dialog.close();
-    toolIcon.setAttribute("aria-expanded", "false"); 
-    toolIcon.classList.remove("selected"); 
+    if (typeof dialog.close === "function") dialog.close();
+    if (toolIcon) {
+        toolIcon.setAttribute("aria-expanded", "false");
+        toolIcon.classList.remove("selected");
+    }
+
     openModal = "";
     openIcon = "";
 }
 
+//clicking the background
 window.addEventListener("pointerdown", function(e) {
-    if (e.target.matches("div#popupBG")) {
-        openModal.close();
-        openModal.classList.add("hidden");
-        openIcon.setAttribute("aria-expanded", "false"); 
-        openIcon.classList.toggle("selected"); 
-        document.getElementById("popupBG").classList.add("hidden");
-        openModal = "";
-        openIcon = "";
+    if (e.target.matches("#popupBG")) {
+        closeDialog(openModal, openIcon);
     }
 });
+
 //main stream mute and volume
 function toolMuteStreamSelect () {
     if (toolMuteStream.getAttribute("aria-expanded") == "false") {

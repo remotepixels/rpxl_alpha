@@ -54,20 +54,11 @@ body {
     background-size: 100%;
     overflow: auto;
 }
-/* @media (prefers-color-scheme: dark) {
-    body {
-        background-image: url(../images/background-dark.jpg); 
-    }
-}
-@media (prefers-color-scheme: light) {
-    body {
-        background-image: url(../images/background-light.jpg);
-    }
-} */
 
 hr {
-    margin: 10px 0px;
+    margin: 5px 0px;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+    opacity: 1;
 }
 h2 {
     position: relative;
@@ -99,17 +90,19 @@ dialog {
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     z-index: 10;
     box-shadow: var(--shadows);
-    transition: opacity 0.3s ease;
+
 } 
 dialog::backdrop {
   background: var(--color-mid-grey);
 }
 dialog:open {
   opacity: 1;
+transition: opacity 0.2s ease;
 }
 @starting-style {
   dialog:open {
     opacity: 0;
+    transition: opacity 0.2s ease;
   }
 }
 /*table styles shared*/
@@ -125,6 +118,7 @@ dialog:open {
     flex: 1; /* makes both columns flexible */
     text-align: left;
     align-content: center;
+    /* border: 1px solid black; */
 }
 
 .meter{
@@ -136,7 +130,7 @@ dialog:open {
     width: 100%;
     height: 0px;
     bottom:0px;
-    transition: height 0.05s ease;
+    transition: height 0.1s ease;
 }
 
 /*Iframe settings for the main content area*/
@@ -164,10 +158,11 @@ iframe {
 	overflow-y: auto;
     overflow-x: hidden;
     z-index:1;
+    box-shadow: var(--shadows);
 }
 .viewersiframe:hover {
 	width:300px;
-	box-shadow: 0 0 100px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadows);
     transition-timing-function: ease;
     transition: 150ms;
 }
@@ -182,7 +177,7 @@ iframe {
     padding: 5px 15px;
     height: var(--button-height);
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
+    /* border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey)); */
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 
@@ -195,11 +190,26 @@ button {
     margin-right:auto;
     display: block;
     border-radius: var(--radius-big);
-    border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+    /* border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey)); */
     cursor: pointer;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
+.buttonmoresettings::before {
+    position: absolute;
+    content: "";
+    top: 1px;
+    right: 0px;
+    width: 28px;
+    height: calc(var(--button-height) - 4px);
+    border:0px;
+    border-left: 1px solid light-dark(var(--color-light-bg), var(--color-dark-grey));
+    /* background-color: light-dark(var(--color-light-white), var(--color-mid-grey)); */
+    border-top-right-radius: var(--radius-big);
+    border-bottom-right-radius: var(--radius-big);;
+    pointer-events: none;
+}
+
 .selected, .buttonmoresettings:hover {
     color: light-dark(var(--color-dark-grey), var(--color-light-white))!important;
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey))!important;
@@ -213,7 +223,7 @@ button {
     background-color: dodgerblue;
 }
 .buttonWider {
-      width:240px;  
+      width:235px;  
     /* padding: 0px 80px 0px 80px; */
 }
 
@@ -240,7 +250,7 @@ select:hover, select:active{
     color: light-dark(var(--color-dark-bg), var(--color-light-white));
 }
 /*add divider before dropdown arrow*/
-.custom-select::before, .buttonmoresettings::before {
+.custom-select::before {
     position: absolute;
     content: "";
     top: 1px;
@@ -334,21 +344,39 @@ label:has([type=colorpot]:checked) {
     top: 0px;
 }
 .toolbar.bottom {
-    height:70px;
+    height:80px;
     bottom:0px;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
     bottom: 0px;
     /* padding-bottom: env(safe-area-inset-bottom); */
 }
 .toolset {
     border-radius: var(--radius-big);
-    outline: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey));
+    /* outline: var(--border-width) solid light-dark(var(--color-light-white), var(--color-mid-grey)); */
     overflow: hidden;
     width: fit-content;
     height: var(--button-height);
     margin: 5px;
 }
+.toolbar-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
+.toolbar-section.left {
+    flex: 1;
+}
+
+.toolbar-section.center {
+    flex: 1;                 /* does not stretch */
+    justify-content: center;  /* center contents */
+}
+
+.toolbar-section.right {
+    flex: 1;
+    justify-content: flex-end;
+}
 
 /*flexible spacer for gaps between tool sets*/
 .toolspacer {
@@ -421,6 +449,7 @@ label:has([type=colorpot]:checked) {
     color: light-dark(var(--color-light-grey), var(--color-mid-grey));
     background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
     cursor: default;
+    pointer-events: none;
 }
 .toolmoresettings[aria-expanded="true"]::after {
     transform: rotate(180deg) translateY(50%);
@@ -467,6 +496,7 @@ input[type="range"]::-webkit-slider-thumb {
     top:0;
     left:0;
     z-index: 9;
+    /* background-color: rgba(0,0,0,0.5); */
 }
 
 /*popup windows for setting, share and color palette*/
@@ -479,7 +509,7 @@ input[type="range"]::-webkit-slider-thumb {
     top: calc(15px + var(--button-height));
 }
 .toolpopup.bottom {
-    bottom: calc(35px + var(--button-height));
+    bottom: calc(45px + var(--button-height));
 }
 .toolpopup.right {
     right: 5px;
@@ -534,13 +564,13 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 0px;
     width: 30px;
     height: 30px;
-    margin: 5px;
-    border-radius: var(--radius-small);
+    margin: 0px 15px 0px 15px;
+    border-radius: 50%;
     cursor: pointer;
 }
 .selectedcolorpot, .colorpot:hover  {
-    outline: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-mid-grey));
-    outline-offset: 5px;
+    outline: var(--border-width) solid light-dark(var(--color-light-grey), var(--color-light-grey));
+    outline-offset: 4px;
 }
 .share {
   padding: 5px;
@@ -567,6 +597,11 @@ input[type="range"]::-webkit-slider-thumb {
     border:0px solid var(--color-light-bg);
     padding:10px 60px;
     background-color: var(--color-red);
+    top: 10px !important;
+
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none; /* so it's not clickable when hidden */
 }
 .notification {
     position:relative!important;
@@ -575,6 +610,11 @@ input[type="range"]::-webkit-slider-thumb {
     justify-items: center;
     border:0px solid var(--color-light-bg);
     padding:10px 60px;
+    top: 10px !important;
+    
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none; /* so it's not clickable when hidden */
 }
 /*for tool tips use  data-tooltip="Generate new random ID" in HTML tag, not currently active*/
 [data-tooltip]:hover::after {
@@ -590,15 +630,22 @@ input[type="range"]::-webkit-slider-thumb {
   }
 .copyCredit {
     position:fixed; 
-    display:inline-block; 
-    bottom:0px;
-    width:100%;
-    font-size: 14px;
+    font-size: 14px!important;
+    z-index:2;
+    cursor: pointer;
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(to right, 
+        light-dark(var(--color-light-bg), var(--color-dark-grey)),
+        light-dark(var(--color-light-bg), var(--color-dark-grey)), 
+        light-dark(var(--color-light-white), var(--color-mid-grey)), 
+        light-dark(var(--color-light-bg), var(--color-dark-grey)), 
+        light-dark(var(--color-light-bg), var(--color-dark-grey))) 1;
+    height: 28px;
+    bottom: 0px;
+    width: 100%;
     color: light-dark(var(--color-light-grey), var(--color-light-grey));
     text-align: center;
-    margin-bottom: 5px;
-    padding: 0px;
-    z-index:2;
+    padding: 5px;
 }
 /* Zoom popup when zooming stream */
 #zoom-popup {
@@ -613,7 +660,7 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 14px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
     z-index: 1000;
 }
 #zoom-popup.visible {
@@ -646,7 +693,10 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* hide elements - must be last to over ride other styles*/
 .hidden {
-    display:none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none; /* so it's not clickable when hidden */
+    display: none;
 }
 canvas, .mainZoom {
   touch-action: none;

@@ -27,11 +27,10 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/mobilestyle.css">
 
-    <title>alpha.rpxl.app v3 (beta)</title>
+    <title>alpha.rpxl.app v3.5 (beta)</title>
 </head>
 
 <body id="body">
-        
     <div id="shmeg" class="shmeg">
         <div class="siteHeader">
             <div class="text">
@@ -113,10 +112,9 @@
         </div>
     </div>
 
-
     <!--iframes for vdo ninja and annotations canvas-->
     <div id="viewerMobile" class="">
-        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>
+        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;screen-wake-lock;"></iframe>
     </div>
 
     <div class="mainZoom hidden" id="zoomdiv">
@@ -126,38 +124,36 @@
 
     <!--Main interface-->
     <div id="mainWindow" class="hidden">
-        <!--top menu bar-->
-        <!-- <div id="topmenu" class="toolbar top">	
-            <div style="width:20px"></div>
-            <h3 id="sessionTitle">RPXL</h3>&nbsp;<h3 id="sessionID">RPXL</h3>
-            <div class="toolspacer"></div>           
-            <div class="toolset">
-                <a href="https://vdo.ninja" target="_blank" style="text-decoration: none">
-                    <button class="botton buttonblue" id="vdoninja">&nbsp;&nbsp;Powered by vdo.ninja&nbsp;&nbsp;</button>
-                </a>
-            </div>
-        </div> -->
-        <!--bottom menu bar-->
         <div id="bottomMenu" class="toolbar bottom">
-            <div class="toolset">
-                <button class="tool toolmoresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+            <div class="toolbar-section left">
+                <div class="toolset">
+                    <button class="tool toolmoresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+                </div>
+                <div id="micCamControls" class="toolset">
+                    <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
+                    <button class="tool disable" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+                </div>
             </div>
-            <div id="micCamControls" class="toolset toolspacer">
-                <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
-                <button class="tool disable" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+            <div class="toolbar-section center">
+                <div class="toolset" id="toolAnnotations">
+                    <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                    <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                    <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                </div>
+
             </div>
-            <div class="toolset" id="toolAnnotations">
-                <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
-                <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
-            </div>
-            <div class="toolspacer"></div>
-            <div class="toolset"><button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>   
-                <span class="volume streamtool" role="button"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
+            <div class="toolbar-section right">
+                <div class="toolset toolspacer">
+                    <button class="tool toolmoresettings disable" aria-expanded="false" id="toolFiles" disabled role="button"><span class="material-symbols-outlined">folder</span></button>
+                </div>
+                <div class="toolset">
+                    <button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>   
+                    <span class="volume streamtool" role="button"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" disabled class="streamtool disable"></span>        
+                </div>
             </div>
         </div>
         <div>
-            <h3 class="copyCredit">Powered by vdo.ninja</h3>
+            <a href=https://vdo.ninja target="_blank" class="copyCredit">powered by vdo.ninja</a>
         </div>
     </div>
 
@@ -171,11 +167,11 @@
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
             </div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div>
-            <div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
+            <div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off" ></div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource"><option value="" disabled>None</option></select></div>
             <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource"><option value="" disabled>None</option></select></div>
-            <div></div><div></div>
-            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Join live session</button></div>
+            <div style="grid-column: 1 / span 2; height:5px;"></div>
+            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton buttonblue buttonWider">Join</button></div>
         </div>
         <!-- duplicate elements not used (so use same logic in stream and client) -->
         <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
@@ -223,106 +219,128 @@
 </html>
 
 <script src="scripts/deviceselect.js"></script>
-<script src="scripts/cookies.js"></script>  <!-- check and store cookies -->
 <script src="scripts/initui.js"></script>
 <script src="scripts/initvdo.js"></script>
 <script src="scripts/interface.js"></script>
 <script src="scripts/annotations.js"></script>
 
 <script lang="javascript">
-localStorage.clear(); //clear local storage on load to avoid issues with old settings
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+const APP_NS = 'client-Alpha-RPXL';
+const devURL = window.location.origin;
 
 randomBG (); //initui.js
-checkSessionURL ()
+checkSessionURL ();
+ 
+document.getElementById("checkLogin").addEventListener("pointerdown", setupSession);
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        setupSession();
+    }
+});
 
-document.getElementById("checkLogin").addEventListener("pointerdown", setupSession);//User, camera and microphone dialogue window submit button and enter actions (run setupSession())
-document.getElementById("name").addEventListener("keypress", function(event) {
-	if (event.key === "Enter") {
-		event.preventDefault();        //stop form submitting before we check values
-		document.getElementById("checkLogin").click();
-		}
-	});
+function checkSessionURL() {
+    const SID_REGEX = /^[A-Za-z0-9]{20}$/;
+    const params = new URLSearchParams(window.location.search.slice(1));
 
-function checkSessionURL () {
-        const queryURL = window.location.search.slice(1);
-        let decodeURL;
+    if (!params.has('SID')) return;
 
-        try {
-            decodeURL = window.atob(queryURL); 
-                // Throws DOMException if invalid characters
-            } catch (error) {
-            if ((error instanceof URIError) || (error instanceof DOMException && error.message.includes("invalid character")) || (error instanceof TypeError)) {
-                alert("Invalid Session ID provided in URL.\n\nIf you are seeing this the link supplied has been corrupted or is incomplete.\n\nPlease check with the sender.");
-            } else {
-                console.error("Unexpected error:", error);
-            }
-        }
+    const SID = params.get('SID');
 
-        const params = new URLSearchParams(decodeURL);
-        if (params.has('SID')) {
-            const SID = params.get('SID');
-            const sanitizedSessionID = encodeURIComponent(SID); 
-            
-            if (!sanitizedSessionID || sanitizedSessionID.length !== 9) {
-                console.log('INCORRECTLY FORMATED SESSION ID');
-                return;
-            } else {
-                getDevices().then(() => {
-                [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
-                    sel.addEventListener('change', handleSelectionChange);
-                    });
-                });
+    // Validate strictly: only letters & numbers, exactly 20 chars
+    if (!SID_REGEX.test(SID)) {
+        alert('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.');
+        return;
+    }
 
-                checkCookie("username", "camera", "mic"); //cookies.js
-                sessionStorage.setItem("sessionID", sanitizedSessionID);    //store the sanitized session ID for later
+    sessionStorage.setItem("sessionID", SID); //store temporarily in session storage
+    shmeg.classList.add("hidden");
 
-                shmeg.classList.add("hidden");
-                settingsDialog.classList.remove("hidden");
-                settingsDialog.show();
-                //document.getElementById("sessionID").innerHTML = "("+sanitizedSessionID+")";
+    getDevices().then(() => {
+        [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect]
+            .forEach(sel => sel.addEventListener('change', handleSelectionChange));
+    });
 
-                document.getElementById("name").focus();
-                if (params.has('PN')) {
-                    const PN = params.get('PN') || "RPXl";
-                    const decodePN = decodeURI(PN);
-                    console.log('Name parameter exists',decodePN);
-                    //document.getElementById("sessionTitle").innerHTML = decodePN;
-                }                
-            }
-        }      
+    const previousSettingsJSON = localStorage.getItem(APP_NS);
+    if (!previousSettingsJSON) {
+        console.log("No previous settings found in localStorage");
+        settingsDialog.classList.remove("hidden");
+        settingsDialog.show();
+
+        requestAnimationFrame(() => {
+            document.getElementById("name").focus();
+        });
+    } else {
+        const settings = JSON.parse(previousSettingsJSON);
+        const last = settings[0];
+
+        console.log(`Restoring settings from localStorage`);
+        document.getElementById("name").value = decodeURIComponent(last.userName);
+    
+        getDevices().then(() => {
+            restoreDeviceSelection("cameraSource", last.cameraSource);  //from initui.js
+            restoreDeviceSelection("microphoneSource", last.microphoneSource);
+        });
+
+        //await handleSelectionChange(); //from deviceselet.js
+
+        settingsDialog.classList.remove("hidden");
+        settingsDialog.show();
+
+        requestAnimationFrame(() => {
+            document.getElementById("name").focus();
+        });
+    }
 }
-
 //check that the user has entered a name
 function setupSession() {
-    const nameInput = document.getElementById("name");
-
-    let username = nameInput.value.trim();
-    sanitizedUserName = encodeURIComponent(username); 
+    const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
+    const cameraSource = document.getElementById("cameraSource").selectedOptions[0].value;
+    const microphoneSource = document.getElementById("microphoneSource").selectedOptions[0].value;
 
     if (!sanitizedUserName) {           //if no username flash and select;
-        nameInput.style.animation = "pulse 500ms";
-        setTimeout(() => { nameInput.style.animation = "none"; }, 500);
-        nameInput.focus();
+        document.getElementById("name").focus();
+        document.getElementById("name").style.animation = "pulse 500ms";
+        setTimeout(() => { document.getElementById("name").style.animation = "none"; }, 500);
         return;
     } else {         //hide the user, camera and microphone dialog
         settingsDialog.close(); 
         ["settingsDialog", "popupBG", "shmeg"].forEach(id => {
             document.getElementById(id).classList.add("hidden");
-        });    
-        document.getElementById("mainWindow").classList.remove("hidden");      
+        }); 
+
         document.body.style.backgroundImage = "none";
-        
-        sessionStorage.setItem("director", "false");        
-        sessionStorage.setItem("username", sanitizedUserName);
+
+        const numberArray = Array.from({ length: 43 }, (_, i) => String(i).padStart(3, '0'));
+        const randomNum = numberArray[Math.floor(Math.random() * numberArray.length)];
+        var avatar = `${randomNum}.png`;
+        sessionStorage.setItem("avatar", avatar);
+
+        stopAll();
+
+        const entry = {
+            userName: sanitizedUserName || "",
+            cameraSource: cameraSource || "",
+            microphoneSource: microphoneSource || ""
+        };
+
+        const sessionsJSON = localStorage.getItem(APP_NS);
+        let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
+        sessions.unshift(entry);
+
+        sessions = sessions.slice(0, 1); //just keep last session (use this format so re-use logic from stream can be used)
+
+        localStorage.setItem(APP_NS, JSON.stringify(sessions));
 
         //change login dialog layout (remove camera preview)
         document.getElementById("settingsDialog").classList.remove("top", "middle");        
         document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
         document.getElementById("camPreview").style.display = "none";
         document.getElementById("checkLogin").innerHTML = "Change settings";
-        checkLogin.removeEventListener("pointerdown", setupSession);    // Remove start session listener and add settings change listener
-        
+
+        checkLogin.removeEventListener("pointerdown", setupSession);    // Remove start session listener and add settings change listener 
+
         // Events to allow zooming in of stream
         window.addEventListener("wheel", onWheel, { passive: false });
         window.addEventListener("pointerdown", onMouseDown);
@@ -332,8 +350,10 @@ function setupSession() {
         checkLogin.addEventListener("pointerdown",() => {
             viewerStream() ; //from initvdo.js
         });
-
-        viewerStream(); //from initvdo.js
+        
+        document.getElementById("mainWindow").classList.remove("hidden");   
+        
+        viewerStream(1); //from initvdo.js
         setTimeout(function(){   
             viewMainStream();//from initvdo.js
         },250);

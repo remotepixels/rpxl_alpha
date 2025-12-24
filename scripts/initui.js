@@ -1,170 +1,191 @@
 function randomBG () {
     // Detect dark mode preference
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Pick random image from 1-10
     const numberArrayBG = Array.from({ length: 6 }, (_, i) => String(i).padStart(3, '0'));
     const randomBG = numberArrayBG[Math.floor(Math.random() * numberArrayBG.length)];
-
     const theme = isDarkMode ? 'dark' : 'light';
     const imageUrl = `/backgrounds/${theme}_${randomBG}.jpg`;
 
-    // Apply background with styling
     document.body.style.backgroundImage = `url('${imageUrl}')`;
-    //document.body.style.backgroundSize = 'cover';
-    //document.body.style.backgroundPosition = 'center';
-    //document.body.style.backgroundRepeat = 'no-repeat';
 }
 
 //check quality and resolution radio buttons
 function getCheckedRadioValue(name) {
-  const selected = document.querySelector(`input[name="${name}"]:checked`);
-  return selected ? selected.value : null;
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    return selected ? selected.value : null;
 }
 
-function deactivateUserTools() {
-    let mytools = document.querySelectorAll(".tool");
-    
-    closeDialog(settingsDialog, toolSettings);    //close settings open modal interface.js
-    mytools.forEach(tool => {
-        if (tool.id === "toolMuteMicrophone") {
-            tool.disabled = true;
-            tool.classList.add("disable");
-            tool.classList.remove("selected", "selectedred");
-            tool.setAttribute("aria-expanded", "false");
-            tool.lastElementChild.innerHTML = "mic";
-        }
-        if (tool.id === "toolMuteCamera") {
-            tool.disabled = true;
-            tool.classList.add("disable");
-            tool.classList.remove("selected");
-            tool.setAttribute("aria-expanded", "false");
-            tool.lastElementChild.innerHTML = "photo_camera";
-        }
-    });
-
-    let openModals = document.querySelectorAll("dialog:not(.hidden)");
-    openModals.forEach(modal => { 
-        modal.classList.add("hidden"); 
-        modal.close();
-    })
-}
-
-function reactivateUserTools() {
-    let openModals = document.querySelectorAll("dialog:not(.hidden)");
-
-    let mytools = document.querySelectorAll(".tool");
-    let cameraSource = sessionStorage.getItem("cameraDevice");
-    let microphoneSource = sessionStorage.getItem("microphoneDevice");
-
-    mytools.forEach(tool => {
-        if (tool.id === "toolMuteMicrophone" && microphoneSource !== "0") {
-            tool.disabled = false;
-            tool.classList.remove("disable");
-        }
-        if (tool.id === "toolMuteCamera" && cameraSource !== "0") {
-            tool.disabled = false;
-            tool.classList.remove("disable");
-        }
-
-    });
-}
-
-//process selected devices and store them in sessionStorage
 function storeSelectedDevicesSession() {
-    let resolution = getCheckedRadioValue("resolution");
-    let quality = getCheckedRadioValue("quality");
+    const sessionsJSON = localStorage.getItem(APP_NS);
+    if (!sessionsJSON) return;
 
-    const videoList = document.getElementById("videoSource");
-    const audioList = document.getElementById("audioSource");
+    const sessions = JSON.parse(sessionsJSON);
+    if (sessions.length === 0) return;
 
-        let videoSelectedIndex = videoList.selectedIndex;
-        let sanitizedVideo = videoList.options[videoSelectedIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-        if (sanitizedVideo === "none") sanitizedVideo = "0";
-        sessionStorage.setItem("videoSourceIndex", videoSelectedIndex); //selected index for video source (main stream)
-        sessionStorage.setItem("videoDevice", sanitizedVideo); //selected video device name, not ID (main stream)
-        // console.log("videoSource :", videoSelected, " videoDevice name :", sanitizedVideo)
+    const latest = sessions[0]; // do NOT replace timestamp or sessionID
 
-        let audioSelectedIndex = audioList.selectedIndex;
-        let sanitizedAudio = audioList.options[audioSelectedIndex].text.toLowerCase().replace(/[\W]+/g, "_");
-        if (sanitizedAudio === "none") sanitizedAudio = "0";
-        sessionStorage.setItem("audioSourceIndex", audioSelectedIndex || "0"); //selected index for audio source (main stream)
-        sessionStorage.setItem("audioDevice", sanitizedAudio); //selected audio device name, not ID (main stream)
-        // console.log("audioSource :", audioSelected, " audioDevice name :", sanitizedAudio)
+    const projectInput = document.getElementById("project");
+    const video = document.getElementById("videoSource");
+    const audio = document.getElementById("audioSource");
 
-    sessionStorage.setItem("resolution", resolution);
-    sessionStorage.setItem("quality", quality);
-    // console.log("Updated session settings");
+    const merged = updateSessionEntry(latest, {
+        projectName: encodeURIComponent(projectInput.value.trim() || ""),
+        resolution: getCheckedRadioValue("resolution") || "",
+        quality: getCheckedRadioValue("quality") || "",
+        videoSource: video.selectedOptions[0].value || "",
+        audioSource: audio.selectedOptions[0].value || "",
+    });
+
+    sessions[0] = merged;
+    localStorage.setItem(APP_NS, JSON.stringify(sessions));
 }
 
 function storeSelectedDevicesUser() {
-    const cameraList = document.getElementById("cameraSource");
-    const microphoneList = document.getElementById("microphoneSource");
+    const sessionsJSON = localStorage.getItem(APP_NS);
+    if (!sessionsJSON) return;
 
-    let username = document.getElementById("name").value.trim() || "Streamer";
-    let sanitizedUserName = encodeURIComponent(username);
-    sessionStorage.setItem("username", sanitizedUserName);
-    setCookie("username", sanitizedUserName, 7);
+    const sessions = JSON.parse(sessionsJSON);
+    if (sessions.length === 0) return;
 
-    let cameraSelected = cameraList.selectedIndex;
-    let rawCamera = cameraList.options[cameraSelected].text; //used to store cookie for client
-    let sanitizedCamera = cameraList.options[cameraSelected].text.toLowerCase().replace(/[\W]+/g, "_");
-    if (sanitizedCamera === "none") sanitizedCamera = "0";
-    sessionStorage.setItem("cameraSourceIndex", cameraSelected); //selected index for camera source (user webcam)
-    sessionStorage.setItem("cameraDevice", sanitizedCamera); //selected camera device name, not ID (user webcam)
-    setCookie("camera", rawCamera, 7);
-    //console.log("cameraSource :", cameraSelected, " cameraDevice name :", sanitizedCamera)
+    const latest = sessions[0]; // do NOT replace timestamp or sessionID
 
-    let microphoneSelected = microphoneList.selectedIndex;
-    let rawMicrophone = microphoneList.options[microphoneSelected].text; //used to store cookie for client
-    let sanitizedMicrophone = microphoneList.options[microphoneSelected].text.toLowerCase().replace(/[\W]+/g, "_");
-    if (sanitizedMicrophone === "none") sanitizedMicrophone = "0";
-    sessionStorage.setItem("microphoneSourceIndex", microphoneSelected); //selected index for microphone source (user microphone)
-    sessionStorage.setItem("microphoneDevice", sanitizedMicrophone); //selected microphone device name, not ID (user microphone)
-    setCookie("mic", rawMicrophone, 7);
-    //console.log("microphoneSource :", microphoneSelected, " microphoneDevice name :", sanitizedMicrophone)
+    const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
+    const camera = document.getElementById("cameraSource");
+    const microphone = document.getElementById("microphoneSource");
 
+    const merged = updateSessionEntry(latest, {
+        userName: sanitizedUserName || "",
+        cameraSource: camera.selectedOptions[0].value || "",
+        microphoneSource: microphone.selectedOptions[0].value || "",
+    });
+
+    sessions[0] = merged;
+    localStorage.setItem(APP_NS, JSON.stringify(sessions));
 }
 
-//reset the settings dialog everytime it is opened to the curently selected devices. useful if user cancels settings changes half way
-function recalSelectedDevices() { //used in interface.js
-    let videoDeviceRecal = document.getElementById("videoSource");
-    let audioDeviceRecal = document.getElementById("audioSource");
-    let cameraDeviceRecal = document.getElementById("cameraSource");
-    let microphoneDeviceRecal = document.getElementById("microphoneSource");
+function updateSessionEntry(baseEntry, updates) {
+    return { ...baseEntry, ...updates };
+}
 
-    if (videoDeviceRecal) { videoDeviceRecal.selectedIndex = sessionStorage.getItem("videoSourceIndex") || 0; }
-    if (audioDeviceRecal) { audioDeviceRecal.selectedIndex = sessionStorage.getItem("audioSourceIndex") || 0; }
-    if (cameraDeviceRecal) { cameraDeviceRecal.selectedIndex = sessionStorage.getItem("cameraSourceIndex") || 0; }
-    if (microphoneDeviceRecal) { microphoneDeviceRecal.selectedIndex = sessionStorage.getItem("microphoneSourceIndex") || 0; } 
-    
-    let usernameRecal = sessionStorage.getItem("username");
-    let userNameDecode = decodeURIComponent(usernameRecal);
-    document.getElementById("name").value = userNameDecode;
+function deactivateUserTools() {
+    closeDialog(settingsDialog, toolSettings);
 
-    let resolutionRecal = sessionStorage.getItem("resolution") || "1"; //default to 720p
-    let qualityRecal = sessionStorage.getItem("quality") || "8000"; //default to mid quality
+    const toolConfig = {
+        toolMuteMicrophone: { icon: "mic" },
+        toolMuteCamera:     { icon: "photo_camera" }
+    };
 
-    let resolution = getCheckedRadioValue("resolution");
-    let quality = getCheckedRadioValue("quality");
+    document.querySelectorAll(".tool").forEach(tool => {
+        const cfg = toolConfig[tool.id];
+        if (!cfg) return; // skip tools we don't care about
 
-    if (resolution) {     //set resolution radio buttons if they exist
-        if (resolutionRecal === "0") {
-            document.getElementById("res1080P").checked = true;
-        } else if (resolutionRecal === "1") {
-            document.getElementById("res720P").checked = true;
-        } else if (resolutionRecal === "2") {
-            document.getElementById("res4k").checked = true;
+        tool.disabled = true;
+        tool.classList.add("disable");
+                tool.classList.add("hidden");
+        tool.classList.remove("selected", "selectedred");
+        tool.setAttribute("aria-expanded", "false");
+        tool.lastElementChild.textContent = cfg.icon;
+    });
+
+    // close all open dialogs
+    document.querySelectorAll("dialog:not(.hidden)").forEach(modal => {
+        modal.classList.add("hidden");
+        modal.close();
+    });
+}
+
+function reactivateUserTools() {
+    const cameraSource = document.getElementById("cameraSource").value;
+    const microphoneSource = document.getElementById("microphoneSource").value;
+
+    const enableMap = {
+        toolMuteMicrophone: microphoneSource !== "",
+        toolMuteCamera: cameraSource !== ""
+    };
+
+    document.querySelectorAll(".tool").forEach(tool => {
+        if (enableMap[tool.id]) {
+            tool.disabled = false;
+            tool.classList.remove("disable");
+            tool.classList.remove("hidden");
         }
+    });
+}
+
+async function restoreSettingsHost() {
+    const previousSettingsJSON = localStorage.getItem(APP_NS);
+    const settings = JSON.parse(previousSettingsJSON);
+    const entry = settings[0];
+
+    // --- Resolution ---
+    if (document.getElementById("res1080P")) {
+        document.getElementById("res1080P").checked = entry.resolution === "0";
+        document.getElementById("res720P").checked = entry.resolution !== "0";
     }
 
-    if (quality) {     //set quality radio buttons if they exist
-        if (qualityRecal === "16000") {
-            document.getElementById("qualityHigh").checked = true;
-        } else if (qualityRecal === "8000") {
-            document.getElementById("qualityMed").checked = true;
-        } else if (qualityRecal === "4000") {
-            document.getElementById("qualityLow").checked = true;
+    // --- Quality ---
+    const qualityMap = {
+        "16000": "qualityHigh",
+        "8000": "qualityMed",
+        "4000": "qualityLow"
+    };
+
+    Object.values(qualityMap).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+    });
+    const q = document.getElementById(qualityMap[entry.quality]);
+    if (q) q.checked = true;
+
+    // --- Devices ---
+    restoreDeviceSelection("videoSource", entry.videoSource);
+    restoreDeviceSelection("audioSource", entry.audioSource);
+    restoreDeviceSelection("cameraSource", entry.cameraSource);
+    restoreDeviceSelection("microphoneSource", entry.microphoneSource);
+
+    // --- Username ---
+    const name = document.getElementById("name");
+    if (name) name.value = decodeURIComponent(entry.userName);
+
+    // --- Trigger media logic if available ---
+    if (typeof handleSelectionChange === "function") {
+        await handleSelectionChange();
+    }
+}
+
+async function restoreSettingsClient() {
+    const previousSettingsJSON = localStorage.getItem(APP_NS);
+    const settings = JSON.parse(previousSettingsJSON);
+    const entry = settings[0];
+
+    restoreDeviceSelection("cameraSource", entry.cameraSource);
+    restoreDeviceSelection("microphoneSource", entry.microphoneSource);
+
+    // --- Username ---
+    const name = document.getElementById("name");
+    if (name) name.value = decodeURIComponent(entry.userName);
+
+    // --- Trigger media logic if available ---
+    if (typeof handleSelectionChange === "function") {
+        await handleSelectionChange();
+    }
+}
+
+function restoreDeviceSelection(selectId, savedDeviceId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    select.value = savedDeviceId;
+
+    // If it did NOT exist, fallback to "none" or first
+    if (select.value !== savedDeviceId) {
+        if (select.querySelector('option[value="none"]')) {
+            select.value = "none";
+        } else if (select.querySelector('option[value=""]')) {
+            select.value = "";
+        } else {
+            select.selectedIndex = 0;
         }
     }
+     handleSelectionChange()
 }
