@@ -1,4 +1,4 @@
-//stream annotations and zoom / move functions
+//stream markup and zoom / move functions
 const zoomPopup = document.getElementById("zoom-popup");
 const zoomDiv = document.getElementById("zoomdiv");
 

@@ -32,17 +32,17 @@
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-
+/* 
 .buttonmoresettings {
     position: relative;
     display: inline;
     width: 200px;
     padding-right:0px;
-    /* background-color: light-dark(var(--color-light-white), var(--color-mid-grey)); */
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 .buttonmoresettings[aria-expanded="true"]::after {
     transform: rotate(180deg) translateY(50%);
-}
+} */
 
 /*quit menu confirmation*/
 .confirmpopup {
@@ -52,8 +52,8 @@
     right: 5px;
     top: 5px;
     border: 0px;
-    color: light-dark(var(--color-light-grey), var(--color-light-grey));
-    background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+    /* color: light-dark(var(--color-light-grey), var(--color-light-grey)); */
+    /* background-color: light-dark(var(--color-light-bg), var(--color-dark-bg)); */
     border-radius: var(--radius-big);
     z-index: 10;
     box-shadow: none!important;
@@ -72,9 +72,10 @@ dialog#historyDialog {
     left:5px;
     padding: 10px!important;
     top:150px;
-    z-index: 12;
+    z-index: 15!important;
     box-shadow: var(--shadows);
     transition: opacity 0.3s ease;
+
 }
 dialog#shareDialog {
     padding: 10px!important;
@@ -113,10 +114,6 @@ dialog#historyDialog .link span {
     align-items: center;
 }
 
-#settingsDialogProjectID, #project, #sid {
-    width: 480px;
-}
-
 #toolHistory {
     justify-self: end; 
 }
@@ -128,9 +125,12 @@ dialog#historyDialog .link span {
     white-space: nowrap;
 }
 
-#project {
+#project, #password {
     flex: 1;     
-    min-width: 0;   
+	/* border-bottom-right-radius: 0px; */
+	/* border-top-right-radius: 0px; */
+    /* min-width: 400px; */
+ 
 }
 
 #settingsDialogSessionSettings {
@@ -147,16 +147,31 @@ dialog#historyDialog .link span {
     display: inline-flex;
     position: relative;
     height: var(--button-height);
-    width:80px;
-    left:-83px;
+	margin-right:0px;
+	padding-right:0px;
+	margin-left:-10px;
+    width:70px;
+    left:0px;
     top:0px;
     z-index: 4;
     /* height:38px; */
     outline: 0px!important;
-
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
 }
 #toolHistory {
     background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.historyHeader{
+	position: absolute;
+	margin: 0px;
+	top:0px;
+	left:0px;
+	width:100%;
+	text-align: center;
+	padding: 10px 0px;
+    color: light-dark(var(--color-dark-grey), var(--color-mid-grey));
+    /* background-color: light-dark(var(--color-light-white), var(--color-mid-grey));  */
 }
 
 #createOptional {
@@ -174,4 +189,9 @@ dialog#historyDialog .link span {
 
 #popupHistoryBG {
     z-index: 11;
+}
+
+.peerList {
+	top: 50px;
+	height: calc(100% - 130px);
 }

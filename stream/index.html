@@ -23,22 +23,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-    <link rel="stylesheet" href="../styles/streamstyle.css">
-    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="/styles/streamstyle.css">
 
     <title>alpha.rpxl.app v3.5 | Stream (beta)</title>
 </head>
 
 <body id="body">
-    <!--iframes for vdo ninja-->
-    <div id="viewerMobile" class="">
-        <iframe class="viewersiframe hidden" id="viewersStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;screen-wake-lock;"></iframe>
+    <div class="peerList hidden" id="peerList">
+		<div class="peer">
+			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
+			<span id ="userLabel" class="peerLabel"></span>
+			<!-- <span class="peerControl"> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
+			<!-- </span> -->
+		</div>
     </div>
-
-    <div class="mainZoom hidden" id="zoomdiv">
-        <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;screen-wake-lock;"></iframe>
-        <canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
-    </div>
+    <div class="mainViewer hidden" id="mainViewer">
+   	 	<div class="mainZoom" id="zoomdiv">
+		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+       		<canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+    	</div>
+	</div>
 
     <!------------------------Main interface------------------>
     <div id="mainWindow" class="hidden ">
@@ -46,7 +53,7 @@
         <div id="topmenu" class="toolbar top">
             <div class="toolbar-section left">
                 <div class="toolset">
-                    <button class="tool toolmoresettings" id="toolShare" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button>
+                    <button class="tool moresettings" id="toolShare" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button>
                 </div>
             </div>
             <div class="toolbar-section center">
@@ -54,7 +61,7 @@
             </div>
             <div class="toolbar-section right">
                 <div class="toolset">
-                    <button class="tool toolred toolmoresettings" id="toolQuit" aria-expanded="false" role="button"><span class="material-symbols-outlined">mode_off_on</span></button>
+  					<button class="tool red moresettings" id="toolQuit" aria-expanded="false" role="button"><span class="material-symbols-outlined">mode_off_on</span></button>
                 </div>
             </div>
         </div>
@@ -62,72 +69,69 @@
         <div id="bottomMenu" class="toolbar bottom">
             <div class="toolbar-section left">
                 <div class="toolset">
-                    <button class="tool toolmoresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
-                </div>
-                <div class="toolset">
-                    <button class="tool toolred disable" aria-expanded="false" id="toolMuteMicrophone" disabled role="button"><span class="material-symbols-outlined">mic</span></button>
-                    <button class="tool disable" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" disabled role="button"><span class="material-symbols-outlined">mic</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
                 </div>
             </div>
             <div class="toolbar-section center">
                 <div class="toolset">
-                    <button class="tool streamtool disable" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                    <button class="tool streamtool toolmoresettings disable" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
-                    <button class="tool streamtool disable" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
+					<button class="tool red disable hidden " aria-expanded="false" id="toolBlindStream" disabled role="button"><span class="material-symbols-outlined">movie</span></button>
+					<button class="tool red disable hidden" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>
+                    <button class="tool disable hidden spacer" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser</span></button>
+                    <!-- <button class="tool streamtool disable" aria-expanded="false" id="toolSlideLibrary" disabled role="button"><span class="material-symbols-outlined">slide_library</span></button> -->
                 </div>
             </div>
             <div class="toolbar-section right">
-                <div class="toolset toolspacer">
-                    <button class="tool toolmoresettings disable" aria-expanded="false" id="toolFiles" disabled role="button"><span class="material-symbols-outlined">folder</span></button>
-                </div>
                 <div class="toolset">
-                    <button class="tool streamtool red disable" aria-expanded="false" id="toolBlindStream" disabled role="button"><span class="material-symbols-outlined">movie_off</span></button>
-                    <button class="tool streamtool disable" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>
-                    <span class="volume streamtool" role="button"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" disabled class="disable streamtool" /></span>
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
                 </div>
             </div>
         </div>
-        <div>
-            <a href=https://vdo.ninja target="_blank" class="copyCredit">powered by vdo.ninja</a>
-        </div>
+        <div class="copyCreditGrad"></div>
+        <div class="copyText toolbar-section left" id="statusLeft"></div>
     </div>
 
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--Setup screen, also used as setting panel later-->
     <dialog open id="settingsDialog" class="toolpopup top middle" style="min-width:640px">
-        <div class="" id="settingsDialogTitleCreate" style="text-align: left;">
+        <div class="" id="settingsDialogTitleCreate" style="text-align: left; width:100%;">
             <h2 id="createHeadingSession" style="padding-bottom: 10px;">Create live session</h2><a href="help.html" target="_blank" class="helpicon">
             <span class="material-symbols-outlined">help</span></a>
         </div>
         <div class="table" id="settingsDialogProjectID">
             <div>Project</div>
             <div><input type="text" class="textinput" maxlenght="40" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
-                <span class="toolset" id="historyButton"><button class="tool toolmoresettings" id="toolHistory" aria-expanded="false" role="button">
+                <span class="toolset" id="historyButton"><button class="tool moresettings" id="toolHistory" aria-expanded="false" role="button">
                     <span class="material-symbols-outlined">history</span></button>
                 </span>
             </div>
+			<!-- <div>Password</div> -->
+            <!-- <div><input type="text" class="textinput" maxlenght="40" id="password" name="clientName" placeholder="(Optional)" contenteditable="true"></div> -->
         </div>
         <!-- <div style="width:100%"><hr></div> -->
         <div class="table" id="settingsDialogSessionSettings">
-            <div>Resolution</div><div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button"><label><input type="radio" name="resolution" id="res1080P" value="0">1080P</label><label><input type="radio" name="resolution" id="res720P" checked value="1">720P</label></div>
-            <div>Quality</div><div class="radioset" role="radiogroup" aria-labelledby="quality" role="button"><label><input type="radio" name="quality" id="qualityHigh" value="16000">High</label><label><input type="radio" name="quality" id="qualityMed" value="8000" checked>Med</label><label><input type="radio" name="quality" id="qualityLow" value="4000">Low</label></div>
+            <div>Resolution</div><div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button"><label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label><label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label></div>
+            <div>Quality</div><div class="radioset" role="radiogroup" aria-labelledby="quality" role="button"><label><input type="radio" name="quality" id="qualityHigh" value=16000000>High</label><label><input type="radio" name="quality" id="qualityMed" value=800000 checked>Med</label><label><input type="radio" name="quality" id="qualityLow" value=4000>Low</label></div>
             <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
             <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
-            <div style="grid-column: 3 / span 2; grid-row: 1 / span 4; position:relative; top:3px;" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph"><span id="audiometer" class="meter"></span></div>
+            <div style="grid-column: 3 / span 2; grid-row: 1 / span 4; position:relative; top:3px;" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource" autoplay playsinline disablepictureinpicture muted></video><span id="meterGraph" class="meterGraph"><span id="audiometer" class="meter"></span></div>
         </div>
-        <div style="width:100%; margin:10px 0px;"><hr></div>
+        <div style="width:100%; margin:5px 0px;"></div>
         <div class="table collapsed" id="moresettings">
             <div style="grid-column: 1 / span 2;"><h2 id="createOptional">Optional user settings</h2></div>
-            <div>User</div><div><input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="(Optional)" contenteditable="true" autocomplete="off"></div>
+            <div>User</div><div><input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" contenteditable="true" autocomplete="off"></div>
             <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
             <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
-            <div id="settingsDialogCameraMicPreview" style="grid-column: 3 / span 2; grid-row: 1 / span 4;"><video id="camera" class="camera" autoplay playsinline poster="" muted></video></span><span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span></div>
+            <div id="settingsDialogCameraMicPreview" style="grid-column: 3 / span 2; grid-row: 1 / span 4;"><video id="camera" class="camera" autoplay playsinline disablepictureinpicture muted></video></span><span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span></div>
         </div>
-        <div id="moresettingsHR" class="hidden" style="width:100%; margin:10px 0px;"></div>
+        <div id="moresettingsHR" class="" style="width:100%; margin:10px 0px;"><HR></div>
         <div id="settingsDialogButtons" style="position: relative; width: 100%; display: inline-flex; justify-content: space-between; align-items: center;">
-            <div><button id="buttonMoreSettings" class="buttonmoresettings" aria-expanded="false">More setings</button></div>
-            <div><button id="startSessionButton" class="botton buttonblue buttonWider">Start session</button></div>
+            <div><button id="buttonMoreSettings" class="tool moresettings wider" aria-expanded="false">More setings</button></div>
+            <div><button id="startSessionButton" class="botton blue wider">Start session</button></div>
         </div>
     </dialog>
 
@@ -138,14 +142,15 @@
 
     <!----- share dialog ------>
     <dialog id="shareDialog" class="toolpopup top left share hidden">
-        <button class="link" id="copyMainLink"><h2>Main share link</h2><br> Allows full voice and video communications and live annotations </button>
-        <button class="link" id="copyQuickLink"><h2>Quick share link</h2><br> No voice or video communications, streamer and clients can annotate </button>
-        <button class="link" id="copyOBSLink"><h2>OBS source link</h2><br> Main stream URL for input to OBS browser source </button>
+        <button class="link" id="copyMainLink"><h2>Main share link</h2><br> Full communication and markup </button>
+        <button class="link" id="copyQuickLink"><h2>Quick share link</h2><br> No communications, host can markup<br>Use for faster, no prompt joins</button>
+        <!-- <button class="link" id="copyOBSLink"><h2>OBS source link</h2><br> URL for input to OBS browser source </button> -->
+       <!-- <button class="link" id="copyOBSLink"><h2>WHIP source link</h2><br> URL for input to FFMPEG<br>Can be used to output to Decklink</button> -->
     </dialog>
 
     <!----- quit dialog ------>
     <dialog id="quitDialog" class="confirmpopup hidden">
-        <button id="confirmQuit" class="button toolred buttonWider"> Confirm quit </button>
+        <button id="confirmQuit" class="button tool red wider"> Confirm quit </button>
     </dialog>
 
     <!----- color menu ------>
@@ -166,7 +171,7 @@
         <p>Currently, streaming is desktop only.</p>
         <p>Mobile streaming might work but your mileage may vary. This only affects the streamer, guests can connect via desktop or mobile device.</p>
         <hr>
-        <button id="mobileDismiss" class="botton buttonblue buttonWider"> Try anyway </button>
+        <button id="mobileDismiss" class="botton blue wider"> Try anyway </button>
     </dialog>
 
     <!----- Permissions ------>
@@ -179,317 +184,268 @@
         <a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new"><button id="permissionMicHelp" class="botton buttonblue buttonWider"> Click here for more info</button></a>
     </dialog>
 
-    <!----- popup menu microphone mute ------>
-    <dialog id="popupMicMuted" class="toolpopup top middle hidden warning">
-        <h2 style="color: var(--color-light-bg)">Warning : Your microphone is muted</h2>
-    </dialog>
+	<div id="bannerStack" aria-live="polite"></div>
 
-    <!----- popup menu microphone mute ------>
-    <dialog id="popupCamMuted" class="toolpopup top middle hidden notification">
-        <h2>Your camera has been turned off</h2>
-    </dialog>
-
-    <!----- stream mute ------>
-    <dialog id="popupStreamMuted" class="toolpopup top middle hidden notification">
-        <h2>Broadcast stream audio muted locally.</h2><br>Participants will still hear you and the stream.
-    </dialog>
-
-    <!----- Copied links to clipboard ------>
-    <dialog id="popupClipboard" class="toolpopup top middle hidden notification">
-        <h2>Link copied to clipboard</h2>
-    </dialog>
+	<template id="bannerTemplate">
+   		<div class="banner">
+			<span>	</span>
+    	</div>
+	</template>
 
     <!----- popup stream zoomed popup------>
     <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
 
 </body>
 </html>
-
-<script src="../scripts/deviceselect.js"></script>
-<script src="../scripts/initui.js"></script>
-<script src="../scripts/initvdo.js"></script>
-<script src="../scripts/interface.js"></script>
-<script src="../scripts/annotations.js"></script>
-
+<script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/global.js"></script>
+<script src="/scripts/initdevice.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/interface.js"></script>
+<script src="/scripts/markup.js"></script>
 <script type="text/javascript">
-    const APP_NS = 'host-Alpha-RPXL';
-    const devURL = window.location.origin;
-    let historyBGAttached = false;
+	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+	sessionStorage.setItem("sessionID", generateRandomID());  //create session ID and store in session storage
 
-    //check if mobile device and warn user
-    const mobileDialog = document.getElementById("mobileDialog");
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+	const APP_NS = 'host-Alpha-RPXL';
+	const devURL = window.location.origin;
+	let historyBGAttached = false;
+	let isVDOReady = false;
+	let mainPublished = false;
 
-    if (isMobile) {
-        mobileDialog.classList.remove("hidden");
-        mobileDialog.show();
-        mobileDismiss.addEventListener("pointerdown", () => {
-            mobileDialog.classList.add("hidden");
-            mobileDialog.close();
-        });
-        console.log("User is on a mobile device.");
-    }
+	randomBG(); //random background image from interface.js
+	restoreSetingsLast(); //restore last used settings from local storage
+	
+	//check if mobile device and warn user
+	const mobileDialog = document.getElementById("mobileDialog");
+	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
-    randomBG(); //initui.js pics a random background image from initui.js
+	if (isMobile) {
+		mobileDialog.classList.remove("hidden");
+		mobileDialog.show();
+		mobileDismiss.addEventListener("pointerdown", () => {
+			mobileDialog.classList.add("hidden");
+			mobileDialog.close();
+		});
+		console.log("User is on a mobile device.");
+	}
 
-    //pretty date in history dialog
-    function formatDateISO(dateString) {
-        const d = new Date(dateString);
-        return (
-            d.getFullYear() + "-" +
-            String(d.getMonth() + 1).padStart(2, "0") + "-" +
-            String(d.getDate()).padStart(2, "0") + " " +
-            String(d.getHours()).padStart(2, "0") + ":" +
-            String(d.getMinutes()).padStart(2, "0")
-        );
-    }
+	//pretty date in history dialog
+	function formatDateISO(dateString) {
+		const d = new Date(dateString);
+		return (
+			d.getFullYear() + "-" +
+			String(d.getMonth() + 1).padStart(2, "0") + "-" +
+			String(d.getDate()).padStart(2, "0") + " " +
+			String(d.getHours()).padStart(2, "0") + ":" +
+			String(d.getMinutes()).padStart(2, "0")
+		);
+	}
 
-    function loadHistoryIntoDialog() {
-        const sessionsJSON = localStorage.getItem(APP_NS);
-        if (!sessionsJSON) return;
+	//create session history drop down
+	function loadHistoryIntoDialog() {
+		const sessionsJSON = localStorage.getItem(APP_NS);
+		if (!sessionsJSON) return;
 
-        const sessions = JSON.parse(sessionsJSON);
-        const dialog = document.getElementById("historyDialog");
+		const sessions = JSON.parse(sessionsJSON);
+		const dialog = document.getElementById("historyDialog");
 
-        openDialog(historyDialog, toolHistory);
-        document.getElementById("popupHistoryBG").classList.remove("hidden");
+		openDialog(historyDialog, toolHistory);
+		document.getElementById("popupHistoryBG").classList.remove("hidden");
 
-        // Attach background listener ONCE
-        if (!historyBGAttached) {
-            window.addEventListener("pointerdown", (e) => {
-                if (e.target.matches("#popupHistoryBG")) {
-                    closeDialog(openModal, openIcon);
-                    document.getElementById("popupHistoryBG").classList.add("hidden");
-                }
-            });
-            historyBGAttached = true;
-        }
+		// Attach background listener ONCE
+		if (!historyBGAttached) {
+			window.addEventListener("pointerdown", (e) => {
+				if (e.target.matches("#popupHistoryBG")) {
+					closeDialog(openModal, openIcon);
+					document.getElementById("popupHistoryBG").classList.add("hidden");
+				}
+			});
+			historyBGAttached = true;
+		}
 
-        dialog.innerHTML = `
-        <span>Loading previous session settings will allow use of existing invite link</span><br>
+		dialog.innerHTML = `
+        <span class="historyHeader">IMPORTANT: Loading a previous session will also re-use existing link(s)</span><br>
         <hr>`; // reset
 
-        sessions.forEach(entry => {
-            const project = decodeURIComponent(entry.projectName) || "Unnamed project";
-            const formattedDate = formatDateISO(entry.createdAt);
+		sessions.forEach(entry => {
+			const project = decodeURIComponent(entry.projectName) || "Unnamed project";
+			const formattedDate = formatDateISO(entry.createdAt);
 
-            const btn = document.createElement("button");
-            btn.className = "link historyEntry";
-            btn.dataset.sessionId = entry.sessionID;
+			const btn = document.createElement("button");
+			btn.className = "link historyEntry";
+			btn.dataset.sessionId = entry.sessionID;
 
-            btn.innerHTML = `
+			btn.innerHTML = `
             <h2>${project}</h2>
             <span class="date">${formattedDate}</span>
         `;
 
-            btn.addEventListener("click", async () => {
-                restoreSessionFromHistory(entry);
-                //console.log(`Restored session from history: ${entry.sessionID}`);
-            });
+			btn.addEventListener("click", async () => {
+				restoreSessionFromHistory(entry);
+				//console.log(`Restored session from history: ${entry.sessionID}`);
+			});
 
-            dialog.appendChild(btn);
-        });
-    }
+			dialog.appendChild(btn);
+		});
+	}
+	//restore session ID and session name from history entry selected
+	async function restoreSessionFromHistory(entry) {
+		// Restore sessionID + projectName only here
+		sessionStorage.setItem("sessionID", entry.sessionID);
+		console.log(`Restored sessionID: ${entry.sessionID} from history`);
 
-    async function restoreSessionFromHistory(entry) {
-        // Restore sessionID + projectName only here
-        sessionStorage.setItem("sessionID", entry.sessionID);
-        console.log(`Restored sessionID: ${entry.sessionID} from history`);
+		const projectInput = document.getElementById("project");
+		projectInput.value = decodeURIComponent(entry.projectName) === "Unnamed project"
+			? ""
+			: decodeURIComponent(entry.projectName);
 
-        const projectInput = document.getElementById("project");
-        projectInput.value = decodeURIComponent(entry.projectName) === "Unnamed project"
-            ? ""
-            : decodeURIComponent(entry.projectName);
+		// Restore all *other* UI settings
+		await restoreSettingsHost(entry); //from initui.js
+		await handleSelectionChange(); // single attach
+		closeDialog(openModal, openIcon);
+		document.getElementById("popupHistoryBG").classList.add("hidden");
+	}
+	//restore last used settings from local storage on load
+	async function restoreSetingsLast() {
+		document.getElementById("project").value = ""; //clear project name on load
+		await getDevices();        // enumerate only / or release probes
+		[mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect]
+			.forEach(sel => sel.addEventListener('change', scheduleSelectionChange));
+		await handleSelectionChange(); // single attach
 
-        // Restore all *other* UI settings
-        await restoreSettingsHost(entry); //from initui.js
+		const sessionsJSON = localStorage.getItem(APP_NS);
+		if (!sessionsJSON) return;
 
-        closeDialog(openModal, openIcon);
-        document.getElementById("popupHistoryBG").classList.add("hidden");
-    }
+		const sessions = JSON.parse(sessionsJSON);
+		if (!sessions.length) return;
 
-    //generate random SID
-    function generateSessionID(len = 20) {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        const charCount = chars.length;
-        const max = 256 - (256 % charCount);
+		const last = sessions[0];
 
-        let id = "";
-        const buf = new Uint8Array(len * 2);
+		restoreSettingsHost(last); // UI only
+		await handleSelectionChange(); // single attach
+	}
 
-        crypto.getRandomValues(buf);
+	//more settings menu on create dialogue flyout
+	buttonMoreSettings.addEventListener("pointerdown", () => {
+		const isExpanded = buttonMoreSettings.getAttribute("aria-expanded") === "true";
+		buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
+		buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
+		document.getElementById("moresettings").classList.toggle("collapsed");
+	});
 
-        for (let i = 0; i < buf.length && id.length < len; i++) {
-            const n = buf[i];
-            if (n < max) id += chars[n % charCount];
-        }
-        return id;
-    }
+	document.getElementById('startSessionButton').addEventListener('pointerdown', startSession);
 
-    sessionStorage.setItem("sessionID", generateSessionID());  //create session ID and store in session storage
+	//share button (main, quick and obs)
+	function setupShareButton(buttonId, sessionID, urlFormatter) {
+		const btn = document.getElementById(buttonId);
+		if (!btn) return;
 
-    //more settings menu on create dialogue flyout
-    buttonMoreSettings.addEventListener("pointerdown", () => {
-        const isExpanded = buttonMoreSettings.getAttribute("aria-expanded") === "true";
-        buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
-        buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
-        document.getElementById("moresettings").classList.toggle("collapsed");
-        document.getElementById("moresettingsHR").classList.toggle("hidden");
-    });
+		btn.addEventListener("pointerdown", () => {
+			const value = sessionStorage.getItem(sessionID);
+			if (!value) return;
 
-    document.getElementById('startSessionButton').addEventListener('pointerdown', startSession);
+			const url = urlFormatter(value);
+			console.log(`Copying to clipboard: ${url}`);
+			navigator.clipboard.writeText(url).then(() => {
+				closeDialog(shareDialog, toolShare);    //close share dialog
+				showBanner({ message:"Link copied to clipboard", type:"notification", timeout:3000 });
+			});
+		});
+	}
 
-    window.addEventListener("DOMContentLoaded", () => {
-        getDevices().then(() => {
+	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${value}`);
+	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qv/?SID=${value}`);
+	setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
 
-            // Only run this AFTER device options exist
-            document.getElementById("project").value = ""; //clear project name on load
-            const sessionsJSON = localStorage.getItem(APP_NS);
-            if (!sessionsJSON) return;
+	confirmQuit.addEventListener("pointerdown", function () {
+		vdo.disconnect();
+		vdoMS.disconnect()
 
-            const sessions = JSON.parse(sessionsJSON);
-            if (!sessions.length) return;
+		document.getElementById("mainStream").src = "";
+		document.getElementById("userStream").src = "";
 
-            const last = sessions[0];   // newest entry (we always unshift)
-            console.log(`Auto-restoring last session settings from localStorage`);
-            restoreSettingsHost(last);   // restore everything except session + project
+		location.reload();
+	});
 
-            // Attach event listeners (safe now)
-            [mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel => {
-                sel.addEventListener('change', handleSelectionChange);
-            });
-        });
-    });
+	async function startSession() {
+		//stuff to run once and once only when starting session
+		const sessionID = sessionStorage.getItem("sessionID");
+		const timestamp = new Date().toISOString();
+		const sanitizedProject = encodeURIComponent(document.getElementById("project").value.trim());
+		const resolution = getCheckedRadioValue("resolution"); //from initui.js
+		const quality = getCheckedRadioValue("quality"); //from initui.js
+		const videoSource = document.getElementById("videoSource").selectedOptions[0].value;
+		const audioSource = document.getElementById("audioSource").selectedOptions[0].value;
+		const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim()) || "";
+		const cameraSource = document.getElementById("cameraSource").selectedOptions[0].value;
+		const microphoneSource = document.getElementById("microphoneSource").selectedOptions[0].value;
 
-    //share button (main, quick and obs)
-    function setupShareButton(buttonId, sessionID, urlFormatter) {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return;
+		const entry = {
+			sessionID: sessionID || "",
+			createdAt: timestamp || "",
+			projectName: sanitizedProject || "",
+			resolution: resolution || "",
+			quality: quality || "",
+			videoSource: videoSource || "",
+			audioSource: audioSource || "",
+			userName: sanitizedUserName || "",
+			cameraSource: cameraSource || "",
+			microphoneSource: microphoneSource || ""
+		};
 
-        btn.addEventListener("pointerdown", () => {
-            const value = sessionStorage.getItem(sessionID);
-            if (!value) return;
+		const sessionsJSON = localStorage.getItem(APP_NS);
+		let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
 
-            const url = urlFormatter(value);
-            console.log(`Copying to clipboard: ${url}`);
-            navigator.clipboard.writeText(url).then(() => {
-                closeDialog(shareDialog, toolShare);    //close share dialog
-                popupClipboard.classList.remove("hidden");        //show copied to clipboard message
-                popupClipboard.show();
+		sessions.unshift(entry);
+		sessions = sessions.slice(0, 5);
 
-                setTimeout(function () {         //hide copied to clipbaord message after 3 seconds
-                    popupClipboard.classList.add("hidden");
-                    popupClipboard.close();
-                }, 3000);
-            });
-        });
-    }
+		localStorage.setItem(APP_NS, JSON.stringify(sessions)); //store session settings in local storage for history
 
-    setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${value}`);
-    setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qv/?SID=${value}`);
-    setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
+		navigator.clipboard.writeText(`${devURL}/qv/?SID=${sessionID}`);         //Set Session Title & Copy Session Quick Link to Clipboard
 
-    confirmQuit.addEventListener("pointerdown", function () {
-        //stop current streams make sure video and audio objects are hidden
-        mainStream.contentWindow.postMessage({
-            "hangup": true
-        }, '*');
-        viewersStream.contentWindow.postMessage({
-            "hangup": true
-        }, '*');
-        document.getElementById("mainStream").src = "";
-        document.getElementById("viewersStream").src = "";
+		//hide stream settings creation dialog
+		sessionName.innerHTML = decodeURIComponent(sanitizedProject);
+		settingsDialog.close();
+		document.body.style.backgroundImage = "none";
 
-        location.reload();
-    });
+		//remove any previews
+		// video.srcObject = null;
+		// camera.srcObject = null;
 
-    function startSession() {
-        console.log("init session start")
-        //stuff to run once and once only when starting session
-        const sessionID = sessionStorage.getItem("sessionID");
-        const timestamp = new Date().toISOString();
-        const sanitizedProject = encodeURIComponent(document.getElementById("project").value.trim());
-        const resolution = getCheckedRadioValue("resolution"); //from initui.js
-        const quality = getCheckedRadioValue("quality"); //from initui.js
-        const videoSource = document.getElementById("videoSource").selectedOptions[0].value;
-        const audioSource = document.getElementById("audioSource").selectedOptions[0].value;
-        const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
-        const cameraSource = document.getElementById("cameraSource").selectedOptions[0].value;
-        const microphoneSource = document.getElementById("microphoneSource").selectedOptions[0].value;
+		//Change create dialog layout for settings to re-use it
+		["settingsDialog", "historyButton", "buttonMoreSettings", "settingsDialogCameraMicPreview", "settingsDialogVideoAudioPreview"].forEach(id => {
+			document.getElementById(id).classList.add("hidden");
+		});
+		settingsDialogProjectID.style.width = "200px";
+		project.style.width = "200px";
+		moresettingsHR.classList.remove("hidden");
+		settingsDialog.classList.remove("middle", "top", "min-width");
+		settingsDialog.style.minWidth = "fit-content";
+		settingsDialog.classList.add("toolpopup", "bottom", "left");
+		createHeadingSession.innerHTML = "Session settings";
+		settingsDialogSessionSettings.style.gridTemplateColumns = "110px 200px";
+		createOptional.innerHTML = "User settings";
+		moresettings.classList.remove("collapsed", "hidden");
+		settingsDialogButtons.style.justifyContent = "center";
+		startSessionButton.innerHTML = "Change settings";
 
-        const entry = {
-            sessionID: sessionID || "",
-            createdAt: timestamp || "",
-            projectName: sanitizedProject || "",
-            resolution: resolution || "",
-            quality: quality || "",
-            videoSource: videoSource || "",
-            audioSource: audioSource || "",
-            userName: sanitizedUserName || "",
-            cameraSource: cameraSource || "",
-            microphoneSource: microphoneSource || ""
-        };
+		startSessionButton.removeEventListener("pointerdown", startSession);    // Remove start session listener and add settings change listener
 
-        const sessionsJSON = localStorage.getItem(APP_NS);
-        let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
+		window.addEventListener("wheel", onWheel, { passive: false });
+		window.addEventListener("pointerdown", onMouseDown);
+		window.addEventListener("pointermove", onMouseMove);
+		window.addEventListener("pointerup", onMouseUp);
 
-        sessions.unshift(entry);
-        sessions = sessions.slice(0, 5);
+		startSessionButton.addEventListener("pointerdown", () => {
+			initUserStream();//from initvdo.js
+		});
 
-        localStorage.setItem(APP_NS, JSON.stringify(sessions)); //store session settings in local storage for history
+		["mainWindow", "peerList", "mainViewer"].forEach(id => {
+			document.getElementById(id).classList.remove("hidden");
+		});
 
-        navigator.clipboard.writeText(`${devURL}/qv/?SID=${sessionID}`);         //Set Session Title & Copy Session Quick Link to Clipboard
+		VDOConnect(sessionID);
 
-        //hide stream settings creation dialog
-        sessionName.innerHTML = decodeURIComponent(sanitizedProject || "Unnamed project");
-        settingsDialog.close();
-
-        document.body.style.backgroundImage = "none";
-
-        const numberArray = Array.from({ length: 43 }, (_, i) => String(i).padStart(3, '0'));
-        const randomNum = numberArray[Math.floor(Math.random() * numberArray.length)];
-        var avatar = `${randomNum}.png`;
-        sessionStorage.setItem("avatar", avatar);
-
-        stopAll();
-
-        //Change create dialog layout for settings to re-use it
-        ["settingsDialog", "historyButton", "settingsDialogCameraMicPreview", "buttonMoreSettings", "settingsDialogVideoAudioPreview"].forEach(id => {
-            document.getElementById(id).classList.add("hidden");
-        });
-        settingsDialogProjectID.style.width = "200px";
-        project.style.width = "200px";
-        moresettingsHR.classList.remove("hidden");
-        settingsDialog.classList.remove("middle", "top", "min-width");
-        settingsDialog.style.minWidth = "fit-content";
-        settingsDialog.classList.add("toolpopup", "bottom", "left");
-        createHeadingSession.innerHTML = "Session settings";
-        settingsDialogSessionSettings.style.gridTemplateColumns = "110px 200px";
-        createOptional.innerHTML = "User settings";
-        moresettings.classList.remove("collapsed", "hidden");
-        settingsDialogButtons.style.justifyContent = "center";
-        startSessionButton.innerHTML = "Change settings";
-
-        startSessionButton.removeEventListener("pointerdown", startSession);    // Remove start session listener and add settings change listener
-
-        window.addEventListener("wheel", onWheel, { passive: false });
-        window.addEventListener("pointerdown", onMouseDown);
-        window.addEventListener("pointermove", onMouseMove);
-        window.addEventListener("pointerup", onMouseUp);
-
-        startSessionButton.addEventListener("pointerdown", () => {
-            viewerStream(0,1);//from initvdo.js
-            setTimeout(function () {
-                startMainStream();//from initvdo.js
-            }, 500);
-        });
-
-        mainWindow.classList.remove("hidden");
-
-        viewerStream(1);//from initvdo.js
-        setTimeout(function () {
-            startMainStream(1);//from initvdo.js
-        }, 500);
-    }
+	}
 </Script>

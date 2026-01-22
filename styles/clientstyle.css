@@ -7,8 +7,8 @@
     transform: translateX(-50%);
     margin-bottom: 30px;;
     object-fit: cover;
-    width: 220px;
-    height: 220px;
+    width: 200px;
+    height: 200px;
     border-radius: 100%;
     /* background-color: black; */
     background-color: light-dark(var(--color-light-white), var(--color-dark-grey))!important;
@@ -21,8 +21,8 @@
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden;
-    height: 240px;
-    width: 240px;
+    height: 220px;
+    width: 220px;
     border-radius: 100%;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     background-color: light-dark(white, var(--color-dark-bg));
@@ -112,9 +112,13 @@ iframe {
 #zoom-popup {
     top: 15px!important;
 }
-
-.mainZoom {
-    position:fixed;
-	height: calc(100% - 25px - var(--toolbarheight))!important;
+.mainViewer {
+	height: calc(100vh - 80px)!important;
     top: 0px!important;
+}
+
+.mainStream {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
