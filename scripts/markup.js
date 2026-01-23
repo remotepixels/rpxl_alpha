@@ -31,7 +31,7 @@ function getMousePosInDiv(e) {
 
 function onWheel(e) {
     e.preventDefault();
-    if (annotationsCanvas.offsetWidth >= 2) {
+    if (markup.offsetWidth >= 2) {
         const prevScale = scale;
         const delta = -e.deltaY * 0.001;
         scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
@@ -104,8 +104,8 @@ function onMouseUp() {
 }
 
 //annotations
-const canvas = document.getElementById('annotationsCanvas');
-const ctx = document.getElementById('annotationsCanvas').getContext('2d');
+const canvas = document.getElementById('markup');
+const ctx = document.getElementById('markup').getContext('2d');
 const iframe = document.getElementById("viewersStream");
 
 // Track connected peers
@@ -116,10 +116,10 @@ let isDrawing = false;
 
 // Set up event handlers for the canvas
 function startDrawing(e) {
-    var annotationColor = document.getElementsByName("colorpot");
-    for (var i = 0; i < annotationColor.length; i++) {
-        if (annotationColor[i].checked) {
-            color = annotationColor[i].value;
+    var markupColor = document.getElementsByName("colorpot");
+    for (var i = 0; i < markupColor.length; i++) {
+        if (markupColor[i].checked) {
+            color = markupColor[i].value;
         }
     }
     isDrawing = true;
@@ -138,7 +138,7 @@ function draw(e) {
     currentPath.push({ x, y });
 
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
@@ -151,12 +151,12 @@ function endDrawing() {
     if (currentPath.length > 1) {
         drawingHistory.push({
             color: color,
-            width: 3,
+            width: 2,
             points: [...currentPath]
         });
         sendDrawingData({
             color: color,
-            width: 3,
+            width: 2,
             points: [...currentPath]
         });
     }
@@ -169,10 +169,10 @@ function toolEraserSelect() {
     drawingHistory.length = 0;
     
     // Send clear command
-    iframe.contentWindow.postMessage({
-        sendData: { overlayNinja: { drawingData: "clear" } },
-        type: "pcs"
-    }, "*");
+    // iframe.contentWindow.postMessage({
+    //     sendData: { overlayNinja: { drawingData: "clear" } },
+    //     type: "pcs"
+    // }, "*");
 }
 
 function sendDrawingData(drawing) {
@@ -183,10 +183,10 @@ function sendDrawingData(drawing) {
         w: 3
     };
 
-    iframe.contentWindow.postMessage({
-        sendData: { overlayNinja: { drawingData: drawingData } },
-        type: "pcs"
-    }, "*");
+    // iframe.contentWindow.postMessage({
+    //     sendData: { overlayNinja: { drawingData: drawingData } },
+    //     type: "pcs"
+    // }, "*");
 }
 
 function redrawCanvas() {
@@ -215,93 +215,87 @@ const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
 var canvasCurrentLeft = 0, canvasCurrentTop = 0, canvasCurrentWidth = 0, canvasCurrentHeight = 0;
 
 eventer(messageEvent, function(e) {
-    const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
+    // const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
 
-    if (e.data && e.data.sendData === 'mainstreamSize') { //check if there is a amin stream and if there is then turn on annotations tools
-        const { width, height, top, left } = e.data;
+    // if (e.data && e.data.sendData === 'mainstreamSize') { //check if there is a amin stream and if there is then turn on annotations tools
+    //     const { width, height, top, left } = e.data;
         
-        var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
+    //     var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
 
-        if (width == 0 || height == 0) {
-            let streamtools = document.querySelectorAll(".streamtool");
+    //     if (width == 0 || height == 0) {
+    //         let streamtools = document.querySelectorAll(".streamtool");
 
-                streamtools.forEach(tool => {
-                tool.classList.add("disable");
-                tool.classList.remove("selected");
-                tool.setAttribute("aria-expanded", "false");
-                tool.disabled = true;
-            });
+    //             streamtools.forEach(tool => {
+    //             tool.classList.add("disable");
+    //             tool.classList.remove("selected");
+    //             tool.setAttribute("aria-expanded", "false");
+    //             tool.disabled = true;
+    //         });
 
-            //const canvas = document.getElementById("annotationsCanvas");
+    //         //const canvas = document.getElementById("annotationsCanvas");
 
-            canvas.width = 0;
-            canvas.height = 0;
+    //         canvas.width = 0;
+    //         canvas.height = 0;
 
-            Object.assign(canvas.style, {
-            width: `${0}px`,
-            height: `${0}px`,
-            top: `${0}px`,
-            left: `${0}px`
-            });
+    //         Object.assign(canvas.style, {
+    //         width: `${0}px`,
+    //         height: `${0}px`,
+    //         top: `${0}px`,
+    //         left: `${0}px`
+    //         });
 
-            canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
-        }
-        //sometimes the video stream is not ready yet, so we need to check if width and height are 0
-        //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
-        if (left == 0 && top == 0) { 
-            document.getElementById('mainStream').style.width = "100%";
-            //console.log("resized frame to get correct top and left positions for canvas");
-        } 
-        if ((width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) && (width >= 1) && (height != 1)) {
-            var topOffset = top + offsetViewFrameTop;
-
-            let streamtools = document.querySelectorAll(".streamtool");
-            streamtools.forEach(tool => {
-                tool.classList.remove("disable");
-                tool.disabled = false;
-            });
+    //         canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
+    //     }
+    //     //sometimes the video stream is not ready yet, so we need to check if width and height are 0
+    //     //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
+    //     if (left == 0 && top == 0) { 
+    //         document.getElementById('mainStream').style.width = "100%";
+    //         //console.log("resized frame to get correct top and left positions for canvas");
+    //     } 
+    //     if ((width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) && (width >= 1) && (height != 1)) {
+    //         var topOffset = top + offsetViewFrameTop;
             
-            canvas.width = width;
-            canvas.height = height;
+    //         canvas.width = width;
+    //         canvas.height = height;
 
-            Object.assign(canvas.style, {
-            width: `${width}px`,
-            height: `${height}px`,
-            top: `${topOffset}px`,
-            left: `${left}px`
-            });
+    //         Object.assign(canvas.style, {
+    //         width: `${width}px`,
+    //         height: `${height}px`,
+    //         top: `${topOffset}px`,
+    //         left: `${left}px`
+    //         });
 
-            redrawCanvas(); //redraw canvas once resized
+    //         redrawCanvas(); //redraw canvas once resized
             
-            canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
-            console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
-        }
-    }    
+    //         canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
+    //         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
+    //     }
+    // }    
     //console.log(e.data);
 
     // Process connection events
-    if ("action" in e.data) {
-        //console.log("got some data");
-        if (e.data.action === "view-stats-updated") { return; } // Ignore stats updates
-        if (e.data.action === "guest-connected" && e.data.streamID) {
-            connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
-            console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);
+    // if ("action" in e.data) {
+    //     //console.log("got some data");
+    //     if (e.data.action === "view-stats-updated") { return; } // Ignore stats updates
+    //     if (e.data.action === "guest-connected" && e.data.streamID) {
+    //         connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
+    //         console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);
             
-            // Send current drawing state to new peer
-            if (drawingHistory.length > 0) {
-                iframe.contentWindow.postMessage({
-                    sendData: { overlayNinja: { drawingHistory: drawingHistory } },
-                    type: "pcs",
-                    UUID: e.data.streamID
-                }, "*");
+    //         // Send current drawing state to new peer
+    //         if (drawingHistory.length > 0) {
+    //             iframe.contentWindow.postMessage({
+    //                 sendData: { overlayNinja: { drawingHistory: drawingHistory } },
+    //                 type: "pcs",
+    //                 UUID: e.data.streamID
+    //             }, "*");
                 
-            }
-        } 
-        else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {
-            console.log("Guest disconnected:", e.data.streamID);
-            delete connectedPeers[e.data.streamID];
-        }
-    }
+    //         }
+    //     } 
+    //     else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {
+    //         console.log("Guest disconnected:", e.data.streamID);
+    //         delete connectedPeers[e.data.streamID];
+    //     }
+    // }
     
     // Handle received data
     if ("dataReceived" in e.data) {
@@ -371,3 +365,37 @@ eventer(messageEvent, function(e) {
         }
     }
 }, false);
+
+
+
+function resizeMarkupCanvas() {
+	const video = document.getElementById("mainStream");
+	const canvas = document.getElementById("markup");
+	const elementRect = video.getBoundingClientRect();
+	const videoAspect = video.videoWidth / video.videoHeight;
+	const elementAspect = elementRect.width / elementRect.height;
+	const dpr = window.devicePixelRatio || 1;
+	let width, height;
+
+	if (videoAspect > elementAspect) {
+		//by width
+		width = elementRect.width;
+		height = width / videoAspect;
+	} else {
+		//by height
+		height = elementRect.height;
+		width = height * videoAspect;
+	}
+
+	// Position canvas exactly over visible video
+	canvas.style.width = width + "px";
+	canvas.style.height = height + "px";
+
+	// High DPI internal resolution
+	canvas.width = width * dpr;
+	canvas.height = height * dpr;
+
+	const ctx = canvas.getContext("2d");
+	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	redrawCanvas()
+}

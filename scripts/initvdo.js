@@ -3,7 +3,9 @@ let firstRun = true;
 let userStreamID = generateRandomID();
 const sessionID = sessionStorage.getItem("sessionID");
 const isStreamer = window.location.pathname.startsWith("/stream");
-//let label = null;
+const mainVideoPreview = document.getElementById("mainStream");
+let mainStreamAudio = false;
+let userStreamAudio = "micStandby";
 
 //vdo sdk's, 
 const vdo = new VDONinjaSDK({
@@ -135,10 +137,22 @@ function initVideoTrack() {
 }
 //creates placeholder user video track, lovely shades of pastel
 function initUserVideoTrack() {
-	const hue = Math.floor(Math.random() * 360);   // any color
-	const saturation = 20 + Math.random() * 20;   // 60–80%
-	const lightness = 30 + Math.random() * 5;    // 80–90%
-	const bgColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+	let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
+	const labelInitials = sanitizedCurrentUserName ? sanitizedCurrentUserName.charAt(0).toUpperCase() : "?";
+	
+	const hue = Math.floor(Math.random() * 360);
+	const saturation = 20 + Math.random() * 20;   // pastel base
+	const lightness = 30 + Math.random() * 5;
+
+	// Gradient endpoints
+	const lightSat = saturation - 10;
+	const lightLum = lightness + 10;
+	const darkSat  = saturation + 15;
+	const darkLum  = lightness - 10;
+
+	const colorLight = `hsl(${hue}, ${lightSat}%, ${lightLum}%)`;
+	const colorDark  = `hsl(${hue}, ${darkSat}%, ${darkLum}%)`;
+
 	const canvas = document.createElement("canvas");
 	canvas.width = 64;
 	canvas.height = 64;
@@ -150,8 +164,18 @@ function initUserVideoTrack() {
 	function draw() {
 		if (!running) return;
 
-		ctx.fillStyle = bgColor;
+		const grad = ctx.createLinearGradient(0, 0, 64, 64);
+		grad.addColorStop(0, colorLight);
+		grad.addColorStop(1, colorDark);
+
+		ctx.fillStyle = grad;
 		ctx.fillRect(0, 0, 64, 64);
+
+		// ctx.fillStyle = "rgba(255,255,255,0.6)";
+		// ctx.font = "bold 20px sans-serif";
+		// ctx.textAlign = "center";
+		// ctx.textBaseline = "middle";
+		// ctx.fillText(labelInitials, 32, 32);
 
 		requestAnimationFrame(draw);
 	}
@@ -161,7 +185,6 @@ function initUserVideoTrack() {
 	const stream = canvas.captureStream(1);
 	const track = stream.getVideoTracks()[0];
 
-	// optional cleanup hook
 	track.onended = () => {
 		running = false;
 		stream.getTracks().forEach(t => t.stop());
@@ -169,6 +192,7 @@ function initUserVideoTrack() {
 
 	return { track, canvas, stream };
 }
+
 
 //connect to vdo.ninja and join room always publish a user track
 async function VDOConnect(sessionID) {
@@ -238,6 +262,7 @@ async function VDOConnect(sessionID) {
 	initUserStream();
 }
 
+
 function setupVDOListeners() {
 	//debug only, all events i know of
 	// const sdkEvents = [
@@ -256,24 +281,27 @@ function setupVDOListeners() {
 		return;
 	}
 
-	//monitor resolution of main stream and activate / decativate tools, might not be necessary
-	const mainVideoPreview = document.getElementById("mainStream");
-	// mainVideoPreview.addEventListener("loadedmetadata", (event) => {
-	//  console.warn("Meta:", event);
-	// });
+	mainVideoPreview.addEventListener("loadedmetadata", (event) => {
+	//runs when a stream is attached to the main video element
+	});
 
+	//monitor resolution of main stream and activate / decativate tools
 	mainVideoPreview.addEventListener("resize", () => {
+		//resize main stream to new resolution
 		let w = mainVideoPreview.videoWidth;
 		let h = mainVideoPreview.videoHeight;
 		mainVideoPreview.style.width = `${w}px`;
 		mainVideoPreview.style.height = `${h}px`;
-		console.warn("main stream resolution: resize", w, h);
+
+		resizeMarkupCanvas(); //markup.js
+
 		if (w <= 320 && h <= 80) {
 			deactivateTools("streamVideo");
 			//must ping host to see if placeholder audio!
 		} else {
 			reactivateTools("streamVideo");
 		}
+		//console.warn("main stream resolution: resize", w, h);
 	});
 
 	vdo.addEventListener(`connected`, (event) => {
@@ -289,7 +317,7 @@ function setupVDOListeners() {
 	});
 
 	vdo.addEventListener('peerConnected', (event) => {
-		//used to view peers that connect later in seesion (ignore streamID as will often be wrong)
+		//used to view peers that connect later in session (ignore streamID as will often be wrong)
 		const uuid = event.detail.uuid;
 		const pc = event.detail.connection?.pc;
 
@@ -300,29 +328,29 @@ function setupVDOListeners() {
 		peer.transports.user = pc;
 
 		limitVideoBitrateForUser(uuid);
-			//	limitVideoBitrateForMainStream();
+		//	limitVideoBitrateForMainStream();
 		//console.warn("peer connected",uuid, streamID,label, event);
 	});
 
-	// vdoMS.addEventListener('peerConnected', (event) => {
-	// 	const uuid = event.detail.uuid;
-	// 	const pc = event.detail.connection?.pc;
+	vdoMS.addEventListener('peerConnected', (event) => {		//NOTE! vdoMS
+		const uuid = event.detail.uuid;
+		const pc = event.detail.connection?.pc;
 
-	// 	addToRegistry(uuid, null, null, null);
-	// 	const peer = REGISTRY.get(uuid);
+		addToRegistry(uuid, null, null, null);
+		const peer = REGISTRY.get(uuid);
 
-	// 	peer.transports ??= {};
-	// 	peer.transports.main = pc;
+		peer.transports ??= {};
+		peer.transports.main = pc;
 
-	// 	limitVideoBitrateForMainStream();
-	// 	//console.warn("peer connected to ms",uuid, pc);
-	// });
+		//limitVideoBitrateForMainStream();
+		//console.warn("peer connected to ms",uuid, pc);
+	});
 
 	vdo.addEventListener('peerDisconnected', (event) => {
-		//console.warn("peer disconnected UUID:", event.detail);
 		const uuid = event.detail.uuid;
 
 		disconnectPeer(uuid);
+		//console.warn("peer disconnected UUID:", event.detail);
 	});
 
 	vdo.addEventListener('peerLatency', (event) => {
@@ -334,14 +362,20 @@ function setupVDOListeners() {
 		//console.warn(`Data channel opened with viewer: ${event.detail.uuid}...`, 'success');
 		const uuid = event.detail.uuid;
 		let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
-
+		//send users name (label) to peers
 		vdo.sendData({
 			type: 'userLabel',
 			label: sanitizedCurrentUserName,
 			timestamp: Date.now()
 		}, uuid);
+		//used if peer connects without a microphone
+		vdo.sendData({
+			type: 'userStreamAudio',
+			info: userStreamAudio,
+			timestamp: Date.now()
+		}, uuid);
 
-		//if we are streaming we need to send some extra data
+		//if we are streaming we need to send some extra data like the projec name
 		if (isStreamer) {
 			let currentProjectName = encodeURIComponent(project.value.trim() || "");
 
@@ -351,6 +385,12 @@ function setupVDOListeners() {
 				timestamp: Date.now()
 			});
 
+			vdo.sendData({
+				type: 'mainStreamAudio',
+				info: mainStreamAudio,
+				timestamp: Date.now()
+			});
+			//console.warn("sending info for main stream audio state", mainStreamAudio);
 		}
 	});
 
@@ -363,7 +403,6 @@ function setupVDOListeners() {
 
 		if (data.type === 'userLabel') {
 			const label = data.label;
-			const timestamp = data.timestamp;
 
 			addToRegistry(uuid, label, streamID, null);
 			updateDOMLabel(uuid, streamID, label);
@@ -377,12 +416,22 @@ function setupVDOListeners() {
 			projectTitle.textContent = decodeURIComponent(label);
 		}
 
-		if (data.type === 'streamAudio') {
-			const label = data.label;
-			if (label === 'placeholderAudio') {
+		if (data.type === 'mainStreamAudio') {
+			const audio = data.info;
+			//console.warn("recieved info for main stream audio state", audio);
+			if (audio === true) {
+				reactivateTools("streamAudio");
+			} else {
 				deactivateTools("streamAudio");
 			}
 		}
+
+		if (data.type === 'userStreamAudio') {
+			const audio = data.info;
+			//console.warn("recieved info for user stream audio state", audio);
+			updateDOMuserAudio(uuid, audio);
+		}
+		
 	});
 
 	vdo.addEventListener('listing', (event) => {
@@ -428,9 +477,9 @@ function setupVDOListeners() {
 		//console.warn("peer info",uuid, streamID,event);
 	});
 
-	vdo.addEventListener(`publishing`, (event) => {
+	vdoMS.addEventListener(`publishing`, (event) => {	//NOTE! vdoMS
 		//only lists the stream being published????
-		//console.warn("publishing Stream :", event.detail.streamID);
+		//console.warn("publishing Stream :", event);
 	});
 
 	vdo.addEventListener("videoaddedtoroom", (event) => {
@@ -444,90 +493,6 @@ function setupVDOListeners() {
 	});
 
 }
-
-//adds any incoming video to the DOM, ms_ (main stream is ignored), hs_ (host) is always placed top 
-function addPeerToDOM(uuid, streamID, label = null) {
-	if (streamID.startsWith("ms_") || null) return;
-
-	const peerListContainer = document.querySelector(".peerList");
-	// Prevent duplicates
-	if (document.getElementById(`peer_${uuid}`)) return;
-
-	const peerDiv = document.createElement("div");
-	peerDiv.className = "peer";
-	peerDiv.id = `peer_${uuid}`;  // unique ID for later access
-
-	// Create video element
-	const video = document.createElement("video");
-	video.className = "peerStream";
-	video.id = `video_${uuid}`;
-	video.autoplay = true;
-	video.playsInline = true;
-	video.disablePictureInPicture = true;
-
-	// Create label
-	const span = document.createElement("span");
-	span.className = "peerLabel";
-	if (streamID.startsWith("hs_")) {
-		span.textContent = label || uuid.slice(0, 10) + " (Host)";
-	} else {
-		span.textContent = label || uuid.slice(0, 10); // fallback to uuid if no name
-	}
-	peerDiv.appendChild(video);
-	peerDiv.appendChild(span);
-
-	if (streamID.startsWith("hs_")) {
-		peerListContainer.prepend(peerDiv);
-	} else {
-		peerListContainer.appendChild(peerDiv);
-	}
-}
-
-function updateDOMLabel(uuid, streamID, label) {
-	if (streamID.startsWith("hs_")) {
-		label = decodeURIComponent(label) + " (Host)";
-	} else {
-		label = decodeURIComponent(label);
-	}
-
-	if (!label) return;
-	const labelEl = document.querySelector(`#peer_${uuid} .peerLabel`);
-	if (labelEl) labelEl.textContent = label;
-	//console.warn(`Set label for peer ${uuid} to ${label}`, 'info');
-}
-
-async function disconnectPeer(uuid) {
-	const mainStream = document.getElementById("mainStream");
-	const peer = REGISTRY.get(uuid);
-	if (!peer) return;
-	const streams = peer.streams;
-
-	for (let streamID of streams.keys()) {
-		if (streamID.startsWith("ms_")) {
-			mainStream.srcObject.getTracks().forEach(t => t.stop());
-			mainStream.srcObject = null;
-			deactivateTools("streamVideo");
-			deactivateTools("streamAudio");
-		}
-	}
-
-	const peerDiv = document.getElementById(`peer_${uuid}`);
-	//vdo.stopViewing(streams);
-	if (!peerDiv) return;
-
-	//stop media
-	peerDiv.querySelectorAll("video, audio").forEach(el => {
-		if (el.srcObject) {
-			el.srcObject.getTracks().forEach(t => t.stop());
-			el.srcObject = null;
-		}
-	});
-
-	peerDiv.remove();
-	streams.clear();
-	REGISTRY.delete(uuid);
-}
-
 
 //initializes the user stream with the correct video / audio device or a placeholder stream, also sets up the label
 async function initUserStream() {
@@ -551,7 +516,7 @@ async function initUserStream() {
 		return;
 	}
 
-	if (sanitizedCurrentUserName !== last.userName || firstRun == true) {
+	if (sanitizedCurrentUserName !== last.userName || firstRun === true) {
 		const userLabel = document.getElementById("userLabel");
 		userLabel.innerHTML = decodeURIComponent(sanitizedCurrentUserName);
 
@@ -560,6 +525,7 @@ async function initUserStream() {
 			label: sanitizedCurrentUserName,
 			timestamp: Date.now()
 		});
+
 		storeSelectedDevicesUser();
 	}
 
@@ -569,7 +535,7 @@ async function initUserStream() {
 	const cameraCurrentSource = cameraSelect?.value ?? "";
 	const microphoneCurrentSource = microphoneSelect?.value ?? "";
 
-	if (cameraCurrentSource !== last.cameraSource || firstRun == true) {
+	if (cameraCurrentSource !== last.cameraSource || firstRun === true) {
 		let oldVideoTrack = TRACKS.user.video;
 		let newVideoTrack = null;
 		//init selected camera with low settings (ask nice)
@@ -586,11 +552,13 @@ async function initUserStream() {
 
 			newVideoTrack = newMediaStream.getVideoTracks()[0];
 			newMediaStream.getAudioTracks().forEach(t => t.stop());
+
 			reactivateTools("userCamera");
 		} else {
 			//console.warn("no user camera selected using placeholder");
 			const tempVideo = initUserVideoTrack();
 			newVideoTrack = tempVideo.track;
+
 			deactivateTools("userCamera");
 			hideBannerByKey("cam_muted");
 		}
@@ -609,14 +577,12 @@ async function initUserStream() {
 
 			//go through each connection and re-limit bitrate for user stream
 			for (const peer of REGISTRY.values()) {
-				//for (const stream of peer.streams.values()) {
 					limitVideoBitrateForUser(peer.uuid);
-				//}
 			}
 		}
 	}
 	//init select microphone 
-	if (microphoneCurrentSource !== last.microphoneSource || firstRun == true) {
+	if (microphoneCurrentSource !== last.microphoneSource || firstRun === true) {
 		let oldAudioTrack = TRACKS.user.audio;
 		let newAudioTrack = null;
 
@@ -633,10 +599,13 @@ async function initUserStream() {
 
 			newAudioTrack = newMediaStream.getAudioTracks()[0];
 			newMediaStream.getVideoTracks().forEach(t => t.stop());
+			userStreamAudio = "micLive"; //this is a real audio
+
 			reactivateTools("userMicrophone");
 		} else {
 			const tempAudio = initAudioTrack();
 			newAudioTrack = tempAudio.track;
+			userStreamAudio = "micStandby"; //placeholder audio
 
 			deactivateTools("userMicrophone");
 			hideBannerByKey("mic_muted");
@@ -651,14 +620,19 @@ async function initUserStream() {
 				console.warn(`Failed to switch microphone: ${error.message}`, 'error');
 			}
 
+			vdo.sendData({
+				type: 'userStreamAudio',
+				info: userStreamAudio,
+				timestamp: Date.now()
+			});
+
 			oldAudioTrack.stop();
 			TRACKS.user.audio = newAudioTrack;
 			storeSelectedDevicesUser();
 		}
 	}
-
-	if (isStreamer) initMainStream();
 	if (!isStreamer) firstRun = false; //we've run it before
+	if (isStreamer) initMainStream();
 
 	closeDialog(openModal, openIcon);
 }
@@ -701,7 +675,7 @@ async function initMainStream() {
 	const videoCurrentSource = videoSelect?.value ?? "";
 	const audioCurrentSource = audioSelect?.value ?? "";
 
-	if (videoCurrentSource !== last.videoSource || height != last.resolution || currentQuality != last.quality || firstRun == true) {
+	if (videoCurrentSource !== last.videoSource || height != last.resolution || currentQuality != last.quality || firstRun === true) {
 		let oldVideoTrack = TRACKS.main.video;
 		let newVideoTrack = null;
 
@@ -740,11 +714,11 @@ async function initMainStream() {
 			storeSelectedDevicesSession();
 		}
 		//re-limit bitrate for main stream
-		limitVideoBitrateForMainStream();
+		//limitVideoBitrateForMainStream();
 	}
 
 	//init selected audio source
-	if (audioCurrentSource !== last.audioSource || firstRun == true) {
+	if (audioCurrentSource !== last.audioSource || firstRun === true) {
 		let oldAudioTrack = TRACKS.main.audio;
 		let newAudioTrack = null;
 
@@ -761,18 +735,13 @@ async function initMainStream() {
 
 			newAudioTrack = newMediaStream.getAudioTracks()[0];
 			newMediaStream.getVideoTracks().forEach(t => t.stop());
+			mainStreamAudio = true; //this is a real audio source so allow volue control
 			reactivateTools("streamAudio");
 		} else {
 			//console.warn("no audio source selected creating empty stream");
 			const tempAudio = initAudioTrack();
 			newAudioTrack = tempAudio.track;
-
-			vdo.sendData({
-				type: 'streamAudio',
-				label: 'placeholderAudio',
-				timestamp: Date.now()
-			});
-
+			mainStreamAudio = false	//placeholder audio, no volume control
 			deactivateTools("streamAudio");
 			hideBannerByKey("audio_muted");
 		}
@@ -784,6 +753,12 @@ async function initMainStream() {
 			} catch (error) {
 				console.warn(`Failed to switch audio: ${error.message}`, 'error');
 			}
+
+			vdo.sendData({
+				type: 'mainStreamAudio',
+				info: mainStreamAudio,
+				timestamp: Date.now()
+			});
 
 			oldAudioTrack.stop();
 			TRACKS.main.audio = newAudioTrack;

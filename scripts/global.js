@@ -1,41 +1,45 @@
 //shared functions that I don't know where to put :(
 
 
-  //WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
-  async function enableWakeLock() {
-    try {
-      wakeLock = await navigator.wakeLock.request("screen");
-      wakeLock.addEventListener("release", () => {
-       //console.log("Wake Lock was released");
-      });
-      //console.log("Wake Lock active");
-    } catch (err) {
-      console.error(`${err.name}, ${err.message}`);
-    }
-  }
+//WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
+async function enableWakeLock() {
+	try {
+		wakeLock = await navigator.wakeLock.request("screen");
+		wakeLock.addEventListener("release", () => {
+			//console.log("Wake Lock was released");
+		});
+		//console.log("Wake Lock active");
+	} catch (err) {
+		console.error(`${err.name}, ${err.message}`);
+	}
+}
 
-  async function disableWakeLock() {
-    if (!wakeLock) return;
-    try {
-      await wakeLock.release();
-      wakeLock = null;
-      //console.log("Wake Lock disabled");
-    } catch (err) {
-      console.error(err);
-    }
-  }
+async function disableWakeLock() {
+	if (!wakeLock) return;
+	try {
+		await wakeLock.release();
+		wakeLock = null;
+		//console.log("Wake Lock disabled");
+	} catch (err) {
+		console.error(err);
+	}
+}
 
-  // If the tab regains focus, re-request wake lock
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && wakeLock) {
-      enableWakeLock();
-    }
-  });
+// If the tab regains focus, re-request wake lock
+document.addEventListener("visibilitychange", () => {
+	if (!document.hidden && wakeLock) {
+		enableWakeLock();
+	}
+});
 
+//resize markup canvas on window resize
+window.addEventListener("resize", () => {
+	wait(50); //wait for resize to finish	
+	resizeMarkupCanvas() //markup.js
+});
 
-  
 window.addEventListener('load', () => {
-//?
+	//?
 });
 
 window.addEventListener('beforeunload', () => {
@@ -44,7 +48,7 @@ window.addEventListener('beforeunload', () => {
 	}
 });
 
-function wait(ms) {
+function wait(ms = 50) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -55,151 +59,7 @@ function generateRandomID(len = 20) {
 	return Array.from(arr, n => chars[n % chars.length]).join('');
 }
 
-function randomBG () {
-    // Detect dark / light mode and select bg
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const numberArrayBG = Array.from({ length: 6 }, (_, i) => String(i).padStart(3, '0'));
-    const randomBG = numberArrayBG[Math.floor(Math.random() * numberArrayBG.length)];
-    const theme = isDarkMode ? 'dark' : 'light';
-    const imageUrl = `/backgrounds/${theme}_${randomBG}.jpg`;
-
-    document.body.style.backgroundImage = `url('${imageUrl}')`;
-}
-
-//check quality and resolution radio buttons
-function getCheckedRadioValue(name) {
-    const selected = document.querySelector(`input[name="${name}"]:checked`);
-    return selected ? selected.value : null;
-}
-
-//used to reset setttings dialog to previous values on open for host
-async function restoreSettingsHost() {
-    const previousSettingsJSON = localStorage.getItem(APP_NS);
-    if (!previousSettingsJSON) return;
-
-    const settings = JSON.parse(previousSettingsJSON);
-    const entry = settings && settings[0];
-    if (!entry) return;
-
-	//ugly need to rework this shit
-	document.getElementById("res1080P").checked = false;
-    document.getElementById("res720P").checked = false;
-    if (entry.resolution === "1080") document.getElementById("res1080P").checked = true;
-    if (entry.resolution === "720") document.getElementById("res720P").checked = true;
-
-    const qualityMap = {
-        "16000000": "qualityHigh",
-        "800000": "qualityMed",
-        "4000": "qualityLow"
-    };
-
-    Object.values(qualityMap).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = false;
-    });
-    const q = document.getElementById(qualityMap[entry.quality]);
-    if (q) q.checked = true;
-
-    restoreDeviceSelection("videoSource", entry.videoSource);
-    restoreDeviceSelection("audioSource", entry.audioSource);
-    restoreDeviceSelection("cameraSource", entry.cameraSource);
-    restoreDeviceSelection("microphoneSource", entry.microphoneSource);
-
-    const name = document.getElementById("name");
-	const savedName = decodeURIComponent(entry.userName);
-    if (name && savedName != "(Host)") name.value = savedName;
-}
-
-//used to reset setttings dialog to previous values on open for client
-async function restoreSettingsClient() {
-    const previousSettingsJSON = localStorage.getItem(APP_NS);
-    if (!previousSettingsJSON) return;
-	
-    const settings = JSON.parse(previousSettingsJSON);
-    const entry = settings && settings[0];
-    if (!entry) return;
-
-    restoreDeviceSelection("cameraSource", entry.cameraSource);
-    restoreDeviceSelection("microphoneSource", entry.microphoneSource);
-
-    const name = document.getElementById("name");
-    if (name) name.value = decodeURIComponent(entry.userName);
-}
-
-//selects the correct devices in the dropdowns based on saved device ids
-async function restoreDeviceSelection(selectId, savedDeviceId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-
-    select.value = savedDeviceId;
-
-    //fallback to "none" or first
-    if (select.value !== savedDeviceId) {
-        if (select.querySelector('option[value="none"]')) {
-            select.value = "none";
-        } else if (select.querySelector('option[value=""]')) {
-            select.value = "";
-        } else {
-            select.selectedIndex = 0;
-        }
-    }
-}
-
-//store session settings to localStorage
-function storeSelectedDevicesSession() {
-    const sessionsJSON = localStorage.getItem(APP_NS);
-    if (!sessionsJSON) return;
-
-    const sessions = JSON.parse(sessionsJSON);
-    if (sessions.length === 0) return;
-
-    const latest = sessions[0]; // do NOT replace timestamp or sessionID
-
-    const projectInput = document.getElementById("project");
-    const video = document.getElementById("videoSource");
-    const audio = document.getElementById("audioSource");
-
-    const merged = updateSessionEntry(latest, {
-        projectName: encodeURIComponent(projectInput.value.trim() || ""),
-        resolution: getCheckedRadioValue("resolution") || "",
-        quality: getCheckedRadioValue("quality") || "",
-        videoSource: video.selectedOptions[0].value || "",
-        audioSource: audio.selectedOptions[0].value || "",
-    });
-
-    sessions[0] = merged;
-    localStorage.setItem(APP_NS, JSON.stringify(sessions));
-}
-
-//store user settings to localStorage
-function storeSelectedDevicesUser() {
-    const sessionsJSON = localStorage.getItem(APP_NS);
-    if (!sessionsJSON) return;
-
-    const sessions = JSON.parse(sessionsJSON);
-    if (sessions.length === 0) return;
-
-    const latest = sessions[0]; // do NOT replace timestamp or sessionID
-
-    const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
-    const camera = document.getElementById("cameraSource");
-    const microphone = document.getElementById("microphoneSource");
-
-    const merged = updateSessionEntry(latest, {
-        userName: sanitizedUserName || "",
-        cameraSource: camera.selectedOptions[0].value || "",
-        microphoneSource: microphone.selectedOptions[0].value || "",
-    });
-
-    sessions[0] = merged;
-    localStorage.setItem(APP_NS, JSON.stringify(sessions));
-}
-//used if user changes any settings during a session
-function updateSessionEntry(baseEntry, updates) {
-    return { ...baseEntry, ...updates };
-}
-
-//main and user streams and tracks used for local playback
+//main and user streams and tracks used for local playback used in initvdo.js
 const TRACKS = {
 	main: {
 		video: null,
@@ -232,9 +92,9 @@ const REGISTRY = new Map();
 //       }
 //     }
 //	transports:{
-		//main:null,
-		//user:null
-		//}
+//main:null,
+//user:null
+//}
 //	
 //   }
 // }
@@ -262,7 +122,7 @@ function isValidStreamID(id) {
 	if (!hasKnownPrefix && id.includes("_")) return false;
 
 	return randomPart.length === RANDOM_ID_LENGTH &&
-	       BASE62_RE.test(randomPart);
+		BASE62_RE.test(randomPart);
 }
 
 //creates REGISTRY of all connected peers, their stream, tracks, labels etc.
@@ -332,14 +192,14 @@ function addToRegistry(uuid, label = null, streamID = null, track = null) {
 			readyState: track.readyState ?? "live"
 		};
 	}
-	addTracksToStream (uuid, streamID, track)
+	addTracksToStream(uuid, streamID, track)
 }
 
 //attaches tracks to streams in DOM, ms_(main stream) is always dropped in main viewer
-function addTracksToStream (uuid, streamID, track){
+function addTracksToStream(uuid, streamID, track) {
 	let whichStream = null;
 	if (!isStreamer && streamID.startsWith("ms_")) {
-	  	whichStream = document.getElementById('mainStream');
+		whichStream = document.getElementById('mainStream');
 	} else {
 		whichStream = document.getElementById(`video_${uuid}`);
 	}
@@ -347,7 +207,7 @@ function addTracksToStream (uuid, streamID, track){
 		//console.log("something very bad has happened");
 		return;
 	}
-	
+
 	if (!whichStream.srcObject) {
 		whichStream.srcObject = new MediaStream();
 	}
@@ -355,17 +215,17 @@ function addTracksToStream (uuid, streamID, track){
 
 	try {
 		stream.getTracks().filter(t => t.kind === track.kind).forEach(t => stream.removeTrack(t));
-	} catch (e) { 
-		console.warn("failed to remove tracks from stream ", stream, track) 
+	} catch (e) {
+		console.warn("failed to remove tracks from stream ", stream, track)
 	}
 
 	try { stream.addTrack(track); } catch (e) {
 		console.warn("failed to add tracks to stream ", stream, track)
-	 }
-	
+	}
+
 	if (track.kind === 'audio') {
 		//do not reassigning srcObject, just ensure playback
-		
+
 	}
 	if (track.kind === 'video') {
 		//do not reassigning srcObject, just ensure playback
@@ -394,8 +254,8 @@ function limitVideoBitrateForUser(uuid) {
 
 	for (let streamID of streams.keys()) {
 		if (streamID.startsWith("ms_")) {
-            return;
-        } else {
+			return;
+		} else {
 			const pc = peer.transports?.user;
 			if (!pc) return;
 
@@ -410,7 +270,7 @@ function limitVideoBitrateForUser(uuid) {
 
 			params.encodings[0].maxBitrate = 30_000;
 			params.encodings[0].minBitrate = 5_000;
-			params.encodings[0].scaleResolutionDownBy = 4;
+			params.encodings[0].scaleResolutionDownBy = 2;
 			params.encodings[0].maxFramerate = 5;
 			params.encodings[0].priority = "low";
 			params.encodings[0].degradationPreference = "maintain-framerate";
@@ -420,7 +280,7 @@ function limitVideoBitrateForUser(uuid) {
 				console.warn("Failed to set bitrate:", err);
 			});
 		}
-    }
+	}
 }
 
 //this ain't doin' shit but you get the idea
@@ -432,15 +292,103 @@ function limitVideoBitrateForMainStream() {
 
 	if (!pc) return console.warn("vdoMS PC not ready", vdoMS);
 
-    const sender = pc.getSenders().find(s => s.track?.kind === "video");
-    if (!sender) return console.warn("No main stream sender yet");
+	const sender = pc.getSenders().find(s => s.track?.kind === "video");
+	if (!sender) return console.warn("No main stream sender yet");
 
-    const params = sender.getParameters();
-    params.encodings ??= [{}];
+	const params = sender.getParameters();
+	params.encodings ??= [{}];
 
-    params.encodings[0].maxBitrate = 50_000; // 50 kbps example
-    params.encodings[0].scaleResolutionDownBy = 4;
-    params.encodings[0].maxFramerate = 15;
+	params.encodings[0].maxBitrate = 50_000; // 50 kbps example
+	params.encodings[0].scaleResolutionDownBy = 4;
+	params.encodings[0].maxFramerate = 15;
 
-    sender.setParameters(params).catch(console.warn);
-  }
+	sender.setParameters(params).catch(console.warn);
+}
+
+
+/*
+for vu of individuals
+
+.peerStream {
+	outline: 3px solid var(--mic-color, red);
+	--vu-level: 0%;
+	position: relative;
+}
+
+.peerStream::after {
+	content: "";
+	position: absolute;
+	inset: -3px;
+	border-radius: inherit;
+	pointer-events: none;
+
+	background: linear-gradient(
+		to top,
+		rgba(0,150,255,0.9) var(--vu-level),
+		rgba(0,150,255,0.0) var(--vu-level)
+	);
+	mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+	-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+	mask-composite: exclude;
+	-webkit-mask-composite: xor;
+	padding: 3px;
+}
+
+
+function updatePeerVU(uuid, level) {
+	const video = document.querySelector(`#video_${uuid}`);
+	if (!video) return;
+
+	// clamp 0–100
+	level = Math.max(0, Math.min(level, 100));
+
+	video.style.setProperty("--vu-level", `${level}%`);
+}
+
+const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+updatePeerVU(myUUID, avg);
+
+function updateDOMuserAudio(uuid, audio) {
+	const video = document.querySelector(`#video_${uuid}`);
+	if (!video) return;
+
+	video.classList.remove("micLive", "micMute", "micStandby");
+
+	if (audio === "micLive") {
+		video.classList.add("micLive");
+		video.style.setProperty("--mic-color", "lightgrey");
+	}
+	if (audio === "micMute") {
+		video.classList.add("micMute");
+		video.style.setProperty("--mic-color", "red");
+		video.style.setProperty("--vu-level", "0%");
+	}
+	if (audio === "micStandby") {
+		video.classList.add("micStandby");
+		video.style.setProperty("--mic-color", "orange");
+	}
+}
+
+
+pc.getStats().then(stats => {
+	stats.forEach(r => {
+		if (r.type === "inbound-rtp" && r.kind === "audio") {
+			const level = (r.audioLevel || 0) * 100;
+			updatePeerVU(uuid, level);
+		}
+	});
+});
+
+
+sendData({ type: "vu", level: avg });
+
+  let last = 0;
+function smoothVU(uuid, level) {
+	last = last * 0.7 + level * 0.3;
+	updatePeerVU(uuid, last);
+}
+
+
+
+*/

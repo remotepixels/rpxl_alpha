@@ -43,7 +43,7 @@
     <div class="mainViewer hidden" id="mainViewer">
    	 	<div class="mainZoom" id="zoomdiv">
 		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-       		<canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+       		<canvas id="markup" class="markup"></canvas>
     	</div>
 	</div>
 
@@ -75,6 +75,10 @@
                 </div>
             </div>
             <div class="toolbar-section center">
+				<div class="toolset">
+					<button class="tool disable hidden" aria-expanded="false" id="toolFileShare" disabled role="button"><span class="material-symbols-outlined">folder</span></button>
+ 				</div>
+
                 <div class="toolset">
 					<button class="tool red disable hidden " aria-expanded="false" id="toolBlindStream" disabled role="button"><span class="material-symbols-outlined">movie</span></button>
 					<button class="tool red disable hidden" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>
@@ -97,36 +101,60 @@
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--Setup screen, also used as setting panel later-->
-    <dialog open id="settingsDialog" class="toolpopup top middle" style="min-width:640px">
+    <dialog open id="settingsDialog" class="toolpopup top middle" style="min-width:620px">
         <div class="" id="settingsDialogTitleCreate" style="text-align: left; width:100%;">
             <h2 id="createHeadingSession" style="padding-bottom: 10px;">Create live session</h2><a href="help.html" target="_blank" class="helpicon">
             <span class="material-symbols-outlined">help</span></a>
         </div>
-        <div class="table" id="settingsDialogProjectID">
+        <div class="tableStream" id="settingsDialogProjectID">
             <div>Project</div>
-            <div><input type="text" class="textinput" maxlenght="40" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
-                <span class="toolset" id="historyButton"><button class="tool moresettings" id="toolHistory" aria-expanded="false" role="button">
-                    <span class="material-symbols-outlined">history</span></button>
-                </span>
-            </div>
+            <div  style="grid-column: 2 / span 3;">
+				<input type="text" class="textinput" maxlenght="40" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
+				<span class="toolset" id="historyButton">
+					<button class="tool moresettings" id="toolHistory" aria-expanded="false" role="button">
+						<span class="material-symbols-outlined">history</span>
+					</button>
+				</span>
+			</div>
 			<!-- <div>Password</div> -->
             <!-- <div><input type="text" class="textinput" maxlenght="40" id="password" name="clientName" placeholder="(Optional)" contenteditable="true"></div> -->
         </div>
         <!-- <div style="width:100%"><hr></div> -->
-        <div class="table" id="settingsDialogSessionSettings">
-            <div>Resolution</div><div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button"><label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label><label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label></div>
-            <div>Quality</div><div class="radioset" role="radiogroup" aria-labelledby="quality" role="button"><label><input type="radio" name="quality" id="qualityHigh" value=16000000>High</label><label><input type="radio" name="quality" id="qualityMed" value=800000 checked>Med</label><label><input type="radio" name="quality" id="qualityLow" value=4000>Low</label></div>
+		<div style="width:100%; margin:10px 0px;"></div>
+        <div class="tableStream" id="settingsDialogSessionSettings"">
+            <div>Resolution</div>
+			<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
+				<label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label>
+				<label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label>
+			</div>
+            <div>Quality</div>
+			<div class="radioset" role="radiogroup" aria-labelledby="quality" role="button">
+				<label><input type="radio" name="quality" id="qualityHigh" value=16000000>High</label>
+				<label><input type="radio" name="quality" id="qualityMed" value=800000 checked>Med</label>
+				<label><input type="radio" name="quality" id="qualityLow" value=4000>Low</label>
+			</div>
             <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
-            <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
-            <div style="grid-column: 3 / span 2; grid-row: 1 / span 4; position:relative; top:3px;" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource" autoplay playsinline disablepictureinpicture muted></video><span id="meterGraph" class="meterGraph"><span id="audiometer" class="meter"></span></div>
+            <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
+			<div style="grid-column: 3; grid-row: 1 / span 4;" id="settingsDialogVideoAudioPreview">
+				<video id="video" class="videosource" autoplay playsinline disablepictureinpicture muted></video>
+				<span id="meterGraph" class="meterGraph">	<span id="audiometer" class="meter"></span>	</span>
+			</div>
         </div>
-        <div style="width:100%; margin:5px 0px;"></div>
-        <div class="table collapsed" id="moresettings">
+        <div style="width:100%; margin:10px 0px;"></div>
+        <div class="tableStream collapsed" id="moresettings">
             <div style="grid-column: 1 / span 2;"><h2 id="createOptional">Optional user settings</h2></div>
-            <div>User</div><div><input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" contenteditable="true" autocomplete="off"></div>
-            <div>Camera</div><div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
-            <div>Microphone</div><div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
-            <div id="settingsDialogCameraMicPreview" style="grid-column: 3 / span 2; grid-row: 1 / span 4;"><video id="camera" class="camera" autoplay playsinline disablepictureinpicture muted></video></span><span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span></div>
+            <div>User</div>
+			<div>
+				<input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" contenteditable="true" autocomplete="off">
+			</div>
+            <div>Camera</div>
+			<div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
+            <div>Microphone</div>
+			<div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
+            <div id="settingsDialogCameraMicPreview" style="grid-column: 3; grid-row: 1 / span 4;">
+				<video id="camera" class="camera" autoplay playsinline disablepictureinpicture muted></video>
+				<span id="meterGraph" class="meterGraph">	<span id="micmeter" class="meter"></span>	</span>
+			</div>
         </div>
         <div id="moresettingsHR" class="" style="width:100%; margin:10px 0px;"><HR></div>
         <div id="settingsDialogButtons" style="position: relative; width: 100%; display: inline-flex; justify-content: space-between; align-items: center;">
@@ -197,12 +225,15 @@
 
 </body>
 </html>
+
 <script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/storage.js"></script>
 <script src="/scripts/global.js"></script>
 <script src="/scripts/initdevice.js"></script>
 <script src="/scripts/initvdo.js"></script>
 <script src="/scripts/interface.js"></script>
 <script src="/scripts/markup.js"></script>
+
 <script type="text/javascript">
 	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 	sessionStorage.setItem("sessionID", generateRandomID());  //create session ID and store in session storage
@@ -227,7 +258,7 @@
 			mobileDialog.classList.add("hidden");
 			mobileDialog.close();
 		});
-		console.log("User is on a mobile device.");
+		//console.log("User is on a mobile device.");
 	}
 
 	//pretty date in history dialog
@@ -346,7 +377,7 @@
 			if (!value) return;
 
 			const url = urlFormatter(value);
-			console.log(`Copying to clipboard: ${url}`);
+			//console.log(`Copying to clipboard: ${url}`);
 			navigator.clipboard.writeText(url).then(() => {
 				closeDialog(shareDialog, toolShare);    //close share dialog
 				showBanner({ message:"Link copied to clipboard", type:"notification", timeout:3000 });
@@ -402,7 +433,7 @@
 
 		localStorage.setItem(APP_NS, JSON.stringify(sessions)); //store session settings in local storage for history
 
-		navigator.clipboard.writeText(`${devURL}/qv/?SID=${sessionID}`);         //Set Session Title & Copy Session Quick Link to Clipboard
+		navigator.clipboard.writeText(`${devURL}/?SID=${sessionID}`);  
 
 		//hide stream settings creation dialog
 		sessionName.innerHTML = decodeURIComponent(sanitizedProject);
@@ -410,15 +441,16 @@
 		document.body.style.backgroundImage = "none";
 
 		//remove any previews
-		// video.srcObject = null;
-		// camera.srcObject = null;
+		 video.srcObject = null;
+		 camera.srcObject = null;
 
 		//Change create dialog layout for settings to re-use it
 		["settingsDialog", "historyButton", "buttonMoreSettings", "settingsDialogCameraMicPreview", "settingsDialogVideoAudioPreview"].forEach(id => {
 			document.getElementById(id).classList.add("hidden");
 		});
-		settingsDialogProjectID.style.width = "200px";
+		// settingsDialogProjectID.style.width = "200px";
 		project.style.width = "200px";
+		project.style.left = "5px";
 		moresettingsHR.classList.remove("hidden");
 		settingsDialog.classList.remove("middle", "top", "min-width");
 		settingsDialog.style.minWidth = "fit-content";
@@ -429,6 +461,8 @@
 		moresettings.classList.remove("collapsed", "hidden");
 		settingsDialogButtons.style.justifyContent = "center";
 		startSessionButton.innerHTML = "Change settings";
+		moresettings.classList.add("hideTableColumn");
+		settingsDialogSessionSettings.classList.add("hideTableColumn");
 
 		startSessionButton.removeEventListener("pointerdown", startSession);    // Remove start session listener and add settings change listener
 
@@ -446,6 +480,5 @@
 		});
 
 		VDOConnect(sessionID);
-
 	}
 </Script>

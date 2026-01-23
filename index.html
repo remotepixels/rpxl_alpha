@@ -147,7 +147,7 @@
     <div class="mainViewer hidden" id="mainViewer">
    	 	<div class="mainZoom" id="zoomdiv">
 		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-       		<canvas id="annotationsCanvas" class="annotationsCanvas"></canvas>
+       		<canvas id="markup" class="markup"></canvas>
     	</div>
 	</div>
 
@@ -173,24 +173,20 @@
             </div>
             <div class="toolbar-section right">
                 <div class="toolset">
-                    <!-- <button class="tool toolmoresettings disable" aria-expanded="false" id="toolFiles" disabled role="button"><span class="material-symbols-outlined">folder</span></button> -->
-                <!-- </div>
-                <div class="toolset"> -->
-                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>
-                    <!-- <span class="tool volume" role="button"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" disabled /></span> -->
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
                 </div>
             </div>
         </div>
         <div class="copyCreditGrad"></div>
         <div class="copyText toolbar-section left" id="statusLeft"></div>
-		<div class="copyText toolbar-section right" id="statusRight">Status :</div>
+		<div class="copyText toolbar-section right" id="statusRight"></div>
     </div>
 
     <div class="popupBG hidden" id="popupBG"></div>
 
     <!--enter username, select camera and microphone dialog-->
     <dialog id="settingsDialog" class="toolpopup top middle hidden">
-        <div class="table">
+        <div class="tableClient">
             <div id="camPreview" style="grid-column: 1 / span 2;">
                 <video id="camera" class="camera " autoplay playsinline poster=""></video>
                 <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
@@ -245,6 +241,7 @@
 </html>
 
 <script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/storage.js"></script>
 <script src="/scripts/global.js"></script>
 <script src="/scripts/initdevice.js"></script>
 <script src="/scripts/initvdo.js"></script>
@@ -265,10 +262,9 @@ document.getElementById("checkLogin").addEventListener("pointerdown", setupSessi
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-        event.preventDefault();
         setupSession();
-    }
-});
+		}
+    }, { once: true });
 
 //check session url parameter if supplied
 checkSessionURL ();

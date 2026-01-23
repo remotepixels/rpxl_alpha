@@ -1,3 +1,20 @@
+.tableClient {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto auto;
+	/* grid-template-rows: repeat(4, 40px); */
+	column-gap: 5px;
+	row-gap: 5px;
+	width: 100%;
+	/* border: 1px solid black; */
+}
+
+.tableClient>div{
+	flex: 1;
+	text-align: left;
+	align-content: center;
+	/* border: 1px solid black; */
+}
 
 .camera {
     /* display: block; */
@@ -7,13 +24,14 @@
     transform: translateX(-50%);
     margin-bottom: 30px;;
     object-fit: cover;
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
     border-radius: 100%;
     /* background-color: black; */
     background-color: light-dark(var(--color-light-white), var(--color-dark-grey))!important;
     opacity: 1;
     z-index: 3;
+
 }
 .meterGraph {
     position: absolute;
@@ -21,11 +39,11 @@
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden;
-    height: 220px;
-    width: 220px;
+    height: 240px;
+    width: 240px;
     border-radius: 100%;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
-    background-color: light-dark(white, var(--color-dark-bg));
+    background-color: light-dark( white, var(--color-dark-bg));
 }
 .siteHeader{
     position: relative;

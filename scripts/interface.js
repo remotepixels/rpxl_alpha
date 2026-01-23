@@ -14,6 +14,8 @@ const toolSettings = document.getElementById("toolSettings");
 //user tools
 const toolMuteMicrophone = document.getElementById("toolMuteMicrophone");
 const toolMuteCamera = document.getElementById("toolMuteCamera");
+//file share tools
+const toolFileShare = document.getElementById("toolFileShare");
 //stream tools
 const toolDraw = document.getElementById("toolDraw");
 const toolPalette = document.getElementById("toolPalette");
@@ -39,6 +41,12 @@ function deactivateTools(whichTools) {
 	if (whichTools === "userCamera") {
 		toolConfig = {
 			toolMuteCamera: { icon: "photo_camera" }
+		};
+	}
+
+	if (whichTools === "fileShare") {
+		toolConfig = {
+			toolFileShare: { icon: "folder" }
 		};
 	}
 
@@ -90,6 +98,13 @@ function reactivateTools(whichTools) {
 			toolMuteCamera: { icon: "photo_camera" }
 		};
 	}
+
+	if (whichTools === "fileShare") {
+		toolConfig = {
+			toolFileShare: { icon: "folder" }
+		};
+	}
+
 	if (whichTools === "streamVideo") {
 		toolConfig = {
 			toolDraw: { icon: "format_ink_highlighter" },
@@ -104,6 +119,7 @@ function reactivateTools(whichTools) {
 			toolMuteStream: { icon: "volume_up" },
 			toolVolume: { icon: "" }
 		};
+
 	}
 	document.querySelectorAll(".tool").forEach(tool => {
 		const cfg = toolConfig[tool.id];
@@ -178,12 +194,26 @@ function toolMuteMicrophoneSelect () {
         toolMuteMicrophone.classList.toggle("selected");  
         toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
 		TRACKS.user.audio.enabled = false;
+		
+		vdo.sendData({
+				type: 'userStreamAudio',
+				info: "micMute",
+				timestamp: Date.now()
+		});
+
 		showBanner({ key:"mic_muted", message:"Your Microphone has been muted", type:"warning", timeout:null });
     } else {
         toolMuteMicrophone.setAttribute("aria-expanded", "false");
         toolMuteMicrophone.classList.toggle("selected"); 
         toolMuteMicrophone.lastElementChild.innerHTML = "mic";
 		TRACKS.user.audio.enabled = true;
+
+		vdo.sendData({
+				type: 'userStreamAudio',
+				info: "micLive",
+				timestamp: Date.now()
+		});
+
 		hideBannerByKey("mic_muted");
     }
 }
@@ -242,8 +272,8 @@ function toolDrawSelect () {
 		toolDraw.setAttribute("aria-expanded", "true");
         toolDraw.classList.toggle("selected"); 
 
-        document.getElementById("annotationsCanvas").style.display = "block";
-        document.getElementById("annotationsCanvas").style.cursor = "crosshair";
+        document.getElementById("markup").style.display = "block";
+        document.getElementById("markup").style.cursor = "crosshair";
 
         canvas.addEventListener('pointerdown', startDrawing);
         canvas.addEventListener('pointermove', draw);
@@ -253,7 +283,7 @@ function toolDrawSelect () {
 		toolDraw.setAttribute("aria-expanded", "false");
         toolDraw.classList.toggle("selected"); 
 
-        document.getElementById("annotationsCanvas").style.cursor = "default";
+        document.getElementById("markup").style.cursor = "default";
 
         canvas.removeEventListener('pointerdown', startDrawing);
         canvas.removeEventListener('pointermove', draw);
@@ -265,10 +295,8 @@ function toolDrawSelect () {
 // specific for markup color pots popup
 colorPots.forEach(colorPot => {
     colorPot.addEventListener('pointerdown', () => {
-
         const newSelectedColor = colorPot.getAttribute('value');
         color = newSelectedColor;
-        console.log('Selected color:', color); // Optional: Log the selected color
 
         const previouslySelected = document.querySelector('.colorpot.selectedcolorpot');
         if (previouslySelected) {
@@ -331,4 +359,131 @@ function hideBanner(banner) {
 function hideBannerByKey(key) {
     const banner = activeBanners.get(key);
     if (banner) hideBanner(banner);
+}
+
+//adding peers and tracks to DOM
+
+//adds any incoming video to the DOM, ms_ (main stream is ignored), hs_ (host) is always placed top 
+function addPeerToDOM(uuid, streamID, label = null) {
+	if (streamID.startsWith("ms_") || null) return;
+
+	const peerListContainer = document.querySelector(".peerList");
+	// Prevent duplicates
+	if (document.getElementById(`peer_${uuid}`)) return;
+
+	const peerDiv = document.createElement("div");
+	peerDiv.className = "peer";
+	peerDiv.id = `peer_${uuid}`;  // unique ID for later access
+
+	// Create video element
+	const video = document.createElement("video");
+	video.className = "peerStream";
+	video.id = `video_${uuid}`;
+	video.autoplay = true;
+	video.playsInline = true;
+	video.disablePictureInPicture = true;
+
+	// Create label
+	const span = document.createElement("span");
+	span.className = "peerLabel";
+	if (streamID.startsWith("hs_")) {
+		span.textContent = label || uuid.slice(0, 10) + " (Host)";
+	} else {
+		span.textContent = label || uuid.slice(0, 10); // fallback to uuid if no name
+	}
+	peerDiv.appendChild(video);
+	peerDiv.appendChild(span);
+
+	if (streamID.startsWith("hs_")) {
+		peerListContainer.prepend(peerDiv);
+	} else {
+		peerListContainer.appendChild(peerDiv);
+	}
+}
+
+function updateDOMLabel(uuid, streamID, label) {
+	if (streamID.startsWith("hs_")) {
+		label = decodeURIComponent(label) + " (Host)";
+	} else {
+		label = decodeURIComponent(label);
+	}
+
+	if (!label) return;
+	const labelEl = document.querySelector(`#peer_${uuid} .peerLabel`);
+	if (labelEl) labelEl.textContent = label;
+	//console.warn(`Set label for peer ${uuid} to ${label}`, 'info');
+}
+
+function updateDOMuserAudio(uuid, audio) {
+	if (!uuid) return;
+
+	const video = document.querySelector(`#video_${uuid}`);
+	if (!video) return;
+
+	if (audio === "micStandby") {
+		video.classList.remove("micLive", "micMute");
+		video.classList.add("micStandby");
+		return;
+	}
+	if (audio === "micMute") {
+		video.classList.remove("micLive", "micStandby");
+		video.classList.add("micMute");
+		return;
+	}	
+	if (audio === "micLive") {
+				video.classList.remove("micStandby", "micMute");
+		video.classList.add("micLive");
+		return;
+	}	
+}
+
+
+async function disconnectPeer(uuid) {
+	const mainStream = document.getElementById("mainStream");
+	const peer = REGISTRY.get(uuid);
+	if (!peer) return;
+	const streams = peer.streams;
+
+	for (let streamID of streams.keys()) {
+		if (streamID.startsWith("ms_")) {
+			mainStream.srcObject.getTracks().forEach(t => t.stop());
+			mainStream.srcObject = null;
+			deactivateTools("streamVideo");
+			deactivateTools("streamAudio");
+		}
+	}
+
+	const peerDiv = document.getElementById(`peer_${uuid}`);
+	//vdo.stopViewing(streams);
+	if (!peerDiv) return;
+
+	//stop media
+	peerDiv.querySelectorAll("video, audio").forEach(el => {
+		if (el.srcObject) {
+			el.srcObject.getTracks().forEach(t => t.stop());
+			el.srcObject = null;
+		}
+	});
+
+	peerDiv.remove();
+	streams.clear();
+	REGISTRY.delete(uuid);
+}
+
+//other interface bits, storing device info, recalling history etc
+function randomBG() {
+	// Detect dark / light mode and select bg
+	const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+	const numberArrayBG = Array.from({ length: 6 }, (_, i) => String(i).padStart(3, '0'));
+	const randomBG = numberArrayBG[Math.floor(Math.random() * numberArrayBG.length)];
+	const theme = isDarkMode ? 'dark' : 'light';
+	const imageUrl = `/backgrounds/${theme}_${randomBG}.jpg`;
+
+	document.body.style.backgroundImage = `url('${imageUrl}')`;
+}
+
+//check quality and resolution radio buttons
+function getCheckedRadioValue(name) {
+	const selected = document.querySelector(`input[name="${name}"]:checked`);
+	return selected ? selected.value : null;
 }

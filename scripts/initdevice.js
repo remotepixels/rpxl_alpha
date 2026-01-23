@@ -22,74 +22,82 @@ function scheduleSelectionChange() {
 	selectionTimer = setTimeout(handleSelectionChange, 50);
 }
 
-//get a list of devices, requesting permissions if needed, warns if error, populates the device select elements
 async function getDevices() {
-	const permissionStreamer = document.getElementById("permissionsDialogStream");
-	const permissionClient = document.getElementById("permissionsDialogClient");
+	const permissionsDialogStream = document.getElementById("permissionsDialogStream");
+	const permissionsDialogClient = document.getElementById("permissionsDialogClient");
+
+	let probeStream = null;
+	let micAllowed = false;
+	let camAllowed = false;
 
 	try {
-		probeVideoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+		probeStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+		micAllowed = !!probeStream.getAudioTracks()[0];
+		camAllowed = !!probeStream.getVideoTracks()[0];
 	} catch (e) {
-		if (permissionStreamer) {
-			permissionsDialogStream.classList.remove("hidden");
-			permissionsDialogStream.show();
-			settingsDialog.classList.add("hidden");
-			//console.log("Video access was denied.");
-		} else {
-			if (userVideoSelect) userVideoSelect.disabled = true;
-		}
+		console.warn("Permission probe failed:", e);
 	}
 
-	try {
-		probeAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-	} catch (e) {
-		if (permissionStreamer) {
+	if (probeStream) {
+		probeStream.getTracks().forEach(t => t.stop());
+		probeStream = null;
+	}
+
+	if (!camAllowed || !micAllowed) {
+		// Streamer
+		if (permissionsDialogStream) {
 			permissionsDialogStream.classList.remove("hidden");
 			permissionsDialogStream.show();
-			settingsDialog.classList.add("hidden");
-			//console.log("Audio access was denied.");
+			settingsDialog?.classList.add("hidden");
 		}
-		if (permissionClient && permissionClient.classList.contains("hidden")) {
-			permissionClient.classList.remove("hidden");
-			permissionClient.show();
+
+		// Client dialog
+		if (permissionsDialogClient && permissionsDialogClient.classList.contains("hidden")) {
+			permissionsDialogClient.classList.remove("hidden");
+			permissionsDialogClient.show();
+
 			document.getElementById("permissionIgnore")?.focus();
-			document.getElementById("permissionIgnore")?.addEventListener("pointerdown", function () {
-			document.getElementById("permissionsCheck").classList.add("hidden");
+			document.getElementById("permissionIgnore")?.addEventListener("pointerdown", () => {
+				document.getElementById("permissionsCheck")?.classList.add("hidden");
 			});
-			if (userAudioSelect) userAudioSelect.disabled = true;
-			//console.log("Microphone access was denied.");
+		}
+
+		// Disable dropdowns
+		if (!micAllowed) {
+			mainAudioSelect.disabled = true;
+			userAudioSelect.disabled = true;
+		}
+		if (!camAllowed) {
+			mainVideoSelect.disabled = true;
+			userVideoSelect.disabled = true;
 		}
 	}
 
-	devices = await navigator.mediaDevices.enumerateDevices();
+	//ENUMERATE DEVICES 
+	const devices = await navigator.mediaDevices.enumerateDevices();
+	const audioInputs = devices.filter(d => d.kind === "audioinput");
+	const videoInputs = devices.filter(d => d.kind === "videoinput");
 
-	if (probeVideoStream) {
-		probeVideoStream.getTracks().forEach(t => t.stop());
-		probeVideoStream = null;
-	}
-
-	if (probeAudioStream) {
-		probeAudioStream.getTracks().forEach(t => t.stop());
-		probeAudioStream = null;
-	}
-
-	const audioInputs = devices.filter(d => d.kind === 'audioinput');
-	const videoInputs = devices.filter(d => d.kind === 'videoinput');
-
-	[mainAudioSelect, userAudioSelect].forEach(sel => sel.innerHTML = '<option value="" selected>None</option>');
-	[mainVideoSelect, userVideoSelect].forEach(sel => sel.innerHTML = '<option value="" selected>None</option>');
+	[mainAudioSelect, userAudioSelect].forEach(sel =>
+		sel.innerHTML = '<option value="" selected>None</option>'
+	);
+	[mainVideoSelect, userVideoSelect].forEach(sel =>
+		sel.innerHTML = '<option value="" selected>None</option>'
+	);
 
 	audioInputs.forEach(device => {
-		if (device.deviceId !== 'default') {
-			const option = new Option(device.label || `Microphone ${device.deviceId}`, device.deviceId);
+		if (device.deviceId !== "default") {
+			const label = device.label || `Microphone ${device.deviceId.slice(0, 6)}`;
+			const option = new Option(label, device.deviceId);
 			mainAudioSelect.add(option.cloneNode(true));
 			userAudioSelect.add(option.cloneNode(true));
 		}
 	});
 
 	videoInputs.forEach(device => {
-		if (device.deviceId !== 'default') {
-			const option = new Option(device.label || `Camera ${device.deviceId}`, device.deviceId);
+		if (device.deviceId !== "default") {
+			const label = device.label || `Camera ${device.deviceId.slice(0, 6)}`;
+			const option = new Option(label, device.deviceId);
 			mainVideoSelect.add(option.cloneNode(true));
 			userVideoSelect.add(option.cloneNode(true));
 		}
