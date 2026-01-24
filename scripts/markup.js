@@ -11,362 +11,225 @@ const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 
 function applyTransform() {
-      zoomDiv.style.transform = `
+	zoomDiv.style.transform = `
         translate(${translate.x}px, ${translate.y}px)
         scale(${scale})
       `;
 }
 
 function clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
+	return Math.min(Math.max(value, min), max);
 }
 
 function getMousePosInDiv(e) {
-      const rect = zoomDiv.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
+	const rect = zoomDiv.getBoundingClientRect();
+	return {
+		x: e.clientX - rect.left,
+		y: e.clientY - rect.top
+	};
 }
 
 function onWheel(e) {
-    e.preventDefault();
-    if (markup.offsetWidth >= 2) {
-        const prevScale = scale;
-        const delta = -e.deltaY * 0.001;
-        scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
+	e.preventDefault();
+	if (markup.offsetWidth >= 2) {
+		const prevScale = scale;
+		const delta = -e.deltaY * 0.001;
+		scale = clamp(scale + delta, MIN_SCALE, MAX_SCALE);
 
-        if (scale === 1) {
-            translate.x = 0;
-            translate.y = 0;
-            zoomPopup.classList.remove("visible");
-        } else {
-            zoomPopup.classList.add("visible");
+		if (scale === 1) {
+			translate.x = 0;
+			translate.y = 0;
+			zoomPopup.classList.remove("visible");
+		} else {
+			zoomPopup.classList.add("visible");
 
-            const rect = zoomDiv.getBoundingClientRect();
-            const dx = (e.clientX - rect.left - rect.width / 2);
-            const dy = (e.clientY - rect.top - rect.height / 2);
+			const rect = zoomDiv.getBoundingClientRect();
+			const dx = (e.clientX - rect.left - rect.width / 2);
+			const dy = (e.clientY - rect.top - rect.height / 2);
 
-            translate.x -= dx * (scale - prevScale) / scale;
-            translate.y -= dy * (scale - prevScale) / scale;
+			translate.x -= dx * (scale - prevScale) / scale;
+			translate.y -= dy * (scale - prevScale) / scale;
 
-            constrainPan();
-        }
+			constrainPan();
+		}
 
-        applyTransform();
-    }
+		applyTransform();
+	}
 }
 
 function constrainPan() {
-      const baseWidth = zoomDiv.offsetWidth;
-      const baseHeight = zoomDiv.offsetHeight;
+	const baseWidth = zoomDiv.offsetWidth;
+	const baseHeight = zoomDiv.offsetHeight;
 
-      const scaledWidth = baseWidth * scale;
-      const scaledHeight = baseHeight * scale;
+	const scaledWidth = baseWidth * scale;
+	const scaledHeight = baseHeight * scale;
 
-      const winW = window.innerWidth - 100; // 100px offset from left
-      const winH = window.innerHeight - 45; // 45px offset from top
+	const winW = window.innerWidth - 100; // 100px offset from left
+	const winH = window.innerHeight - 45; // 45px offset from top
 
-      const maxX = Math.max((scaledWidth - winW), 0) / 2 + 50;
-      const maxY = Math.max((scaledHeight - winH), 0) / 2 + 50;
+	const maxX = Math.max((scaledWidth - winW), 0) / 2 + 50;
+	const maxY = Math.max((scaledHeight - winH), 0) / 2 + 50;
 
-      translate.x = clamp(translate.x, -maxX, maxX);
-      translate.y = clamp(translate.y, -maxY, maxY);
+	translate.x = clamp(translate.x, -maxX, maxX);
+	translate.y = clamp(translate.y, -maxY, maxY);
 }
 
 function onMouseDown(e) {
-      if (scale <= 1) return;
-      isDragging = true;
-      dragStart.x = e.clientX;
-      dragStart.y = e.clientY;
+	if (scale <= 1) return;
+	isDragging = true;
+	dragStart.x = e.clientX;
+	dragStart.y = e.clientY;
 }
 
 function onMouseMove(e) {
-    if (toolDraw.getAttribute("aria-expanded") != "true") {
-        if (!isDragging) return;
+	if (toolDraw.getAttribute("aria-expanded") != "true") {
+		if (!isDragging) return;
 
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
+		const dx = e.clientX - dragStart.x;
+		const dy = e.clientY - dragStart.y;
 
-        dragStart.x = e.clientX;
-        dragStart.y = e.clientY;
+		dragStart.x = e.clientX;
+		dragStart.y = e.clientY;
 
-        translate.x += dx;
-        translate.y += dy;
+		translate.x += dx;
+		translate.y += dy;
 
-        constrainPan();
-        applyTransform(); 
-    }
+		constrainPan();
+		applyTransform();
+	}
 }
 
 function onMouseUp() {
-      isDragging = false;
+	isDragging = false;
 }
 
-//annotations
+
+//markup
 const canvas = document.getElementById('markup');
 const ctx = document.getElementById('markup').getContext('2d');
-const iframe = document.getElementById("viewersStream");
-
-// Track connected peers
-const connectedPeers = {};
-const drawingHistory = [];
+const drawingHistory = {};
 let currentPath = [];
 let isDrawing = false;
 
 // Set up event handlers for the canvas
 function startDrawing(e) {
-    var markupColor = document.getElementsByName("colorpot");
-    for (var i = 0; i < markupColor.length; i++) {
-        if (markupColor[i].checked) {
-            color = markupColor[i].value;
-        }
-    }
-    isDrawing = true;
-    const x = e.offsetX / canvas.width;
-    const y = e.offsetY / canvas.height;
-    currentPath = [{ x, y }];
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+	var markupColor = document.getElementsByName("colorpot");
+	for (var i = 0; i < markupColor.length; i++) {
+		if (markupColor[i].checked) {
+			color = markupColor[i].value;
+		}
+	}
+	isDrawing = true;
+	const x = e.offsetX / canvas.width;
+	const y = e.offsetY / canvas.height;
+	currentPath = [{ x, y }];
+	ctx.beginPath();
+	ctx.moveTo(e.offsetX, e.offsetY);
 }
 
 function draw(e) {
-    if (!isDrawing) return;
-    
-    const x = e.offsetX / canvas.width;
-    const y = e.offsetY / canvas.height;
-    currentPath.push({ x, y });
+	if (!isDrawing) return;
 
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
+	const x = e.offsetX / canvas.width;
+	const y = e.offsetY / canvas.height;
+	currentPath.push({ x, y });
+
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 2;
+	ctx.lineCap = 'round';
+	ctx.lineTo(e.offsetX, e.offsetY);
+	ctx.stroke();
 }
 
 function endDrawing() {
-    if (!isDrawing) return;
-    isDrawing = false;
-    
-    if (currentPath.length > 1) {
-        drawingHistory.push({
-            color: color,
-            width: 2,
-            points: [...currentPath]
-        });
-        sendDrawingData({
-            color: color,
-            width: 2,
-            points: [...currentPath]
-        });
-    }
-    
-    currentPath = [];
+	if (!isDrawing) return;
+	isDrawing = false;
+
+	if (currentPath.length > 1) {
+		const stroke = {
+			//id: crypto.randomUUID(),
+			owner: userStreamID,
+			color: color,
+			width: 2,
+			points: [...currentPath]
+		};
+
+		drawingHistory[userStreamID] ??= [];
+		drawingHistory[userStreamID].push(stroke);
+
+		sendDrawingData(stroke);
+	}
+
+	currentPath = [];
 }
 
 function toolEraserSelect() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawingHistory.length = 0;
-    
-    // Send clear command
-    // iframe.contentWindow.postMessage({
-    //     sendData: { overlayNinja: { drawingData: "clear" } },
-    //     type: "pcs"
-    // }, "*");
+	if (!isStreamer) {
+		delete drawingHistory[userStreamID];
+		redrawCanvas();
+
+		vdo.sendData({
+			type: "markup",
+			overlayNinja: {
+				action: "eraseUser",
+				owner: userStreamID
+			}
+		});
+	} else {
+		Object.keys(drawingHistory).forEach(k => delete drawingHistory[k]);
+		redrawCanvas();
+
+		vdo.sendData({
+			type: "markup",
+			overlayNinja: { action: "clearAll" }
+		});
+	}
 }
 
-function sendDrawingData(drawing) {
-    const drawingData = {
-        t: 'path',
-        p: drawing.points,
-        c: drawing.color,
-        w: 3
-    };
-
-    // iframe.contentWindow.postMessage({
-    //     sendData: { overlayNinja: { drawingData: drawingData } },
-    //     type: "pcs"
-    // }, "*");
+function sendDrawingData(stroke) {
+	vdo.sendData({
+		type: "markup",
+		overlayNinja: {
+			action: "stroke",
+			stroke
+		},
+		timestamp: Date.now()
+	});
 }
 
 function redrawCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const stroke of drawingHistory) {
-        const points = stroke.points;
-        if (points.length > 1) {
-            ctx.beginPath();
-            ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
-            }
-            ctx.lineWidth = stroke.width;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = stroke.color;
-            ctx.stroke();
-        }
-    }
+	for (const user in drawingHistory) {
+		for (const stroke of drawingHistory[user]) {
+			const pts = stroke.points;
+			if (pts.length < 2) continue;
+
+			ctx.beginPath();
+			ctx.moveTo(pts[0].x * canvas.width, pts[0].y * canvas.height);
+
+			for (let i = 1; i < pts.length; i++) {
+				ctx.lineTo(pts[i].x * canvas.width, pts[i].y * canvas.height);
+			}
+
+			ctx.lineWidth = stroke.width;
+			ctx.lineCap = "round";
+			ctx.strokeStyle = stroke.color;
+			ctx.stroke();
+		}
+	}
 }
 
-//listens for other drawing events from clients
-const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-const eventer = window[eventMethod];
-const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-var canvasCurrentLeft = 0, canvasCurrentTop = 0, canvasCurrentWidth = 0, canvasCurrentHeight = 0;
-
-eventer(messageEvent, function(e) {
-    // const viewersFrame = document.getElementById("viewersStream");  //check if there is a client lest viewersframe
-
-    // if (e.data && e.data.sendData === 'mainstreamSize') { //check if there is a amin stream and if there is then turn on annotations tools
-    //     const { width, height, top, left } = e.data;
-        
-    //     var offsetViewFrameTop = document.getElementById("mainStream").offsetTop;
-
-    //     if (width == 0 || height == 0) {
-    //         let streamtools = document.querySelectorAll(".streamtool");
-
-    //             streamtools.forEach(tool => {
-    //             tool.classList.add("disable");
-    //             tool.classList.remove("selected");
-    //             tool.setAttribute("aria-expanded", "false");
-    //             tool.disabled = true;
-    //         });
-
-    //         //const canvas = document.getElementById("annotationsCanvas");
-
-    //         canvas.width = 0;
-    //         canvas.height = 0;
-
-    //         Object.assign(canvas.style, {
-    //         width: `${0}px`,
-    //         height: `${0}px`,
-    //         top: `${0}px`,
-    //         left: `${0}px`
-    //         });
-
-    //         canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
-    //     }
-    //     //sometimes the video stream is not ready yet, so we need to check if width and height are 0
-    //     //if it is we will rezize the canvas to the size by 1px and this will kick things into gear
-    //     if (left == 0 && top == 0) { 
-    //         document.getElementById('mainStream').style.width = "100%";
-    //         //console.log("resized frame to get correct top and left positions for canvas");
-    //     } 
-    //     if ((width != canvasCurrentWidth || height != canvasCurrentHeight || top != canvasCurrentTop || left != canvasCurrentLeft) && (width >= 1) && (height != 1)) {
-    //         var topOffset = top + offsetViewFrameTop;
-            
-    //         canvas.width = width;
-    //         canvas.height = height;
-
-    //         Object.assign(canvas.style, {
-    //         width: `${width}px`,
-    //         height: `${height}px`,
-    //         top: `${topOffset}px`,
-    //         left: `${left}px`
-    //         });
-
-    //         redrawCanvas(); //redraw canvas once resized
-            
-    //         canvasCurrentLeft = canvasCurrentTop = canvasCurrentWidth = canvasCurrentHeight = 0;
-    //         console.log("Canvas size updated to: w:"+width+" h:"+height+" t:"+top+" l:"+left);
-    //     }
-    // }    
-    //console.log(e.data);
-
-    // Process connection events
-    // if ("action" in e.data) {
-    //     //console.log("got some data");
-    //     if (e.data.action === "view-stats-updated") { return; } // Ignore stats updates
-    //     if (e.data.action === "guest-connected" && e.data.streamID) {
-    //         connectedPeers[e.data.streamID] = e.data.value?.label || "Guest";
-    //         console.log("Guest connected:", e.data.streamID, "Label:", connectedPeers[e.data.streamID]);
-            
-    //         // Send current drawing state to new peer
-    //         if (drawingHistory.length > 0) {
-    //             iframe.contentWindow.postMessage({
-    //                 sendData: { overlayNinja: { drawingHistory: drawingHistory } },
-    //                 type: "pcs",
-    //                 UUID: e.data.streamID
-    //             }, "*");
-                
-    //         }
-    //     } 
-    //     else if (e.data.action === "push-connection" && e.data.value === false && e.data.streamID) {
-    //         console.log("Guest disconnected:", e.data.streamID);
-    //         delete connectedPeers[e.data.streamID];
-    //     }
-    // }
-    
-    // Handle received data
-    if ("dataReceived" in e.data) {
-        if ("overlayNinja" in e.data.dataReceived) {
-            const data = e.data.dataReceived.overlayNinja;
-            
-            // Process drawing data
-            if (data.drawingData) {
-                if (data.drawingData === "clear") {
-                    // Clear command
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    drawingHistory.length = 0;
-                }
-                else if (data.drawingData.t === 'path') {
-                    // New path
-                    const pathPoints = data.drawingData.p;
-                    const pathColor = data.drawingData.c;
-                    // Add to history
-                    //drawingHistory.push(pathPoints);
-                    drawingHistory.push({
-                        color: data.drawingData.c,
-                        width: data.drawingData.w,
-                        points: data.drawingData.p
-                    });
-
-                    if (data.drawingData.p && data.drawingData.p.length > 1) {
-                        const points = data.drawingData.p;
-                        ctx.beginPath();
-                        ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
-                        
-                        for (let i = 1; i < points.length; i++) {
-                            ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
-                        }
-                        ctx.lineWidth = data.drawingData.w;
-                        ctx.lineCap = 'round';
-                        ctx.strokeStyle = data.drawingData.c;
-                        ctx.stroke();
-                    }
-
-                }
-            }
-
-            if (data.drawingHistory) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                data.drawingHistory.forEach(stroke => {
-                    const points = stroke.points;
-                    if (points.length > 1) {
-                        ctx.beginPath();
-                        ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
-                        
-                        for (let i = 1; i < points.length; i++) {
-                            ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
-                        }
-
-                        ctx.lineWidth = stroke.width;
-                        ctx.lineCap = 'round';
-                        ctx.strokeStyle = stroke.color;
-                        ctx.stroke();
-                    }
-                });
-
-                drawingHistory.length = 0;
-                drawingHistory.push(...data.drawingHistory);
-            }
-
+function sendFullState(targetUUID) {
+    vdo.sendData({
+        type: "markup",
+        overlayNinja: {
+            action: "stateDump",
+            to: userStreamID,
+            state: drawingHistory
         }
-    }
-}, false);
-
-
+    });
+}
 
 function resizeMarkupCanvas() {
 	const video = document.getElementById("mainStream");

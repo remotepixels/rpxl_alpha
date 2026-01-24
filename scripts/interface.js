@@ -362,7 +362,6 @@ function hideBannerByKey(key) {
 }
 
 //adding peers and tracks to DOM
-
 //adds any incoming video to the DOM, ms_ (main stream is ignored), hs_ (host) is always placed top 
 function addPeerToDOM(uuid, streamID, label = null) {
 	if (streamID.startsWith("ms_") || null) return;

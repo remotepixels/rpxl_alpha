@@ -1,4 +1,3 @@
-
 //used to reset setttings dialog to previous values on open for host
 async function restoreSettingsHost() {
 	const previousSettingsJSON = localStorage.getItem(APP_NS);
@@ -24,6 +23,7 @@ async function restoreSettingsHost() {
 		const el = document.getElementById(id);
 		if (el) el.checked = false;
 	});
+
 	const q = document.getElementById(qualityMap[entry.quality]);
 	if (q) q.checked = true;
 

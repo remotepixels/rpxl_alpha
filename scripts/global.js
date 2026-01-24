@@ -1,5 +1,45 @@
 //shared functions that I don't know where to put :(
+//keeps track off all connected peers, their streams, last tracks and label, see structure below
+// Map {
+//   "peerUUID" => {
+//     uuid: "peerUUID",
+//     label: "Alice",
+//     streams: Map {
+//       "streamID" => {
+//         streamID: "streamID",
+//         tracks: Map {
+//           "audio" => { ...latest audio track... },
+//           "video" => { ...latest video track... }
+//         }
+//       }
+//     }
+//	transports:{
+//		main:null,
+//		user:null
+//		}
+//   }
+// }
+const REGISTRY = new Map();
 
+//main and user streams and tracks used for local playback used in initvdo.js
+//should probaly merge with REGISTRY???????
+const TRACKS = {
+	main: {
+		video: null,
+		audio: null
+	},
+	user: {
+		video: null,
+		audio: null
+	}
+};
+
+const STREAMS = {
+	user: null,
+	main: null
+};
+
+let wakeLock = null;
 
 //WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
 async function enableWakeLock() {
@@ -25,29 +65,6 @@ async function disableWakeLock() {
 	}
 }
 
-// If the tab regains focus, re-request wake lock
-document.addEventListener("visibilitychange", () => {
-	if (!document.hidden && wakeLock) {
-		enableWakeLock();
-	}
-});
-
-//resize markup canvas on window resize
-window.addEventListener("resize", () => {
-	wait(50); //wait for resize to finish	
-	resizeMarkupCanvas() //markup.js
-});
-
-window.addEventListener('load', () => {
-	//?
-});
-
-window.addEventListener('beforeunload', () => {
-	if (vdo) {
-		vdo.disconnect();
-	}
-});
-
 function wait(ms = 50) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -58,46 +75,6 @@ function generateRandomID(len = 20) {
 	crypto.getRandomValues(arr);
 	return Array.from(arr, n => chars[n % chars.length]).join('');
 }
-
-//main and user streams and tracks used for local playback used in initvdo.js
-const TRACKS = {
-	main: {
-		video: null,
-		audio: null
-	},
-	user: {
-		video: null,
-		audio: null
-	}
-};
-
-const STREAMS = {
-	user: null,
-	main: null
-};
-
-//keeps track off all connected peers, their streams, last tracks and label, see structure below
-const REGISTRY = new Map();
-// Map {
-//   "peerUUID" => {
-//     uuid: "peerUUID",
-//     label: "Alice",
-//     streams: Map {
-//       "streamID" => {
-//         streamID: "streamID",
-//         tracks: Map {
-//           "audio" => { ...latest audio track... },
-//           "video" => { ...latest video track... }
-//         }
-//       }
-//     }
-//	transports:{
-//main:null,
-//user:null
-//}
-//	
-//   }
-// }
 
 //make sure any streamID's recieved are valid (20chars long, can start with ms_ or hs_)
 function isValidStreamID(id) {
@@ -270,7 +247,7 @@ function limitVideoBitrateForUser(uuid) {
 
 			params.encodings[0].maxBitrate = 30_000;
 			params.encodings[0].minBitrate = 5_000;
-			params.encodings[0].scaleResolutionDownBy = 2;
+			params.encodings[0].scaleResolutionDownBy = 3;
 			params.encodings[0].maxFramerate = 5;
 			params.encodings[0].priority = "low";
 			params.encodings[0].degradationPreference = "maintain-framerate";
