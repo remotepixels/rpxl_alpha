@@ -32,7 +32,12 @@ async function VDOConnect(sessionID) {
 	TRACKS.user.audio = userInit.audio.track;
 	let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
 
-	await vdo.connect();
+	await vdo.connect({
+		password: null,
+		push: true,
+		view: true
+	});
+
 	await vdo.joinRoom({
 		room: sessionID,
 		mode: "full",
@@ -52,7 +57,23 @@ async function VDOConnect(sessionID) {
 
 	if (isStreamer) userStreamID = `hs_${userStreamID}`; //append hs_ for host if streamer
 
-	await vdo.publish(STREAMS.user, { streamID: userStreamID, role: "both" });
+	await vdo.publish(STREAMS.user, { 
+		streamID: userStreamID, 
+		role: "both",
+		  encoding: {
+			video: {
+			maxBitrate: "30k",
+			minBitrate: "10k"
+			}
+		},
+		media: {
+			video: {
+			frameRate: 15,
+			resolution: "320x180"
+			}
+		}
+	});
+
 	document.getElementById("userStream").srcObject = STREAMS.user;
 
 	if (isStreamer) {
@@ -65,13 +86,17 @@ async function VDOConnect(sessionID) {
 		TRACKS.main.audio = mainInit.audio.track;
 		const mainStreamID = "ms_" + generateRandomID();
 
-		await vdoMS.connect();
+		await vdoMS.connect({
+			password: null,
+			push: true
+		});
 		await vdoMS.joinRoom({
 			room: sessionID,
 			mode: "full",
 			video: true,
 			audio: true,
 			data: true,
+			claim: true,  
 			viewOptions: {
 				quality: 0,
 				scale: 100
@@ -174,9 +199,7 @@ async function initUserStream() {
 			storeSelectedDevicesUser();
 
 			//go through each connection and re-limit bitrate for user stream
-			for (const peer of REGISTRY.values()) {
-					limitVideoBitrateForUser(peer.uuid);
-			}
+			limitVideoBitrateForUser();
 		}
 	}
 	//init select microphone 
@@ -265,7 +288,9 @@ async function initMainStream() {
 	const width = Number(radio.dataset.width);
 	const height = Number(radio.dataset.height);
 
-	let currentQuality = String(getCheckedRadioValue("quality"));
+	let currentQuality = getCheckedRadioValue("quality") || "low";
+	//let currentQuality = document.getElementById("quality");
+	console.warn("quality", currentQuality);
 
 	const invalid = new Set(["", "0", "null", "none", null]);
 	const videoSelect = document.getElementById("videoSource");
@@ -309,10 +334,10 @@ async function initMainStream() {
 
 			oldVideoTrack.stop();
 			TRACKS.main.video = newVideoTrack;
+			limitVideoBitrateForMainStream(currentQuality, height);
+
 			storeSelectedDevicesSession();
 		}
-		//re-limit bitrate for main stream
-		//limitVideoBitrateForMainStream();
 	}
 
 	//init selected audio source
@@ -358,6 +383,10 @@ async function initMainStream() {
 				timestamp: Date.now()
 			});
 
+			// if (mainStreamAudio) {
+			// 	const videoEL = document.getElementById("mainStream");
+			// 	initMainStreamVU(videoEL);
+			// }
 			oldAudioTrack.stop();
 			TRACKS.main.audio = newAudioTrack;
 			storeSelectedDevicesSession();

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="-1"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="icons/favicon.ico">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
+
+	<link rel="stylesheet" href="../styles/styles.css">
+	<link rel="stylesheet" href="../styles/help.css">
+
+    <title>alpha.rpxl.app v3.5 (beta)</title>
+</head>
+
+<body style="width:100%!important; margin-left:5%; margin-right:5%; max-width: calc(100% - 10%)">
+
+<h1>Update 2026-02-01</h1>
+<h3>IMPORTANT : Code will change and be cleaned up, it's a bit of a pigs ear at the moment, but for now :</h3>
+<UL style="color:#cbcbcb">
+	<li>Major re-write to use the vdo ninja sdk in-stead of butchering vdo ninja application</li>
+	<li>Functionality is the same but over all experience will be smoother and faster</li>
+	<li>Only one popup asking for device permissions, not multiple popups multiple times</li>
+	<li>Will no longer get flashes of the original vdo ninja interface</li>
+	<li>No more using cookies, only local and session storage</li>
+	<li>Local storage is correctly serialised</li>
+	<li>No more need to continually connect / disconnect when changing devices, username or project name</li>
+	<li>Project name can be changed after creation</li>
+	<li>Increased room entropy to 20 random alpha-numeric, upper and lower case, characters</li>
+	<li>Store 5 previous sessions and the settings for each</li>
+	<li>Host can reload previous session settings and re-use previous rooms (for multi day events)</li>
+	<li>Device capture and resolution now in sync (if set to stream at 1080p the device will try to capture at 1080p, no higher)</li>
+	<li>Overall stability improvements and interface consistency</li>
+	<li>Interface now dynamic, no markup if no video source and no volume control if no audio source connected</li>
+	<li>Markups should be smoother and no longer glitch</li>
+	<li>Markups now maintain state (if a user joins late the latest markups are sent so all users have the same markup data)</li>
+	<li>Changed the way the erase function works, users will now only delete their own markups, the host clears all</li>
+	<li>Zoom in and out now more responsive, markups also behave more consistently when zoomed in</li>
+	<li>Main stream bitrate and resolutions can now be changed in session without reconnect, no more flashing black frames</li>
+	<li>Stream will never scale to greater than their original source for display at 100%</li>
+	<li>Streams now auto calibrate for best resolution they start out at a slightly lower resolution and climb to the maximum set by the host over a few seconds.</li>
+	<li>Streams will drop resolution to maintain frame rate on a peer by peer basis</li>
+	<li>Resolution settings sets Maximum resolution now</li>
+	<li>Bitrates updated to Low : 2mbps - 4mbps, med : 4mbps - 8mbps and high : 8mbps - 16mbps</li>
+	<li>Bitrate is dynamic and will start lower until eventually reaching maximum selected</li>
+	<li>Bitrate is adaptive and may drop on peer by peer basis, will attempt to maintain frame rate</li>
+	<li>Streaming can be started without selecting any devices, a temporary audio and video stream is created and is replaced as devices are selected</li>
+	<li>Host can blind or deafen main stream for all peers dynamically</li>
+	<li>Automatically add (host) to host streamer user name </li>
+	<li>Host is always top of peer list, user is always second, other users appear below</li>
+	<li>Added help section for users on connect</li>
+	<li>Users must enter a user name, this is optional for the host</li>
+	<li>Users can join without selecting a microphone or camera</li>
+	<li>Users who join without a device display their name correctly in the peer list</li>
+	<li>Visual clues if user has connected without audio or is mute (No outline, no audio device. Red outline, mute. White outline, live)</li>
+	<li>Interface updates dynamically to show mute microphone and camera buttons for user if they have selected corresponding device</li>
+	<li>Peer list updates dynamically to show user microphone status</li>
+	<li>User camera is now limited to less than 50 kbps and 15 fps</li>
+	<li>Audio cue on user connect and disconnect for the host only</li>
+	<li>Have limited to h264 and OPUS for compatibility at moment</li>
+	<li>New notifications panel</li>
+	<li>Added a check to see. if the app is in focus to stop device sleep</li>
+	<li>Simplified home page splurb, will add back as new features get added</li>
+</UL>
+
+</body>

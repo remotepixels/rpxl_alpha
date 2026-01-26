@@ -7,25 +7,12 @@ async function restoreSettingsHost() {
 	const entry = settings && settings[0];
 	if (!entry) return;
 
-	//ugly need to rework this shit
-	document.getElementById("res1080P").checked = false;
-	document.getElementById("res720P").checked = false;
 	if (entry.resolution === "1080") document.getElementById("res1080P").checked = true;
 	if (entry.resolution === "720") document.getElementById("res720P").checked = true;
 
-	const qualityMap = {
-		"16000000": "qualityHigh",
-		"800000": "qualityMed",
-		"4000": "qualityLow"
-	};
-
-	Object.values(qualityMap).forEach(id => {
-		const el = document.getElementById(id);
-		if (el) el.checked = false;
-	});
-
-	const q = document.getElementById(qualityMap[entry.quality]);
-	if (q) q.checked = true;
+	if (entry.quality === "high") document.getElementById("qualityHigh").checked = true;
+	if (entry.quality === "med") document.getElementById("qualityMed").checked = true;
+	if (entry.quality === "low") document.getElementById("qualityLow").checked = true;
 
 	restoreDeviceSelection("videoSource", entry.videoSource);
 	restoreDeviceSelection("audioSource", entry.audioSource);
@@ -88,8 +75,8 @@ function storeSelectedDevicesSession() {
 
 	const merged = updateSessionEntry(latest, {
 		projectName: encodeURIComponent(projectInput.value.trim() || ""),
-		resolution: getCheckedRadioValue("resolution") || "",
-		quality: getCheckedRadioValue("quality") || "",
+		resolution: getCheckedRadioValue("resolution") || "720",
+		quality: getCheckedRadioValue("quality") || "med",
 		videoSource: video.selectedOptions[0].value || "",
 		audioSource: audio.selectedOptions[0].value || "",
 	});

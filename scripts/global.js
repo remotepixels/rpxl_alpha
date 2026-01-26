@@ -223,148 +223,259 @@ function addTracksToStream(uuid, streamID, track) {
 }
 
 //low capture quality, low bandwidth, low framerate
-function limitVideoBitrateForUser(uuid) {
-	const peer = REGISTRY.get(uuid);
-	if (!peer) return;
+function limitVideoBitrateForUser() {
+	let brMax = "40kbps";
+	let brMin = "20kbps";
+	let frameRate = 15;
 
-	const streams = peer.streams;
-
-	for (let streamID of streams.keys()) {
-		if (streamID.startsWith("ms_")) {
-			return;
-		} else {
-			const pc = peer.transports?.user;
-			if (!pc) return;
-
-			const sender = pc.getSenders().find(
-				s => s.track?.kind === "video"
-			);
-
-			if (!sender) return;
-
-			const params = sender.getParameters();
-			params.encodings ??= [{}];
-
-			params.encodings[0].maxBitrate = 30_000;
-			params.encodings[0].minBitrate = 5_000;
-			params.encodings[0].scaleResolutionDownBy = 3;
-			params.encodings[0].maxFramerate = 5;
-			params.encodings[0].priority = "low";
-			params.encodings[0].degradationPreference = "maintain-framerate";
-
-			//console.warn("Applying bitrate limit to user",uuid);
-			sender.setParameters(params).catch(err => {
-				console.warn("Failed to set bitrate:", err);
-			});
-		}
-	}
-}
-
-//this ain't doin' shit but you get the idea
-function limitVideoBitrateForMainStream() {
-	// Get the first connection object in the map
-	const firstConn = [...vdoMS.connections.values()][0];
-	// Pull the RTCPeerConnection from publisher
-	const pc = firstConn?.publisher?.pc;
-
-	if (!pc) return console.warn("vdoMS PC not ready", vdoMS);
-
-	const sender = pc.getSenders().find(s => s.track?.kind === "video");
-	if (!sender) return console.warn("No main stream sender yet");
-
-	const params = sender.getParameters();
-	params.encodings ??= [{}];
-
-	params.encodings[0].maxBitrate = 50_000; // 50 kbps example
-	params.encodings[0].scaleResolutionDownBy = 4;
-	params.encodings[0].maxFramerate = 15;
-
-	sender.setParameters(params).catch(console.warn);
-}
-
-
-/*
-for vu of individuals
-
-.peerStream {
-	outline: 3px solid var(--mic-color, red);
-	--vu-level: 0%;
-	position: relative;
-}
-
-.peerStream::after {
-	content: "";
-	position: absolute;
-	inset: -3px;
-	border-radius: inherit;
-	pointer-events: none;
-
-	background: linear-gradient(
-		to top,
-		rgba(0,150,255,0.9) var(--vu-level),
-		rgba(0,150,255,0.0) var(--vu-level)
-	);
-	mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-	-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-	mask-composite: exclude;
-	-webkit-mask-composite: xor;
-	padding: 3px;
-}
-
-
-function updatePeerVU(uuid, level) {
-	const video = document.querySelector(`#video_${uuid}`);
-	if (!video) return;
-
-	// clamp 0–100
-	level = Math.max(0, Math.min(level, 100));
-
-	video.style.setProperty("--vu-level", `${level}%`);
-}
-
-const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
-
-updatePeerVU(myUUID, avg);
-
-function updateDOMuserAudio(uuid, audio) {
-	const video = document.querySelector(`#video_${uuid}`);
-	if (!video) return;
-
-	video.classList.remove("micLive", "micMute", "micStandby");
-
-	if (audio === "micLive") {
-		video.classList.add("micLive");
-		video.style.setProperty("--mic-color", "lightgrey");
-	}
-	if (audio === "micMute") {
-		video.classList.add("micMute");
-		video.style.setProperty("--mic-color", "red");
-		video.style.setProperty("--vu-level", "0%");
-	}
-	if (audio === "micStandby") {
-		video.classList.add("micStandby");
-		video.style.setProperty("--mic-color", "orange");
-	}
-}
-
-
-pc.getStats().then(stats => {
-	stats.forEach(r => {
-		if (r.type === "inbound-rtp" && r.kind === "audio") {
-			const level = (r.audioLevel || 0) * 100;
-			updatePeerVU(uuid, level);
+	vdo.updatePublisherMedia({
+	media: {
+		video: {
+			height: 80,
+			maxBitrate: brMax,
+			minBitrate: brMin,
+			frameRate: frameRate
+			}
 		}
 	});
+
+}
+
+//liimits main stream bitrate (and it works now biches)
+function limitVideoBitrateForMainStream(bitrate, height) {
+	let brMax = "1mbps";
+	let brMin = "1mbps";
+	let frameRate = 3;
+
+	if (bitrate === "high") {
+		brMax = "16mbps";
+		brMin = "8mbps";
+		frameRate = 30;
+	}
+
+	if (bitrate === "med") {
+		brMax = "8mbps";
+		brMin = "4mbps";
+		frameRate = 30;
+	}	
+	
+	if (bitrate === "low") {
+		brMax = "4mbps";
+		brMin = "2mbps";
+		frameRate = 30;
+	}
+
+	vdoMS.updatePublisherMedia({
+	media: {
+		video: { 
+			 codec: "h264",
+			width: height * (16/9),
+			height: height,
+			maxBitrate: brMax,
+			minBitrate: brMin,
+			frameRate: frameRate
+			},
+	    audio: {
+	    	codec: "opus",
+    		bitrate: "64k"
+			}
+		},
+		
+	encoding: {
+		video: { 
+			 codec: "h264",
+				maxBitrate: brMax,
+				minBitrate: brMin
+				}
+			}
+
+	});
+}
+
+
+
+// let mainVU = {
+//   ctx: null,
+//   analyser: null,
+//   data: null,
+//   stream: null
+// };
+
+function initMainStreamVU(videoEl) {
+  if (!videoEl.srcObject) return;
+
+  mainVU.stream = videoEl.srcObject;
+
+  mainVU.ctx = new AudioContext();
+  const source = mainVU.ctx.createMediaStreamSource(mainVU.stream);
+
+  mainVU.analyser = mainVU.ctx.createAnalyser();
+  mainVU.analyser.fftSize = 512;
+  source.connect(mainVU.analyser);
+
+  mainVU.data = new Uint8Array(mainVU.analyser.frequencyBinCount);
+
+  startMainVULoop();
+}
+
+function getMainStreamVolume() {
+  if (!mainVU.analyser) return 0;
+
+  mainVU.analyser.getByteTimeDomainData(mainVU.data);
+
+  let sum = 0;
+  for (let i = 0; i < mainVU.data.length; i++) {
+    const v = (mainVU.data[i] - 128) / 128;
+    sum += v * v;
+  }
+
+  return Math.sqrt(sum / mainVU.data.length); // 0 → 1
+}
+
+function startMainVULoop() {
+  function loop() {
+    const vol = getMainStreamVolume();
+	const qVol = Math.round(vol * 255);
+
+	setInterval(() => {
+		const vol = getMainStreamVolume();
+		vdo.sendData({ 
+			type: "mainStreamVU", 
+			volume: qVol 
+		});
+	}, 100);
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/*
+//Minimal analyser setup (host side)
+const MainVU = {
+  ctx: null,
+  analyser: null,
+  data: null,
+  stream: null,
+  rms: 0,
+  peak: 0
+};
+
+function attachVUMeterToStream(stream) {
+  if (MainVU.ctx) return; // already attached
+
+  MainVU.stream = stream;
+  MainVU.ctx = new AudioContext();
+
+  const source = MainVU.ctx.createMediaStreamSource(stream);
+
+  MainVU.analyser = MainVU.ctx.createAnalyser();
+  MainVU.analyser.fftSize = 256; // smaller = cheaper
+  source.connect(MainVU.analyser);
+
+  MainVU.data = new Uint8Array(MainVU.analyser.fftSize);
+}
+
+//Zero-GC RMS loop
+function updateVU() {
+  const a = MainVU.analyser;
+  if (!a) return;
+
+  a.getByteTimeDomainData(MainVU.data);
+
+  let sum = 0;
+  let peak = 0;
+
+  for (let i = 0; i < MainVU.data.length; i++) {
+    const v = (MainVU.data[i] - 128) * 0.0078125; // /128 without division
+    const av = v < 0 ? -v : v;
+    sum += v * v;
+    if (av > peak) peak = av;
+  }
+
+  MainVU.rms = Math.sqrt(sum / MainVU.data.length);
+  MainVU.peak = peak;
+}
+
+//smoothing
+const VUSmooth = {
+  rms: 0,
+  peak: 0,
+  decay: 0.95 // lower = faster falloff
+};
+
+function smoothVU() {
+  const attack = 0.6; // fast rise
+  const decay = VUSmooth.decay;
+
+  const r = MainVU.rms;
+  const p = MainVU.peak;
+
+  VUSmooth.rms = r > VUSmooth.rms 
+    ? VUSmooth.rms + (r - VUSmooth.rms) * attack
+    : VUSmooth.rms * decay;
+
+  VUSmooth.peak = p > VUSmooth.peak 
+    ? p
+    : VUSmooth.peak * decay;
+}
+
+//log scaling
+function perceptual(v) {
+  return Math.log10(1 + v * 9);
+}
+
+///plugin wrapper
+function enableVDOAutoVU(vdo) {
+  let timer = null;
+
+  vdo.on("publish", (stream) => {
+    console.log("VU attached to published stream");
+    attachVUMeterToStream(stream);
+    startVUBroadcast();
+  });
+
+  function startVUBroadcast() {
+    if (timer) return;
+
+    timer = setInterval(() => {
+      updateVU();
+      smoothVU();
+
+      const v = perceptual(VUSmooth.rms);
+      const p = perceptual(VUSmooth.peak);
+
+      // Quantize to 1 byte each
+      const rmsQ = (v * 255) | 0;
+      const peakQ = (p * 255) | 0;
+
+      vdo.sendData({
+        type: "mainStreamVU",
+        r: rmsQ,
+        p: peakQ
+      });
+
+    }, 50); // 20 Hz is plenty
+  }
+}
+
+///Client-side listener
+vdo.on("data", d => {
+  if (d.type !== "mainStreamVU") return;
+
+  const rms = d.r / 255;
+  const peak = d.p / 255;
+
+  drawVU(rms, peak);
 });
 
 
-sendData({ type: "vu", level: avg });
 
-  let last = 0;
-function smoothVU(uuid, level) {
-	last = last * 0.7 + level * 0.3;
-	updatePeerVU(uuid, last);
-}
+
+
+
+
+
 
 
 

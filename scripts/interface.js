@@ -185,7 +185,16 @@ if (toolDraw) { toolDraw.addEventListener("pointerdown", function() { toolDrawSe
 if (toolPalette) { toolPalette.addEventListener("pointerdown", function () { openDialog(paletteDialog, toolPalette); });}
 if (toolEraser) { toolEraser.addEventListener("pointerdown", function() { toolEraserSelect(); });}
 
-if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerdown", function() { toolStreamVolumeSelect(); });}
+//if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerdown", function() { toolStreamVolumeSelect(); });}
+const mainVideo = document.getElementById("mainStream");
+const volumeSlider = document.getElementById("toolStreamVolume");
+
+// Initialize volume
+mainVideo.volume = volumeSlider.value / 100;
+
+volumeSlider.addEventListener("input", () => {
+  mainVideo.volume = volumeSlider.value / 100;
+});
 
 //mute local user microphone and camera
 function toolMuteMicrophoneSelect () {
@@ -310,10 +319,11 @@ colorPots.forEach(colorPot => {
 });
 
 //local volume
-function toolStreamVolumeSelect () {
-        let vol = document.getElementById("toolStreamVolume").value
-		showBanner({ key:"local_volume", message:"Local stream volume changed", type:"notification", timeout:3000 });
-}
+// function toolStreamVolumeSelect () {
+//         const vol = document.getElementById("toolStreamVolume").value
+// 		console.warn("setting local volume to ", vol);
+// 		//showBanner({ key:"local_volume", message:"Local stream volume changed" , type:"notification", timeout:3000 });
+// }
 
 //popup banners and warnings
 function showBanner({ key, message, type = "notification", timeout = null}) {

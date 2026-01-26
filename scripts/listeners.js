@@ -1,5 +1,3 @@
-
-
 function setupVDOListeners() {
 	mainVideoPreview.addEventListener("loadedmetadata", (event) => {
 		//runs when a stream is attached to the main video element
@@ -42,13 +40,6 @@ function setupVDOListeners() {
 		const pc = event.detail.connection?.pc;
 
 		addToRegistry(uuid, null, null, null);
-		const peer = REGISTRY.get(uuid);
-
-		peer.transports ??= {};
-		peer.transports.user = pc;
-
-		limitVideoBitrateForUser(uuid);
-		//	limitVideoBitrateForMainStream();
 		//console.warn("peer connected",uuid, streamID,label, event);
 	});
 
@@ -95,6 +86,7 @@ function setupVDOListeners() {
 		//if we are streaming we need to send some extra data like the projec name
 		if (isStreamer) {
 			let currentProjectName = encodeURIComponent(project.value.trim() || "");
+			let currentQuality = getCheckedRadioValue("quality") || "low";
 
 			vdo.sendData({
 				type: 'streamInfo',
@@ -148,6 +140,11 @@ function setupVDOListeners() {
 			const audio = data.info;
 			//console.warn("recieved info for user stream audio state", audio);
 			updateDOMuserAudio(uuid, audio);
+		}
+
+		if (data.type === 'mainStreamVU') {
+			const MSVolume = data.volume;
+			console.warn("recieved info for user stream audio VU", MSVolume);
 		}
 
 		if (data.type === 'markup') {
@@ -261,13 +258,15 @@ function setupVDOMSListeners() {
 		const pc = event.detail.connection?.pc;
 
 		addToRegistry(uuid, null, null, null);
-		const peer = REGISTRY.get(uuid);
-
-		peer.transports ??= {};
-		peer.transports.main = pc;
-
-		//limitVideoBitrateForMainStream();
+		playBeep(400, 1);
 		//console.warn("peer connected to ms",uuid, pc);
+	});
+
+	vdoMS.addEventListener('peerDisconnected', (event) => {
+		const uuid = event.detail.uuid;
+		playBeep(200, 2);
+		disconnectPeer(uuid);
+		//console.warn("peer disconnected UUID:", event.detail);
 	});
 
 	vdoMS.addEventListener(`publishing`, (event) => {	//NOTE! vdoMS

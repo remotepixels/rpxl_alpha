@@ -81,6 +81,8 @@
 </body>
 </html>
 
+<script src="/scripts/vdoninja-sdk.js"></script>
+
 <script lang="javascript">
   //globals
   let iframe = null;
@@ -111,6 +113,18 @@
   const APP_NS = 'SNDRPXL';
   const devURL = window.location.origin;
   const debouncedRerender = debounce(rerenderFileTree, 100);//slow sorting index
+
+//vdo sdk's, 
+const vdo = new VDONinjaSDK({
+	salt: "rpxl.app",
+	allowFallback: false,
+	debug: false
+});
+
+
+
+
+
 
   //GENERATE RANDOM SID
   function randomID(len = 20) {
@@ -159,14 +173,25 @@
   }
 
   //CREATE VDONINJA IFRAME 
-  function createIframe(room) {
-    if (iframe) iframe.remove();
-    const container = document.getElementById('container');
-    iframe = document.createElement('iframe');
-    iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
-    iframe.src = `https://alpha.rpxl.app/vdo/?director=${room}&push=${localUUID}&cleanish&datamode`;
-    Object.assign(iframe.style, { width: "100%", height: "200px", position: "fixed", bottom: "0px", overflow: "auto", display: "none"});
-    container.appendChild(iframe);
+  async function createIframe(room) {
+
+	await vdo.connect();
+	await vdo.joinRoom({
+		room: room,
+		mode: "half",
+		label: sanitizedCurrentUserName,
+		video: false,
+		audio: false,
+		data: true,
+	})
+
+    // if (iframe) iframe.remove();
+    // const container = document.getElementById('container');
+    // iframe = document.createElement('iframe');
+    // iframe.allow = 'camera;microphone;fullscreen;display-capture;autoplay;';
+    // iframe.src = `https://alpha.rpxl.app/vdo/?director=${room}&push=${localUUID}&cleanish&datamode`;
+    // Object.assign(iframe.style, { width: "100%", height: "200px", position: "fixed", bottom: "0px", overflow: "auto", display: "none"});
+    // container.appendChild(iframe);
     log('Joined room :', room);
   }
 
