@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="-1"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="icons/favicon.ico">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
+
+	<link rel="stylesheet" href="../styles/styles.css">
+	<link rel="stylesheet" href="../styles/help.css">
+
+    <title>alpha.rpxl.app v3.5 (beta)</title>
+</head>
+
+<body style="margin-left:5%; max-width: calc(100% - 10%)">
+
+<h1>Update 2026-02-01</h1>
+<!-- <h3>IMPORTANT : Code will change and be cleaned up, it's a bit of a pigs ear at the moment, but for now :</h3> -->
+<UL style="color:#cbcbcb">
+	<li>Major re-write to use the vdo ninja sdk instead of butchering vdo ninja application</li>
+	<li>Functionality is the same but over all experience will be smoother and faster</li>
+	<li>Added audio cues for when peers join or leave</li>
+	<li>Increased room entropy to 24 random alpha-numeric, upper and lower case, characters - 62<sup style="font-size:10px;">24</sup></li>
+	<li>Increased file ID entroby to 8 random alpha-numeric, upper and lower case, characters</li>
+	<li>Stopped peers from broadcasting their file lists if they don't have any</li>
+	<li>Optimized broadcasting of file lists, peers now only send their files not the entire list to each other</li>
+	<li>Changed the uploaded by field to now use the correct uuid no longer need to use stream id's</li>
+	<li>Cleaned up some log messages to make some things clearer</li>
+	<li>Handle local folders with same names differently, they are no longer merged together</li>
+	<li>Dragging the same folder in mutiple times will now create a separate folder each time instead of merging contents</li>
+	<li>Fixed issue where if peers dropped folders with the same name in they would merge and be marked as remote</li>
+	<li>Fixed issue where if remote added folder with same name they could remove it and it would remove link from all peers</li>
+	<li>Fixed an issue where empty folders were not being removed remotely</li>
+	<li>Missing files are now marked as dead on all peers if the caching fails on the host</li>
+	<li>Changed the file transfers to use raw binary instead of base 64 for 33% smaller file transfers</li>
+	<li>Saving files chunks via indexDB for temporary storage</li>
+	<li>Cached chunks are kept for 2 minutes after last host finishes transfers</li>
+	<li>Using indexDB to store files instead of in memory, this will allow much larger file transfers</li>
+	<li>Simple CRC for each chunk and resend of individual damaged chunks</li>
+	<li>Recieved chunks also stored in indexDB to lessen memory use with large files</li>
+	<li></li>
+</UL>
+<hr style="width:95%">
+<p>&nbsp;</p>
+</body>

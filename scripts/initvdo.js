@@ -87,7 +87,7 @@ async function VDOConnect(sessionID) {
 		const mainStreamID = "ms_" + generateRandomID();
 
 		await vdoMS.connect({
-			password: null,
+			password: "",
 			push: true
 		});
 		await vdoMS.joinRoom({

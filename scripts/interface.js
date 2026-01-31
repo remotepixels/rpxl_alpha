@@ -318,13 +318,6 @@ colorPots.forEach(colorPot => {
     });
 });
 
-//local volume
-// function toolStreamVolumeSelect () {
-//         const vol = document.getElementById("toolStreamVolume").value
-// 		console.warn("setting local volume to ", vol);
-// 		//showBanner({ key:"local_volume", message:"Local stream volume changed" , type:"notification", timeout:3000 });
-// }
-
 //popup banners and warnings
 function showBanner({ key, message, type = "notification", timeout = null}) {
     // If already visible, do nothing
@@ -489,6 +482,16 @@ function randomBG() {
 	const imageUrl = `/backgrounds/${theme}_${randomBG}.jpg`;
 
 	document.body.style.backgroundImage = `url('${imageUrl}')`;
+	document.body.style.width = `100%`;
+	document.body.style.height = `100%`;
+	document.body.style.backgroundSize = `cover`;
+
+	if (!isStreamer) {
+		const header = document.querySelector(`.siteHeader`);
+		header.style.backgroundImage = `url('${imageUrl}')`;
+		header.style.width = `100%`;
+		header.style.backgroundSize = `cover`;
+	}
 }
 
 //check quality and resolution radio buttons

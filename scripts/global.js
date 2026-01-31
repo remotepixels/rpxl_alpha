@@ -69,7 +69,7 @@ function wait(ms = 50) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function generateRandomID(len = 20) {
+function generateRandomID(len = 24) {
 	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	const arr = new Uint8Array(len);
 	crypto.getRandomValues(arr);
@@ -81,7 +81,7 @@ function isValidStreamID(id) {
 	if (typeof id !== "string") return false;
 
 	const PREFIXES = ["ms_", "hs_"];
-	const RANDOM_ID_LENGTH = 20;
+	const RANDOM_ID_LENGTH = 24;
 	const BASE62_RE = /^[A-Za-z0-9]+$/;
 
 	let randomPart = id;

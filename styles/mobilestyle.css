@@ -1,91 +1,146 @@
 @media (max-width: 760px) {
-    .volume, #toolMuteCamera {
+
+	/* .volume, #toolMuteCamera {
         display: none;
-    }
-    .volume {
-        display: none;
-    }
-    .siteHeader {
-        height:400px;
-    }
-    .text {
-        max-width:550px;
-    }
-    .siteTitle {
-        font-size: 80px;
-    }
-    .siteSubTitle {
-        font-size:50px;
-    }
-    h4 {
-        font-size:25px;
-    }
-    img { 
-        scale:0.85;
-        transform-origin: 0%;
-    }
-    .viewersiframe {
-        opacity:0px;
-        left:-100px;
-        width:1px;
-        height:1px;
-    }
-    .mainZoom {
-        left: 0px;
-        top: 5px;
-        height: calc(100% - var(--toolbarheight));
-        width:100%;
-    }
+    } */
+	.volume {
+		display: none;
+	}
+
+	.siteHeader {
+		height: 400px;
+	}
+
+	.text {
+		max-width: 550px;
+	}
+
+	.siteTitle {
+		font-size: 80px;
+	}
+
+	.siteSubTitle {
+		font-size: 50px;
+	}
+
+	h4 {
+		font-size: 25px;
+	}
+
+	img {
+		scale: 0.85;
+		transform-origin: 0%;
+	}
+
+	.peerList {
+		display: none;
+	}
+
+	.mainViewer {
+		width: 100%;
+		top: 2px;
+		margin: 0px;
+	}
+
+	.mainZoom {
+		top: 0px;
+		left: 0px;
+		margin: 0px;
+		width: 100%;
+	}
+
+	.toolbar-section.center {
+		justify-content: flex-end;
+
+	}
+
+	.toolbar-section.right {
+		display: none;
+		flex: 0;
+		justify-content: flex-end;
+		min-width: 0px;
+	}
 }
+
 @media (max-width: 420px) {
-    .volume, #toolMuteCamera, #toolPalette, #toolEraser{
-        display: none;
-    }
-    .siteHeader {
-        height:330px;
-    }
-    .text {
-        max-width:300px;
-    }
-    .siteTitle {
-        font-size: 90px;
-    }
-    .siteSubTitle {
-        font-size:32px;
-    }
-    h4 {
-        font-size:25px;
-    }
-    img { 
-        scale:1;
-    }
-    .viewersiframe {
-        opacity:0px;
-        left:-100px;
-        width:1px;
-        height:1px;
-    }
-    #topmenu {
-        display: none;
-    }
-    .mainZoom {
-        left: 0px;
-        top: 5px;
-        height: calc(100% - var(--toolbarheight));
-        width:100%;
-    }
+	#toolMuteCamera {
+		display: none;
+	}
+	#paletteDialog {
+		min-width:360px;
+	}
+	#camSelect {
+		display:none;
+	}
+	.siteHeader {
+		height: 330px;
+	}
+
+	.text {
+		max-width: 300px;
+	}
+
+	.siteTitle {
+		font-size: 90px;
+	}
+
+	.siteSubTitle {
+		font-size: 32px;
+	}
+
+	h4 {
+		font-size: 25px;
+	}
+
+	img {
+		scale: 1;
+	}
+
+	.peerList {
+		display: none;
+	}
+
+	#topmenu {
+		display: none;
+	}
+
+	.peerList {
+		display: none;
+	}
+
+	.mainViewer {
+		width: 100%;
+		top: 2px;
+		margin: 0px;
+	}
+
+	.mainZoom {
+		top: 0px;
+		left: 0px;
+		margin: 0px;
+		width: 100%;
+	}
 }
+
 @media (max-height: 430px) {
-    .viewersiframe {
-        opacity:0px;
-        left:-100px;
-        width:1px;
-        height:1px;
-    }
-    .mainZoom {
-        left: 0px;
-        top: 5px;
-        height: calc(100% - var(--toolbarheight));
-        width:100%;
-    }
+	.peerList {
+		display: none;
+	}
+
+	.peerList {
+		display: none;
+	}
+
+	.mainViewer {
+		width: 100%;
+		top: 2px;
+		margin: 0px;
+	}
+
+	.mainZoom {
+		top: 0px;
+		left: 0px;
+		margin: 0px;
+		width: 100%;
+	}
 }

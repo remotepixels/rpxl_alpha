@@ -71,7 +71,12 @@ h2 {
   color: light-dark(var(--color-dark-bg), var(--color-light-grey));
   font-size: 18px;
 }
+h5 {
+  color: light-dark(var(--color-dark-bg), var(--color-light-grey));
+  font-size: 60px;
+  margin: 5px;
 
+}
 .drop {
   position: fixed;
   display: flex;
@@ -119,6 +124,7 @@ h2 {
   height: 100svh;
   overflow: hidden;
 }
+
 
 /*botton styles, including red / blue and more settings*/
 button {
@@ -326,7 +332,25 @@ button:hover {
   margin-left: 16px;
   width: 18px;
 }
+.file-dead {
+	color: rgb(255, 0, 0) !important;
+		background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
+	 red 47%, 
+	 light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%)!important;
+	/* pointer-events: none; */
+}
+.file-dead > span{
+	/* background: linear-gradient ( light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%, red 47%, light-dark(var(--color-light-bg), var(--color-dark-bg)) 48%); */
+	color: rgb(255, 0, 0) !important;
+	/* pointer-events: none; */
+}
+.file-dead:hover {
+		color: rgb(255, 0, 0) !important;
+	background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
+	 red 47%, 
+	 light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%)!important;
 
+}
 .fade-slide-out {
   opacity: 0;
   transform: translateY(-10px);
@@ -370,17 +394,19 @@ button:hover {
 
 /*toolbars, top and bottom and tool sets (groups)*/
 .toolbar {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: calc(var(--button-height) + 10px);
-  margin: 0px;
-  padding: 0px;
-  z-index: 1;
-  background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-  box-shadow: var(--shadows);
+	position: fixed;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	height: calc(var(--button-height) + 10px);
+	margin: 0px;
+	padding: 0px;
+	z-index: 2;
+	background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+
+	/* backdrop-filter: blur(10px); */
+	/* opacity:0.5; */
 }
 
 .toolbar.top {
@@ -394,6 +420,32 @@ button:hover {
   width: fit-content;
   height: var(--button-height);
   margin: 5px;
+}
+
+.toolbar-section {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.toolbar-section.left {
+	flex: 1;
+		justify-content: flex-start;
+		min-width: fit-content;
+}
+
+.toolbar-section.center {
+	flex: 1;
+	/* does not stretch */
+	justify-content: center;
+		min-width: fit-content;
+	/* center contents */
+}
+
+.toolbar-section.right {
+	flex: 1;
+	justify-content: flex-end;
+			min-width: fit-content;
 }
 
 /*flexible spacer for gaps between tool sets*/

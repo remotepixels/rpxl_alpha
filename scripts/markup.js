@@ -64,11 +64,11 @@ function constrainPan() {
 	const scaledWidth = baseWidth * scale;
 	const scaledHeight = baseHeight * scale;
 
-	const winW = window.innerWidth - 100; // 100px offset from left
+	const winW = window.innerWidth - 70; // 100px offset from left
 	const winH = window.innerHeight - 45; // 45px offset from top
 
-	const maxX = Math.max((scaledWidth - winW), 0) / 2 + 50;
-	const maxY = Math.max((scaledHeight - winH), 0) / 2 + 50;
+	const maxX = Math.max((scaledWidth - winW), 0) / 2 + 30;
+	const maxY = Math.max((scaledHeight - winH), 0) / 2 + 30;
 
 	translate.x = clamp(translate.x, -maxX, maxX);
 	translate.y = clamp(translate.y, -maxY, maxY);
@@ -101,6 +101,7 @@ function onMouseMove(e) {
 
 function onMouseUp() {
 	isDragging = false;
+//	endDrawing();
 }
 
 
@@ -111,7 +112,16 @@ const drawingHistory = {};
 let currentPath = [];
 let isDrawing = false;
 
-// Set up event handlers for the canvas
+//for hi-dpi
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+
+  return { x, y };
+}
+
 function startDrawing(e) {
 	var markupColor = document.getElementsByName("colorpot");
 	for (var i = 0; i < markupColor.length; i++) {
@@ -120,8 +130,9 @@ function startDrawing(e) {
 		}
 	}
 	isDrawing = true;
-	const x = e.offsetX / canvas.width;
-	const y = e.offsetY / canvas.height;
+	const x = e.offsetX / canvas.clientWidth;
+	const y = e.offsetY / canvas.clientHeight;
+
 	currentPath = [{ x, y }];
 	ctx.beginPath();
 	ctx.moveTo(e.offsetX, e.offsetY);
@@ -129,9 +140,9 @@ function startDrawing(e) {
 
 function draw(e) {
 	if (!isDrawing) return;
+	const x = e.offsetX / canvas.clientWidth;
+	const y = e.offsetY / canvas.clientHeight;
 
-	const x = e.offsetX / canvas.width;
-	const y = e.offsetY / canvas.height;
 	currentPath.push({ x, y });
 
 	ctx.strokeStyle = color;
@@ -195,29 +206,32 @@ function sendDrawingData(stroke) {
 		},
 		timestamp: Date.now()
 	});
+	//console.warn("sendin drawing data");
 }
 
 function redrawCanvas() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
-	for (const user in drawingHistory) {
-		for (const stroke of drawingHistory[user]) {
-			const pts = stroke.points;
-			if (pts.length < 2) continue;
+  for (const user in drawingHistory) {
+    for (const stroke of drawingHistory[user]) {
+      const pts = stroke.points;
+      if (pts.length < 2) continue;
 
-			ctx.beginPath();
-			ctx.moveTo(pts[0].x * canvas.width, pts[0].y * canvas.height);
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x * canvas.clientWidth,
+                 pts[0].y * canvas.clientHeight);
 
-			for (let i = 1; i < pts.length; i++) {
-				ctx.lineTo(pts[i].x * canvas.width, pts[i].y * canvas.height);
-			}
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x * canvas.clientWidth,
+                   pts[i].y * canvas.clientHeight);
+      }
 
-			ctx.lineWidth = stroke.width;
-			ctx.lineCap = "round";
-			ctx.strokeStyle = stroke.color;
-			ctx.stroke();
-		}
-	}
+      ctx.lineWidth = stroke.width;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = stroke.color;
+      ctx.stroke();
+    }
+  }
 }
 
 function sendFullState(targetUUID) {
@@ -261,4 +275,5 @@ function resizeMarkupCanvas() {
 	const ctx = canvas.getContext("2d");
 	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 	redrawCanvas()
+
 }
