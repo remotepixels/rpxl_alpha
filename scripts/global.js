@@ -301,54 +301,54 @@ function limitVideoBitrateForMainStream(bitrate, height) {
 //   stream: null
 // };
 
-function initMainStreamVU(videoEl) {
-  if (!videoEl.srcObject) return;
+// function initMainStreamVU(videoEl) {
+//   if (!videoEl.srcObject) return;
 
-  mainVU.stream = videoEl.srcObject;
+//   mainVU.stream = videoEl.srcObject;
 
-  mainVU.ctx = new AudioContext();
-  const source = mainVU.ctx.createMediaStreamSource(mainVU.stream);
+//   mainVU.ctx = new AudioContext();
+//   const source = mainVU.ctx.createMediaStreamSource(mainVU.stream);
 
-  mainVU.analyser = mainVU.ctx.createAnalyser();
-  mainVU.analyser.fftSize = 512;
-  source.connect(mainVU.analyser);
+//   mainVU.analyser = mainVU.ctx.createAnalyser();
+//   mainVU.analyser.fftSize = 512;
+//   source.connect(mainVU.analyser);
 
-  mainVU.data = new Uint8Array(mainVU.analyser.frequencyBinCount);
+//   mainVU.data = new Uint8Array(mainVU.analyser.frequencyBinCount);
 
-  startMainVULoop();
-}
+//   startMainVULoop();
+// }
 
-function getMainStreamVolume() {
-  if (!mainVU.analyser) return 0;
+// function getMainStreamVolume() {
+//   if (!mainVU.analyser) return 0;
 
-  mainVU.analyser.getByteTimeDomainData(mainVU.data);
+//   mainVU.analyser.getByteTimeDomainData(mainVU.data);
 
-  let sum = 0;
-  for (let i = 0; i < mainVU.data.length; i++) {
-    const v = (mainVU.data[i] - 128) / 128;
-    sum += v * v;
-  }
+//   let sum = 0;
+//   for (let i = 0; i < mainVU.data.length; i++) {
+//     const v = (mainVU.data[i] - 128) / 128;
+//     sum += v * v;
+//   }
 
-  return Math.sqrt(sum / mainVU.data.length); // 0 → 1
-}
+//   return Math.sqrt(sum / mainVU.data.length); // 0 → 1
+// }
 
-function startMainVULoop() {
-  function loop() {
-    const vol = getMainStreamVolume();
-	const qVol = Math.round(vol * 255);
+// function startMainVULoop() {
+//   function loop() {
+//     const vol = getMainStreamVolume();
+// 	const qVol = Math.round(vol * 255);
 
-	setInterval(() => {
-		const vol = getMainStreamVolume();
-		vdo.sendData({ 
-			type: "mainStreamVU", 
-			volume: qVol 
-		});
-	}, 100);
+// 	setInterval(() => {
+// 		const vol = getMainStreamVolume();
+// 		vdo.sendData({ 
+// 			type: "mainStreamVU", 
+// 			volume: qVol 
+// 		});
+// 	}, 100);
 
-    requestAnimationFrame(loop);
-  }
-  loop();
-}
+//     requestAnimationFrame(loop);
+//   }
+//   loop();
+// }
 
 /*
 //Minimal analyser setup (host side)

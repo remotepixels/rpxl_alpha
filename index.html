@@ -23,8 +23,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
 
-    <link rel="stylesheet" href="/styles/clientstyle.css">
     <link rel="stylesheet" href="/styles/styles.css">
+	<link rel="stylesheet" href="/styles/clientstyle.css">
     <link rel="stylesheet" href="/styles/mobilestyle.css">
 
     <title>alpha.rpxl.app v3.5 (beta)</title>
@@ -290,6 +290,7 @@ async function checkSessionURL() {
     // Validate strictly: only letters & numbers, exactly 24 chars
     if (!SID_REGEX.test(SID)) {
         alert('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.');
+		window.location.href = window.location.origin;
         return;
     }
 

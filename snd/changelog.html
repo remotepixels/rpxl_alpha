@@ -45,8 +45,8 @@
 	<li>Cleaned up some log messages to make some things clearer</li>
 	<li>Handle local folders with same names differently, they are no longer merged together</li>
 	<li>Dragging the same folder in mutiple times will now create a separate folder each time instead of merging contents</li>
-	<li>Fixed issue where if peers dropped folders with the same name in they would merge and be marked as remote</li>
-	<li>Fixed issue where if remote added folder with same name they could remove it and it would remove link from all peers</li>
+	<li>Fixed issue where if different peers dropped folders with the same name in they would merge and be marked as remote</li>
+	<li>Fixed issue where if remote peers added folder with same name they could remove it and it would remove link from all peers</li>
 	<li>Fixed an issue where empty folders were not being removed remotely</li>
 	<li>Missing files are now marked as dead on all peers if the caching fails on the host</li>
 	<li>Changed the file transfers to use raw binary instead of base 64 for 33% smaller file transfers</li>

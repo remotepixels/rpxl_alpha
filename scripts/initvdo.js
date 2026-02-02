@@ -3,6 +3,7 @@ let firstRun = true;
 let userStreamID = generateRandomID();
 const sessionID = sessionStorage.getItem("sessionID");
 const isStreamer = window.location.pathname.startsWith("/stream");
+const isQuickShare = window.location.pathname.startsWith("/qs");
 const mainVideoPreview = document.getElementById("mainStream");
 let mainStreamAudio = false;
 let userStreamAudio = "micStandby";
@@ -130,15 +131,8 @@ async function initUserStream() {
 
 	let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
 
-	//clients must have name
-	if (!sanitizedCurrentUserName && !isStreamer) {
-		const el = document.getElementById("name");
-		el.style.animation = "pulse 500ms";
-		setTimeout(() => (el.style.animation = "none"), 500);
-		el.focus();
-		return;
-	}
-
+	//clients must have name unless.... they are the host, or they are using a quickshare link
+	//hosts
 	if (sanitizedCurrentUserName !== last.userName || firstRun === true) {
 		const userLabel = document.getElementById("userLabel");
 		userLabel.innerHTML = decodeURIComponent(sanitizedCurrentUserName);
@@ -151,7 +145,14 @@ async function initUserStream() {
 
 		storeSelectedDevicesUser();
 	}
-
+	//mere mortals and peasants
+	if (!sanitizedCurrentUserName && !isStreamer) {
+		const el = document.getElementById("name");
+		el.style.animation = "pulse 500ms";
+		setTimeout(() => (el.style.animation = "none"), 500);
+		el.focus();
+		return;
+	}
 	const invalid = new Set(["", "0", "null", "none", null]); //list of invalid sources
 	const cameraSelect = document.getElementById("cameraSource");
 	const microphoneSelect = document.getElementById("microphoneSource");

@@ -388,8 +388,8 @@
 	}
 
 	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${value}`);
-	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qv/?SID=${value}`);
-	setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
+	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${value}`);
+	//setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
 
 	confirmQuit.addEventListener("pointerdown", function () {
 		vdo.disconnect();

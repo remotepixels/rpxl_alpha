@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="-1"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/qsstyle.css">
+
+    <title>alpha.rpxl.app v3 | Quickview (beta)</title>
+</head>
+<style>
+    .mainZoom {
+        left: 0px;
+        top: 0px;
+        height: calc(100% - 50px);
+        width:100%;
+        /* z-index:5; */
+    }
+    .viewersiframe{
+        z-index:0;
+    }
+</style>
+<body id="body">
+
+    <div class="peerList hidden" id="peerList">
+		<div class="peer">
+			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
+			<span class="peerLabel" id="userLabel"></span>
+			<!-- <span class="peerControl"> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
+			<!-- </span> -->
+		</div>
+    </div>
+    <div class="mainViewer hidden" id="mainViewer">
+   	 	<div class="mainZoom" id="zoomdiv">
+		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+       		<canvas id="markup" class="markup"></canvas>
+    	</div>
+	</div>
+
+    <!--Main interface-->
+    <div id="mainWindow" class="hidden">
+        <div id="bottomMenu" class="toolbar bottom">
+            <div class="toolbar-section left">
+                <div class="toolset">
+                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+                </div>
+            </div>
+            <div class="toolbar-section center">
+                <div class="toolset" id="toolAnnotations">
+                    <button class="tool disable hidden" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                </div>
+
+            </div>
+            <div class="toolbar-section right">
+                <div class="toolset">
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
+                </div>
+            </div>
+        </div>
+        <div class="copyCreditGrad"></div>
+        <div class="copyText toolbar-section left" id="statusLeft"></div>
+		<div class="copyText toolbar-section right" id="statusRight"></div>
+    </div>
+
+    <div class="popupBG hidden" id="popupBG"></div>
+
+    <!--enter username, select camera and microphone dialog-->
+    <dialog id="settingsDialog" class="toolpopup top middle hidden">
+		<div id="helpIcon" style="position: absolute; top:10px; right:10px; z-index: 10;">
+			<a href="help.html" target="_new"><span class="material-symbols-outlined">help</span></a>
+		</div>
+        <div class="tableClient">
+            <div id="camPreview" style="grid-column: 1 / span 2;">
+                <video id="camera" class="camera " autoplay playsinline poster=""></video>
+                <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
+            </div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div>
+            <div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource" contenteditable="true"><option value="">None</option></select></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource" contenteditable="true"><option value="">None</option></select></div>
+            <div style="grid-column: 1 / span 2; height:5px;"></div>
+            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton blue wider">Join</button></div>
+        </div>
+        <!-- duplicate elements not used (so use same logic in stream and client) -->
+        <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+        <div class="hidden">Audio source</div><div class="custom-select hidden"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
+        <div style="grid-column: 1 / span 2 hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
+    </dialog>
+
+    <!----- popup color menu ------>
+    <dialog id="paletteDialog" class="toolpopup bottom middle hidden">
+            <div><span class="colorpot" role="button" value="black" aria-expanded="false" style="background-color: black;"></span>
+				<span class="colorpot selectedcolorpot" role="button" value="white" aria-expanded="true" style="background-color: white;"></span>
+				<span class="colorpot" role="button" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
+				<span class="colorpot" role="button" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
+				<span class="colorpot" role="button" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
+			</div>
+    </dialog>
+
+    <!----- Permissions ------>
+    <div id="permissionsCheck">
+        <dialog id="permissionsDialogClient" class="top middle hidden " style="top:55px;">
+            <span class="material-symbols-outlined" style="font-size:125px">error</span><br>
+            <h2>Access to your microphone<br>or camera is blocked.</h2>
+            <p>If you choose to join without a<br>microphone or camera other<br>guests will not be able to<br>hear or see you.</p>
+            <p>For help on how to allow<br>access, <a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new">click here.</a></p>
+            <p>If you wish to join anyway</p>
+            <button id="permissionIgnore" class="botton blue Wider" autofocus> Join anyway </button>
+            <!-- <h5>Mic and camera can be muted.</h4> -->
+        </dialog>
+    </div>
+	<!--warning banners and notifications-->
+	<div id="bannerStack" aria-live="polite"></div>
+
+	<template id="bannerTemplate">
+   		<div class="banner">
+			<span>	</span>
+    	</div>
+	</template>
+    <!----- popup stream zoomed popup------>
+    <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+</body>
+</html>
+
+<!--user microphone and camera selection and display-->
+<script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/storage.js"></script>
+<script src="/scripts/global.js"></script>
+<script src="/scripts/initdevice.js"></script>
+<script src="/scripts/initstreams.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/listeners.js"></script>
+<script src="/scripts/interface.js"></script>
+<script src="/scripts/markup.js"></script>
+
+<script lang="javascript">
+
+const APP_NS = 'qs-Alpha-RPXL';
+const devURL = window.location.origin;
+let isVDOReady = false;
+
+
+randomBG (); //from interface.js
+checkSessionURL() 
+
+async function checkSessionURL() {
+    const SID_REGEX = /^[A-Za-z0-9]{24}$/;
+    const params = new URLSearchParams(window.location.search.slice(1));
+	
+    if (!params.has('SID') || !params) {
+		alert('NO SESSION ID\n\nIf you are seeing this message. \n\n Please contact the host for assistance.');
+		window.location.href = window.location.origin;
+		return;
+	}
+
+    const SID = params.get('SID');
+
+    // Validate strictly: only letters & numbers, exactly 24 chars
+    if (!SID_REGEX.test(SID)) {
+        alert('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.');
+		window.location.href = window.location.origin;
+        return;
+    }
+
+  	const sanitizedUserName = (`(QS)_${generateRandomID(8)}`); 
+	document.getElementById("name").value = sanitizedUserName
+
+    const cameraSource = null
+    const microphoneSource = null
+
+    document.body.style.backgroundImage = "none";
+	//use for continuity in initvdo etc.
+	const sessionID = SID;
+	const entry = {
+		userName: sanitizedUserName,
+		cameraSource: cameraSource || "",
+		microphoneSource: microphoneSource || ""
+	};
+
+	const sessionsJSON = localStorage.getItem(APP_NS);
+	let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
+	sessions.unshift(entry);
+
+	sessions = sessions.slice(0, 1); //just keep last session (use this format so re-use logic from stream can be used)
+
+	localStorage.setItem(APP_NS, JSON.stringify(sessions));
+
+	// Events to allow zooming in of stream
+	window.addEventListener("wheel", onWheel, { passive: false });
+	window.addEventListener("pointerdown", onMouseDown);
+	window.addEventListener("pointermove", onMouseMove);
+	window.addEventListener("pointerup", onMouseUp);
+
+	["mainViewer"].forEach(id => {
+		document.getElementById(id).classList.remove("hidden");
+	});
+
+	VDOConnect(sessionID);
+}    
+</script>

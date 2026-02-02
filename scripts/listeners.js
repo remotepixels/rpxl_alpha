@@ -149,7 +149,7 @@ function setupVDOListeners() {
 
 		if (data.type === 'markup') {
 			const dataMarkup = data.overlayNinja;
-			console.warn("markup data received", dataMarkup);
+			//console.warn("markup data received", dataMarkup);
 			if (dataMarkup.action === "stroke") {
 				const s = dataMarkup.stroke;
 				drawingHistory[s.owner] ??= [];
@@ -280,7 +280,7 @@ function setupVDOMSListeners() {
 // If the tab regains focus, re-request wake lock
 document.addEventListener("visibilitychange", () => {
 	if (!document.hidden && wakeLock) {
-		document.documentElement.requestFullscreen();
+		//document.documentElement.requestFullscreen();
 
 		enableWakeLock();
 	}
@@ -289,13 +289,13 @@ document.addEventListener("visibilitychange", () => {
 //resize markup canvas on window resize
 window.addEventListener("resize", () => {
 	wait(50); //wait for resize to finish	
-	document.documentElement.requestFullscreen();
+	//document.documentElement.requestFullscreen();
 
 	resizeMarkupCanvas() //markup.js
 });
 
 window.addEventListener('load', () => {
-	document.documentElement.requestFullscreen();
+	//document.documentElement.requestFullscreen();
 
 	//resizeMarkupCanvas()//?
 });

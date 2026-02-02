@@ -35,19 +35,24 @@
 	<div id="mainWindow" class="mainWindow">
 		<div id="topmenu" class="toolbar top hidden">
 			<div class="toolbar-section left">
-				<div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
-				<div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">playlist_add</span></button><input id="filePicker" type="file" multiple></div>
+				<div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false"
+						role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
+				<div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false"
+						role="button"><span class="material-symbols-outlined">playlist_add</span></button><input
+						id="filePicker" type="file" multiple></div>
 			</div>
 			<div class="toolbar-section center">
 				<div class="toolset"><span class="tool toolwider">Peers : <span id="peersList">(0)</span></span></div>
 			</div>
 			<div class="toolbar-section right">
-				<div class="toolset"><span class="tool toolwider">XXXX-XXXX</span><button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">terminal</span></button></div>
+				<!-- <div class="toolset"><span class="tool toolwider">XXXX-XXXX</span> -->
+				<button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span
+						class="material-symbols-outlined">terminal</span></button>
+				<!-- </div> -->
 			</div>
 		</div>
 		<div class="logAndFiles">
 			<pre class="log hidden" id="log"></pre>
-
 			<div id="subToolBar" class="subtoolbar hidden">
 				<div class="toolbar-section left">
 					<span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
@@ -60,24 +65,11 @@
 				</div>
 				<div class="toolbar-section right">
 					<span id="sortControls">Sort by &nbsp;&nbsp;&nbsp;</span>
-					<span class="subToolSet sortSet"><button id="sortByTime" class="active subTool">Latest</button><button
-							id="sortByName" class="subTool">Name</button></span>
+					<span class="subToolSet sortSet"><button id="sortByTime"
+							class="active subTool">Latest</button><button id="sortByName"
+							class="subTool">Name</button></span>
 				</div>
 			</div>
-
-
-			<!-- <div id="subToolBar" class="subtoolbar hidden">
-				<span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
-				<span class="toolspacer"></span>
-				<span id="filterControls">Show &nbsp;&nbsp;&nbsp;</span>
-				<span class="subToolSet filterSet"><button id="filterAll" class="active subTool">All</button><button
-						id="filterLocal" class="subTool">Local</button><button id="filterRemote"
-						class="subTool">Remote</button></span>
-				<span class="toolspacer"></span>
-				<span id="sortControls">Sort by &nbsp;&nbsp;&nbsp;</span>
-				<span class="subToolSet sortSet"><button id="sortByTime" class="active subTool">Latest</button><button
-						id="sortByName" class="subTool">Name</button></span>
-			</div> -->
 
 			<div class="file-list" id="fileList">
 				<div id="loadingMessage" class="hidden">Loading files...</div>
@@ -90,13 +82,12 @@
 		<div id="container"></div>
 
 		<div class="drop" id="dropArea">
-			<div>
-				<h2>Enter share code to join</h2>
-				<h2><input type="text" maxlenght="8" id="project" name="clientName" placeholder="XXXX-XXXX"
-						contenteditable="true">
-				</h2>
-
-			</div>
+			<!-- <div> -->
+			<!-- <h2>Enter share code to join</h2> -->
+			<!-- <h2><input type="text" maxlenght="8" id="project" name="clientName" placeholder="XXXX-XXXX" -->
+			<!-- contenteditable="true"> -->
+			<!-- </h2> -->
+			<!-- </div> -->
 			<div class="material-symbols-outlined largeIcon">drive_folder_upload</div>
 			<div>
 				<h1>Drag & drop files or folders to start share</h1>
@@ -112,16 +103,14 @@
 
 		<!----- Copied links to clipboard ------>
 		<div id="popupClipboard" class="toolpopup hidden">
-			<div>
-				Share code
-			</div>
-			<div>
-				<h5>WWWW-WWWW</h5>
-			</div>
-			<!-- <div class="material-symbols-outlined">assignment_turned_in</div> -->
+			<!-- <div>Share code</div> -->
+			<!-- <div> -->
+			<!-- <h5>WWWW-WWWW</h5> -->
+			<!-- </div> -->
+			<div class="material-symbols-outlined largeIcon">assignment_turned_in</div>
 			<div>
 				Full link copied to clipboard<br>
-				<a href=help.html" target="_new">(Click here for more information)</a>
+				<!-- <a href=help.html" target="_new">(Click here for more information)</a> -->
 			</div>
 		</div>
 </body>
@@ -158,7 +147,6 @@
 	const loadingEl = document.getElementById('loadingMessage');
 
 	// Namespace used in messages sent through VDO.Ninja
-	//const APP_NS = 'SNDRPXL';
 	const devURL = window.location.origin;
 	const debouncedRerender = debounce(rerenderFileTree, 100);//slow sorting index
 	let ctl = null;
@@ -185,7 +173,6 @@
 		logEl.scrollTop = logEl.scrollHeight;
 	}
 
-	//log('Local Browser UUID : ', localUUID);
 	checkSessionURL();  //autoconnect if session ID in URL
 
 	//CHECK IF THERE IS A CORRECT SID IN THE URL AND AUTOCONNECT
@@ -197,7 +184,7 @@
 			const SID = params.get('SID');
 			roomName = encodeURIComponent(SID);
 			if (!roomName || roomName.length !== 24) {
-				log('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.');
+				log('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.\n\nAlternativesly use the 8 digit share code supplied by the host, to join the waiting room.');
 				return;
 			} else {
 				log('SESSION ID FOUND IN URL:', roomName);
@@ -218,7 +205,6 @@
 
 	//CREATE VDONINJA IFRAME 
 	async function createIframe(room) {
-
 		try {
 			ctl = await vdo.autoConnect({
 				room: room,
@@ -240,7 +226,6 @@
 		try {
 			wakeLock = await navigator.wakeLock.request("screen");
 			wakeLock.addEventListener("release", () => {
-				//console.log("Wake Lock was released");
 			});
 			//console.log("Wake Lock active");
 		} catch (err) {
@@ -288,7 +273,7 @@
 		//log('Setting up VDO listeners');
 
 		vdo.addEventListener(`connected`, (event) => {
-			console.log("connected to signaling server");
+			//console.log("connected to signaling server");
 		});
 
 		vdo.addEventListener(`disconnected`, (event) => {
@@ -299,7 +284,7 @@
 			//console.log("Joined room :", event.detail.room);
 		});
 		vdo.addEventListener('peerConnected', (event) => {
-			//used to view peers that connect later in session (ignore streamID as will often be wrong)
+			//used to view peers that connect later in session
 			playBeep(400, 1);
 			const guestUUID = event.detail.uuid;
 			connectedPeers[guestUUID] = guestUUID;
@@ -406,11 +391,21 @@
 				el.style.opacity = "0";
 				return;
 			}
-
-			if (data.dataType === "Resend-chunk") {
-				onResendChunkRequest(payload, uuid)
+			if (data.dataType === "ACK-chunks") {
+				//console.warn("user:", uuid, "ack chunk", payload)
+				handleAckChunks( payload, uuid )
 				return;
 			}
+			if (data.dataType === "stop-download") {
+
+				return;
+			}
+
+			// if (data.dataType === "Resend-chunk") {
+			// 	console.warn("user:", uuid, "resend chunks", payload)
+			// 	handleResendChunk(payload, uuid)
+			// 	return;
+			// }
 
 			if (data.dataType === "Download-complete") {
 				onDownloadComplete(payload, uuid);
@@ -421,7 +416,7 @@
 	}
 
 
-	//////shutdown actions
+	//SHUTDOWN ACTIONS
 	window.addEventListener('beforeunload', () => {
 		vdo.sendData({
 			dataType: 'peer-disconnect',
@@ -491,7 +486,7 @@
 	}
 
 	//INTERFACE
-	//share
+	//share button
 	shareBtn.addEventListener('pointerdown', () => {
 		navigator.clipboard.writeText(`${devURL}/snd/?SID=${roomName}`);
 		popupClipboard.classList.remove("hidden");
@@ -741,7 +736,7 @@
 		announceFile(id);    // Notify peers
 	}
 
-	//SEND FILE (TO PEER OR BROADCAST)
+	//ANNOUNCE FILE (TO PEER, not used at moment, OR BROADCAST)
 	function announceFile(id, targetUUID = null) {
 		const meta = files[id];
 		if (!meta) return;
@@ -762,6 +757,7 @@
 		}
 	}
 
+	//SEND CONTROL MESSAGES (NOT DATA, FILE ADDED/REMOVED, FILE REQUESTS ETC)
 	//SEND TO SPECIFIC PEER (STREAMID)
 	function sendToPeer(targetUUID, dataType, payload = {}) {
 		const total = Object.keys(connectedPeers).length;
@@ -794,7 +790,7 @@
 		};
 	}
 
-	//SORTS THE FILETREE BY DATE/NAME LOCAL/REMOTE OR ALL
+	//SORTS THE FILE TREE BY DATE/NAME LOCAL/REMOTE OR ALL
 	function rerenderFileTree() {
 		const treeRoot = document.getElementById('fileList');
 
@@ -1005,6 +1001,7 @@
 		log(`Announced directory removal: ${path}`);
 	}
 
+	//REMOVE FILE FROM DOM
 	async function deleteFile(id) {
 		const file = files[id];
 		if (!file) return;
@@ -1070,6 +1067,7 @@
 		}
 	}
 
+	//IF FILE NOT FOUND ON HOST DRIVE WHEN REQUESTED MARK AS DEAD
 	function markFileDead(fileID) {
 		//console.warn("marking file dead");
 		const el = document.getElementById(`data-${fileID}`);
@@ -1198,17 +1196,17 @@
 		bytesSentInInterval = 0;
 	}, 500);
 
-	// UTILITY, CREATE FILE ID'S, NICE FORMAT SIZE AND REMOVE ANY FUNNY CHARACTERS
+	// UTILITY - NICE FORMAT SIZE AND REMOVE ANY FUNNY CHARACTERS FROM FILE OR FOLDER NAMES
 	function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
 	function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
 
-	//pause when sending or retrying
+	//PAUSE AFTER CONNECT AND SENDING OF CONTROL MESSAGES IF PEER ADDS OR REMOVES FILES
 	function sleep(ms) {
 		return new Promise(r => setTimeout(r, ms));
 	}
 
 
-	//TX AND RX FILe REQUESTS
+	//TX AND RX FILE REQUESTS
 	// PEER REQUESTS FILE
 	function requestDownload(fileID, isFolder = false) {
 		//FOLDER DOWNLOAD HANDLED FIRST
@@ -1244,9 +1242,9 @@
 	//RESPOND TO FILE REQUEST
 	async function respondToFileRequest(fileID, targetUUID) {
 		sending = false;
-		const conns = vdo.connections.get(targetUUID);
-		const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-		if (!dc) return;
+		//const conns = vdo.connections.get(targetUUID);
+		//const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
+		//if (!dc) return;
 
 		const meta = files[fileID];
 		if (!meta) return;
@@ -1256,7 +1254,26 @@
 
 		produceChunks(fileID, targetUUID, file, chunkSize)
 		await refillSendCache(fileID);
-		sendRAWData(dc);
+		sendRAWData();
+	}
+
+	async function handleAckChunks(payload, uuid) {
+			const fileID = payload.fileID;
+			const parts = payload.parts;
+
+			if (!fileID) return;
+	
+			const t = transfers.get(`${fileID}:${uuid}`);
+			if (!t) return;
+
+			for (const p of parts) {
+				t.pending.delete(p);
+				t.inflight.delete(p);
+				console.warn("user:", uuid, "ack chunk", p)
+			}
+
+		// refill send cache using pending
+		await refillSendCache(fileID, uuid);
 	}
 
 	//RECIEVED FILE DOWNLOAD COMPLETE MESSAGE FROM GUEST, SCHEDULE CLEAR FILE FROM CACHE DB
@@ -1311,7 +1328,6 @@
 
 
 	// FILE TRANSFER ENGINE
-
 	// Simple CRC32
 	function crc32(buf) {
 		let crc = -1;
@@ -1340,25 +1356,31 @@
 	const cacheQueue = new Map();
 	const transfers = new Map(); // fileID -> TransferState
 	const MAX_CACHE_QUEUE = 8;
-	//let cacheWorkerRunning = false;
 
 	async function produceChunks(fileID, targetUUID, file, chunkSize) {
 		let logCache = false;
-		//if (!cacheWorkerRunning) startCacheWorker();
 		files[fileID].chunkSize = chunkSize;
 		files[fileID].activeDownloads ??= new Set();
 		files[fileID].activeDownloads.add(targetUUID);
 
 		const totalChunks = Math.ceil(file.size / chunkSize);
+		const transferKey = `${fileID}:${targetUUID}`;
 
-		transfers.set(fileID, {
+		const t = {
 			fileID,
+			targetUUID,
 			totalChunks,
-			nextToRead: 0,
-			nextToSend: 0,
-			maxWritten: -1,
-			inflight: new Set()
-		});
+			pending: new Set(),
+			inflight: new Set(),
+			maxWritten: -1
+		};
+
+		//pending ONCE
+		for (let i = 0; i < totalChunks; i++) {
+			t.pending.add(i);
+		}
+
+		transfers.set(transferKey, t);
 
 		for (let i = 0; i < totalChunks; i++) {
 			const chunkIndex = i;
@@ -1367,10 +1389,10 @@
 
 			if (cached) {
 				// chunk already exists in IndexedDB
-				const t = transfers.get(fileID);
-				if (t) {
-					t.maxWritten = Math.max(t.maxWritten, chunkIndex);
-					refillSendCache(fileID);   //wake sender
+				const tID = transfers.get(transferKey);
+				if (tID) {
+					tID.maxWritten = Math.max(tID.maxWritten, chunkIndex);
+					await refillSendCache(fileID,targetUUID);   //wake sender
 				}
 				if (!logCache) {
 					log("File : ", file.name, "is already in cache");
@@ -1391,14 +1413,14 @@
 
 			let buffer;
 			try {
-					buffer = await file.slice(start, end).arrayBuffer();
-				} catch (err) {
-					//console.warn("Source file not found:", fileID, file.name, err);
-					markFileDead(fileID);
-					sendBroadcast("source-not-found", fileID);
-					return;
-				}
-				
+				buffer = await file.slice(start, end).arrayBuffer();
+			} catch (err) {
+				//console.warn("Source file not found:", fileID, file.name, err);
+				markFileDead(fileID);
+				sendBroadcast("source-not-found", fileID);
+				return;
+			}
+
 			const crc = crc32(new Uint8Array(buffer));
 			const idBytes = new TextEncoder().encode(fileID);
 
@@ -1416,9 +1438,8 @@
 
 			await writeChunkToIDB(fileID, chunkIndex, out.buffer);
 
-			const t = transfers.get(fileID);
 			t.maxWritten = Math.max(t.maxWritten, chunkIndex);
-			refillSendCache(fileID);
+			await refillSendCache(fileID, targetUUID);
 		}
 	}
 
@@ -1473,7 +1494,7 @@
 	//SENDBUFFER - MEMORY, FILLED FROM DISK CACHE
 	let sending = false;
 
-	function sendRAWData(dc) {
+	function sendRAWData() {
 		if (sending) return;
 		sending = true;
 
@@ -1483,43 +1504,47 @@
 			const MAX_SEND_BUFFER = 1_000_000;
 
 			for (const [key, chunk] of sendCache) {
-				if (dc.bufferedAmount > MAX_SEND_BUFFER) break;
+			const [fileID, targetUUID, part] = key.split(":");
 
-				dc.send(chunk);
+			const conns = vdo.connections.get(targetUUID);
+			const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
+			if (!dc) continue;
 
-				const [fileID, index] = key.split(":");
-				const t = transfers.get(fileID);
+			dc.send(chunk);
 
-				sendCache.delete(key);
-				t.inflight.delete(Number(index));
-				t.nextToSend++;
+			sendCache.delete(key);
 
-				refillSendCache(fileID);
+			const t = transfers.get(`${fileID}:${targetUUID}`);
+			//t.inflight.delete(Number(part));
 			}
-
 			requestAnimationFrame(pump);
 		};
-
 		pump();
 	}
 
-	const WINDOW = 8;	//amount of chunks to cache in memory
+	const WINDOW = 4;	//amount of chunks to cache in memory
 
-	async function refillSendCache(fileID) {
-		const t = transfers.get(fileID);
-		if (!t) return;
+	async function refillSendCache(fileID, targetUUID) {
+	const t = transfers.get(`${fileID}:${targetUUID}`);
+	const conns = vdo.connections.get(targetUUID);
+	const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
 
-		while (
-			t.inflight.size < WINDOW &&
-			t.nextToRead <= t.maxWritten &&   //critical
-			t.nextToRead < t.totalChunks
-		) {
-			const chunk = await idbGetChunk(fileID, t.nextToRead);
+	if (!dc) return;
+	if (!t) return;
 
-			sendCache.set(`${fileID}:${t.nextToRead}`, chunk);
-			t.inflight.add(t.nextToRead);
-			t.nextToRead++;
-		}
+	for (const part of t.pending) {
+		if (t.inflight.size >= WINDOW) break;
+		if (dc.bufferedAmount > 512_000) break;
+		if (part > t.maxWritten) continue;
+		if (t.inflight.has(part)) continue;
+  		if (sendCache.has(`${fileID}:${targetUUID}:${part}`)) continue;//stop duplicates getting queued
+
+		const chunk = await idbGetChunk(fileID, part);
+		if (!chunk) continue;
+
+		sendCache.set(`${fileID}:${targetUUID}:${part}`, chunk);
+		t.inflight.add(part);
+	}
 	}
 
 	//scheduler to remove chunks when we recieve file download complete
@@ -1596,60 +1621,64 @@
 		const crcExpected = view.getUint32(offset, true); offset += 4;
 		const chunk = buffer.slice(offset);
 
-		// CRC check
 		const crcActual = crc32(new Uint8Array(chunk));
 		if (crcActual !== crcExpected) {
-			const host = files[fileID]?.uploadedBy;
-			const payload = { fileID, part };
-
-			console.warn("CRC error for :", fileID, " chunk : ", part, "asking for resend from :", host);
-			sendToPeer(host, "Resend-chunk", payload)
+			console.warn("CRC Failed id:", fileID, "part", part, " of", total)
 			return;
 		}
 
 		if (!incomingFiles.has(fileID)) {
-			incomingFiles.set(fileID, { total, receivedCount: 0 });
+			incomingFiles.set(fileID, {
+				total,
+				received: new Set(),
+				lastAckCount: 0,
+				completed: false
+			});
 		}
 
 		const file = incomingFiles.get(fileID);
 
-		// Write to IndexedDB, NOT RAM
-		await storeRxChunk(fileID, part, total, chunk);
-		file.receivedCount++;
-		console.log(`${fileID}: chunk ${part}/${total - 1}`);
-
-		const percent = (file.receivedCount / total) * 100;
-		updateFileProgressUI(fileID, percent)
-		// Completion
-		// if (file.receivedCount === total) {
-		// 	//console.log(`File ${fileID} complete (assembling)`);
-
-		// 	const buffers = [];
-		// 	for (let i = 1; i <= total; i++) {
-		// 		buffers.push(await getRxChunk(fileID, i));
-		// 	}
-
-		// 	const blob = new Blob(buffers);
-		// 	incomingFiles.delete(fileID);
-
-		// 	onFileComplete(fileID, blob);
-		// }
-		
-	}
-
-	async function assembleFileStream(fileID, total) {
-			const stream = new ReadableStream({
-				async start(controller) {
-					for (let i = 1; i <= total; i++) {
-						const chunk = await getRxChunk(fileID, i);
-						controller.enqueue(chunk);
-					}
-					controller.close();
-				}
-			});
-
-			return new Response(stream).blob();
+		if (!file.received.has(part)) {
+			await storeRxChunk(fileID, part, file.total, chunk);
+			file.received.add(part);
+			updateFileProgressUI(fileID, (file.received.size / file.total) * 100);
 		}
+
+		//send ACK if new chunks arrived
+		if (file.received.size !== file.lastAckCount) {
+			file.lastAckCount = file.received.size;
+
+			sendToPeer(files[fileID]?.uploadedBy, "ACK-chunks", {
+				fileID,
+				parts: [...file.received]
+			});
+		}
+
+		console.warn("received", file.received.size, "of", file.total);
+
+		if (!file.completed && file.received.size === file.total) {
+		file.completed = true;
+
+		console.warn("file id:", fileID, "all received");
+
+		const stream = new ReadableStream({
+			async start(controller) {
+			for (let i = 0; i < file.total; i++) {
+				const chunk = await getRxChunk(fileID, i);
+				if (!chunk) {
+				controller.error("Missing chunk " + i);
+				return;
+				}
+				controller.enqueue(new Uint8Array(chunk));
+			}
+			controller.close();
+			}
+		});
+
+		const blob = await new Response(stream).blob();
+		onFileComplete(fileID, blob);
+		}
+	}
 
 	//RECIEVER CACHE DB
 	//store chunks in indexDB to free up memory
@@ -1671,15 +1700,24 @@
 	}
 
 	async function storeRxChunk(fileID, part, total, data) {
-		const db = await openRxDB();
+	const db = await openRxDB();
+
+	return new Promise((resolve, reject) => {
 		const tx = db.transaction(RX_STORE, "readwrite");
-		tx.objectStore(RX_STORE).put({
-			key: `${fileID}:${part}`,
-			fileID,
-			part,
-			total,
-			data
+		const store = tx.objectStore(RX_STORE);
+
+		store.put({
+		key: `${fileID}:${part}`,
+		fileID,
+		part,
+		total,
+		data,
+		ts: Date.now()
 		});
+
+		tx.oncomplete = resolve;
+		tx.onerror = () => reject(tx.error);
+	});
 	}
 
 	async function getRxChunk(fileID, part) {
@@ -1801,7 +1839,7 @@
 		});
 
 		enableWakeLock();
-		//(`Starting download: ${meta.name} - uploaded by : ${meta.uploadedBy}`);
+		//log(`Starting download: ${meta.name} - uploaded by : ${meta.uploadedBy}`);
 	}
 
 	// // Receiver: cancel a download (user action)
@@ -1830,7 +1868,7 @@
 		// Notify host to abort sending this file (so host-side stops quickly)
 		const meta = files[fileID];
 		if (meta && meta.uploadedBy) {
-			//sendToPeer(meta.uploadedBy, "stop-download", { id: fileID, from: localUUID });
+			sendToPeer(meta.uploadedBy, "stop-download", { id: fileID });
 		}
 		clearAckWaitersForFile(fileID)
 		log(`Cancelled download: ${fileID}`);
@@ -1938,7 +1976,7 @@
 	// 	}
 	// }
 
-	// const activeStreamers = new Map();
+	const activeStreamers = new Map();
 
 	// function getStreamer(fileID) {
 	// 	if (!activeStreamers.has(fileID)) {

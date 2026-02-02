@@ -486,7 +486,7 @@ function randomBG() {
 	document.body.style.height = `100%`;
 	document.body.style.backgroundSize = `cover`;
 
-	if (!isStreamer) {
+	if (!isStreamer && !isQuickShare) {
 		const header = document.querySelector(`.siteHeader`);
 		header.style.backgroundImage = `url('${imageUrl}')`;
 		header.style.width = `100%`;
