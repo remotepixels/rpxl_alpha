@@ -35,20 +35,19 @@
 	<div id="mainWindow" class="mainWindow">
 		<div id="topmenu" class="toolbar top hidden">
 			<div class="toolbar-section left">
-				<div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false"
-						role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
-				<div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false"
-						role="button"><span class="material-symbols-outlined">playlist_add</span></button><input
-						id="filePicker" type="file" multiple></div>
+				<div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
+				<div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">playlist_add</span></button><input id="filePicker" type="file" multiple></div>
 			</div>
 			<div class="toolbar-section center">
-				<div class="toolset"><span class="tool toolwider">Peers : <span id="peersList">(0)</span></span></div>
+				<div class="toolset">
+					<span class="tool toolwider" id="waitingButton">Waiting : <span id="waitingList">(0)</span></span>
+					<span class="tool toolwider" id="connectedButton" style="pointer-events: none;">Connected : <span id="peersList">(0)</span></span>
+				</div>
 			</div>
 			<div class="toolbar-section right">
-				<!-- <div class="toolset"><span class="tool toolwider">XXXX-XXXX</span> -->
-				<button class="tool toolmoresettings" id="logBtn" aria-expanded="false" role="button"><span
-						class="material-symbols-outlined">terminal</span></button>
-				<!-- </div> -->
+				<div class="toolset">
+				<button class="tool" id="logBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">terminal</span></button>
+				</div>
 			</div>
 		</div>
 		<div class="logAndFiles">
@@ -58,16 +57,11 @@
 					<span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
 				</div>
 				<div class="toolbar-section center">
-					<span id="filterControls">Show &nbsp;&nbsp;&nbsp;</span>
-					<span class="subToolSet filterSet"><button id="filterAll" class="active subTool">All</button><button
-							id="filterLocal" class="subTool">Local</button><button id="filterRemote"
-							class="subTool">Remote</button></span>
+					<span id="filterControls">Show &nbsp;</span>
+					<span class="subToolSet filterSet"><button id="filterAll" class="active subTool">All</button><button id="filterLocal" class="subTool">Local</button><button id="filterRemote" class="subTool">Remote</button></span>
 				</div>
 				<div class="toolbar-section right">
-					<span id="sortControls">Sort by &nbsp;&nbsp;&nbsp;</span>
-					<span class="subToolSet sortSet"><button id="sortByTime"
-							class="active subTool">Latest</button><button id="sortByName"
-							class="subTool">Name</button></span>
+					<span id="sortControls">Sort by &nbsp;</span><span class="subToolSet sortSet"><button id="sortByTime" class="active subTool">Latest</button><button id="sortByName" class="subTool">Name</button></span>
 				</div>
 			</div>
 
@@ -82,17 +76,16 @@
 		<div id="container"></div>
 
 		<div class="drop" id="dropArea">
-			<!-- <div> -->
-			<!-- <h2>Enter share code to join</h2> -->
-			<!-- <h2><input type="text" maxlenght="8" id="project" name="clientName" placeholder="XXXX-XXXX" -->
-			<!-- contenteditable="true"> -->
-			<!-- </h2> -->
-			<!-- </div> -->
-			<div class="material-symbols-outlined largeIcon">drive_folder_upload</div>
+			<div id="joinShareDialog" onclick="event.stopPropagation()" style="margin: 0px; border: 2px solid var(--color-med-grey); border-radius:10px; background-color:light-dark(var(--color-light-bg), var(--color-dark-grey)); box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25); cursor: default!important;;">
+				<h2 style="height:20px; margin:10px; color:light-dark(var(--color-dark-bg), var(--color-light-bg));">Enter code to join a share</h2>
+				<input type="text" class="scode" maxlenght="8" id="shareCodeInput" style="width:300px; margin: 0px 10px 5px 10px; padding:5px 0px 5px 10px; font-size: 30px; border-radius: 5px; color: light-dark(black, white);" placeholder="XXXX-XXXX">
+				<div style="margin-bottom:10px;"><button id="joinButton" class="joinbutton blue wider" style="color:light-dark(var(--color-dark-bg), var(--color-light-bg));">Join</button></div>
+			</div>
 			<div>
-				<h1>Drag & drop files or folders to start share</h1>
-				<h2>(click to pick)</h2>
-
+				<span id="dragDropIcon" class="material-symbols-outlined largeIcon">drive_folder_upload</span>
+				<h1 id="dragDropMessage">Or drag & drop files or folders to start sharing</h1>
+				<h2 id="dragDropSubMessage"style="margin:0px; transform: translateY(-20px);">(click to pick)</h2>
+				<p>&nbsp;</p>
 			</div>
 		</div>
 
@@ -101,16 +94,29 @@
 					class="material-symbols-outlined" style="font-size: 48px;">help</span></a>
 		</div>
 
-		<!----- Copied links to clipboard ------>
-		<div id="popupClipboard" class="toolpopup hidden">
-			<!-- <div>Share code</div> -->
-			<!-- <div> -->
-			<!-- <h5>WWWW-WWWW</h5> -->
-			<!-- </div> -->
-			<div class="material-symbols-outlined largeIcon">assignment_turned_in</div>
-			<div>
-				Full link copied to clipboard<br>
-				<!-- <a href=help.html" target="_new">(Click here for more information)</a> -->
+		<!-- Share menu -->
+   		<div class="popupBG hidden" id="popupBG"></div>
+		<div id="popupClipboard" class="toolpopup hidden top left share ">
+			<div class="padding">
+				<h2><span class="linkCopied">Link copied to clipboard</span><br><span>(Paste in messaging app to send)</span></h2>
+			</div>
+			<hr>
+			<div class="padding">
+				<h2 style="margin:10px 0px 0px 0px; padding:0px;">Or scan QR code to connect</h2>
+				<div id="qrcode"></div>
+				<p></p>
+			</div>
+			<hr>
+			<div class="padding">
+				<h2 style="margin:10px 0px 0px 0px; padding:0px;">Alternatively, use share code</h2>
+				<h5 id="scode" class="scode" style="margin:0px; padding:0px; border:0px;"></h5>
+				<br>
+			</div>
+		</div>
+
+		<!-- waiting room menu -->
+		<div id="popupWaitingList" class="toolpopup top middleLeft hidden">
+			<div id="waiting_uuid" class="waitingList">
 			</div>
 		</div>
 </body>
@@ -118,26 +124,29 @@
 </html>
 
 <script src="/scripts/vdoninja-sdk.js"></script>
+<script src="qrcode.js"></script>
 <script lang="javascript">
-	//globals
-	//let iframe = null;
+	//GLOBALS
+	let roomName = null;
+	let firstInteraction = true;
+	let wakeLock = null;
+
 	const connectedPeers = new Set();
-	//let connectedPeers = {}; // map streamID -> label
-	let roomName = '';
+	const waitingPeers = new Map();
+
 	const files = {}; // id -> {file, name, size, chunks:[], progress}
 	const folderUUIDs = {};   // path → uuid
 	let folderMap = {}; // keeps track of folder DOM nodes
 	let folderState = {}; // path → true/false
 	let currentSort = 'latest'; // default sort method
 	let currentFilter = 'all'; // values: 'all' | 'local' | 'remote'
-	//let localUUID = randomID(24);
-	let firstInteraction = true;
 	let downloadQueue = [];        // holds pending fileIDs
-	let wakeLock = null;
+
 
 	const dropArea = document.getElementById('dropArea');
 	const fileList = document.getElementById('fileList');
 	const logEl = document.getElementById('log');
+	const waitingList = document.getElementById('waitingList');
 	const peersList = document.getElementById('peersList');
 	const shareBtn = document.getElementById('shareBtn');
 	const addBtn = document.getElementById('addBtn');
@@ -145,14 +154,21 @@
 	const logBtn = document.getElementById('logBtn');
 	const popupClipboard = document.getElementById('popupClipboard');
 	const loadingEl = document.getElementById('loadingMessage');
+	const input = document.getElementById("shareCodeInput");
+	const joinWithShareCode = document.getElementById("joinButton");
+	const waitingButton = document.getElementById("waitingButton");
 
-	// Namespace used in messages sent through VDO.Ninja
 	const devURL = window.location.origin;
 	const debouncedRerender = debounce(rerenderFileTree, 100);//slow sorting index
-	let ctl = null;
 
 	//setup vdo sdk's, 
 	const vdo = new VDONinjaSDK({
+		salt: "rpxl.app",
+		allowFallback: false,
+		debug: false
+	});
+
+	const vdoWR = new VDONinjaSDK({
 		salt: "rpxl.app",
 		allowFallback: false,
 		debug: false
@@ -188,38 +204,109 @@
 				return;
 			} else {
 				log('SESSION ID FOUND IN URL:', roomName);
-				createIframe(roomName)
+
 				document.getElementById('helpIcon').style.display = "none";
 				document.getElementById('shareTools').style.display = "none";
+				document.getElementById('waitingButton').style.display = "none";
 				document.getElementById('dropArea').classList.add('hidden');
 				document.getElementById('topmenu').classList.remove('hidden');
 				document.getElementById('subToolBar').classList.remove('hidden')
+				document.getElementById('joinShareDialog').style.display = "none";
+				document.getElementById('dragDropMessage').textContent = "Drop to add files"
+				document.getElementById('dragDropSubMessage').textContent = ""
+
+				createVDOroom(roomName)
 				return;
 			}
 		} else {
+			//setup qr code and room codes, do not start room till we do something (drop files enter a code etc.)
 			roomName = randomID(24);
-			enableWakeLock(); //if first peer, enable wakelock
-			createIframe(roomName);
+			waitingRoom = randomID(8).toUpperCase();;
+			//waitingRoom = randomID(8).toUpperCase().replace(/(.{4})(.{4})/, "$1-$2");
+			scode.textContent = waitingRoom.replace(/(.{4})(.{4})/, "$1-$2");;
+			url = `${devURL}/?SID=${roomName}`
+
+			var qrcode = new QRCode("qrcode", {
+				text: url,
+				width: 250,
+				height: 250,
+				colorDark : "#141414",
+				colorLight : "#f0f0f0",
+				correctLevel : QRCode.CorrectLevel.H
+			});
+
+			//createVDOroom(roomName);
+			//createVDOwaitingRoom(waitingRoom);
 		}
 	}
 
-	//CREATE VDONINJA IFRAME 
-	async function createIframe(room) {
+	//CREATE VDO ROOM (MAIN)
+	async function createVDOroom(room) {
 		try {
-			ctl = await vdo.autoConnect({
+			const ctl = await vdo.autoConnect({
 				room: room,
 				mode: "half",	//data only
-				password: ""
+				password: "",
+				claim: true
 			});
-			//log('Announced as', ctl.streamID, 'in', room);
-		} catch (err) { log('Failed:', err.message) }
+		} catch (err) { 
+			log('Failed:', err.message) 
+		}
 
 		log('Joined room :', room);
 
 		flushChunkDB("OutgoingFileCache"); //remove cache if exists
 		flushChunkDB("IncomingFileCache"); //remove cache if exists
+
 		setupVDOListeners();
 	}
+
+	//CREATE WAITING ROOM (SHORT CODE)
+	async function createVDOwaitingRoom(room) {
+		try {
+			const ctl = await vdoWR.autoConnect({
+				room: room,
+				mode: "half",	//data only
+				password: "",
+				claim: true
+			});
+		} catch (err) { 
+			log('Failed:', err.message) 
+		}
+		
+		log('Watching waiting room : ', room);
+		setupVDOWRListeners(room);
+	}
+
+	//JOIN WAITING ROOM (SHORT CODE)
+	async function joinVDOWaitingRoom(waitingRoom) {
+		try {
+			const ctl = await vdoWR.autoConnect({
+				room: waitingRoom,
+				mode: "half",	//data only
+				password: ""
+			});
+		} catch (err) { 
+			log('Failed:', err.message) 
+		}
+
+		//console.warn('Joined waiting room :', waitingRoom);
+		setupVDOWRListeners();
+	}
+
+	input.addEventListener("input", e => {
+		let v = input.value;
+
+		v = v.replace(/[^a-zA-Z0-9]/g, "");
+		v = v.toUpperCase();
+		v = v.slice(0, 8);
+
+		if (v.length > 4) {
+			v = v.slice(0, 4) + "-" + v.slice(4);
+		}
+
+		input.value = v;
+	});
 
 	//WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
 	async function enableWakeLock() {
@@ -244,266 +331,73 @@
 		}
 	}
 
+	//INTERFACE
+	//share code join
+	function joinWaitingRoom() {
+		const prettyShare = input.value;
+		const shareCode = input.value.replace("-", "");
+
+		if (shareCode.length !== 8) {
+			input.value = null;
+			return;
+		};
+
+		joinVDOWaitingRoom(shareCode);
+
+		document.getElementById('loadingMessage').style.display = "none";
+		document.getElementById('joinShareDialog').style.display = "none";
+		document.getElementById('dropArea').style.pointerEvents = "none";
+		document.getElementById('dragDropIcon').textContent = "orbit";
+		document.getElementById('dragDropMessage').textContent = `Joined waiting room (${prettyShare})`;
+		document.getElementById('dragDropSubMessage').textContent = "the host will let you in";
+	}
+
+	//join with share code
+	joinWithShareCode.addEventListener('pointerdown', joinWaitingRoom);
+	// Enter key in input
+	input.addEventListener("keydown", e => {
+	if (e.key === "Enter") {
+			e.preventDefault();
+			joinWaitingRoom();
+		}
+	});
+
+	//waiting room popup
+	waitingButton.addEventListener('pointerdown', () => {
+		popupBG.classList.remove("hidden");
+		waitingButton.classList.add("selected");
+		popupWaitingList.classList.remove("hidden");
+	});
+
+	//share button
+	shareBtn.addEventListener('pointerdown', () => {
+		navigator.clipboard.writeText(`${devURL}/snd/?SID=${roomName}`);
+		popupBG.classList.remove("hidden");
+		popupClipboard.classList.remove("hidden");
+		shareBtn.classList.add("selected");
+	});
+	//hidden bg element to hide share menu
+	popupBG.addEventListener("pointerdown", function(e) {
+		if (e.target.matches("#popupBG")) {
+			if(!popupClipboard.classList.contains("hidden")) popupClipboard.classList.add("hidden");
+			if(!popupWaitingList.classList.contains("hidden")) popupWaitingList.classList.add("hidden");
+			popupBG.classList.add("hidden");
+			waitingButton.classList.remove("selected");
+			shareBtn.classList.remove("selected");
+		}
+	});
 	// If the tab regains focus, re-request wake lock
 	document.addEventListener("visibilitychange", () => {
 		if (!document.hidden && wakeLock) {
 			enableWakeLock();
 		}
 	});
-
-	function playBeep(freq = 880, duration = 0.15) {
-		const ctx = new (window.AudioContext || window.webkitAudioContext)();
-		const osc = ctx.createOscillator();
-		const gain = ctx.createGain();
-
-		osc.type = "sine";
-		osc.frequency.value = freq;
-		osc.connect(gain);
-		gain.connect(ctx.destination);
-
-		osc.start();
-
-		gain.gain.setValueAtTime(0.2, ctx.currentTime);
-		gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-
-		osc.stop(ctx.currentTime + duration);
-	}
-
-	function setupVDOListeners() {
-		//log('Setting up VDO listeners');
-
-		vdo.addEventListener(`connected`, (event) => {
-			//console.log("connected to signaling server");
-		});
-
-		vdo.addEventListener(`disconnected`, (event) => {
-			//console.log("disconnected to signaling server");
-		});
-
-		vdo.addEventListener(`roomJoined`, (event) => {
-			//console.log("Joined room :", event.detail.room);
-		});
-		vdo.addEventListener('peerConnected', (event) => {
-			//used to view peers that connect later in session
-			playBeep(400, 1);
-			const guestUUID = event.detail.uuid;
-			connectedPeers[guestUUID] = guestUUID;
-
-			if (!guestUUID) return;
-			updatePeersUI();
-			handleGuestJoin(guestUUID);
-			log("Peer connected:", guestUUID);
-			//console.warn("peer connected",event);
-		});
-
-		vdo.addEventListener('peerDisconnected', (event) => {
-			playBeep(200, 2);
-			const guestUUID = event.detail.uuid;
-			delete connectedPeers[guestUUID];
-			removePeerFiles(guestUUID);
-			log("Peer dis-connected:", guestUUID);
-		});
-
-		vdo.addEventListener("peerListing", (event) => {
-			//asks for all peers in room, can be run after same as listiing????
-		});
-
-		vdo.addEventListener("data", (event) => {
-			//raw data reciever
-			//console.warn("data:", event);
-			//if (!(event.detail.data instanceof ArrayBuffer)) return;
-			const rawData = event.detail.data;
-
-			handleIncomingChunk(rawData)
-			//console.log(`Chunk ${part+1}/${total} for ${fileID}`);
-
-		});
-
-		vdo.addEventListener('dataReceived', (event) => {
-			const uuid = event.detail.uuid;
-			const data = event.detail.data;
-			const payload = event.detail.data.payload;
-
-			//log('control message:', uuid);
-
-			if (data.dataType == 'file-announce') {
-				if (files[payload.id]) return;        //ignore duplicates if already have this file
-				if (!uuid) return;
-				payload.uploadedBy = uuid;
-
-				files[payload.id] = {
-					id: payload.id,
-					name: payload.name,
-					size: payload.size,
-					folderPath: payload.folderPath || '',
-					uploadedBy: payload.uploadedBy,
-					timestamp: payload.timestamp
-				};
-				debouncedRerender()
-				log(`Received file meta : ${payload.folderPath} / ${payload.name} - uploaded by : ${payload.uploadedBy}`);
-			}
-
-			if (data.dataType === "request-file") {
-				const fileMeta = files[payload.id];
-				log(`File requested: ${fileMeta?.folderPath || ''} / ${fileMeta?.name || payload.id} - by : ${uuid}`);
-				enableWakeLock();
-				respondToFileRequest(payload.id, uuid);
-				return;
-			}
-			if (data.dataType === "file-removed") {
-				const id = payload.id;
-				const file = files[id];
-				if (file) {
-					delete files[id];
-					const el = document.querySelector(`.file-item[data-id="${id}"]`);
-					removeElementWithFade(el);
-					log(`File removed: ${file.name} - on :  ${file.uploadedBy}`);
-					cleanupEmptyFolders(file.folderPath);
-				}
-				return;
-			}
-
-			if (data.dataType === "directory-removed") {
-				const path = payload.path;
-
-				// Remove files inside folder first
-				for (const id of Object.keys(files)) {
-					if (files[id].folderPath.startsWith(path)) {
-						delete files[id];
-						const el = document.querySelector(`.file-item[data-id="${id}"]`);
-						removeElementWithFade(el);
-					}
-				}
-				// Now remove the folder itself
-				const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
-				removeElementWithFade(folderDiv);
-				delete folderMap[path];
-
-				cleanupEmptyFolders(path);
-				log(`Directory removed remotely: ${path}`);
-				return;
-			}
-
-			if (data.dataType === "source-not-found") {
-				//console.warn("source file not found", payload)
-				markFileDead(payload);
-				const el = document.getElementById(`icon-container_${payload}`);
-				el.style.opacity = "0";
-				return;
-			}
-			if (data.dataType === "ACK-chunks") {
-				//console.warn("user:", uuid, "ack chunk", payload)
-				handleAckChunks( payload, uuid )
-				return;
-			}
-			if (data.dataType === "stop-download") {
-
-				return;
-			}
-
-			// if (data.dataType === "Resend-chunk") {
-			// 	console.warn("user:", uuid, "resend chunks", payload)
-			// 	handleResendChunk(payload, uuid)
-			// 	return;
-			// }
-
-			if (data.dataType === "Download-complete") {
-				onDownloadComplete(payload, uuid);
-				return;
-			}
-
-		}, false);
-	}
-
-
-	//SHUTDOWN ACTIONS
-	window.addEventListener('beforeunload', () => {
-		vdo.sendData({
-			dataType: 'peer-disconnect',
-			timestamp: Date.now()
-		});
-
-		if (vdo) {
-			vdo.disconnect();
-		}
-
-		flushChunkDB("OutgoingFileCache"); //remove cache if exists
-		flushChunkDB("IncomingFileCache"); //remove cache if exists
-
-	});
-
-	//SEND FILE LIST TO USER WHEN THEY CONNECT (AFTER. SHORT DELAY)
-	async function handleGuestJoin(guestUUID) {
-		loadingEl.classList.remove('hidden');
-		await sleep(500);    // delay to ensure the peer connection is ready
-		const ids = Object.keys(files);
-
-		if (ids.length === 0) {
-			log('No files to send.');
-			return;
-		}
-		log(`Auto-sending ${ids.length} files to new guest ${guestUUID}...`);
-
-		//only send local files
-		for (const id of ids) {
-			const meta = files[id];
-			if (meta.uploadedBy == 'local') {
-				sendToPeer(guestUUID, "file-announce", meta);
-			}
-		}
-		// Optionally wait for all announcements to process
-		await sleep(500 * ids.length); // small buffer for debounced rendering
-		loadingEl.classList.add('hidden');    // Hide loading message once file list is rendered
-	}
-
-	//UPDATE THE CONNECTED PEERS COUNT IN UI
-	function updatePeersUI() {
-		const total = Object.keys(connectedPeers).length;
-
-		peersList.textContent = total === 0
-			? '(0)'
-			: `(${total})`;
-	}
-
-	//REMOVE ANY FILES THE PEER HAS UPLOADED IF THEY DISCONNECT
-	function removePeerFiles(peerUUID) {
-		// Collect IDs of files uploaded by the disconnected peer
-		const toRemove = Object.values(files)
-			.filter(f => f.uploadedBy === peerUUID)
-			.map(f => f.id);
-
-		for (const id of toRemove) {
-			const fileMeta = files[id];
-			const folderPath = fileMeta.folderPath; // save for cleanup
-			delete files[id];      // Remove from files object
-
-			// Remove from DOM
-			const fileDiv = document.getElementById(`data-${id}`);
-			if (fileDiv) fileDiv.remove();
-
-			cleanupEmptyFolders(folderPath);
-		}
-	}
-
-	//INTERFACE
-	//share button
-	shareBtn.addEventListener('pointerdown', () => {
-		navigator.clipboard.writeText(`${devURL}/snd/?SID=${roomName}`);
-		popupClipboard.classList.remove("hidden");
-		setTimeout(() => {
-			popupClipboard.classList.add("hidden");
-		}, 10000);
-	});
 	//show log window
 	logBtn.addEventListener('pointerdown', () => {
 		document.getElementById('log').classList.toggle('hidden');
+		logBtn.classList.toggle('selected');
 	});
-	//sets active filter button
-	function setActiveButton(groupSelector, activeId) {
-		document.querySelectorAll(groupSelector + ' .subTool').forEach(btn => {
-			btn.classList.toggle('active', btn.id === activeId);
-		});
-	}
+
 	// Filter - all
 	document.getElementById('filterAll').addEventListener('click', () => {
 		currentFilter = 'all';
@@ -522,6 +416,7 @@
 		setActiveButton('.filterSet', 'filterRemote');
 		debouncedRerender();
 	});
+
 	// Sort - latest
 	document.getElementById('sortByTime').addEventListener('click', () => {
 		currentSort = 'latest';
@@ -534,6 +429,13 @@
 		setActiveButton('.sortSet', 'sortByName');
 		rerenderFileTree();
 	});
+
+	//sets active button for filter and sort
+	function setActiveButton(groupSelector, activeId) {
+		document.querySelectorAll(groupSelector + ' .subTool').forEach(btn => {
+			btn.classList.toggle('active', btn.id === activeId);
+		});
+	}
 
 	//DRAG AND DROP AND FILE ADDING HANDLING
 	addBtn.addEventListener("click", () => {
@@ -558,13 +460,20 @@
 			if (!isHiddenFile(file)) addFile(file);
 		}
 
-		firstInteraction = false;
+		if (firstInteraction === true) {
+			createVDOroom(roomName);
+			createVDOwaitingRoom(waitingRoom);
 
-		document.getElementById('dropArea').classList.add('hidden');
-		//document.getElementById('dropArea').style.pointerEvents = "none";
-		document.getElementById('helpIcon').style.display = "none";
-		document.getElementById('topmenu').classList.remove('hidden');
-		document.getElementById('subToolBar').classList.remove('hidden');
+			document.getElementById('dropArea').classList.add('hidden');
+			document.getElementById('joinShareDialog').style.display = "none";
+			document.getElementById('helpIcon').style.display = "none";
+			document.getElementById('topmenu').classList.remove('hidden');
+			document.getElementById('subToolBar').classList.remove('hidden');
+			document.getElementById('dragDropMessage').textContent = "Drop to add files"
+			document.getElementById('dragDropSubMessage').textContent = ""
+
+			firstInteraction = false;
+		}
 	});
 
 	//check if desktop, set up drag and drop UI
@@ -612,12 +521,20 @@
 			const items = e.dataTransfer.items;
 			if (!items) return handleFileList(e.dataTransfer.files);
 
-			// Hide drop area after 1st drop
-			document.getElementById('dropArea').classList.add('hidden');
-			document.getElementById('helpIcon').style.display = "none";
-			document.getElementById('topmenu').classList.remove('hidden');
-			document.getElementById('subToolBar').classList.remove('hidden');
+			if (firstInteraction === true) {
+				createVDOroom(roomName);
+				createVDOwaitingRoom(waitingRoom);
 
+				document.getElementById('dropArea').classList.add('hidden');
+				document.getElementById('helpIcon').style.display = "none";		
+				document.getElementById('joinShareDialog').style.display = "none";
+				document.getElementById('topmenu').classList.remove('hidden');
+				document.getElementById('subToolBar').classList.remove('hidden');
+				document.getElementById('dragDropMessage').textContent = "Drop to add files"
+				document.getElementById('dragDropSubMessage').textContent = ""
+
+				firstInteraction = false;
+			}
 			const promises = [];    // Process all top-level entries concurrently
 
 			for (let i = 0; i < items.length; i++) {
@@ -642,7 +559,7 @@
 			await Promise.all(promises);  // Wait for all top-level items to finish
 		});
 	} else {
-		//if mobile only allow multiple files and not folders (safer)
+		//if mobile only allow multiple files and not folders ---- not sure this works
 		filePicker.removeAttribute('webkitdirectory');
 		filePicker.removeAttribute('directory');
 
@@ -651,6 +568,393 @@
 
 		document.getElementById('topmenu').classList.remove('hidden');
 		document.getElementById('subToolBar').classList.remove('hidden');
+	}
+
+	//play beep on connect
+	function playBeep(freq = 880, duration = 0.15) {
+		const ctx = new (window.AudioContext || window.webkitAudioContext)();
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+
+		osc.type = "sine";
+		osc.frequency.value = freq;
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+
+		osc.start();
+
+		gain.gain.setValueAtTime(0.2, ctx.currentTime);
+		gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+		osc.stop(ctx.currentTime + duration);
+	}
+
+	//VDO (main room) listeners
+	function setupVDOListeners() {
+		//log('Setting up VDO listeners');
+
+		vdo.addEventListener(`connected`, (event) => {
+			//console.log("connected to signaling server");
+		});
+
+		vdo.addEventListener(`disconnected`, (event) => {
+			//console.log("disconnected to signaling server");
+		});
+
+		vdo.addEventListener(`roomJoined`, (event) => {
+			//console.log("Joined room :", event.detail.room);
+		});
+		vdo.addEventListener('peerConnected', (event) => {
+			//used to view peers that connect later in session
+			playBeep(400, 1);
+			const guestUUID = event.detail.uuid;
+			connectedPeers[guestUUID] = guestUUID;
+
+			if (!guestUUID) return;
+			updatePeersUI();
+			handleGuestJoin(guestUUID);
+			log("Peer connected :", guestUUID);
+
+			// vdo.sendData({
+			// 	dataType: "listing",
+			// 	totalPeers: connectedPeers
+			// })
+
+			//console.warn("peer connected",event);
+		});
+
+		vdo.addEventListener('peerDisconnected', (event) => {
+			playBeep(200, 2);
+			const guestUUID = event.detail.uuid;
+			delete connectedPeers[guestUUID];
+			updatePeersUI();
+			removePeerFiles(guestUUID);
+			log("Peer dis-connected :", guestUUID);
+		});
+
+		vdo.addEventListener("peerListing", (event) => {
+			//console.warn("lsting", event);
+			//asks for all peers in room, can be run after same as listiing????
+		});
+
+		vdo.addEventListener("data", (event) => {
+			//BINARY RECEIVER ONLY
+			//console.warn("data:", event);
+			const rawData = event.detail.data;
+
+			handleIncomingChunk(rawData)
+		});
+
+		//IO messages, files added, removed, downloads and chunks etc.
+		vdo.addEventListener('dataReceived', (event) => {
+			const uuid = event.detail.uuid;
+			const data = event.detail.data;
+			const payload = event.detail.data.payload;
+
+			//console.warn('control message from main room:', event);
+
+			// if (data.dataType === "listing") {
+			// 	console.warn("rcv no.of connected users :", connectedPeers)
+			// 	//handleAckChunks( payload, uuid )
+			// 	return;
+			// }
+
+			if (data.dataType == 'file-announce') {
+				if (files[payload.id]) return;        //ignore duplicates if already have this file
+				if (!uuid) return;
+				payload.uploadedBy = uuid;
+
+				files[payload.id] = {
+					id: payload.id,
+					name: payload.name,
+					size: payload.size,
+					folderPath: payload.folderPath || '',
+					uploadedBy: payload.uploadedBy,
+					timestamp: payload.timestamp
+				};
+				debouncedRerender()
+				log(`Received file meta : ${payload.folderPath} / ${payload.name} - uploaded by : ${payload.uploadedBy}`);
+			}
+
+			if (data.dataType === "request-file") {
+				const fileMeta = files[payload.id];
+				log(`File requested : ${fileMeta?.folderPath || ''} / ${fileMeta?.name || payload.id} - by : ${uuid}`);
+				enableWakeLock();
+				respondToFileRequest(payload.id, uuid);
+				return;
+			}
+			if (data.dataType === "file-removed") {
+				const id = payload.id;
+				const file = files[id];
+				if (file) {
+					delete files[id];
+					const el = document.querySelector(`.file-item[data-id="${id}"]`);
+					removeElementWithFade(el);
+					log(`File removed : ${file.name} - on :  ${file.uploadedBy}`);
+					cleanupEmptyFolders(file.folderPath);
+				}
+				return;
+			}
+
+			if (data.dataType === "directory-removed") {
+				const path = payload.path;
+
+				// Remove files inside folder first
+				for (const id of Object.keys(files)) {
+					if (files[id].folderPath.startsWith(path)) {
+						delete files[id];
+						const el = document.querySelector(`.file-item[data-id="${id}"]`);
+						removeElementWithFade(el);
+					}
+				}
+				// Now remove the folder itself
+				const folderDiv = document.querySelector(`.folder[data-path="${path}"]`);
+				removeElementWithFade(folderDiv);
+				delete folderMap[path];
+
+				cleanupEmptyFolders(path);
+				log(`Directory removed remotely : ${path}`);
+				return;
+			}
+
+			if (data.dataType === "source-not-found") {
+				//console.warn("source file not found", payload)
+				markFileDead(payload);
+				const el = document.getElementById(`icon-container_${payload}`);
+				el.style.opacity = "0";
+				return;
+			}
+			if (data.dataType === "ACK-chunks") {
+				//console.warn("user:", uuid, "ack chunk", payload)
+				handleAckChunks( payload, uuid )
+				return;
+			}
+
+			if (data.dataType === "Download-complete") {
+				onDownloadComplete(payload, uuid);
+				return;
+			}
+
+		}, false);
+
+		// //		debug only, all events i know of
+		// const sdkEvents = [
+		// 	"listing", "migrate", "transferred", "connected","roomJoined",	"publishing",	"alert",	"error","connectionFailed","disconnected","listing",	"peerListing", "peerConnected","peerDisconnected", "peerInfo",	"track","trackRemoved","iceConnectionStateChange",	"videoaddedtoroom",	"description","offerSDP","someonejoined","other","dataChannelOpen","dataReceived","peerLatency","bye",	"seed"
+		// ];
+		// //Catch-all logger
+		// sdkEvents.forEach(eventName => {
+		// 	vdo.addEventListener(eventName, (event) => {
+		// 		console.warn(`[SDK EVENT] ${eventName}`, event.detail);
+		// 	});
+		// });
+	}
+
+	//VDO (Waiting room) LISTENERS
+	function setupVDOWRListeners(waitingRoom) {
+		//console.warn("setting up waiting room listeners",room);
+
+		vdoWR.addEventListener(`connected`, (event) => {
+		//	console.log("connected to signaling server");
+		});
+
+		vdoWR.addEventListener(`disconnected`, (event) => {
+		//	console.log("disconnected to signaling server");
+		});
+		vdoWR.addEventListener('peerConnected', (event) => {
+			playBeep(400, 1);
+
+			const guestUUID = event.detail.uuid;
+			if (!guestUUID) return;
+
+			// convert performance timestamp to Date
+			const joinedAt = Date.now() - performance.now() + event.timeStamp;
+
+			waitingPeers.set(guestUUID, joinedAt);
+
+			renderWaitingPeers();
+			log("Peer joined waiting room:", guestUUID);
+		});
+
+		vdoWR.addEventListener("peerDisconnected", (event) => {
+			const uuid = event.detail?.uuid;
+			if (!uuid) return;
+
+			waitingPeers.delete(uuid);
+			renderWaitingPeers();
+		});
+
+		vdoWR.addEventListener('dataReceived', (event) => {
+			const uuid = event.detail.uuid;
+			const data = event.detail.data;
+			const payload = event.detail.data.payload;
+
+			//console.warn('control message waiting room:', event);
+			if (data.dataType === "migrate") {
+				const target = data.target;
+				const newRoom = data.roomid;
+
+				//console.warn(`Migrating to new room : ${newRoom}`);
+				vdoWR.sendData({
+					dataType: 'peer-disconnect',
+					timestamp: Date.now()
+				});
+
+				waitingPeers.delete(uuid);
+				renderWaitingPeers();
+
+				vdoWR.disconnect();
+				sleep(500); 
+				createVDOroom(newRoom);
+
+				document.getElementById('waitingButton').style.display = "none";
+				document.getElementById('dropArea').classList.add('hidden');
+				document.getElementById('helpIcon').style.display = "none";		
+				document.getElementById('joinShareDialog').style.display = "none";
+				document.getElementById('topmenu').classList.remove('hidden');
+				document.getElementById('subToolBar').classList.remove('hidden');
+				document.getElementById('dragDropMessage').textContent = "Drop to add files"
+				document.getElementById('dragDropSubMessage').textContent = ""
+
+				firstInteraction = false;
+				return;
+			}
+
+		});
+	}
+
+	function renderWaitingPeers() {
+		const container = document.getElementById("popupWaitingList");
+		container.innerHTML = "";
+
+		for (const [uuid, ts] of waitingPeers) {
+			const row = document.createElement("div");
+			row.className = "waitingList";
+			row.dataset.uuid = uuid;
+
+			const uuidDiv = document.createElement("div");
+			uuidDiv.className = "waitingUUID";
+			uuidDiv.textContent = uuid;
+
+			const timeDiv = document.createElement("div");
+			timeDiv.className = "waitingTime";
+			timeDiv.textContent = formatTime(ts);
+
+			const allowDiv = document.createElement("div");
+			allowDiv.className = "waitingAllow";
+			allowDiv.innerHTML = `<span class="material-symbols-outlined">check_circle</span>`;
+
+			allowDiv.onclick = () => allowWaitingPeer(uuid);
+
+			row.append(uuidDiv, timeDiv, allowDiv);
+			container.appendChild(row);
+		}
+
+		updateWaitingCount();
+	}
+	function formatTime(ms) {
+		const d = new Date(ms);
+		return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+	}
+	function allowWaitingPeer(uuid) {
+		vdoWR.sendData({
+			dataType: "migrate",
+			roomid: roomName,
+			target: uuid
+		},uuid);
+
+		log("migrating peer ",uuid ,"to main room, will join with new UUID")
+	}
+
+	function updateWaitingCount() {
+		const total = waitingPeers.size;
+
+		waitingList.textContent = total === 0 ? "(0)" : `(${total})`;
+
+		if (total) {
+			waitingButton.style.animation = "pulse 1000ms";
+			setTimeout(() => waitingButton.style.animation = "none", 1000);
+		}
+	}
+
+	//SHUTDOWN ACTIONS
+	window.addEventListener('beforeunload', () => {
+		vdo.sendData({
+			dataType: 'peer-disconnect',
+			timestamp: Date.now()
+		});
+
+		if (vdo) {
+			vdo.sendData({
+				dataType: 'peer-disconnect',
+				timestamp: Date.now()
+			});
+			vdo.disconnect();
+		}
+		if (vdoWR) {
+			vdoWR.sendData({
+				dataType: 'peer-disconnect',
+				timestamp: Date.now()
+			});
+			vdo.disconnect();
+		}
+
+		flushChunkDB("OutgoingFileCache"); //remove cache if exists
+		flushChunkDB("IncomingFileCache"); //remove cache if exists
+	});
+
+	//SEND FILE LIST TO USER WHEN THEY CONNECT (AFTER. SHORT DELAY)
+	async function handleGuestJoin(guestUUID) {
+		loadingEl.classList.remove('hidden');
+		await sleep(500);    // delay to ensure the peer connection is ready
+
+		const ids = Object.keys(files);
+
+		if (ids.length === 0) {
+			log('No files to send.');
+			return;
+		}
+
+		log(`Sending list of ${ids.length} files to new guest ${guestUUID}...`);
+
+		//only send local files
+		for (const id of ids) {
+			const meta = files[id];
+			if (meta.uploadedBy == 'local') {
+				sendToPeer(guestUUID, "file-announce", meta);
+			}
+		}
+		// Optionally wait for all announcements to process
+		await sleep(500 * ids.length); // small buffer for debounced rendering
+		loadingEl.classList.add('hidden');    // Hide loading message once file list is rendered
+	}
+
+	//UPDATE THE CONNECTED PEERS COUNT IN UI
+	function updatePeersUI() {
+		const total = Object.keys(connectedPeers).length;
+
+		peersList.textContent = total === 0
+			? '(0)'
+			: `(${total})`;
+	}
+
+	//REMOVE ANY FILES THE PEER HAS UPLOADED IF THEY DISCONNECT
+	function removePeerFiles(peerUUID) {
+		// Collect IDs of files uploaded by the disconnected peer
+		const toRemove = Object.values(files)
+			.filter(f => f.uploadedBy === peerUUID)
+			.map(f => f.id);
+
+		for (const id of toRemove) {
+			const fileMeta = files[id];
+			const folderPath = fileMeta.folderPath; // save for cleanup
+			delete files[id];      // Remove from files object
+
+			// Remove from DOM
+			const fileDiv = document.getElementById(`data-${id}`);
+			if (fileDiv) fileDiv.remove();
+
+			cleanupEmptyFolders(folderPath);
+		}
 	}
 
 	//PROCESS SINGLE FILE ENTRY 
@@ -766,7 +1070,7 @@
 			dataType,
 			payload
 		}, targetUUID)
-		//console.warn("sendToPeer dataType", dataType, "to", targetUUID);
+		//console.warn("sendToPeer dataType", dataType, "to", targetUUID, "payload", payload);
 	}
 
 	//send to all peers (connects, disconnects, adding or removing files)
@@ -777,7 +1081,7 @@
 			dataType,
 			payload
 		});
-		//console.warn("broadcast", dataType);
+		console.warn("broadcast", dataType);
 	}
 
 	//SORT FILES BY LATEST (DEFAULT) OR NAME
@@ -1100,16 +1404,13 @@
 
 		// Stop button handler
 		stopBtn.addEventListener("pointerdown", () => {
-			log(`Stopping download: ${id}`);
-
 			// stop local
-			pausedDownloads.delete(id);
-			delete incomingFiles[id];
-			downloadQueue = downloadQueue.filter(job => job.fileID !== id);      // remove from queue
-
+			//pausedDownloads.delete(id);
+			//delete incomingFiles[id];
+			//downloadQueue = downloadQueue.filter(job => job.fileID !== id);      // remove from queue
 			// restore icon cleanly
-			restoreDownloadIcon(id);
 			cancelDownload(id)
+			restoreDownloadIcon(id);
 		});
 	}
 	//if transfer is cancelled 
@@ -1148,12 +1449,12 @@
 		if (btn) {
 			btn.dataset.originalIcon = btn.innerHTML;   // store original
 			btn.innerHTML = "✓";                         // completed icon
-			btn.classList.add("completed");
+			//btn.classList.add("completed");
 
 			// Clicking ✓ restores original download button
 			btn.onclick = () => {
 				btn.innerHTML = btn.dataset.originalIcon;
-				btn.classList.remove("completed");
+				//btn.classList.remove("completed");
 				fileEl.classList.remove("download-complete");
 				btn.onclick = () => handleFileDownload(id);         // restore original handler
 			};
@@ -1250,7 +1551,7 @@
 		if (!meta) return;
 
 		const file = meta.file;
-		const chunkSize = 256 * 1024 - 128;
+		const chunkSize = (256 * 1024) - 64;
 
 		produceChunks(fileID, targetUUID, file, chunkSize)
 		await refillSendCache(fileID);
@@ -1258,9 +1559,16 @@
 	}
 
 	async function handleAckChunks(payload, uuid) {
+			if (!payload.parts?.length) return;
+
 			const fileID = payload.fileID;
 			const parts = payload.parts;
 
+			let filename = fileID; // fallback
+
+			if (files[fileID]?.name) {
+				filename = files[fileID].name;
+			}
 			if (!fileID) return;
 	
 			const t = transfers.get(`${fileID}:${uuid}`);
@@ -1269,7 +1577,19 @@
 			for (const p of parts) {
 				t.pending.delete(p);
 				t.inflight.delete(p);
-				console.warn("user:", uuid, "ack chunk", p)
+
+				//console.warn("ACK recieved",p);
+			}
+
+			if (t.pending.size === 0) {
+				log("Transfer cancelled or completed for file :", filename, " - by :", uuid);
+
+				transfers.delete(`${fileID}:${uuid}`);
+
+				// optional: also clear any send cache you keep
+				if (sendCache?.has(fileID)) sendCache.delete(fileID);
+
+				return;
 			}
 
 		// refill send cache using pending
@@ -1282,7 +1602,7 @@
 		if (!f) return;
 
 		f.activeDownloads?.delete(peerUUID);
-		log("Download complete : ", f.name, " - by peer : ", peerUUID, "remaining:", f.activeDownloads.size);
+		log("Download complete : ", f.name, " - by : ", peerUUID);
 
 		// If all peers done → schedule purge
 		if (!f.activeDownloads || f.activeDownloads.size === 0) {
@@ -1290,43 +1610,7 @@
 		}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// FILE TRANSFER ENGINE
 	// Simple CRC32
 	function crc32(buf) {
@@ -1355,7 +1639,9 @@
 	const sendCache = new Map();
 	const cacheQueue = new Map();
 	const transfers = new Map(); // fileID -> TransferState
-	const MAX_CACHE_QUEUE = 8;
+	//const MAX_CACHE_QUEUE = 8;
+	const MAX_SEND_BUFFER = (2 * 1024 * 1024) + 256;
+	const MEMORY_CACHE = 32;	
 
 	async function produceChunks(fileID, targetUUID, file, chunkSize) {
 		let logCache = false;
@@ -1380,7 +1666,8 @@
 			t.pending.add(i);
 		}
 
-		transfers.set(transferKey, t);
+		if (!transfers.has(transferKey)) transfers.set(transferKey, t);
+
 
 		for (let i = 0; i < totalChunks; i++) {
 			const chunkIndex = i;
@@ -1392,17 +1679,17 @@
 				const tID = transfers.get(transferKey);
 				if (tID) {
 					tID.maxWritten = Math.max(tID.maxWritten, chunkIndex);
-					await refillSendCache(fileID,targetUUID);   //wake sender
+					await refillSendCache(fileID, targetUUID);   //wake sender
 				}
 				if (!logCache) {
-					log("File : ", file.name, "is already in cache");
+					log("File : ", file.name, "is already in cache, sending");
 					logCache = true;
 				}
 				continue;
 			}
 
 			if (!logCache) {
-				log(`Splitting ${file.name} into ${totalChunks} parts`); //just once per ask
+				log(`Splitting ${file.name} into ${totalChunks} parts and sending`); //just once per ask
 				logCache = true;
 			}
 
@@ -1501,50 +1788,48 @@
 		const pump = () => {
 			if (!sending) return;
 
-			const MAX_SEND_BUFFER = 1_000_000;
-
 			for (const [key, chunk] of sendCache) {
-			const [fileID, targetUUID, part] = key.split(":");
+				const [fileID, targetUUID, part] = key.split(":");
+				const conns = vdo.connections.get(targetUUID);
+				const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
 
-			const conns = vdo.connections.get(targetUUID);
-			const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-			if (!dc) continue;
+				if (!dc || dc.bufferedAmount > MAX_SEND_BUFFER) continue;
 
-			dc.send(chunk);
+				dc.send(chunk);
+				bytesSentInInterval += chunk.byteLength;
 
-			sendCache.delete(key);
+				sendCache.delete(key);
 
-			const t = transfers.get(`${fileID}:${targetUUID}`);
-			//t.inflight.delete(Number(part));
+				const t = transfers.get(`${fileID}:${targetUUID}`);
 			}
-			requestAnimationFrame(pump);
+			setTimeout(pump, 0);
 		};
 		pump();
 	}
 
-	const WINDOW = 4;	//amount of chunks to cache in memory
+	//amount of chunks to cache in memory
 
 	async function refillSendCache(fileID, targetUUID) {
-	const t = transfers.get(`${fileID}:${targetUUID}`);
-	const conns = vdo.connections.get(targetUUID);
-	const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
+		const t = transfers.get(`${fileID}:${targetUUID}`);
+		const conns = vdo.connections.get(targetUUID);
+		const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
 
-	if (!dc) return;
-	if (!t) return;
+		if (!dc) return;
+		if (!t) return;
 
-	for (const part of t.pending) {
-		if (t.inflight.size >= WINDOW) break;
-		if (dc.bufferedAmount > 512_000) break;
-		if (part > t.maxWritten) continue;
-		if (t.inflight.has(part)) continue;
-  		if (sendCache.has(`${fileID}:${targetUUID}:${part}`)) continue;//stop duplicates getting queued
+		for (const part of t.pending) {
+			if (t.inflight.size >= MEMORY_CACHE) break;
+			if (dc.bufferedAmount > 512_000) break;
+			if (part > t.maxWritten) continue;
+			if (t.inflight.has(part)) continue;
+			if (sendCache.has(`${fileID}:${targetUUID}:${part}`)) continue;//stop duplicates getting queued
 
-		const chunk = await idbGetChunk(fileID, part);
-		if (!chunk) continue;
+			const chunk = await idbGetChunk(fileID, part);
+			if (!chunk) continue;
 
-		sendCache.set(`${fileID}:${targetUUID}:${part}`, chunk);
-		t.inflight.add(part);
-	}
+			sendCache.set(`${fileID}:${targetUUID}:${part}`, chunk);
+			t.inflight.add(part);
+		}
 	}
 
 	//scheduler to remove chunks when we recieve file download complete
@@ -1552,7 +1837,7 @@
 		const f = files[fileID];
 		if (!f) return;
 
-		log("Scheduling chunk purge for", fileID);
+		log("Scheduling cache purge for file : ", f.name);
 
 		f.purgeTimer = setTimeout(() => {
 			purgeFileChunks(fileID);
@@ -1561,6 +1846,7 @@
 	}
 
 	async function purgeFileChunks(fileID) {
+		const filename = files[fileID];
 		const db = await openTxDB();
 		const tx = db.transaction(TX_STORE, "readwrite");
 		const store = tx.objectStore(TX_STORE);
@@ -1573,7 +1859,7 @@
 				}
 			}
 		};
-		log("Purging chunks for", fileID);
+		log("Purging file : ", filename.name, " from cache");
 	}
 
 	//global used to empty TX and RX db's on shutdown and startup
@@ -1585,22 +1871,6 @@
 			req.onblocked = () => console.warn("DB delete blocked by open tabs");
 		});
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	//FILE RECIEVING HANDLING
 	//recieving file chunks
@@ -1654,29 +1924,29 @@
 			});
 		}
 
-		console.warn("received", file.received.size, "of", file.total);
+		//console.warn("received", file.received.size, "of", file.total);
 
 		if (!file.completed && file.received.size === file.total) {
-		file.completed = true;
+			file.completed = true;
 
-		console.warn("file id:", fileID, "all received");
+			//console.warn("file id:", fileID, "all received");
 
-		const stream = new ReadableStream({
-			async start(controller) {
-			for (let i = 0; i < file.total; i++) {
-				const chunk = await getRxChunk(fileID, i);
-				if (!chunk) {
-				controller.error("Missing chunk " + i);
-				return;
+			const stream = new ReadableStream({
+				async start(controller) {
+					for (let i = 0; i < file.total; i++) {
+						const chunk = await getRxChunk(fileID, i);
+						if (!chunk) {
+							controller.error("Missing chunk " + i);
+							return;
+						}
+						controller.enqueue(new Uint8Array(chunk));
+					}
+					controller.close();
 				}
-				controller.enqueue(new Uint8Array(chunk));
-			}
-			controller.close();
-			}
-		});
+			});
 
-		const blob = await new Response(stream).blob();
-		onFileComplete(fileID, blob);
+			const blob = await new Response(stream).blob();
+			onFileComplete(fileID, blob);
 		}
 	}
 
@@ -1700,24 +1970,24 @@
 	}
 
 	async function storeRxChunk(fileID, part, total, data) {
-	const db = await openRxDB();
+		const db = await openRxDB();
 
-	return new Promise((resolve, reject) => {
-		const tx = db.transaction(RX_STORE, "readwrite");
-		const store = tx.objectStore(RX_STORE);
+		return new Promise((resolve, reject) => {
+			const tx = db.transaction(RX_STORE, "readwrite");
+			const store = tx.objectStore(RX_STORE);
 
-		store.put({
-		key: `${fileID}:${part}`,
-		fileID,
-		part,
-		total,
-		data,
-		ts: Date.now()
+			store.put({
+				key: `${fileID}:${part}`,
+				fileID,
+				part,
+				total,
+				data,
+				ts: Date.now()
+			});
+
+			tx.oncomplete = resolve;
+			tx.onerror = () => reject(tx.error);
 		});
-
-		tx.oncomplete = resolve;
-		tx.onerror = () => reject(tx.error);
-	});
 	}
 
 	async function getRxChunk(fileID, part) {
@@ -1730,96 +2000,74 @@
 	}
 
 	async function purgeRXChunks(fileID) {
-		log("Purging chunks for", fileID);
+		const meta = files[fileID];
+		log("Purging chunks for", meta?.name || fileID);
 
 		const db = await openRxDB();
 		const tx = db.transaction(RX_STORE, "readwrite");
 		const store = tx.objectStore(RX_STORE);
-		const req = store.getAllKeys();
 
-		req.onsuccess = () => {
-			for (const key of req.result) {
-				if (key.startsWith(fileID + ":")) {
-					store.delete(key);
+		const range = IDBKeyRange.bound(
+			fileID + ":",
+			fileID + ":\uffff"
+		);
+
+		return new Promise((resolve, reject) => {
+			const req = store.openCursor(range);
+
+			req.onsuccess = e => {
+				const cursor = e.target.result;
+				if (cursor) {
+					cursor.delete();
+					cursor.continue();
+				} else {
+					resolve();
 				}
-			}
-		};
+			};
+
+			req.onerror = reject;
+		});
 	}
 
-	//cleanup after file complete, send OK to host
-	function onFileComplete(fileID, blob) {
-		// Try to resolve original filename
-		let filename = fileID; // fallback
-
-		if (files[fileID]?.name) {
-			filename = files[fileID].name;
-		}
-
-		// Download
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = filename;
-		a.click();
-
-		URL.revokeObjectURL(url);
-
-		const host = files[fileID]?.uploadedBy;
-		sendToPeer(host, "Download-complete", fileID)
-		markDownloadCompleted(fileID);
-		log("Download complete:", filename);
-		purgeRXChunks(fileID); //delete cached file data
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//DOWNLOAD QUEUE
 	const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
 	let downloadState = new Map();	//tracks state of each file in queue (queued, active, stopped, done)
 	let activeFileDownloads = 0;     //download queue files currently running
-	const MAX_PARALLEL_DOWNLOADS = 6; // download queue max concurrent files
+	const MAX_PARALLEL_DOWNLOADS = 4; // download queue max concurrent files
+	const activeStreamers = new Map();
 
-	//create and populate
 	function queueDownload(fileID, host, fromFolder = false) {
+		const state = downloadState.get(fileID);
+
+		// Only reset RX if this is a truly fresh enqueue
+		if (state !== "active" && state !== "queued") {
+			incomingFiles.delete(fileID);
+			purgeRXChunks(fileID);
+		}
+
+		// Prevent duplicate queue entries
+		if (state === "queued" || state === "active") return;
+
 		downloadQueue.push({ fileID, host, fromFolder });
 		downloadState.set(fileID, "queued");
 		processDownloadQueue();
 	}
+
 	//process files till queue full, then pause
 	function processDownloadQueue() {
 		if (activeFileDownloads >= MAX_PARALLEL_DOWNLOADS) return;
 
 		while (activeFileDownloads < MAX_PARALLEL_DOWNLOADS && downloadQueue.length > 0) {
 			const { fileID, host, fromFolder } = downloadQueue.shift();
-			if (downloadState.get(fileID) === "stopped") continue;      // If user explicitly stopped this one, skip it
+			if (downloadState.get(fileID) === "active") continue;
+			if (downloadState.get(fileID) === "stopped") continue;   
 			startFileDownload(fileID, host, fromFolder);
 		}
 	}
 
 	function startFileDownload(fileID, host, fromFolder) {
-		if (downloadState.get(fileID) === "stopped") return;    // If already stopped/removed by user, don't start
+		if (downloadState.get(fileID) === "stopped") return; 
 
 		activeFileDownloads++;
 		downloadState.set(fileID, "active");
@@ -1839,11 +2087,18 @@
 		});
 
 		enableWakeLock();
-		//log(`Starting download: ${meta.name} - uploaded by : ${meta.uploadedBy}`);
+		log(`Starting download: ${meta.name} - uploaded by : ${meta.uploadedBy}`);
 	}
 
-	// // Receiver: cancel a download (user action)
+	// // Receiver: cancel a download
 	function cancelDownload(fileID) {
+		const wasActive = downloadState.get(fileID) === "active";
+		const meta = files[fileID];
+
+		if (meta && meta.uploadedBy) {
+			sendAbortAck(fileID);
+		}
+
 		downloadQueue = downloadQueue.filter(q => q.fileID !== fileID);    // Remove any queued entries for this file
 		if (!downloadState) downloadState = new Map();    // Mark paused/cancelled state (use explicit Map for clearer semantics)
 		downloadState.set(fileID, "stopped");
@@ -1859,19 +2114,33 @@
 			}
 		}
 
-		// If this file was active, decrement activeFileDownloads and continue the queue
-		if (activeFileDownloads > 0) {
+		if (wasActive) {
 			activeFileDownloads--;
 			processDownloadQueue();
 		}
 
-		// Notify host to abort sending this file (so host-side stops quickly)
-		const meta = files[fileID];
-		if (meta && meta.uploadedBy) {
-			sendToPeer(meta.uploadedBy, "stop-download", { id: fileID });
-		}
 		clearAckWaitersForFile(fileID)
-		log(`Cancelled download: ${fileID}`);
+	}
+
+	function sendAbortAck(fileID) {
+		if (downloadState.get(fileID) !== "active") return;
+
+		const meta = files[fileID];
+		if (!meta || !meta.uploadedBy) return;
+
+		const incoming = incomingFiles.get(fileID);
+		if (!incoming || !incoming.total) return;
+		if (incoming.completed) return;
+
+		// ACK every chunk index [0 .. total-1]
+		const allParts = Array.from({ length: incoming.total }, (_, i) => i);
+
+		log("Sending cancel to:", meta.uploadedBy, "for file:", meta.name, "total parts:", allParts.length);
+
+		sendToPeer(meta.uploadedBy, "ACK-chunks", {
+			fileID,
+			parts: allParts
+		});
 	}
 
 	function clearAckWaitersForFile(fileID) {
@@ -1882,126 +2151,6 @@
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// class FileChunkStreamer {
-	// 	constructor(fileID, meta, onComplete, onProgress) {
-	// 		this.fileID = fileID;
-	// 		this.meta = meta;
-	// 		this.total = 0;
-	// 		this.received = new Map();
-	// 		this.receivedCount = 0;
-	// 		this.onComplete = onComplete;
-	// 		this.onProgress = onProgress;
-	// 		this.cancelled = false;
-	// 	}
-
-	// 	async handleChunk(buffer) {
-	// 		if (this.cancelled) return;
-
-	// 		const view = new DataView(buffer);
-	// 		let o = 0;
-
-	// 		const part = view.getUint32(o, true); o += 4;
-	// 		this.total = view.getUint32(o, true); o += 4;
-	// 		const idLen = view.getUint32(o, true); o += 4;
-
-	// 		const idBytes = new Uint8Array(buffer, o, idLen);
-	// 		const fileID = new TextDecoder().decode(idBytes);
-	// 		o += idLen;
-
-	// 		const crcExpected = view.getUint32(o, true); o += 4;
-	// 		const chunk = buffer.slice(o);
-
-	// 		// CRC check
-	// 		const crcActual = crc32(new Uint8Array(chunk));
-	// 		if (crcActual !== crcExpected) {
-	// 			console.warn("CRC mismatch", fileID, part);
-	// 			requestResend(fileID, part);
-	// 			return;
-	// 		}
-
-	// 		if (!this.received.has(part)) {
-	// 			this.received.set(part, chunk);
-	// 			this.receivedCount++;
-	// 			onChunkReceived(chunk.byteLength);
-	// 		}
-
-	// 		this.onProgress?.(this.receivedCount, this.total);
-
-	// 		if (this.receivedCount === this.total) {
-	// 			await this.finish();
-	// 		}
-	// 	}
-
-	// 	async finish() {
-	// 		if (this.cancelled) return;
-
-	// 		const buffers = [];
-	// 		for (let i = 1; i <= this.total; i++) {
-	// 			buffers.push(this.received.get(i));
-	// 		}
-
-	// 		const blob = new Blob(buffers);
-	// 		this.received.clear();
-
-	// 		this.onComplete(this.fileID, blob);
-	// 	}
-
-	// 	cancel() {
-	// 		this.cancelled = true;
-	// 		this.received.clear();
-	// 	}
-	// }
-
-	const activeStreamers = new Map();
-
-	// function getStreamer(fileID) {
-	// 	if (!activeStreamers.has(fileID)) {
-	// 		const meta = files[fileID];
-	// 		const streamer = new FileChunkStreamer(
-	// 			fileID,
-	// 			meta,
-	// 			onFileComplete,
-	// 			(received, total) => updateFileProgressUI(fileID, received / total)
-	// 		);
-	// 		activeStreamers.set(fileID, streamer);
-	// 	}
-	// 	return activeStreamers.get(fileID);
-	// }
-
-	// function handleIncomingChunk(buffer) {
-	// 	const view = new DataView(buffer);
-	// 	let idLen = view.getUint32(8, true);
-	// 	const idBytes = new Uint8Array(buffer, 12, idLen);
-	// 	const fileID = new TextDecoder().decode(idBytes);
-
-	// 	const streamer = getStreamer(fileID);
-	// 	streamer.handleChunk(buffer);
-	// }
-
 
 	function onFileComplete(fileID, blob) {
 		let filename = files[fileID]?.name || fileID;
@@ -2017,38 +2166,15 @@
 		sendToPeer(host, "Download-complete", fileID);
 
 		activeStreamers.delete(fileID);
+
+		//mark done + free queue slot
+		downloadState.set(fileID, "done");
+		activeFileDownloads = Math.max(0, activeFileDownloads - 1);
+		markDownloadCompleted(fileID)
+		processDownloadQueue();
+
 		log("Download complete:", filename);
 	}
 
-	function cancelDownload(fileID) {
-		downloadQueue = downloadQueue.filter(q => q.fileID !== fileID);
-		downloadState.set(fileID, "stopped");
-
-		const streamer = activeStreamers.get(fileID);
-		if (streamer) streamer.cancel();
-		activeStreamers.delete(fileID);
-
-		delete incomingFiles[fileID];
-		clearAckWaitersForFile(fileID);
-
-		if (activeFileDownloads > 0) activeFileDownloads--;
-		processDownloadQueue();
-
-		log("Cancelled download:", fileID);
-	}
-
-	async function assembleFileStream(fileID, total) {
-		const stream = new ReadableStream({
-			async start(controller) {
-				for (let i = 1; i <= total; i++) {
-					const chunk = await getRxChunk(fileID, i);
-					controller.enqueue(chunk);
-				}
-				controller.close();
-			}
-		});
-
-		return new Response(stream).blob();
-	}
 
 </script>
