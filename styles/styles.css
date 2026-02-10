@@ -154,10 +154,10 @@ dialog:open {
 
 .peerList:hover {
 	width: 300px;
-	box-shadow: var(--shadows);
+	/* box-shadow: var(--shadows); */
 	transition-timing-function: ease;
 	transition: 150ms;
-	backdrop-filter: blur(30px) brightness(0.8);
+	/* backdrop-filter: blur(30px) brightness(0.8); */
 	/* background-color: light-dark(var(--color-light-grey), var(--color-dark-bg)); */
 
 }

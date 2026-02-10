@@ -390,6 +390,9 @@ hr {
 	border-radius: 50%;
 	background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
 }
+/* .download-complete {
+	background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+} */
 
 /*toolbars, top and bottom and tool sets (groups)*/
 .toolbar {
@@ -680,6 +683,7 @@ button.blue:hover {
 	margin: 0px 0px 0px 0px;
 	padding: 0px 20px 2px 20px;
 	height: 30px;
+	background-color: light-dark(var(--color-light-white), var(--color-dark-grey));
 }
 
 .waitingList {

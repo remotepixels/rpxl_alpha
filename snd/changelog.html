@@ -36,8 +36,8 @@
 <UL style="color:#cbcbcb">
 	<li>Major re-write to use the vdo ninja sdk instead of butchering vdo ninja application</li>
 	<li>Functionality is the similar but over all experience will be smoother and faster</li>
-	<li>Added QR code to connect to device via camera, handy if you need to get some data on or off a device and can not install sync software or do not want to upload to file sharing services</li>
-	<li>Added Share Code, if you don't have a camera for the QR code or a messaging app to send the direct link, and would rather chew your own hands off than type a 24 character A1pa-Num3r1c code on a device.</li>
+	<li>Added QR code to connect to device via camera</li>
+	<li>Added Share Code, if you don't have a camera for the QR code or a messaging app to send the direct link, and would rather chew your fingers off than type a 24 character A1pa-Num3r1c code on a device.</li>
 	<li>Share codes require an extra authentication step. Peers will be placed in a waiting room until host authorizes them. </li>
 	<li>Added audio cues for when peers join or leave</li>
 	<li>Increased room entropy to 24 random alpha-numeric, upper and lower case, characters - 62<sup style="font-size:10px;">24</sup></li>
@@ -48,13 +48,15 @@
 	<li>Cleaned up some log messages to make some things clearer</li>
 	<li>Handle local folders with same names differently, they are no longer merged together</li>
 	<li>Dragging the same folder in mutiple times will now create a separate folder each time instead of merging contents</li>
-	<li>Fixed issue where if different peers dropped folders with the same name in they would merge and be marked as remote</li>
-	<li>Fixed issue where if remote peers added folder with same name they could remove it and it would remove link from all peers</li>
+	<li>Fixed an issue where if different peers dropped folders with the same name in they would merge and be marked as remote</li>
+	<li>Fixed an issue where peers could remove remote folders from shares</li>
+	<li>Fixed an issue where filtering would forget a folders state (open / closed)</li>
+	<li>Fixed an issue where filtering reset file states to default in stead of leaving current state</li>
 	<li>Fixed an issue where empty folders were not being removed remotely</li>
 	<li>Missing files are now marked as dead on all peers if the caching fails on the host</li>
 	<li>Changed the file transfers to use raw binary instead of base 64 for 33% smaller file transfers</li>
 	<li>Saving files chunks via indexDB for temporary storage</li>
-	<li>Cached chunks are kept for 2 minutes after last peer finishes transfers</li>
+	<li>Cached chunks are kept for 5 minutes after last peer finishes transfers or the session is ended</li>
 	<li>Cache in indexDB instead of in memory, this will allow much larger file transfers, hopefully</li>
 	<li>Simple CRC for each chunk and resend of individual damaged chunks</li>
 

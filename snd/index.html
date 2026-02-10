@@ -7,12 +7,10 @@
 	<meta http-equiv="Expires" content="-1" />
 
 	<meta name="msapplication-TileColor" content="#2e2e2e" />
-	<meta name="description"
-		content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+	<meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
 	<meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja" />
 	<meta name="robots" content="index, follow" />
-	<meta name="viewport"
-		content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 	<meta name="color-scheme" content="light dark">
 
@@ -23,8 +21,7 @@
 	<link rel="shortcut icon" href="/icons/favicon.ico">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-		rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
 	<link rel="stylesheet" href="style.css">
 
@@ -128,6 +125,7 @@
 <script lang="javascript">
 	//GLOBALS
 	let roomName = null;
+	let waitingRoom = null;
 	let firstInteraction = true;
 	let wakeLock = null;
 
@@ -135,13 +133,13 @@
 	const waitingPeers = new Map();
 
 	const files = {}; // id -> {file, name, size, chunks:[], progress}
-	const folderUUIDs = {};   // path → uuid
+	//const folderUUIDs = {};   // path → uuid
 	let folderMap = {}; // keeps track of folder DOM nodes
 	let folderState = {}; // path → true/false
 	let currentSort = 'latest'; // default sort method
 	let currentFilter = 'all'; // values: 'all' | 'local' | 'remote'
 	let downloadQueue = [];        // holds pending fileIDs
-
+	const fileUIState = new Map();
 
 	const dropArea = document.getElementById('dropArea');
 	const fileList = document.getElementById('fileList');
@@ -160,7 +158,7 @@
 
 	const devURL = window.location.origin;
 	const debouncedRerender = debounce(rerenderFileTree, 100);//slow sorting index
-
+	
 	//setup vdo sdk's, 
 	const vdo = new VDONinjaSDK({
 		salt: "rpxl.app",
@@ -189,7 +187,9 @@
 		logEl.scrollTop = logEl.scrollHeight;
 	}
 
+	startDLWorker();
 	checkSessionURL();  //autoconnect if session ID in URL
+
 
 	//CHECK IF THERE IS A CORRECT SID IN THE URL AND AUTOCONNECT
 	function checkSessionURL() {
@@ -224,7 +224,7 @@
 			waitingRoom = randomID(8).toUpperCase();;
 			//waitingRoom = randomID(8).toUpperCase().replace(/(.{4})(.{4})/, "$1-$2");
 			scode.textContent = waitingRoom.replace(/(.{4})(.{4})/, "$1-$2");;
-			url = `${devURL}/?SID=${roomName}`
+			url = `${devURL}/snd/?SID=${roomName}`
 
 			var qrcode = new QRCode("qrcode", {
 				text: url,
@@ -257,6 +257,7 @@
 
 		flushChunkDB("OutgoingFileCache"); //remove cache if exists
 		flushChunkDB("IncomingFileCache"); //remove cache if exists
+		firstInteraction = false;
 
 		setupVDOListeners();
 	}
@@ -273,7 +274,7 @@
 		} catch (err) { 
 			log('Failed:', err.message) 
 		}
-		
+		firstInteraction = false;
 		log('Watching waiting room : ', room);
 		setupVDOWRListeners(room);
 	}
@@ -289,11 +290,16 @@
 		} catch (err) { 
 			log('Failed:', err.message) 
 		}
-
+		firstInteraction = false;
 		//console.warn('Joined waiting room :', waitingRoom);
 		setupVDOWRListeners();
 	}
 
+	async function startDLWorker() {
+		await navigator.serviceWorker.register("/snd/sw.js");
+	}
+
+	//HANDLE SHORT CODE INPUT (UPPERCASE NO FUNNY'S)
 	input.addEventListener("input", e => {
 		let v = input.value;
 
@@ -344,6 +350,7 @@
 
 		joinVDOWaitingRoom(shareCode);
 
+		firstInteraction = false;
 		document.getElementById('loadingMessage').style.display = "none";
 		document.getElementById('joinShareDialog').style.display = "none";
 		document.getElementById('dropArea').style.pointerEvents = "none";
@@ -441,6 +448,7 @@
 	addBtn.addEventListener("click", () => {
 		filePicker.click();
 	});
+
 	// Always handle picking files on both desktop + mobile
 	filePicker.addEventListener("change", (event) => {
 		const files = event.target.files;
@@ -462,7 +470,7 @@
 
 		if (firstInteraction === true) {
 			createVDOroom(roomName);
-			createVDOwaitingRoom(waitingRoom);
+			if (waitingRoom) createVDOwaitingRoom(waitingRoom);
 
 			document.getElementById('dropArea').classList.add('hidden');
 			document.getElementById('joinShareDialog').style.display = "none";
@@ -477,99 +485,101 @@
 	});
 
 	//check if desktop, set up drag and drop UI
-	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+	function checkMobile(){
+		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-	if (!isMobile) {
-		//set for desktop (folders and drag drop)
-		filePicker.setAttribute('webkitdirectory', "");
-		filePicker.setAttribute('directory', "");
+		if (!isMobile) {
+			//set for desktop (folders and drag drop)
+			filePicker.setAttribute('webkitdirectory', "");
+			filePicker.setAttribute('directory', "");
 
-		dropArea.addEventListener('click', () => {
-			if (!firstInteraction) return;
-			filePicker.click();
-		});
+			dropArea.addEventListener('click', () => {
+				if (!firstInteraction) return;
+				filePicker.click();
+			});
 
-		const dropOverlay = document.getElementById('dropArea');
-		let dragCounter = 0; // helps handle nested dragenter/dragleave events
+			const dropOverlay = document.getElementById('dropArea');
+			let dragCounter = 0; // helps handle nested dragenter/dragleave events
 
-		window.addEventListener('dragenter', (e) => {
-			e.preventDefault();
-			dragCounter++;
-			dropOverlay.classList.add('dragover');
-		});
+			window.addEventListener('dragenter', (e) => {
+				e.preventDefault();
+				dragCounter++;
+				dropOverlay.classList.add('dragover');
+			});
 
-		window.addEventListener('dragleave', (e) => {
-			e.preventDefault();
-			dragCounter--;
-			if (dragCounter === 0) dropOverlay.classList.remove('dragover');
-		});
+			window.addEventListener('dragleave', (e) => {
+				e.preventDefault();
+				dragCounter--;
+				if (dragCounter === 0) dropOverlay.classList.remove('dragover');
+			});
 
-		window.addEventListener('dragover', (e) => {
-			e.preventDefault();
-		});
+			window.addEventListener('dragover', (e) => {
+				e.preventDefault();
+			});
 
-		window.addEventListener('drop', (e) => {
-			e.preventDefault();
-			dragCounter = 0;
-			dropOverlay.classList.remove('dragover');
-		});
+			window.addEventListener('drop', (e) => {
+				e.preventDefault();
+				dragCounter = 0;
+				dropOverlay.classList.remove('dragover');
+			});
 
-		dropArea.addEventListener('drop', async (e) => {
-			e.preventDefault();
-			const dropId = randomID(8);
+			dropArea.addEventListener('drop', async (e) => {
+				e.preventDefault();
+				const dropId = randomID(8);
 
-			const items = e.dataTransfer.items;
-			if (!items) return handleFileList(e.dataTransfer.files);
+				const items = e.dataTransfer.items;
+				if (!items) return handleFileList(e.dataTransfer.files);
 
-			if (firstInteraction === true) {
-				createVDOroom(roomName);
-				createVDOwaitingRoom(waitingRoom);
+				if (firstInteraction === true) {
+					createVDOroom(roomName);
+					if (waitingRoom) createVDOwaitingRoom(waitingRoom);
 
-				document.getElementById('dropArea').classList.add('hidden');
-				document.getElementById('helpIcon').style.display = "none";		
-				document.getElementById('joinShareDialog').style.display = "none";
-				document.getElementById('topmenu').classList.remove('hidden');
-				document.getElementById('subToolBar').classList.remove('hidden');
-				document.getElementById('dragDropMessage').textContent = "Drop to add files"
-				document.getElementById('dragDropSubMessage').textContent = ""
+					document.getElementById('dropArea').classList.add('hidden');
+					document.getElementById('helpIcon').style.display = "none";		
+					document.getElementById('joinShareDialog').style.display = "none";
+					document.getElementById('topmenu').classList.remove('hidden');
+					document.getElementById('subToolBar').classList.remove('hidden');
+					document.getElementById('dragDropMessage').textContent = "Drop to add files"
+					document.getElementById('dragDropSubMessage').textContent = ""
 
-				firstInteraction = false;
-			}
-			const promises = [];    // Process all top-level entries concurrently
+					firstInteraction = false;
+				}
+				const promises = [];    // Process all top-level entries concurrently
 
-			for (let i = 0; i < items.length; i++) {
-				const it = items[i];
-				const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
-				if (!entry) {
-					if (it.getAsFile) addFile(it.getAsFile());
-					continue;
+				for (let i = 0; i < items.length; i++) {
+					const it = items[i];
+					const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+					if (!entry) {
+						if (it.getAsFile) addFile(it.getAsFile());
+						continue;
+					}
+
+					if (entry.isDirectory) {
+						promises.push(readDirectory(entry, '', dropId));
+					} else if (entry.isFile) {
+						// Wrap entry.file in a promise so we can await it
+						promises.push(new Promise(resolve => entry.file(file => {
+							addFile(file);
+							resolve();
+						})));
+					}
 				}
 
-				if (entry.isDirectory) {
-					promises.push(readDirectory(entry, '', dropId));
-				} else if (entry.isFile) {
-					// Wrap entry.file in a promise so we can await it
-					promises.push(new Promise(resolve => entry.file(file => {
-						addFile(file);
-						resolve();
-					})));
-				}
-			}
+				await Promise.all(promises);  // Wait for all top-level items to finish
+			});
+		} else {
+			//if mobile only allow multiple files and not folders ---- not sure this works
+			filePicker.removeAttribute('webkitdirectory');
+			filePicker.removeAttribute('directory');
 
-			await Promise.all(promises);  // Wait for all top-level items to finish
-		});
-	} else {
-		//if mobile only allow multiple files and not folders ---- not sure this works
-		filePicker.removeAttribute('webkitdirectory');
-		filePicker.removeAttribute('directory');
+			dropArea.classList.add('hidden');
+			dropArea.style.display = "none";
 
-		dropArea.classList.add('hidden');
-		dropArea.style.display = "none";
-
-		document.getElementById('topmenu').classList.remove('hidden');
-		document.getElementById('subToolBar').classList.remove('hidden');
+			document.getElementById('topmenu').classList.remove('hidden');
+			document.getElementById('subToolBar').classList.remove('hidden');
+		}
 	}
-
+	checkMobile();
 	//play beep on connect
 	function playBeep(freq = 880, duration = 0.15) {
 		const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -614,12 +624,6 @@
 			updatePeersUI();
 			handleGuestJoin(guestUUID);
 			log("Peer connected :", guestUUID);
-
-			// vdo.sendData({
-			// 	dataType: "listing",
-			// 	totalPeers: connectedPeers
-			// })
-
 			//console.warn("peer connected",event);
 		});
 
@@ -652,13 +656,6 @@
 			const payload = event.detail.data.payload;
 
 			//console.warn('control message from main room:', event);
-
-			// if (data.dataType === "listing") {
-			// 	console.warn("rcv no.of connected users :", connectedPeers)
-			// 	//handleAckChunks( payload, uuid )
-			// 	return;
-			// }
-
 			if (data.dataType == 'file-announce') {
 				if (files[payload.id]) return;        //ignore duplicates if already have this file
 				if (!uuid) return;
@@ -730,7 +727,7 @@
 				return;
 			}
 
-			if (data.dataType === "Download-complete") {
+			if (data.dataType === "download-complete") {
 				onDownloadComplete(payload, uuid);
 				return;
 			}
@@ -851,10 +848,12 @@
 
 		updateWaitingCount();
 	}
+
 	function formatTime(ms) {
 		const d = new Date(ms);
 		return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	}
+
 	function allowWaitingPeer(uuid) {
 		vdoWR.sendData({
 			dataType: "migrate",
@@ -875,6 +874,17 @@
 			setTimeout(() => waitingButton.style.animation = "none", 1000);
 		}
 	}
+
+	//service worker messages
+	navigator.serviceWorker.addEventListener("message", e => {
+		if (e.data?.type === "download-finished") {
+			purgeRXChunks(e.data.fileID);
+			console.warn("file downloaded");
+				
+			swDownloadBusy = false;
+			processSWQueue(); 
+		}
+	});
 
 	//SHUTDOWN ACTIONS
 	window.addEventListener('beforeunload', () => {
@@ -904,6 +914,7 @@
 
 	//SEND FILE LIST TO USER WHEN THEY CONNECT (AFTER. SHORT DELAY)
 	async function handleGuestJoin(guestUUID) {
+		let logOnce = false;
 		loadingEl.classList.remove('hidden');
 		await sleep(500);    // delay to ensure the peer connection is ready
 
@@ -914,13 +925,15 @@
 			return;
 		}
 
-		log(`Sending list of ${ids.length} files to new guest ${guestUUID}...`);
-
 		//only send local files
 		for (const id of ids) {
 			const meta = files[id];
 			if (meta.uploadedBy == 'local') {
 				sendToPeer(guestUUID, "file-announce", meta);
+				if (logOnce === false) {
+					log(`Sending list of ${ids.length} files to new guest ${guestUUID}...`);
+					logOnce = true;
+				}
 			}
 		}
 		// Optionally wait for all announcements to process
@@ -1081,7 +1094,7 @@
 			dataType,
 			payload
 		});
-		console.warn("broadcast", dataType);
+		//console.warn("broadcast", dataType);
 	}
 
 	//SORT FILES BY LATEST (DEFAULT) OR NAME
@@ -1099,7 +1112,7 @@
 		const treeRoot = document.getElementById('fileList');
 
 		//Save folder expand/collapse state
-		folderState = {};
+		//folderState = {};
 		for (const path in folderMap) {
 			const folderDiv = folderMap[path]?.closest('.folder');
 			if (!folderDiv) continue;
@@ -1235,8 +1248,8 @@
   `;
 
 		currentContainer.appendChild(fileDiv);
-
-		// File action
+				
+		// File action default
 		fileDiv.querySelector(`.${fileIconClass}`).addEventListener('pointerdown', async (e) => {
 			e.stopPropagation();
 			if (isReceiver) {
@@ -1245,6 +1258,38 @@
 				deleteFile(f.id);
 			}
 		});
+		
+		const state = getUIState(f.id);
+
+		// dead
+		if (state.dead) {
+			fileDiv.classList.add("file-dead");
+		}
+
+		// downloading
+		if (state.downloading) {
+			createFileProgressUI(f.id);
+			updateFileProgressUI(f.id, state.progress);
+		}
+
+		// completed
+		if (state.completed) {
+			markDownloadCompleted(f.id);
+		}
+
+	}
+
+	//get state of item and restore if filter or sort
+	function getUIState(id) {
+		if (!fileUIState.has(id)) {
+			fileUIState.set(id, {
+				dead: false,
+				downloading: false,
+				progress: 0,
+				completed: false
+			});
+		}
+		return fileUIState.get(id);
 	}
 
 	//FILE AND FOLDER DELETES
@@ -1327,7 +1372,7 @@
 		if (total == 0) return;
 
 		sendBroadcast("file-removed", { id });
-		log(`Announced file removal : `, id);
+		log(`Announced file removal : `, files[id]);
 	}
 
 	//CLEANUP AND REMOVE ANY EMPTY FOLDERS
@@ -1376,7 +1421,14 @@
 		//console.warn("marking file dead");
 		const el = document.getElementById(`data-${fileID}`);
 		if (!el) return;
-		el.classList.add("file-dead");
+
+		el?.classList.add("file-dead");
+
+		const state = getUIState(fileID);
+		state.downloading = false;
+		state.progress = 0;
+		state.completed = false;
+		state.dead = true;
 	}
 
 	//FILE DOWNLOAD UI, CIRCLE, RESTORE BACK AND CALC DL SPEED PROGRESS BARS
@@ -1399,10 +1451,9 @@
 
 		const stopBtn = document.getElementById(`stop-btn-${id}`);
 		if (!stopBtn) return;
-		// Style stop button
+
 		Object.assign(stopBtn.style, { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", cursor: "pointer", fontSize: "0.8em", userSelect: "none", opacity: "0.5" });
 
-		// Stop button handler
 		stopBtn.addEventListener("pointerdown", () => {
 			// stop local
 			//pausedDownloads.delete(id);
@@ -1412,7 +1463,12 @@
 			cancelDownload(id)
 			restoreDownloadIcon(id);
 		});
+
+		const state = getUIState(id);
+		state.downloading = true;
+		state.progress = 0;
 	}
+
 	//if transfer is cancelled 
 	function restoreDownloadIcon(id) {
 		const container = document.getElementById(`icon-container_${id}`);
@@ -1432,6 +1488,11 @@
 			requestDownload(id, false);
 			createFileProgressUI(id);
 		});
+
+		const state = getUIState(id);
+		state.downloading = false;
+		state.progress = 0;
+		state.completed = true;
 	}
 
 	function markDownloadCompleted(id) {
@@ -1459,6 +1520,9 @@
 				btn.onclick = () => handleFileDownload(id);         // restore original handler
 			};
 		}
+
+		const state = getUIState(id);
+		state.completed = true;
 	}
 
 	function updateFileProgressUI(id, percent) {
@@ -1469,25 +1533,32 @@
 		const pct = Math.max(0, Math.min(100, Number(percent) || 0));
 		const deg = pct * 3.6; // 100% -> 360°
 		bar.style.backgroundImage = `conic-gradient(dodgerblue ${deg}deg, light-dark(var(--color-light-white), var(--color-dark-grey)) ${deg}deg)`;
+
+		const state = getUIState(id);
+		state.progress = pct;
 	}
 
 	//CALCULATE AND SHOW SPEED OF DOWNLOAD / UPLOAD
 	let bytesReceivedInInterval = 0;
 	let bytesSentInInterval = 0;
+
 	// Called whenever a chunk is received
 	function onChunkReceived(chunkSize) {
 		bytesReceivedInInterval += chunkSize;
 	}
+
 	// Called whenever a chunk is sent
 	function onChunkSent(chunkSize) {
 		bytesSentInInterval += chunkSize;
 	}
+
 	function formatSpeed(bytes) {
 		if (bytes > 1e6) return (bytes / 1e6).toFixed(2) + " MB/s";
 		if (bytes > 1e3) return (bytes / 1e3).toFixed(2) + " KB/s";
 		return bytes + " B/s";
 	}
-	//update every 500ms
+
+	//UDATE UPLOAD / DOWNLOAD
 	setInterval(() => {
 		const downloadSpeed = formatSpeed(bytesReceivedInInterval * 2); // interval 500ms → scale to 1s
 		const uploadSpeed = formatSpeed(bytesSentInInterval * 2);
@@ -1498,8 +1569,16 @@
 	}, 500);
 
 	// UTILITY - NICE FORMAT SIZE AND REMOVE ANY FUNNY CHARACTERS FROM FILE OR FOLDER NAMES
-	function formatBytes(a) { if (a === 0) return '0 B'; const units = ['B', 'KB', 'MB', 'GB', 'TB']; const e = Math.floor(Math.log(a) / Math.log(1024)); return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; }
-	function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
+	function formatBytes(a) { 
+		if (a === 0) return '0 B'; 
+		const units = ['B', 'KB', 'MB', 'GB', 'TB']; 
+		const e = Math.floor(Math.log(a) / Math.log(1024)); 
+		return (a / Math.pow(1024, e)).toFixed(2) + ' ' + units[e]; 
+	}
+
+	function escapeHtml(s) { 
+		return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); 
+	}
 
 	//PAUSE AFTER CONNECT AND SENDING OF CONTROL MESSAGES IF PEER ADDS OR REMOVES FILES
 	function sleep(ms) {
@@ -1507,6 +1586,12 @@
 	}
 
 
+
+
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// FILE TRANSFER ENGINE
 	//TX AND RX FILE REQUESTS
 	// PEER REQUESTS FILE
 	function requestDownload(fileID, isFolder = false) {
@@ -1543,57 +1628,23 @@
 	//RESPOND TO FILE REQUEST
 	async function respondToFileRequest(fileID, targetUUID) {
 		sending = false;
-		//const conns = vdo.connections.get(targetUUID);
-		//const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-		//if (!dc) return;
 
 		const meta = files[fileID];
 		if (!meta) return;
 
-		const file = meta.file;
-		const chunkSize = (256 * 1024) - 64;
+		if (!meta.activeDownloads) meta.activeDownloads = new Set();
+		meta.activeDownloads.add(targetUUID);
 
-		produceChunks(fileID, targetUUID, file, chunkSize)
-		await refillSendCache(fileID);
+		// Cancel pending purge
+		if (meta.purgeTimer) {
+			clearTimeout(meta.purgeTimer);
+			meta.purgeTimer = null;
+			log("Reset purge due to new download:", meta.name);
+		}
+
+		produceChunks(fileID, targetUUID)
+		refillSendCache(fileID, targetUUID);
 		sendRAWData();
-	}
-
-	async function handleAckChunks(payload, uuid) {
-			if (!payload.parts?.length) return;
-
-			const fileID = payload.fileID;
-			const parts = payload.parts;
-
-			let filename = fileID; // fallback
-
-			if (files[fileID]?.name) {
-				filename = files[fileID].name;
-			}
-			if (!fileID) return;
-	
-			const t = transfers.get(`${fileID}:${uuid}`);
-			if (!t) return;
-
-			for (const p of parts) {
-				t.pending.delete(p);
-				t.inflight.delete(p);
-
-				//console.warn("ACK recieved",p);
-			}
-
-			if (t.pending.size === 0) {
-				log("Transfer cancelled or completed for file :", filename, " - by :", uuid);
-
-				transfers.delete(`${fileID}:${uuid}`);
-
-				// optional: also clear any send cache you keep
-				if (sendCache?.has(fileID)) sendCache.delete(fileID);
-
-				return;
-			}
-
-		// refill send cache using pending
-		await refillSendCache(fileID, uuid);
 	}
 
 	//RECIEVED FILE DOWNLOAD COMPLETE MESSAGE FROM GUEST, SCHEDULE CLEAR FILE FROM CACHE DB
@@ -1610,15 +1661,12 @@
 		}
 	}
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// FILE TRANSFER ENGINE
 	// Simple CRC32
 	function crc32(buf) {
 		let crc = -1;
 		for (let b of buf) crc = (crc >>> 8) ^ table[(crc ^ b) & 0xFF];
 		return (crc ^ -1) >>> 0;
 	}
-
 	const table = (() => {
 		let t = new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
@@ -1630,7 +1678,6 @@
 	})();
 
 	//SENDER CHUNK CACHING DB creation parameters
-	//const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 	const POST_DOWNLOAD_GRACE = 2 * 60 * 1000; // keep file cached for 2 minutes after file complete recieved
 	const TX_DB = "OutgoingFileCache";
 	const TX_STORE = "chunks";
@@ -1639,16 +1686,143 @@
 	const sendCache = new Map();
 	const cacheQueue = new Map();
 	const transfers = new Map(); // fileID -> TransferState
-	//const MAX_CACHE_QUEUE = 8;
-	const MAX_SEND_BUFFER = (2 * 1024 * 1024) + 256;
+
+	const chunkSize = 64 * 1024;						//2MB
+	const MAX_SEND_BUFFER = (2 * 1024 * 1024) + 512;	//2MB
 	const MEMORY_CACHE = 32;	
 
-	async function produceChunks(fileID, targetUUID, file, chunkSize) {
+	let sending = false;
+	let swDownloadBusy = false; //used by service worker to serialize
+	const swDownloadQueue = [];
+	const BATCH = 6; // chunks per burst to write to SW
+
+	function sendRAWData() {
+		if (sending) return;
+		sending = true;
+
+		const pump = async () => {
+			for (;;) {
+				if (sendCache.size === 0) {
+					sending = false;
+
+					for (const key of transfers.keys()) {
+						const [fileID, targetUUID] = key.split(":");
+						await refillSendCache(fileID, targetUUID);
+					}
+					return;
+				}
+
+				const iter = sendCache.entries().next();
+				if (iter.done) return;
+
+				const [key, chunk] = iter.value;
+				const [fileID, targetUUID, part] = key.split(":");
+
+				const conns = vdo.connections.get(targetUUID);
+				const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
+				if (!dc) {
+					sending = false;
+					return;
+				}
+				
+				if (dc.bufferedAmount > MAX_SEND_BUFFER) {
+					dc.bufferedAmountLowThreshold = MAX_SEND_BUFFER / 4;
+					dc.onbufferedamountlow = () => pump();
+					return;
+				}
+				//console.warn("SENDRAW : ", fileID ," chunk : " ,chunk);
+
+				dc.send(chunk);
+				bytesSentInInterval += chunk.byteLength;
+				sendCache.delete(key);
+
+				await refillSendCache(fileID, targetUUID);
+
+				const t = transfers.get(`${fileID}:${targetUUID}`);
+				if (t) t.inflight.add(Number(part));
+			}
+		};
+		pump();
+	}
+
+	async function refillSendCache(fileID, targetUUID) {
+		const key = `${fileID}:${targetUUID}`;
+		const t = transfers.get(key);
+		if (!t || t.refilling) return;
+
+		const available = MEMORY_CACHE - sendCache.size;
+		if (available <= 0) return;
+		//console.warn("AVAILABLE Cache : ", available);
+		
+		t.refilling = true;
+
+		try {
+			const parts = [...t.pending]
+				.filter(p =>
+					!t.inflight.has(p) &&
+					!sendCache.has(`${fileID}:${targetUUID}:${p}`)
+				)
+				.sort((a,b)=>a-b)
+				.slice(0, available);
+
+			if (!parts.length) {
+				t.refilling = false;
+				return;
+			}
+
+			for (const part of parts) {
+				if (sendCache.size >= MEMORY_CACHE) break;
+
+				const chunk = await idbGetChunk(fileID, part);
+				if (!chunk) continue;
+
+				const cacheKey = `${fileID}:${targetUUID}:${part}`;
+				if (sendCache.has(cacheKey)) continue;
+
+				sendCache.set(cacheKey, chunk);
+
+				//console.warn("REFILL CACHE : ", fileID );
+			}
+
+		} finally {
+			t.refilling = false;
+		}
+	}
+
+	async function handleAckChunks(payload, uuid) {
+		if (!payload.parts?.length) return;
+
+		const fileID = payload.fileID;
+		if (!fileID) return;
+
+		const key = `${fileID}:${uuid}`;
+		const t = transfers.get(key);
+		if (!t) return;
+
+		for (const p of payload.parts) {
+			t.pending.delete(p);
+			t.inflight.delete(p);
+			sendCache.delete(`${fileID}:${uuid}:${p}`);
+		}
+
+		if (t.pending.size === 0) {
+			log(payload.cancelled ? "Transfer cancelled:" : "Transfer completed:", files[fileID]?.name || fileID);
+			transfers.delete(key);
+			return;
+		}
+
+		await refillSendCache(fileID, uuid);
+		sendRAWData();
+
+		//console.warn("ACK",fileID,"inflight:",t.inflight.size,"pending:",t.pending.size);
+	}
+
+	async function produceChunks(fileID, targetUUID) {
 		let logCache = false;
 		files[fileID].chunkSize = chunkSize;
 		files[fileID].activeDownloads ??= new Set();
 		files[fileID].activeDownloads.add(targetUUID);
-
+		let file = files[fileID].file;
 		const totalChunks = Math.ceil(file.size / chunkSize);
 		const transferKey = `${fileID}:${targetUUID}`;
 
@@ -1661,42 +1835,43 @@
 			maxWritten: -1
 		};
 
-		//pending ONCE
-		for (let i = 0; i < totalChunks; i++) {
-			t.pending.add(i);
-		}
-
 		if (!transfers.has(transferKey)) transfers.set(transferKey, t);
 
-
 		for (let i = 0; i < totalChunks; i++) {
+			if (i % 32 === 0) await Promise.resolve();
+
 			const chunkIndex = i;
 
-			const cached = await idbGetChunk(fileID, chunkIndex); 			//check cache if chunk exists first
+			const cached = await idbGetChunk(fileID, chunkIndex); 
 
 			if (cached) {
 				// chunk already exists in IndexedDB
 				const tID = transfers.get(transferKey);
 				if (tID) {
+					tID.pending.add(chunkIndex);  
 					tID.maxWritten = Math.max(tID.maxWritten, chunkIndex);
-					await refillSendCache(fileID, targetUUID);   //wake sender
+					//sendRAWData();
 				}
 				if (!logCache) {
 					log("File : ", file.name, "is already in cache, sending");
 					logCache = true;
 				}
+				if (t.pending.size <= MEMORY_CACHE % 2) {
+					await refillSendCache(fileID, targetUUID);
+					sendRAWData();
+				}
 				continue;
 			}
 
 			if (!logCache) {
-				log(`Splitting ${file.name} into ${totalChunks} parts and sending`); //just once per ask
+				log(`Splitting ${file.name} into ${totalChunks} parts and sending`);
 				logCache = true;
 			}
 
 			const start = i * chunkSize;
 			const end = Math.min(file.size, start + chunkSize);
 
-			if (i % 8 === 0) await Promise.resolve();
+			if (i % 16 === 0) await Promise.resolve();
 
 			let buffer;
 			try {
@@ -1725,8 +1900,14 @@
 
 			await writeChunkToIDB(fileID, chunkIndex, out.buffer);
 
+			t.pending.add(chunkIndex); 
 			t.maxWritten = Math.max(t.maxWritten, chunkIndex);
-			await refillSendCache(fileID, targetUUID);
+
+			if (t.pending.size <= MEMORY_CACHE) {
+				await refillSendCache(fileID, targetUUID);
+				sendRAWData();
+			}
+
 		}
 	}
 
@@ -1777,66 +1958,15 @@
 		});
 	}
 
-
-	//SENDBUFFER - MEMORY, FILLED FROM DISK CACHE
-	let sending = false;
-
-	function sendRAWData() {
-		if (sending) return;
-		sending = true;
-
-		const pump = () => {
-			if (!sending) return;
-
-			for (const [key, chunk] of sendCache) {
-				const [fileID, targetUUID, part] = key.split(":");
-				const conns = vdo.connections.get(targetUUID);
-				const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-
-				if (!dc || dc.bufferedAmount > MAX_SEND_BUFFER) continue;
-
-				dc.send(chunk);
-				bytesSentInInterval += chunk.byteLength;
-
-				sendCache.delete(key);
-
-				const t = transfers.get(`${fileID}:${targetUUID}`);
-			}
-			setTimeout(pump, 0);
-		};
-		pump();
-	}
-
-	//amount of chunks to cache in memory
-
-	async function refillSendCache(fileID, targetUUID) {
-		const t = transfers.get(`${fileID}:${targetUUID}`);
-		const conns = vdo.connections.get(targetUUID);
-		const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-
-		if (!dc) return;
-		if (!t) return;
-
-		for (const part of t.pending) {
-			if (t.inflight.size >= MEMORY_CACHE) break;
-			if (dc.bufferedAmount > 512_000) break;
-			if (part > t.maxWritten) continue;
-			if (t.inflight.has(part)) continue;
-			if (sendCache.has(`${fileID}:${targetUUID}:${part}`)) continue;//stop duplicates getting queued
-
-			const chunk = await idbGetChunk(fileID, part);
-			if (!chunk) continue;
-
-			sendCache.set(`${fileID}:${targetUUID}:${part}`, chunk);
-			t.inflight.add(part);
-		}
-	}
-
 	//scheduler to remove chunks when we recieve file download complete
 	function scheduleChunkPurge(fileID) {
 		const f = files[fileID];
 		if (!f) return;
 
+		if (f.purgeTimer) {
+			clearTimeout(f.purgeTimer);
+			f.purgeTimer = null;
+		}
 		log("Scheduling cache purge for file : ", f.name);
 
 		f.purgeTimer = setTimeout(() => {
@@ -1872,11 +2002,11 @@
 		});
 	}
 
-	//FILE RECIEVING HANDLING
+	//FILE RECEIVING HANDLING
 	//recieving file chunks
 	async function handleIncomingChunk(buffer) {
 		onChunkReceived(buffer.byteLength);
-
+		console.warn("Received RAW");
 		const view = new DataView(buffer);
 		let offset = 0;
 
@@ -1902,7 +2032,8 @@
 				total,
 				received: new Set(),
 				lastAckCount: 0,
-				completed: false
+				completed: false,
+				assembling: false
 			});
 		}
 
@@ -1920,33 +2051,65 @@
 
 			sendToPeer(files[fileID]?.uploadedBy, "ACK-chunks", {
 				fileID,
-				parts: [...file.received]
+				parts: [part]
 			});
 		}
 
-		//console.warn("received", file.received.size, "of", file.total);
-
 		if (!file.completed && file.received.size === file.total) {
-			file.completed = true;
-
-			//console.warn("file id:", fileID, "all received");
+			if (file.assembling) return;
+			file.assembling = true;
 
 			const stream = new ReadableStream({
-				async start(controller) {
-					for (let i = 0; i < file.total; i++) {
-						const chunk = await getRxChunk(fileID, i);
-						if (!chunk) {
-							controller.error("Missing chunk " + i);
+				async pull(controller) {
+					try {
+						if (!this.chunkIndex) this.chunkIndex = 0;
+
+						if (this.chunkIndex >= file.total) {
+							controller.close();
 							return;
 						}
-						controller.enqueue(new Uint8Array(chunk));
+
+						const db = await openRxDB();
+						const tx = db.transaction(RX_STORE, "readonly");
+						const store = tx.objectStore(RX_STORE);
+
+						let count = 0;
+
+						while (this.chunkIndex < file.total && count < BATCH) {
+							const key = `${fileID}:${this.chunkIndex}`;
+
+							const chunk = await new Promise(res => {
+								const req = store.get(key);
+								req.onsuccess = () => res(req.result?.data);
+							});
+
+							if (!chunk) throw new Error("Missing chunk " + this.chunkIndex);
+
+							controller.enqueue(new Uint8Array(chunk));
+
+							this.chunkIndex++;
+							count++;
+						}
+
+						// IMPORTANT: wait for tx to finish before returning
+						await new Promise((res, rej) => {
+							tx.oncomplete = res;
+							tx.onerror = () => rej(tx.error);
+						});
+
+						// Yield so WebRTC + UI can breathe
+						await new Promise(r => setTimeout(r, 0));
+
+					} catch (e) {
+						controller.error(e);
 					}
-					controller.close();
 				}
 			});
 
-			const blob = await new Response(stream).blob();
-			onFileComplete(fileID, blob);
+			file.completed = true;
+			incomingFiles.delete(fileID);
+
+			enqueueSWDownload(fileID, stream);
 		}
 	}
 
@@ -2037,6 +2200,7 @@
 	const MAX_PARALLEL_DOWNLOADS = 4; // download queue max concurrent files
 	const activeStreamers = new Map();
 
+	//add to queue to download
 	function queueDownload(fileID, host, fromFolder = false) {
 		const state = downloadState.get(fileID);
 
@@ -2044,6 +2208,7 @@
 		if (state !== "active" && state !== "queued") {
 			incomingFiles.delete(fileID);
 			purgeRXChunks(fileID);
+			log("Removing any cached data for :", files[fileID].name);
 		}
 
 		// Prevent duplicate queue entries
@@ -2051,18 +2216,21 @@
 
 		downloadQueue.push({ fileID, host, fromFolder });
 		downloadState.set(fileID, "queued");
+
 		processDownloadQueue();
 	}
 
-	//process files till queue full, then pause
 	function processDownloadQueue() {
 		if (activeFileDownloads >= MAX_PARALLEL_DOWNLOADS) return;
 
-		while (activeFileDownloads < MAX_PARALLEL_DOWNLOADS && downloadQueue.length > 0) {
-			const { fileID, host, fromFolder } = downloadQueue.shift();
-			if (downloadState.get(fileID) === "active") continue;
-			if (downloadState.get(fileID) === "stopped") continue;   
-			startFileDownload(fileID, host, fromFolder);
+		while (activeFileDownloads < MAX_PARALLEL_DOWNLOADS && downloadQueue.length) {
+
+			const job = downloadQueue.shift();
+			const state = downloadState.get(job.fileID);
+
+			if (state !== "queued") continue;
+
+			startFileDownload(job.fileID, job.host, job.fromFolder);
 		}
 	}
 
@@ -2087,7 +2255,7 @@
 		});
 
 		enableWakeLock();
-		log(`Starting download: ${meta.name} - uploaded by : ${meta.uploadedBy}`);
+		log(`Requesting file: ${meta.name} - from : ${meta.uploadedBy}`);
 	}
 
 	// // Receiver: cancel a download
@@ -2100,13 +2268,11 @@
 		}
 
 		downloadQueue = downloadQueue.filter(q => q.fileID !== fileID);    // Remove any queued entries for this file
-		if (!downloadState) downloadState = new Map();    // Mark paused/cancelled state (use explicit Map for clearer semantics)
 		downloadState.set(fileID, "stopped");
+		incomingFiles.delete(fileID);
 
-		if (incomingFiles[fileID]) delete incomingFiles[fileID];    // Remove partially received buffers & incoming file entry
 		updateFileProgressUI(fileID, 0); // or show cancelled state
 
-		// Clear any ack waiters for this file (so host doesn't hang)
 		for (const key of Object.keys(ackWaiters)) {
 			if (key.startsWith(`${fileID}:`)) {
 				try { ackWaiters[key](false); } catch (e) { }
@@ -2115,11 +2281,10 @@
 		}
 
 		if (wasActive) {
-			activeFileDownloads--;
+			activeFileDownloads = Math.max(0, activeFileDownloads - 1);
 			processDownloadQueue();
 		}
 
-		clearAckWaitersForFile(fileID)
 	}
 
 	function sendAbortAck(fileID) {
@@ -2139,42 +2304,58 @@
 
 		sendToPeer(meta.uploadedBy, "ACK-chunks", {
 			fileID,
-			parts: allParts
+			parts: allParts,
+			cancelled: true
 		});
 	}
 
-	function clearAckWaitersForFile(fileID) {
-		for (const key of Object.keys(ackWaiters)) {
-			if (key.startsWith(`${fileID}:`)) {
-				try { ackWaiters[key](false); } catch (e) { }
-				delete ackWaiters[key];
-			}
-		}
+	function enqueueSWDownload(fileID, stream) {
+		swDownloadQueue.push({ fileID, stream });
+		processSWQueue();
 	}
 
-	function onFileComplete(fileID, blob) {
-		let filename = files[fileID]?.name || fileID;
+	function processSWQueue() {
+		if (swDownloadBusy) return;
+		if (!swDownloadQueue.length) return;
 
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
+		swDownloadBusy = true;
+
+		const { fileID, stream } = swDownloadQueue.shift();
+		startSWDownload(fileID, stream);
+	}
+
+	async function startSWDownload(fileID, stream) {
+		const filename = files[fileID]?.name || fileID;
+
+		navigator.serviceWorker.controller.postMessage({
+			type: "download",
+			fileID,
+			filename,
+			stream
+		}, [stream]);
+
+		// tiny delay so SW receives message before fetch
+		await new Promise(r => setTimeout(r, 0));
+
+		const iframe = document.createElement("iframe");
+		iframe.style.display = "none";
+		iframe.src = `/snd/download/${fileID}`;
+		document.body.appendChild(iframe);
+
+		// optional cleanup
+		setTimeout(() => iframe.remove(), 60_000);
+
+		log("Saving file : ", filename);
 
 		const host = files[fileID]?.uploadedBy;
-		sendToPeer(host, "Download-complete", fileID);
+		sendToPeer(host, "download-complete", fileID);
 
 		activeStreamers.delete(fileID);
 
-		//mark done + free queue slot
-		downloadState.set(fileID, "done");
+		downloadState.delete(fileID);
 		activeFileDownloads = Math.max(0, activeFileDownloads - 1);
-		markDownloadCompleted(fileID)
+		markDownloadCompleted(fileID);
 		processDownloadQueue();
-
-		log("Download complete:", filename);
 	}
-
 
 </script>
