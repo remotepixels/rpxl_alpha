@@ -12,7 +12,7 @@
 	--radius-big: 10px;
 	--radius-small: 5px;
 	--button-height: 40px;
-	--button-width: 60px;
+	--button-width: 50px;
 	--button-wide-width: 80px;
 	--border-width: 1px;
 	--toolbarheight: 50px;
@@ -49,7 +49,7 @@ body {
 	font-family: 'Material Symbols Outlined';
 	font-weight: 300;
 	font-style: normal;
-	font-size: 30px;
+	font-size: 28px;
 }
 
 a {
@@ -69,7 +69,7 @@ h1 {
 
 h2 {
 	color: light-dark(var(--color-dark-bg), var(--color-light-grey));
-	font-size: 18px;
+	font-size: 16px;
 }
 
 .linkCopied {
@@ -317,7 +317,7 @@ hr {
 }
 
 .file-size {
-	font-size: 12px;
+	font-size: 14px;
 	color: light-dark(var(--color-light-grey), var(--color-light-grey));
 	margin-left: auto;
 	text-align: right;
@@ -327,7 +327,7 @@ hr {
 .file-delete,
 .file-download {
 	cursor: pointer;
-	font-size: 18px;
+	font-size: 16px;
 	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
 	margin-right: 16px;
 	margin-left: 16px;

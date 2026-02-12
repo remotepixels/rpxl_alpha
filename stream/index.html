@@ -94,8 +94,8 @@
                 </div>
             </div>
         </div>
-        <div class="copyCreditGrad"></div>
-        <div class="copyText toolbar-section left" id="statusLeft"></div>
+        <!-- <div class="copyCreditGrad"></div> -->
+        <!-- <div class="copyText toolbar-section left" id="statusLeft"></div> -->
     </div>
 
     <div class="popupBG hidden" id="popupBG"></div>
@@ -109,7 +109,7 @@
         <div class="tableStream" id="settingsDialogProjectID">
             <div>Project</div>
             <div  style="grid-column: 2 / span 3;">
-				<input type="text" class="textinput" maxlenght="40" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
+				<input type="text" class="textinput" maxlength="55" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
 				<span class="toolset" id="historyButton">
 					<button class="tool moresettings" id="toolHistory" aria-expanded="false" role="button">
 						<span class="material-symbols-outlined">history</span>
@@ -156,7 +156,7 @@
 				<span id="meterGraph" class="meterGraph">	<span id="micmeter" class="meter"></span>	</span>
 			</div>
         </div>
-        <div id="moresettingsHR" class="" style="width:100%; margin:10px 0px;"><HR></div>
+        <div id="moresettingsHR" class="hidden" style="width:100%; margin:10px 0px;"><HR></div>
         <div id="settingsDialogButtons" style="position: relative; width: 100%; display: inline-flex; justify-content: space-between; align-items: center;">
             <div><button id="buttonMoreSettings" class="tool moresettings wider" aria-expanded="false">More setings</button></div>
             <div><button id="startSessionButton" class="botton blue wider">Start session</button></div>
@@ -298,7 +298,7 @@
 		}
 
 		dialog.innerHTML = `
-        <span class="historyHeader">IMPORTANT: Loading a previous session will also re-use existing link(s)</span><br>
+        <span class="historyHeader"><h2>IMPORTANT : Loading a previous session will also re-use existing link(s)</h2></span><br>
         <hr>`; // reset
 
 		sessions.forEach(entry => {
@@ -365,6 +365,8 @@
 		buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
 		buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
 		document.getElementById("moresettings").classList.toggle("collapsed");
+		document.getElementById("moresettingsHR").classList.toggle("hidden");
+		
 	});
 
 	document.getElementById('startSessionButton').addEventListener('pointerdown', startSession);

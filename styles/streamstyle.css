@@ -5,7 +5,7 @@
 	grid-template-columns: 105px auto auto;
 	/* grid-template-rows: repeat(4, 40px); */
 	column-gap: 5px;
-	row-gap: 5px;
+	row-gap: 3px;
 	width: 100%;
 	/* border: 1px solid black; */
 }
@@ -24,7 +24,7 @@
 
   position: absolute;
   right: 20px;
-  top: 16px;
+  top: 12px;
   cursor: pointer;
   z-index: 10;
 
@@ -73,9 +73,9 @@
 
 }
 #confirmQuit {
-position: absolute;
-top:0px;
-right:0px;
+	position: absolute;
+	top:0px;
+	right:0px;
 }
 
 dialog#historyDialog {
@@ -122,7 +122,7 @@ dialog#historyDialog .link span {
 }
 
 #project {
-	width:400px;
+	width:420px;
 }
 #historyButton {
     display: block;
@@ -143,9 +143,11 @@ dialog#historyDialog .link span {
 	top:0px;
 	left:0px;
 	width:100%;
-	text-align: center;
-	padding: 10px 0px;
+	text-align: left;
+	padding: 10px 20px;
     color: light-dark(var(--color-dark-grey), var(--color-mid-grey));
+	cursor: default;
+	/* border-bottom: 5px solid light-dark(var(--color-light-grey), var(--color-mid-grey)); */
     /* background-color: light-dark(var(--color-light-white), var(--color-mid-grey));  */
 }
 
@@ -168,5 +170,5 @@ dialog#historyDialog .link span {
 
 .peerList {
 	top: 50px;
-	height: calc(100% - 130px);
+	height: calc(100% - 100px);
 }

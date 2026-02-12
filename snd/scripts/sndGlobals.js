@@ -43,7 +43,7 @@ function escapeHtml(s) {
 	return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]);
 }
 
-//PAUSE AFTER CONNECT AND SENDING OF CONTROL MESSAGES IF PEER ADDS OR REMOVES FILES
+//PAUSE
 function sleep(ms) {
 	return new Promise(r => setTimeout(r, ms));
 }

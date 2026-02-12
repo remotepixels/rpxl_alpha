@@ -28,8 +28,8 @@ shareBtn.addEventListener('pointerdown', () => {
 	shareBtn.classList.add("selected");
 });
 //hidden bg element to hide share menu
-popupBG.addEventListener("pointerdown", function (e) {
-	if (e.target.matches("#popupBG")) {
+popupBG.addEventListener("pointerdown", function (event) {
+	if (event.target.matches("#popupBG")) {
 		if (!popupClipboard.classList.contains("hidden")) popupClipboard.classList.add("hidden");
 		if (!popupWaitingList.classList.contains("hidden")) popupWaitingList.classList.add("hidden");
 		popupBG.classList.add("hidden");

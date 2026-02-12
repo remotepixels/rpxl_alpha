@@ -4,7 +4,7 @@
 	grid-template-columns: auto auto;
 	/* grid-template-rows: repeat(4, 40px); */
 	column-gap: 5px;
-	row-gap: 5px;
+	row-gap: 3px;
 	width: 100%;
 	/* border: 1px solid black; */
 }
@@ -132,7 +132,7 @@ sup{
     top: 15px!important;
 }
 .mainViewer {
-	height: calc(100vh - 80px)!important;
+	height: calc(100vh - 50px)!important;
     top: 0px!important;
 }
 

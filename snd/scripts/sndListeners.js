@@ -6,16 +6,27 @@
 	});
 
 	//SERVICE WORKER MESSAGES FOR FILE SAVING
-	navigator.serviceWorker.addEventListener("message", e => {
-		if (e.data?.type === "download-finished") {
-			console.warn("SW", e);
-			swDownloadBusy = false;
-			
-			processSWQueue(); 
-			markDownloadCompleted(e.data.fileID)
-			purgeRxChunks(e.data.fileID);
-		}
-	});
+	if (navigator.serviceWorker) {
+		navigator.serviceWorker.addEventListener("message", event => {
+			if (event.data?.type === "download-finished") {
+				console.log("SW download finished:", event.data.fileID);
+				swDownloadBusy = false;
+				
+				processSWQueue(); 
+				markDownloadCompleted(event.data.fileID);
+				purgeRxChunks(event.data.fileID).catch(err => 
+					console.error("Error purging RX chunks:", err)
+				);
+			} else if (event.data?.type === "download-error") {
+				console.error("SW download error:", event.data.fileID, event.data.error);
+				swDownloadBusy = false;
+				markDownloadCompleted(event.data.fileID);
+				processSWQueue();
+			}
+		});
+	} else {
+		console.warn("Service Worker API not available");
+	}
 
 	//SHUTDOWN ACTIONS
 	window.addEventListener('beforeunload', () => {

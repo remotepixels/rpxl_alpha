@@ -12,7 +12,7 @@ async function respondToFileRequest(fileID, targetUUID) {
 	if (meta.purgeTimer) {
 		clearTimeout(meta.purgeTimer);
 		meta.purgeTimer = null;
-		log("Reset purge due to new download:", meta.name);
+		log("Reset purge timer due to new download:", meta.name);
 	}
 
 	produceChunks(fileID, targetUUID)
@@ -45,7 +45,7 @@ const cacheQueue = new Map();
 const transfers = new Map(); // fileID -> TransferState
 
 const chunkSize = 64 * 1024;						//64Kb
-const MAX_SEND_BUFFER = (2 * 1024 * 1024) + 512;	//2MB
+const MAX_SEND_BUFFER = (2 * 1024 * 1024) + 5120;	//2.5MB
 const MEMORY_CACHE = 32;
 
 let sending = false;
@@ -58,53 +58,95 @@ function sendRAWData() {
 	sending = true;
 
 	const pump = async () => {
-		for (; ;) {
-			if (sendCache.size === 0) {
-				sending = false;
-
-				for (const key of transfers.keys()) {
-					const [fileID, targetUUID] = key.split(":");
-					await refillSendCache(fileID, targetUUID);
+		try {
+			const BATCH_SIZE = 6; // Send multiple chunks per cycle for buffer efficiency
+			const REFILL_THRESHOLD = Math.max(MEMORY_CACHE / 3, 8); // Refill when cache drops below threshold
+			let bytesSentInBatch = 0;
+			let chunksSentInBatch = 0;
+			
+			for (; ;) {
+				// Empty cache - refill all transfers
+				if (sendCache.size === 0) {
+					sending = false;
+					
+					// Refill all pending transfers in parallel for better throughput
+					const refillPromises = Array.from(transfers.keys()).map(key => {
+						const [fileID, targetUUID] = key.split(":");
+						return refillSendCache(fileID, targetUUID);
+					});
+					await Promise.all(refillPromises);
+					
+					if (sendCache.size > 0) {
+						await pump();
+					}
+					return;
 				}
 
-				if (sendCache.size > 0) {
-					sendRAWData();
+				// Batch send chunks to maximize throughput
+				let bufferFull = false;
+				for (let batch = 0; batch < BATCH_SIZE && sendCache.size > 0; batch++) {
+					const [key, chunk] = [...sendCache.entries()][0]; // Get first item
+					const [fileID, targetUUID, part] = key.split(":");
+
+					const conns = vdo.connections.get(targetUUID);
+					const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
+					if (!dc) {
+						sending = false;
+						return;
+					}
+
+					// Check buffer before sending
+					if (dc.bufferedAmount > MAX_SEND_BUFFER) {
+						dc.bufferedAmountLowThreshold = MAX_SEND_BUFFER / 4;
+						dc.onbufferedamountlow = () => {
+							pump().catch(err => console.error("Error resuming pump:", err));
+						};
+						bufferFull = true;
+						break;
+					}
+
+					dc.send(chunk);
+					bytesSentInBatch += chunk.byteLength;
+					chunksSentInBatch++;
+					sendCache.delete(key);
+
+					const t = transfers.get(`${fileID}:${targetUUID}`);
+					if (t) t.inflight.add(Number(part));
 				}
-				return;
+
+				// Stop if buffer full
+				if (bufferFull) {
+					sending = false;
+					return;
+				}
+
+				// Refill cache proactively to keep buffer fuller
+				if (sendCache.size <= REFILL_THRESHOLD) {
+					const refillPromises = Array.from(transfers.keys()).map(key => {
+						const [fileID, targetUUID] = key.split(":");
+						return refillSendCache(fileID, targetUUID);
+					});
+					await Promise.all(refillPromises);
+				}
+
+				// Yield to main thread after batch
+				await Promise.resolve();
+
+				// Log throughput metrics periodically
+				if (chunksSentInBatch >= BATCH_SIZE) {
+					console.debug(`Pump: sent ${chunksSentInBatch} chunks (${(bytesSentInBatch / 1024).toFixed(1)} KB), cache size: ${sendCache.size}`);
+					chunksSentInBatch = 0;
+					bytesSentInBatch = 0;
+				}
 			}
-
-
-			const iter = sendCache.entries().next();
-			if (iter.done) return;
-
-			const [key, chunk] = iter.value;
-			const [fileID, targetUUID, part] = key.split(":");
-
-			const conns = vdo.connections.get(targetUUID);
-			const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
-			if (!dc) {
-				sending = false;
-				return;
-			}
-
-			if (dc.bufferedAmount > MAX_SEND_BUFFER) {
-				dc.bufferedAmountLowThreshold = MAX_SEND_BUFFER / 4;
-				dc.onbufferedamountlow = () => pump();
-				return;
-			}
-			//console.warn("SENDRAW : ", fileID ," chunk : " ,chunk);
-
-			dc.send(chunk);
-			bytesSentInInterval += chunk.byteLength;
-			sendCache.delete(key);
-
-			await refillSendCache(fileID, targetUUID);
-
-			const t = transfers.get(`${fileID}:${targetUUID}`);
-			if (t) t.inflight.add(Number(part));
+		} catch (err) {
+			console.error("Fatal error in sendRAWData pump:", err);
+			sending = false;
 		}
 	};
-	pump();
+
+	// Properly handle async pump function
+	pump().catch(err => console.error("Uncaught error in pump:", err));
 }
 
 async function refillSendCache(fileID, targetUUID) {
@@ -116,33 +158,40 @@ async function refillSendCache(fileID, targetUUID) {
 	if (available <= 0) return;
 
 	t.refilling = true;
+	let loaded = 0;
 
 	try {
-		const parts = [...t.pending]
-			.filter(p =>
-				!t.inflight.has(p) &&
-				!sendCache.has(`${fileID}:${targetUUID}:${p}`)
-			)
-			.sort((a, b) => a - b)
-			.slice(0, available);
+		// Collect parts to fetch: those pending, not in flight, and not already cached
+		const cacheKey = (p) => `${fileID}:${targetUUID}:${p}`;
+		const partsToFetch = Array.from(t.pending)
+			.filter(p => !t.inflight.has(p) && !sendCache.has(cacheKey(p)))
+			.sort((a, b) => a - b);
 
-		if (!parts.length) {
-			t.refilling = false;
-			return;
+		if (!partsToFetch.length) return;
+
+		// Load chunks up to available space
+		for (const part of partsToFetch) {
+			if (loaded >= available || sendCache.size >= MEMORY_CACHE) break;
+
+			try {
+				const chunk = await getTxChunk(fileID, part);
+				if (!chunk) continue;
+
+				const key = cacheKey(part);
+				// Skip if another concurrent operation already cached it
+				if (sendCache.has(key)) continue;
+
+				sendCache.set(key, chunk);
+				loaded++;
+			} catch (err) {
+				console.error(`Failed to load chunk ${part} for ${fileID}:`, err);
+			}
 		}
 
-		for (const part of parts) {
-			if (sendCache.size >= MEMORY_CACHE) break;
-
-			const chunk = await getTxChunk(fileID, part);
-			if (!chunk) continue;
-
-			const cacheKey = `${fileID}:${targetUUID}:${part}`;
-			if (sendCache.has(cacheKey)) continue;
-
-			sendCache.set(cacheKey, chunk);
-			console.warn("REFILL CACHE : ", fileID);
-			sendRAWData()
+		// Log once after batch loading and trigger pump only once
+		if (loaded > 0) {
+			console.log(`REFILL CACHE: loaded ${loaded} chunks for ${fileID}`);
+			sendRAWData();
 		}
 
 	} finally {
@@ -160,137 +209,149 @@ async function handleAckChunks(payload, uuid) {
 	const t = transfers.get(key);
 	if (!t) return;
 
-	for (const p of payload.parts) {
-		t.pending.delete(p);
-		t.inflight.delete(p);
-		sendCache.delete(`${fileID}:${uuid}:${p}`);
-	}
-
-	if (payload.cancelled) {
-		t.cancelled = true;
-		transfers.delete(key);
-		log("Transfer cancelled:", files[fileID]?.name || fileID);
-		return;
-	}
-
-	if (t.pending.size === 0 && t.nextChunk >= t.totalChunks) {
-		transfers.delete(key);
-		log("Transfer completed:", files[fileID]?.name || fileID);
-		return;
-	}
-
-	await refillSendCache(fileID, uuid);
-	sendRAWData();
-
-	console.warn("ACK", fileID, "inflight:", t.inflight.size, "pending:", t.pending.size);
-}
-
-async function produceChunks(fileID, targetUUID, startIndex = 0) {
-	let logCache = false;
-	files[fileID].chunkSize = chunkSize;
-	files[fileID].activeDownloads ??= new Set();
-	files[fileID].activeDownloads.add(targetUUID);
-	let file = files[fileID].file;
-	const totalChunks = Math.ceil(file.size / chunkSize);
-	const transferKey = `${fileID}:${targetUUID}`;
-
-	const t = {
-		fileID,
-		targetUUID,
-		totalChunks,
-		pending: new Set(),
-		inflight: new Set(),
-		maxWritten: -1,
-		nextChunk: 0
-	};
-
-	if (!transfers.has(transferKey)) transfers.set(transferKey, t);
-
-	const CHUNKS_PER_SLICE = 64;
-	let processed = 0;
-
-	for (let i = startIndex; i < totalChunks && processed < CHUNKS_PER_SLICE; i++) {
-		t.nextChunk = i + 1;
-		processed++;
-
-		//for (let i = 0; i < totalChunks; i++) {
-		//if (i % 32 === 0) await Promise.resolve();
-
-		const chunkIndex = i;
-		const cached = await getTxChunk(fileID, chunkIndex);
-
-		if (cached) {
-			// chunk already exists in IndexedDB
-			const tID = transfers.get(transferKey);
-			if (tID) {
-				tID.pending.add(chunkIndex);
-				tID.maxWritten = Math.max(tID.maxWritten, chunkIndex);
-				//sendRAWData();
+		let ackedCount = 0;
+		for (const p of payload.parts) {
+			const partNum = Number(p);
+			// Only delete from inflight (should already be removed from pending when sent)
+			if (t.inflight.delete(partNum)) {
+				ackedCount++;
 			}
-			if (!logCache) {
-				log("File : ", file.name, "is already in cache, sending");
-				logCache = true;
-			}
-			if (t.pending.size <= MEMORY_CACHE % 2) {
-				await refillSendCache(fileID, targetUUID);
-				sendRAWData();
-			}
-			continue;
+			sendCache.delete(`${fileID}:${uuid}:${partNum}`);
 		}
 
-		if (!logCache) {
-			log(`Splitting ${file.name} into ${totalChunks} parts and sending`);
-			logCache = true;
-		}
-
-		const start = i * chunkSize;
-		const end = Math.min(file.size, start + chunkSize);
-
-		//if (i % 16 === 0) await Promise.resolve();
-
-		let buffer;
-		try {
-			buffer = await file.slice(start, end).arrayBuffer();
-		} catch (err) {
-			//console.warn("Source file not found:", fileID, file.name, err);
-			markFileDead(fileID);
-			sendBroadcast("source-not-found", fileID);
+		if (payload.cancelled) {
+			t.cancelled = true;
+			transfers.delete(key);
+			log("Transfer cancelled:", files[fileID]?.name || fileID);
 			return;
 		}
 
-		const crc = crc32(new Uint8Array(buffer));
-		const idBytes = new TextEncoder().encode(fileID);
+		// Transfer complete when all chunks sent and all in-flight acks received
+		if (t.pending.size === 0 && t.inflight.size === 0 && t.nextChunk >= t.totalChunks) {
+			transfers.delete(key);
+			log("Transfer completed:", files[fileID]?.name || fileID);
+			return;
+		}
 
-		const headerLen = 4 + 4 + 4 + idBytes.length + 4;
-		const out = new Uint8Array(headerLen + buffer.byteLength);
-		const view = new DataView(out.buffer);
-		let o = 0;
-
-		view.setUint32(o, chunkIndex, true); o += 4;
-		view.setUint32(o, totalChunks, true); o += 4;
-		view.setUint32(o, idBytes.length, true); o += 4;
-		out.set(idBytes, o); o += idBytes.length;
-		view.setUint32(o, crc, true); o += 4;
-		out.set(new Uint8Array(buffer), o);
-
-		await storeTxChunk(fileID, chunkIndex, out.buffer);
-
-		t.pending.add(i);
-		t.maxWritten = Math.max(t.maxWritten, i);
-		// for (const t of transfers.values()) {
-		// 	if (t.fileID === fileID && !t.cancelled) {
-		// 		t.pending.add(chunkIndex);
-		// 		t.maxWritten = Math.max(t.maxWritten, chunkIndex);
-		// 	}
-
-		//if (t.pending.size <= MEMORY_CACHE) {
-		await refillSendCache(fileID, targetUUID);
+		await refillSendCache(fileID, uuid);
 		sendRAWData();
-		//		}
-		// }
+
+		console.debug(`ACK for ${fileID}: acked ${ackedCount} chunks, inflight: ${t.inflight.size}, pending: ${t.pending.size}`);
 	}
-	if (t.nextChunk < totalChunks) {
-		setTimeout(() => produceChunks(fileID, targetUUID, t.nextChunk), 0);
+	
+async function produceChunks(fileID, targetUUID, startIndex = 0) {
+	const transferKey = `${fileID}:${targetUUID}`;
+	let transfer = transfers.get(transferKey);
+
+	// Initialize transfer state only on first call
+	if (!transfer) {
+		const file = files[fileID]?.file;
+		if (!file) return;
+
+		const totalChunks = Math.ceil(file.size / chunkSize);
+		transfer = {
+			fileID,
+			targetUUID,
+			totalChunks,
+			pending: new Set(),
+			inflight: new Set(),
+			maxWritten: -1,
+			nextChunk: startIndex
+		};
+		transfers.set(transferKey, transfer);
+	}
+
+	const file = files[fileID].file;
+	const totalChunks = transfer.totalChunks;
+	files[fileID].chunkSize = chunkSize;
+	files[fileID].activeDownloads ??= new Set();
+	files[fileID].activeDownloads.add(targetUUID);
+
+	const CHUNKS_PER_SLICE = 64;
+	const YIELD_INTERVAL = 16; // Yield to main thread every N chunks
+	let processed = 0;
+	let chunksCached = 0;
+	let newChunksProduced = 0;
+
+	try {
+		for (let i = startIndex; i < totalChunks && processed < CHUNKS_PER_SLICE; i++) {
+			transfer.nextChunk = i + 1;
+			processed++;
+
+			// Yield to main thread periodically to avoid blocking
+			if (processed % YIELD_INTERVAL === 0) {
+				await Promise.resolve();
+			}
+
+			const cached = await getTxChunk(fileID, i);
+
+			if (cached) {
+				// Chunk already in IndexedDB, just add to pending
+				transfer.pending.add(i);
+				transfer.maxWritten = Math.max(transfer.maxWritten, i);
+				chunksCached++;
+				continue;
+			}
+
+			// Read file chunk
+			let buffer;
+			try {
+				const start = i * chunkSize;
+				const end = Math.min(file.size, start + chunkSize);
+				buffer = await file.slice(start, end).arrayBuffer();
+			} catch (err) {
+				console.error(`Failed to read chunk ${i} from ${file.name}:`, err);
+				markFileDead(fileID);
+				sendBroadcast("source-not-found", fileID);
+				return;
+			}
+
+			// Build chunk with header
+			const crc = crc32(new Uint8Array(buffer));
+			const idBytes = new TextEncoder().encode(fileID);
+			const headerLen = 4 + 4 + 4 + idBytes.length + 4;
+			const out = new Uint8Array(headerLen + buffer.byteLength);
+			const view = new DataView(out.buffer);
+			let offset = 0;
+
+			view.setUint32(offset, i, true); offset += 4;
+			view.setUint32(offset, totalChunks, true); offset += 4;
+			view.setUint32(offset, idBytes.length, true); offset += 4;
+			out.set(idBytes, offset); offset += idBytes.length;
+			view.setUint32(offset, crc, true); offset += 4;
+			out.set(new Uint8Array(buffer), offset);
+
+			// Store in IndexedDB
+			await storeTxChunk(fileID, i, out.buffer);
+			transfer.pending.add(i);
+			transfer.maxWritten = Math.max(transfer.maxWritten, i);
+			newChunksProduced++;
+		}
+
+		// Log progress after batch processing
+		if (processed > 0) {
+			const logMsg = chunksCached > 0 
+				? `File: ${file.name} already cached (${chunksCached}/${processed} chunks)`
+				: `Splitting ${file.name} into ${totalChunks} parts (produced ${newChunksProduced} chunks)`;
+			log(logMsg);
+		}
+
+		// Batch refill and send operations at the end
+		if (transfer.pending.size > 0) {
+			await refillSendCache(fileID, targetUUID);
+			sendRAWData();
+		}
+
+		// Continue with remaining chunks asynchronously
+		const next = transfer.nextChunk;
+		if (next < totalChunks) {
+			setTimeout(() => produceChunks(fileID, targetUUID, next).catch(err =>
+				console.error("Error in produceChunks continuation:", err)), 0);
+		}
+
+	} catch (err) {
+		console.error("Fatal error in produceChunks:", err);
+		markFileDead(fileID);
 	}
 }
 
