@@ -252,8 +252,6 @@ function renderWaitingPeers() {
 		waitingButton.style.animation = "pulse 1000ms";
 		setTimeout(() => waitingButton.style.animation = "none", 1000);
 	}
-
-	// updateWaitingCount();
 }
 
 function allowWaitingPeer(uuid) {
@@ -423,6 +421,7 @@ function addFile(file) {
 function sendToPeer(targetUUID, dataType, payload = {}) {
 	const total = Object.keys(connectedPeers).length;
 	if (total === 0) return; // only send if peers connected
+
 	vdo.sendData({
 		dataType,
 		payload
@@ -434,6 +433,7 @@ function sendToPeer(targetUUID, dataType, payload = {}) {
 function sendBroadcast(dataType, payload = {}) {
 	const total = Object.keys(connectedPeers).length;
 	if (total === 0) return; // only send if peers connected
+
 	vdo.sendData({
 		dataType,
 		payload
@@ -645,7 +645,7 @@ function removeElementWithFade(el) {
 
 		el.addEventListener('transitionend', () => {
 			if (el.parentNode) el.parentNode.removeChild(el);
-			resolve(); // resolve after removal
+			resolve();
 		}, { once: true });
 
 		// Fallback in case transitionend doesn't fire
@@ -689,7 +689,7 @@ async function sendDirectoryRemoved(path, targetUUID = null) {
 	if (peerKeys.length === 0) return;      //console.log("No connected guests");
 
 	sendBroadcast("directory-removed", { path });
-	log(`Announced directory removal: ${path}`);
+	log(`Announced directory removal : ${path}`);
 }
 
 //REMOVE FILE FROM DOM
@@ -774,7 +774,7 @@ function markFileDead(fileID) {
 }
 
 //FILE DOWNLOAD UI
-const pausedDownloads = new Set(); // holds fileIDs of paused downloads
+// const pausedDownloads = new Set(); // holds fileIDs of paused downloads
 const incomingFiles = new Map();
 
 function createFileProgressUI(id) {
@@ -847,7 +847,8 @@ function markDownloadCompleted(id) {
 		// Clicking ✓ restores original download button
 		btn.onclick = () => {
 			btn.innerHTML = btn.dataset.originalIcon;
-			btn.onclick = () => handleFileDownload(id);     // restore original handler
+			// btn.onclick = () => handleFileDownload(id);     // restore original handler
+			btn.onclick = () => requestDownload(id);     // restore original handler
 		};
 	}
 
@@ -858,7 +859,7 @@ function markDownloadCompleted(id) {
 function updateFileProgressUI(id, percent) {
 	const bar = document.getElementById(`progress-bar-${id}`);
 	if (!bar) return; // safely ignore if element removed
-	if (pausedDownloads.has(id)) return;
+	// if (pausedDownloads.has(id)) return;
 
 	const pct = Math.max(0, Math.min(100, Number(percent) || 0));
 	const deg = pct * 3.6; // 100% -> 360°

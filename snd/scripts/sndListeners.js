@@ -248,10 +248,11 @@
 
 				createVDOroom();
 
-				document.getElementById('waitingButton').style.display = "none";
+				["joinShareDialog", "helpIcon", "waitingButton"].forEach(id => {
+					document.getElementById(id).style.display = "none";
+				});
+
 				document.getElementById('dropArea').classList.add('hidden');
-				document.getElementById('helpIcon').style.display = "none";		
-				document.getElementById('joinShareDialog').style.display = "none";
 				document.getElementById('topmenu').classList.remove('hidden');
 				document.getElementById('subToolBar').classList.remove('hidden');
 				document.getElementById('dragDropMessage').textContent = "Drop to add files"

@@ -207,13 +207,14 @@
 			} else {
 				log('SESSION ID FOUND IN URL:', mainRoom);
 
-				document.getElementById('helpIcon').style.display = "none";
-				document.getElementById('shareTools').style.display = "none";
-				document.getElementById('waitingButton').style.display = "none";
+				["joinShareDialog", "helpIcon", "shareTools", "waitingButton"].forEach(id => {
+					document.getElementById(id).style.display = "none";
+				});
+
 				document.getElementById('dropArea').classList.add('hidden');
 				document.getElementById('topmenu').classList.remove('hidden');
 				document.getElementById('subToolBar').classList.remove('hidden')
-				document.getElementById('joinShareDialog').style.display = "none";
+
 				document.getElementById('dragDropMessage').textContent = "Drop to add files"
 				document.getElementById('dragDropSubMessage').textContent = ""
 
@@ -253,6 +254,7 @@
 
 		flushTxRxDB("OutgoingFileCache"); //remove cache if exists
 		flushTxRxDB("IncomingFileCache"); //remove cache if exists
+		
 		setupVDOListeners();
 	}
 
@@ -302,7 +304,35 @@
 	startDLWorker();
 
 	async function startDLWorker() {
-		await navigator.serviceWorker.register("scripts/sndDownloader.js");
+		if (!navigator.serviceWorker) {
+			console.warn("Service Worker not supported in this browser");
+			return;
+		}
+
+		try {
+			const registration = await navigator.serviceWorker.register("/snd/sndDownloader.js", {
+				scope: "/snd/"
+			});
+			console.log("Service Worker registered successfully", registration);
+
+			// Check if SW is already active
+			if (registration.active) {
+				console.log("Service Worker is active");
+			} else if (registration.installing) {
+				console.log("Service Worker installing...");
+			} else if (registration.waiting) {
+				console.log("Service Worker waiting to activate");
+			}
+
+			// Listen for controller change when SW becomes active
+			navigator.serviceWorker.addEventListener('controllerchange', () => {
+				console.log("Service Worker took control");
+			});
+
+		} catch (error) {
+			console.error("Service Worker registration failed:", error);
+			console.error("Details:", error.message);
+		}
 	}
 
 	//join with share code

@@ -136,77 +136,27 @@ function sendAckBatch(fileID) {
 	console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
 }
 
-// Separate assembly logic for cleaner flow
 async function assembleReceivedFile(fileID) {
 	const file = incomingFiles.get(fileID);
-	const stream = new ReadableStream({
-		async pull(controller) {
-			try {
-				if (!this.chunkIndex) this.chunkIndex = 0;
+	if (!file) return;
 
-				if (this.chunkIndex >= file.total) {
-					controller.close();
-					return;
-				}
+	console.debug(`File ready in IndexedDB: ${fileID}`);
 
-				const db = await openRxDB();
-				const tx = db.transaction(RX_STORE, "readonly");
-				const store = tx.objectStore(RX_STORE);
-
-				const BATCH = 8; // Load 8 chunks per read for better throughput
-				let count = 0;
-				const chunks = [];
-
-				// Prefetch multiple chunks in parallel within transaction
-				const chunkPromises = [];
-				while (this.chunkIndex < file.total && count < BATCH) {
-					const chunkIdx = this.chunkIndex;
-					const key = `${fileID}:${chunkIdx}`;
-					
-					const promise = new Promise(res => {
-						const req = store.get(key);
-						req.onsuccess = () => {
-							const data = req.result?.data;
-							if (!data) throw new Error(`Missing chunk ${chunkIdx}`);
-							res(new Uint8Array(data));
-						};
-						req.onerror = () => res(null);
-					});
-					
-					chunkPromises.push(promise);
-					this.chunkIndex++;
-					count++;
-				}
-
-				// Wait for all chunks in batch
-				const results = await Promise.all(chunkPromises);
-				for (const chunk of results) {
-					if (chunk) controller.enqueue(chunk);
-				}
-
-				// Wait for transaction to complete
-				await new Promise((res, rej) => {
-					tx.oncomplete = res;
-					tx.onerror = () => rej(tx.error);
-				});
-
-				// Yield to main thread
-				await new Promise(r => setTimeout(r, 0));
-
-			} catch (e) {
-				controller.error(e);
-			}
-		}
-	});
-
+	// mark complete locally
 	incomingFiles.delete(fileID);
-	enqueueSWDownload(fileID, stream);
+
+	// queue download via SW
+	enqueueSWDownload(fileID);
 }
 
 //RECIEVER CACHE DB
 const RX_DB = "IncomingFileCache";
 const RX_STORE = "chunks";
 let rxDB;
+const rxWriteBuffers = new Map();
+const RX_WRITE_BATCH = 32;
+const RX_WRITE_DELAY = 25; // ms
+
 
 function openRxDB() {
 	if (rxDB) return rxDB;
@@ -222,34 +172,49 @@ function openRxDB() {
 }
 
 async function storeRxChunk(fileID, part, total, data) {
+	let entry = rxWriteBuffers.get(fileID);
+
+	if (!entry) {
+		entry = { parts: [], timer: null };
+		rxWriteBuffers.set(fileID, entry);
+	}
+
+	entry.parts.push({ part, total, data });
+
+	if (entry.parts.length >= RX_WRITE_BATCH) {
+		flushRxChunkBatch(fileID);
+	} else if (!entry.timer) {
+		entry.timer = setTimeout(() => flushRxChunkBatch(fileID), RX_WRITE_DELAY);
+	}
+}
+
+async function flushRxChunkBatch(fileID) {
+	const entry = rxWriteBuffers.get(fileID);
+	if (!entry || !entry.parts.length) return;
+
+	rxWriteBuffers.delete(fileID);
+
 	const db = await openRxDB();
+	const tx = db.transaction(RX_STORE, "readwrite");
+	const store = tx.objectStore(RX_STORE);
 
-	return new Promise((resolve, reject) => {
-		const tx = db.transaction(RX_STORE, "readwrite");
-		const store = tx.objectStore(RX_STORE);
-
+	for (const p of entry.parts) {
 		store.put({
-			key: `${fileID}:${part}`,
+			key: `${fileID}:${p.part}`,
 			fileID,
-			part,
-			total,
-			data,
+			part: p.part,
+			total: p.total,
+			data: p.data,
 			ts: Date.now()
 		});
+	}
 
-		tx.oncomplete = resolve;
-		tx.onerror = () => reject(tx.error);
+	return new Promise((res, rej) => {
+		tx.oncomplete = res;
+		tx.onerror = () => rej(tx.error);
 	});
 }
 
-async function getRxChunk(fileID, part) {
-	const db = await openRxDB();
-	return new Promise(res => {
-		const tx = db.transaction(RX_STORE);
-		const req = tx.objectStore(RX_STORE).get(`${fileID}:${part}`);
-		req.onsuccess = () => res(req.result?.data);
-	});
-}
 
 async function purgeRxChunks(fileID) {
 	const meta = files[fileID];
@@ -282,11 +247,11 @@ async function purgeRxChunks(fileID) {
 }
 
 //DOWNLOAD QUEUE
-const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
+// const ackWaiters = {}; // key = `${id}:${group}` -> resolve()
 let downloadState = new Map();	//tracks state of each file in queue (queued, active, stopped, done)
 let activeFileDownloads = 0;     //download queue files currently running
 const MAX_PARALLEL_DOWNLOADS = 4; // download queue max concurrent files
-const activeStreamers = new Map();
+// const activeStreamers = new Map();
 
 //add to queue to download
 function queueDownload(fileID, host, fromFolder = false) {
@@ -338,7 +303,7 @@ function startFileDownload(fileID, host, fromFolder) {
 	log(`Requesting file: ${meta.name} - from : ${meta.uploadedBy}`);
 }
 
-// // Receiver: cancel a download
+// Receiver: cancel a download
 function cancelDownload(fileID) {
 	const wasActive = downloadState.get(fileID) === "active";
 	const meta = files[fileID];
@@ -352,13 +317,6 @@ function cancelDownload(fileID) {
 	incomingFiles.delete(fileID);
 
 	updateFileProgressUI(fileID, 0); // or show cancelled state
-
-	for (const key of Object.keys(ackWaiters)) {
-		if (key.startsWith(`${fileID}:`)) {
-			try { ackWaiters[key](false); } catch (e) { }
-			delete ackWaiters[key];
-		}
-	}
 
 	if (wasActive) {
 		activeFileDownloads = Math.max(0, activeFileDownloads - 1);
@@ -389,120 +347,66 @@ function sendAbortAck(fileID) {
 	});
 }
 
-function enqueueSWDownload(fileID, stream) {
-	swDownloadQueue.push({ fileID, stream });
+function enqueueSWDownload(fileID) {
+	swDownloadQueue.push({ fileID });
 	processSWQueue();
 }
+
 
 function processSWQueue() {
 	if (swDownloadBusy) return;
 	if (!swDownloadQueue.length) return;
 
 	swDownloadBusy = true;
-	const { fileID, stream } = swDownloadQueue.shift();
-	startSWDownload(fileID, stream);
+
+const { fileID } = swDownloadQueue.shift();
+startSWDownload(fileID);
+
+
 }
 
-async function startSWDownload(fileID, stream) {
+async function startSWDownload(fileID) {
 	const filename = files[fileID]?.name || fileID;
-	const meta = files[fileID];
 
-	try {
-		// Check if service worker is available and controlled
-		if (!navigator.serviceWorker) {
-			throw new Error("Service Worker API not available");
-		}
+	const sw = navigator.serviceWorker.controller;
+	if (!sw) throw new Error("No SW controller");
 
-		if (!navigator.serviceWorker.controller) {
-			console.warn("Service Worker not yet activated, waiting for controller...");
-			
-			// Wait for service worker to be ready and become controller
-			const registration = await navigator.serviceWorker.ready;
-			if (!registration.active) {
-				throw new Error("Service Worker is not active");
+	const channel = new MessageChannel();
+
+	const readyPromise = new Promise((resolve, reject) => {
+		const timeout = setTimeout(() => reject(new Error("SW prepare timeout")), 5000);
+
+		channel.port1.onmessage = (event) => {
+			if (event.data?.type === "download-ready" && event.data.fileID === fileID) {
+				clearTimeout(timeout);
+				resolve();
 			}
-			
-			// Give it a moment to take control
-			await new Promise(r => setTimeout(r, 100));
-			
-			if (!navigator.serviceWorker.controller) {
-				throw new Error("Service Worker failed to become controller after ready state");
-			}
-		}
-
-		// Post stream to service worker for disk writing
-		// Transfer stream ownership to SW to minimize memory in main thread
-		navigator.serviceWorker.controller.postMessage({
-			type: "download",
-			fileID,
-			filename,
-			stream
-		}, [stream]);
-
-		console.log(`SW download initiated for ${filename} (${fileID})`);
-
-		// Wait for SW to receive the message before continuing
-		// This allows SW to start streaming to disk immediately
-		await new Promise(r => setTimeout(r, 50));
-
-		// Create iframe to trigger download (SW will handle the response)
-		const iframe = document.createElement("iframe");
-		iframe.style.display = "none";
-		iframe.src = `/snd/download/${fileID}`;
-		iframe.onload = () => {
-			// Iframe loaded, SW should be writing the file
-			// Schedule cleanup
-			setTimeout(() => {
-				try {
-					document.body.removeChild(iframe);
-				} catch (e) {
-					// Already removed or doesn't exist
-				}
-			}, 5000); // Cleanup after 5s (should be done by then)
 		};
-		iframe.onerror = () => {
-			console.error(`Download iframe error for ${filename}`);
-			cleanupDownload(fileID);
-		};
-		document.body.appendChild(iframe);
+	});
 
-		log("Saving file : ", filename);
+	// send message WITH reply port
+	sw.postMessage({
+		type: "prepare-download",
+		fileID,
+		filename
+	}, [channel.port2]);
 
-		// Send completion notification to host after download initiated
-		const host = meta?.uploadedBy;
-		if (host) {
-			sendToPeer(host, "download-complete", fileID);
-		}
+	await readyPromise;
 
-		// Yield to allow other operations (indexedDB, WebRTC) to complete
-		await new Promise(r => setTimeout(r, 100));
+	// safe navigation
+	const iframe = document.createElement("iframe");
+	iframe.style.display = "none";
+	iframe.src = `/snd/download/${fileID}`;
+	document.body.appendChild(iframe);
 
-		// Clean up and process next in queue
-		cleanupDownload(fileID);
-
-	} catch (err) {
-		console.error("Error initiating download for", filename, ":", err);
-		
-		// Log SW state for debugging
-		if (navigator.serviceWorker) {
-			console.error("SW controller:", navigator.serviceWorker.controller ? "exists" : "null");
-			navigator.serviceWorker.getRegistrations().then(regs => {
-				console.error("SW registrations count:", regs.length);
-				for (const reg of regs) {
-					console.error("SW states - active:", !!reg.active, "waiting:", !!reg.waiting, "installing:", !!reg.installing);
-				}
-			});
-		} else {
-			console.error("Service Worker API not available");
-		}
-		
-		cleanupDownload(fileID);
-	}
+	console.log("Download started safely:", filename);
 }
+
+
 
 // Centralized cleanup to prevent state inconsistencies
 function cleanupDownload(fileID) {
-	activeStreamers.delete(fileID);
+	// activeStreamers.delete(fileID);
 	downloadState.delete(fileID);
 	activeFileDownloads = Math.max(0, activeFileDownloads - 1);
 	

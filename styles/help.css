@@ -1,10 +1,10 @@
 body {
-    margin-left: 300px;
+    margin-left: 200px;
     padding: 0px;
     display: flexbox;
     position: relative;
     width: calc(100% - 100px);
-    max-width: calc(100% - 500px);
+    max-width: calc(100% - 200px);
     height: 100%;
     overflow: auto;
     background-color: var(--color-mid-grey);
@@ -22,10 +22,12 @@ h1 {
     color: var(--color-light-bg); 
 	}
 .h2 {
+	display:inline-block;
     margin-left: 15px;
 	font-size: 24px;
 	font-weight: 400;
         color: var(--color-light-bg); 
+		padding-top:40px;
 	}
 h3 {
 	font-size: 18px;
@@ -53,10 +55,11 @@ img {
     background-color: dodgerblue;
 }
 .pointItem {
+	margin: 10px 10px 10px 60px;
     position: relative;
-    margin-left: 60px;
+    /* margin-left: 60px; */
     width:80%;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
 }
 .navbarItem {
     left: 0px;
@@ -77,7 +80,7 @@ p {
     margin-bottom: 30px;
 }
 br {
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 hr {
     margin: 20px;
@@ -89,10 +92,10 @@ hr {
     top: 0;
     left: 0;
     margin: 0px;
-    padding-left: 80px;
+    padding-left: 0px;
     padding-top: 50px;
     padding-right: 20px;;
-    width: 250px;
+    width: 180px;
     height: 100%;
     z-index: 100;
     display: block;
@@ -101,3 +104,23 @@ hr {
     align-items: center;
     border-right:1px solid #333;
     }
+
+
+@media (max-width: 600px) {
+
+	#navbar {
+		display: none;
+	}
+	body {
+    margin-left: 50px;
+    padding: 0px;
+    display: flexbox;
+    position: relative;
+    width: calc(100% - 100px);
+    max-width: calc(100% - 50px);
+    height: 100%;
+    overflow: auto;
+    background-color: var(--color-mid-grey);
+    background-image: none;
+    }
+}

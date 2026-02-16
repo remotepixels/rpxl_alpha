@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+	<title>rpxl.app - help</title>
+
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<meta name="msapplication-TileColor" content="#2e2e2e" />
+	<meta name="theme-color" content="#2e2e2e" />
+	<meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja" />
+	<meta name="robots" content="index, follow" />
+	<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="icons/favicon.ico">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=tv" />
+	<link rel="stylesheet" href="/styles/styles.css">
+	<link rel="stylesheet" href="/styles/help.css">
+</head>
+
+<body>
+	<div id="navbar" class="navbar">
+		<a href="#create">Create a session</a>
+		<p></p>
+		<a href="#more">More settings</a>
+		<p></p>
+		<a href="#previous">Previous projects</a>
+		<p></p>
+		<a href="#main">Main interface</a>
+		<p></p>
+		<a href="#misc">Miscellaneous</a>
+	</div>
+
+	<div class="content">
+		&nbsp;
+		<h1>General Information</h1>
+		<p>The streaming page is only for desktop browsers, however streams can be viewed on most desktop and mobile devices using the chrome based browsers, firefox and safari. </p>
+		<p>This application can only create streams from sources available to your browser, such as a webcam, display capture device, or a virtual camera source such as NDI or OBS Virtual camera. </p>
+		<p>You must allow your browser to access your webcam and microphone to use this application, see your browser settings if you are prompted. </p>
+		<p><a href=https://www.google.com/search?client=safari&rls=en&q=browser+permissions+for+camera+and+microphone&ie=UTF-8&oe=UTF-8&channel=36 target="_new">For more information on browser permissions, click here.</a> </p>
+	</div>
+	<hr>
+	<div id="create" class="content">
+		<h1>Creating a session</h1>
+		<p><img src="../help/help_create.png" alt="Create Stream"> <br>
+			These are the minimal options for creating a session and broadcasting a stream. </p>
+		<span class="point">1</span>
+		<span class="h2">Project Name</span>
+		<p class="pointItem">You can name your sessions if you plan to re-use session setting, for multi day events.
+		</p>
+		<p class="pointItem">Clients will see the project name on the bottom right of their viewer. </p>
+		<span class="point">2</span>
+		<span class="h2">Resolution</span>
+		<p class="pointItem">The maximum resolution of the main stream that will be created. Although streams may start out smaller they will ramp up as connections stabilize over a few seconds. </p>
+		<p class="pointItem">Currently supported are full HD 1080P and 720P, this will attempt to limit the capture device to the selected resolution not just the encoded stream resolution. Resolution requests are "soft" so hardware may override. </p>
+		<p class="pointItem">A higher resolution will require a more powerful machine to encode, this is changeable later in the session. </p>
+		<span class="point">3</span>
+		<span class="h2">Quality</span>
+		<p class="pointItem">This is the maximum quality of the main stream that will be created, although streams may take some time to ramp-up to the full bitrate, as the connection is created, framerate is prioritised and bit rate is increased incrementaly. </p>
+		<p class="pointItem">Equivalent bitrate values are High : 16Mbps, Med : 8Mbps and Low : 4Mbps. </p>
+		<p class="pointItem">This is changeable later in the session. </p>
+		<span class="point">4</span>
+		<span class="h2">Video Source</span>
+		<p class="pointItem">This is the source of the video for the main stream you wish to publish. </p>
+		<p class="pointItem">Normally this would be a the video output of your editing or comping application looped back to a capture device, or a virtual camera source such as NDI or OBS Virtual camera.<br>
+			Note: RPXL does not support Blackmagic or AJA capture devices as they do not present themselves to the browser as a webcam source. </p>
+		<p class="pointItem">This is changeable later in the session. </p>
+		<span class="point">5</span>
+		<span class="h2">Audio Source</span>
+		<p class="pointItem">This is the source of the audio for the main stream you wish to publish. </p>
+		<p class="pointItem">Normally this would be a the audio output of your editing or comping application looped back to a capture device, or a virtual audio source such as NDI or OBS Virtual camera. </p>
+		<p class="pointItem">This is changeable later in the session. </p>
+		<span class="point">6</span>
+		<span class="h2">More setting button</span>
+		<p class="pointItem">Will display setting that allow you to add a microphone or camera to present yourself, see the following section for more information. </p>
+		<span class="point">7</span>
+		<span class="h2">Previous projects</span>
+		<p class="pointItem">Will show a list of previous sessions created on this machine, see the Previous projects section for more details. </p>
+		<span class="point">8</span>
+		<span class="h2">Video source preview</span>
+		<p class="pointItem">Preview of the video source you have selected, this may be cropped in the preview but the entire device will be captured and streamed. </p>
+		<span class="point">9</span>
+		<span class="h2">Audio source VU Meter</span>
+		<p class="pointItem">Live preview VU of the audio source you have selected. </p>
+		<span class="point">A</span>
+		<span class="h2">Start session</span>
+		<p class="pointItem">Will create a live session with the settings you have selected. </p>
+		<p class="pointItem">You can create a session without a video or audio source and add them later, pretty much all setting can be changed via the settings menu. </p>
+	</div>
+	<hr>
+	<div id="more" class="content">
+		<h1>More settings</h1>
+		<p><img src="../help/help_more.png" alt="More settings (user settings)"><br>
+		These are optional settings that allow you to add a microphone or camera to present yourself in a room.</p>
+		<span class="point">1</span>
+		<span class="h2">Name</span>
+		<p class="pointItem">Your name, this will be displayed in the room for other participants to see. If you do not enter a name it will default to "(host)" on the clients side. </p>
+		<span class="point">2</span>
+		<span class="h2">Camera</span>
+		<p class="pointItem">An optional camera source that will be used to present yourself in the room.<br>
+			This is separate from the main stream and can be turned off or changed during the session. </p>
+		<span class="point">3</span>
+		<span class="h2">Microphone</span>
+		<p class="pointItem">An optional microphone source that will be used to talk to others in the room.<br>
+			This is separate from the main stream and can be muted or changed during the session. </p>
+		<span class="point">4</span>
+		<span class="h2">Camera preview</span>
+		<p class="pointItem">Preview of the camera you have selected. </p>
+		<span class="point">5</span>
+		<span class="h2">Microphone VU Meter</span>
+		<p class="pointItem">VU Meter of the currently selected microphone. </p>
+	</div>
+	<hr>
+	<div id="previous" class="content">
+		<h1>Previous projects</h1>
+		<p><img src="../help/help_history.png" alt="Previous projects"><br>
+			A list of the last projects created on the device. </p>
+		<p>Selecting any one will re-load the settings for quality and resolution, the video / audio capture devices, user name, camera and microphone. </p>
+		<p>IMPORTANT! - If you do load a previous setting, the session ID will also be re-used, what this means is that any user that had access to the previous session will have access, any invite links sent out will still be valid and live. You can use this if you have left the session and need to re-join or re-start without having to send new invites.</p>
+		<p>Settings loaded are the last saved settings of the session. </p>
+	</div>
+	<hr>
+	<div id="main" class="content">
+		<h1>Main Interface</h1>
+		<p><img src="../help/help_interface.png" alt="Main interface"><br>
+		The main interface is divided into two main sections, users are listed on the left and the main stream is to the right.</p>
+		<span class="point">1</span>
+		<span class="h2">Share menu (host only)</span>
+		<p class="pointItem">Allows you to share a link to the session with your clients, the link is copied to you clipboard and can be pasted into any messaging app.</p>
+		<p class="pointItem">There are 2 options available. </p>
+		<p class="pointItem">A main share link, that will enable full comms with clients. Clients will be prompted to enter a username and optionaly to select a microphone and camera. They will be able to markup the main stream and chat with you within the application.</p>
+		<p class="pointItem">A quick share link, that will allow clients to view the main stream without prompting them for microphone, camera or username. This is useful for clients who just want to watch the stream without interacting, or if you already have them on another communication app and want to quickly share with them. There is almost no interface but clients can still zoom in and see markups.</p>
+		<span class="point">2</span>
+		<span class="h2">Connected users</span>
+		<p class="pointItem">List of connected users. Hover over to show user names (collapsed by default).<br> You will appear in this list as "(host)" if you have not added your name in the more settings section. If you have selected a Camera source, you will appear in the circle, otherwise a placeholder image will appear.<br>
+		<p class="pointItem">The Host is always first in the list, followed by the local user and below the other guests.<br>
+			Guests with a white outline have a microphone and it is on, red, their microphone is muted and those without an outline have selected not to connect a microphone.<br> 
+			Users that appear as (QS)_XXXXXXX have joined via the quick share option and have not connected with a microphone or camera although they will still hear the main stream and the room. </p>
+		<span class="point">3</span>
+		<span class="h2">Settings menu</span>
+		<p class="pointItem">Allows you to change any of the settings including the project name, resolution, quality, video and audio source of the main stream.<br>
+			See the Creating a stream section for more details.</p>
+		<p class="pointItem">Also allows you to change your username, camera and microphone settings<br>
+			See the More settings section for more details.</p>
+		<span class="point">4</span>
+		<span class="h2">User device quick mute</span>
+		<p class="pointItem">Allows you to mute your microphone or camera with one click.<br>
+			Guests will still hear the main stream and be able to chat amongst themselves.</p>
+		<p class="pointItem">Note : this option will be disabled if you have not selected a microphone in the more settings section.</p>
+		<span class="point">5</span>
+		<span class="h2">Main stream "Blind" and mute controls (host only)</span>
+		<p class="pointItem">If you have selected a main video and audio source, special icons will appear next to the markup controls that allow you to "blind" the main stream (turn it off for users) and to mute the main stream for all users, this is useful if you need to try something or want to playback mute. These controls do not affect the user audio or video streams. </p>
+		<p class="pointItem">Note : the Blind and mute buttons will only appear if you have selected a video and audio device.</p>
+		<span class="point">6</span>
+		<span class="h2">Markup</span>
+		<p class="pointItem">Markups allow you to draw on the main stream for guests to see.</p>
+		<p class="pointItem">Tools are, the Marker, to draw on the main stream. A pallet to select different colours for the marker and an eraser that will clear the canvas.<br>
+			The cursor will change to a crosshair when over the main stream allowing you to draw and annotate.</p>
+		<p class="pointItem">Drawings by guests will be also be visible to all.<br>
+			Drawings are limited to the size and aspect of the main stream and are not saved or recorded to the stream.
+		</p>
+		<p class="pointItem">A user can erase only their own markups but the host can erase all markups.</p>
+		<p class="pointItem">These tools will only appear if you have selected a video source, if you change sources the
+			markups will remain and resize to the new source.</p>
+		<p class="pointItem">Any guests that join late will see the latest markups.</p>
+		<span class="point">7</span>
+		<span class="h2">Main Stream local volume</span>
+		<p class="pointItem">Adjusts the local volume of the main stream, it does not affect any other users, or user volume, only local the local volume of the main stream.</p>
+		<p class="pointItem">This control will only appear if you have selected an audio source.</p>
+		<span class="point">8</span>
+		<span class="h2">Quit menu (host only)</span>
+		<p class="pointItem">Will end the stream and disconnect you from the session.</p>
+		<p class="pointItem"> Note : clients will not be removed from the session and can continue to chat. The session will continue to exist until the last user disconnects.<br>
+			To reconnect to session if you have quit prematurely you will need to use the previous projects drop down.
+		</p>
+	</div>
+	<hr>
+	<div id="misc" class="content">
+		<h1>Misc</h1>
+		<p>Not having a central server introduces some benefits and some gotcha's that bear thinking about when using the application.</p>
+		<p>As all Guests are connecting directly to your machine and not a central server we recommend using wired ethernet. Wifi has inherit latency issues which will disrupt the stream. If you are having issues with sync or dropped frames try this first.</p>
+		<p>Your host PC must be able to encode and transmit the video in real time while you are working (although this can be offloaded to another machine), a modern CPU & GPU is essential. This app has been tested on modern Macs and although RAM is not an issue the more cores, the better.</p>
+		<p>Every extra guest that connects will increase the load on the hosts workstation, with a modern system and GPU, rooms of about a dozen people should be doable.</p>
+		<p>Guests connect at a very low resolution and very little bandwidth, typically under 80kbps per user, the majority of your bandwidth is prioritised to the main stream.</p>
+		<p>Guests are also connected directly peer to peer to one another so you do not need to process their audio or video locally to retransmit.</p>
+	</div>
+	<hr>
+</body>
+
+</html>
