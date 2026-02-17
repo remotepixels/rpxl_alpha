@@ -1,5 +1,5 @@
 //TRANSIMITER FILES (HOST)
-async function respondToFileRequest(fileID, targetUUID) {
+async function respondToFileRequest(fileID, targetUUID, initialWindow = 128) {
 	sending = false;
 
 	const meta = files[fileID];
@@ -13,11 +13,16 @@ async function respondToFileRequest(fileID, targetUUID) {
 		clearTimeout(meta.purgeTimer);
 		meta.purgeTimer = null;
 		log("Reset purge timer due to new download:", meta.name);
+	} //else {
+		await produceChunks(fileID, targetUUID);
+//	}
+
+	const t = transfers.get(`${fileID}:${targetUUID}`);
+	if (t) {
+		t.credit += initialWindow;
+		console.log("Initial window:", initialWindow, "for", fileID);
 	}
 
-	produceChunks(fileID, targetUUID)
-	refillSendCache(fileID, targetUUID);
-	sendRAWData();
 }
 
 //RECIEVED FILE DOWNLOAD COMPLETE MESSAGE FROM GUEST, SCHEDULE CLEAR FILE FROM CACHE DB
@@ -53,75 +58,107 @@ let sending = false;
 let swDownloadBusy = false; //used by service worker to serialize
 const swDownloadQueue = [];
 const BATCH = 6; // chunks per burst to write to SW
+let pumpWaiting = true;
 
-function sendRAWData() {
+function sendData() {
 	if (sending) return;
 	sending = true;
-
+	//console.log("send raw data sending");
 	const pump = async () => {
 		try {
 			const BATCH_SIZE = 6; // Send multiple chunks per cycle for buffer efficiency
-			const REFILL_THRESHOLD = Math.max(MEMORY_CACHE / 3, 8); // Refill when cache drops below threshold
+			const REFILL_THRESHOLD = Math.max(MEMORY_CACHE / 2, 8); // Refill when cache drops below threshold
 			let bytesSentInBatch = 0;
 			let chunksSentInBatch = 0;
 
-			for (; ;) {
+			for (;;) {
+
+				let sentSomething = false;
+
 				// Empty cache - refill all transfers
 				if (sendCache.size === 0) {
 					sending = false;
-
-					// Refill all pending transfers in parallel for better throughput
-					const refillPromises = Array.from(transfers.keys()).map(key => {
-						const [fileID, targetUUID] = key.split(":");
-						return refillSendCache(fileID, targetUUID);
-					});
-					await Promise.all(refillPromises);
-
-					if (sendCache.size > 0) {
-						await pump();
-					}
+					
+					//pumpWaiting = true;
+					console.log("Empty cache - refill all transfers");
 					return;
 				}
 
-				// Batch send chunks to maximize throughput
 				let bufferFull = false;
+
 				for (let batch = 0; batch < BATCH_SIZE && sendCache.size > 0; batch++) {
-					const [key, chunk] = [...sendCache.entries()][0]; // Get first item
+
+					const [key, chunk] = sendCache.entries().next().value;
 					const [fileID, targetUUID, part] = key.split(":");
+
+					const t = transfers.get(`${fileID}:${targetUUID}`);
+					if (!t || t.cancelled) {
+						sendCache.delete(key);
+						console.log("cancel sending");
+						continue;
+					}
+
+					// ---- CREDIT GATE ----
+					if (t.credit <= 0) {
+						console.log("no credit");
+						continue;
+					}
 
 					const conns = vdo.connections.get(targetUUID);
 					const dc = conns?.publisher?.dataChannel || conns?.viewer?.dataChannel;
 					if (!dc) {
 						sending = false;
+						console.log("no dc");
 						return;
 					}
 
-					// Check buffer before sending
+					// ---- NETWORK BACKPRESSURE ----
 					if (dc.bufferedAmount > MAX_SEND_BUFFER) {
 						dc.bufferedAmountLowThreshold = MAX_SEND_BUFFER / 4;
-						dc.onbufferedamountlow = () => {
-							pump().catch(err => console.error("Error resuming pump:", err));
-						};
+						dc.onbufferedamountlow = () => sendData();
 						bufferFull = true;
-						break;
+						console.log("dc.buffer full");
+						await new Promise(r => setTimeout(r, 1));
 					}
+// const buffer = dc.bufferedAmount;
+
+// // Hard safety cap
+// if (buffer > MAX_SEND_BUFFER) {
+//     await new Promise(r => setTimeout(r, 4));
+//     continue;
+// }
+
+// // Soft pacing zone
+// if (buffer > MAX_SEND_BUFFER * 0.5) {
+//     await new Promise(r => setTimeout(r, 1));
+// }
 
 					dc.send(chunk);
-					bytesSentInBatch += chunk.byteLength;
-					chunksSentInBatch++;
+
+					t.credit--;
+					t.inflight.add(Number(part));
 					sendCache.delete(key);
 
-					const t = transfers.get(`${fileID}:${targetUUID}`);
-					if (t) t.inflight.add(Number(part));
+					bytesSentInBatch += chunk.byteLength;
+					chunksSentInBatch++;
+					sentSomething = true;
 				}
 
-				// Stop if buffer full
 				if (bufferFull) {
 					sending = false;
+					console.log("buffer full");
 					return;
 				}
 
-				// Refill cache proactively to keep buffer fuller
+				// ---- NOTHING COULD BE SENT → WAIT FOR ACK ----
+				if (!sentSomething) {
+					sending = false;
+					pumpWaiting = true;
+					console.log("waiting for ack");
+					return;
+				}
+
+				// proactive refill
 				if (sendCache.size <= REFILL_THRESHOLD) {
 					const refillPromises = Array.from(transfers.keys()).map(key => {
 						const [fileID, targetUUID] = key.split(":");
@@ -129,17 +166,12 @@ function sendRAWData() {
 					});
 					await Promise.all(refillPromises);
 				}
+// if (sendCache.size + t.inflight.size < t.credit)
+//     await refillSendCache(fileID, targetUUID);
 
-				// Yield to main thread after batch
 				await Promise.resolve();
-
-				// Log throughput metrics periodically
-				if (chunksSentInBatch >= BATCH_SIZE) {
-					console.debug(`Pump: sent ${chunksSentInBatch} chunks (${(bytesSentInBatch / 1024).toFixed(1)} KB), cache size: ${sendCache.size}`);
-					chunksSentInBatch = 0;
-					bytesSentInBatch = 0;
-				}
 			}
+
 		} catch (err) {
 			console.error("Fatal error in sendRAWData pump:", err);
 			sending = false;
@@ -150,25 +182,40 @@ function sendRAWData() {
 	pump().catch(err => console.error("Uncaught error in pump:", err));
 }
 
+function getQueuedForTransfer(fileID, targetUUID) {
+	let count = 0;
+	for (const key of sendCache.keys()) {
+		if (key.startsWith(fileID + ":" + targetUUID + ":"))
+			count++;
+	}
+	return count;
+}
+
 async function refillSendCache(fileID, targetUUID) {
 	const key = `${fileID}:${targetUUID}`;
 	const t = transfers.get(key);
-	if (!t || t.refilling) return;
+	if (!t || t.refilling || t.cancelled) return;
 
-	const available = MEMORY_CACHE - sendCache.size;
-	if (available <= 0) return;
+	// How many chunks receiver allows us to have in-flight total
+	const queued = getQueuedForTransfer(fileID, targetUUID);
+	const allowed = t.credit - (t.inflight.size + queued);
+
+	if (allowed <= 0) return;
+
+	// Also respect memory safety cap
+	const memoryRoom = MEMORY_CACHE - sendCache.size;
+	const toPrepare = Math.min(allowed, memoryRoom);
+	if (toPrepare <= 0) return;
 
 	t.refilling = true;
-	let loaded = 0;
 
 	try {
-		const cacheKey = (p) => `${fileID}:${targetUUID}:${p}`;
-
-		const partsToFetch = [];
+		let loaded = 0;
 
 		while (
-			partsToFetch.length < available &&
-			t.sendCursor < t.totalChunks
+			loaded < toPrepare &&
+			t.sendCursor < t.totalChunks &&
+			!t.cancelled
 		) {
 			const part = t.sendCursor;
 
@@ -179,39 +226,17 @@ async function refillSendCache(fileID, targetUUID) {
 
 			let chunk = hotChunks.get(fileID)?.get(part);
 			if (!chunk) chunk = await getTxChunk(fileID, part);
-
 			if (!chunk) break;
 
-			partsToFetch.push(part);
-			t.sendCursor++; // advance ONLY after confirmed existence
+			sendCache.set(`${fileID}:${targetUUID}:${part}`, chunk);
+
+			t.sendCursor++;
+			loaded++;
 		}
 
-		if (!partsToFetch.length) return;
-
-		// Load chunks up to available space
-		for (const part of partsToFetch) {
-			if (loaded >= available || sendCache.size >= MEMORY_CACHE) break;
-
-			try {
-
-				const chunk =
-					hotChunks.get(fileID)?.get(part) ||
-					await getTxChunk(fileID, part);
-
-				const cacheKey = `${fileID}:${targetUUID}:${part}`;
-				sendCache.set(cacheKey, chunk);
-
-
-				loaded++;
-			} catch (err) {
-				console.error(`Failed to load chunk ${part} for ${fileID}:`, err);
-			}
-		}
-
-		// Log once after batch loading and trigger pump only once
 		if (loaded > 0) {
-			console.log(`REFILL CACHE: loaded ${loaded} chunks for ${fileID}`);
-			sendRAWData();
+			console.debug(`Prepared ${loaded} chunks (credit ${t.credit}) for ${fileID}`);
+			sendData();
 		}
 
 	} finally {
@@ -229,34 +254,54 @@ async function handleAckChunks(payload, uuid) {
 	const t = transfers.get(key);
 	if (!t) return;
 
-	let ackedCount = 0;
+	let released = 0;
+
 	for (const p of payload.parts) {
 		const partNum = Number(p);
-		// Only delete from inflight (should already be removed from pending when sent)
-		if (t.inflight.delete(partNum)) {
-			ackedCount++;
-		}
-		hotChunks.get(fileID)?.delete(partNum);
 
+		// Only count real in-flight removals
+		if (t.inflight.delete(partNum)) {
+			released++;
+		}
+
+		// cleanup caches
+		hotChunks.get(fileID)?.delete(partNum);
 		sendCache.delete(`${fileID}:${uuid}:${partNum}`);
 	}
 
+	// ---- FLOW CONTROL ----
+	if (released > 0) {
+		t.credit += released;
+	}
+
+	// ---- CANCEL ----
 	if (payload.cancelled) {
 		t.cancelled = true;
+
+		// Hard stop: remove anything queued
+		for (const key of sendCache.keys()) {
+			if (key.startsWith(fileID + ":" + uuid + ":"))
+				sendCache.delete(key);
+		}
+
 		transfers.delete(key);
 		log("Transfer cancelled:", files[fileID]?.name || fileID);
 		return;
 	}
 
+	// ---- COMPLETE ----
 	if (t.sendCursor >= t.totalChunks && t.inflight.size === 0) {
 		transfers.delete(key);
 		log("Transfer completed:", files[fileID]?.name || fileID);
+		return;
 	}
 
+	// ---- CONTINUE SENDING ----
 	await refillSendCache(fileID, uuid);
-	sendRAWData();
 
-	console.debug(`ACK for ${fileID}: acked ${ackedCount} chunks, inflight: ${t.inflight.size}, pending: ${t.pending.size}`);
+	console.debug(
+		`ACK ${fileID} : +${released} credit :${t.credit}, inflight :${t.inflight.size}`
+	);
 }
 
 async function produceChunks(fileID, targetUUID, startIndex = 0) {
@@ -273,13 +318,16 @@ async function produceChunks(fileID, targetUUID, startIndex = 0) {
 			fileID,
 			targetUUID,
 			totalChunks,
+			announced: false,
 			sendCursor: 0,
+			credit:0,
 			pending: new Set(),
 			inflight: new Set(),
 			maxWritten: -1,
 			nextChunk: startIndex
 		};
 		transfers.set(transferKey, transfer);
+		log(`Splitting ${file.name} into ${totalChunks} parts`);
 	}
 
 	const file = files[fileID].file;
@@ -289,7 +337,7 @@ async function produceChunks(fileID, targetUUID, startIndex = 0) {
 	files[fileID].activeDownloads.add(targetUUID);
 
 	const CHUNKS_PER_SLICE = 64;
-	const YIELD_INTERVAL = 16; // Yield to main thread every N chunks
+	const YIELD_INTERVAL = 32; // Yield to main thread every N chunks
 	let processed = 0;
 	let chunksCached = 0;
 	let newChunksProduced = 0;
@@ -349,16 +397,7 @@ async function produceChunks(fileID, targetUUID, startIndex = 0) {
 			newChunksProduced++;
 		}
 
-		// Log progress after batch processing
-		if (processed > 0) {
-			const logMsg = chunksCached > 0
-				? `File: ${file.name} already cached (${chunksCached}/${processed} chunks)`
-				: `Splitting ${file.name} into ${totalChunks} parts (produced ${newChunksProduced} chunks)`;
-			log(logMsg);
-		}
-
 		await refillSendCache(fileID, targetUUID);
-		sendRAWData();
 
 		// Continue with remaining chunks asynchronously
 		const next = transfer.nextChunk;

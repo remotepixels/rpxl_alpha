@@ -11,7 +11,7 @@
 			if (event.data?.type === "download-finished") {
 				console.log("SW download finished:", event.data.fileID);
 				swDownloadBusy = false;
-				
+				sendToPeer(event.data.uploadedBy, "download-complete", event.data.fileID)
 				processSWQueue(); 
 				markDownloadCompleted(event.data.fileID);
 				purgeRxChunks(event.data.fileID).catch(err => 

@@ -848,7 +848,7 @@ function markDownloadCompleted(id) {
 		btn.onclick = () => {
 			btn.innerHTML = btn.dataset.originalIcon;
 			// btn.onclick = () => handleFileDownload(id);     // restore original handler
-			btn.onclick = () => requestDownload(id);     // restore original handler
+			btn.onclick = () => restoreDownloadIcon(id);     // restore original handler
 		};
 	}
 

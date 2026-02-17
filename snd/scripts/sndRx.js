@@ -89,7 +89,7 @@ async function handleIncomingChunk(buffer) {
 	if (file.ackTimerId) clearTimeout(file.ackTimerId);
 	
 	const ACK_BATCH_SIZE = 32; // ACK up to 32 parts at once
-	const ACK_BATCH_DELAY = 50; // Wait up to 50ms to batch ACKs
+	const ACK_BATCH_DELAY = 5; // Wait up to 50ms to batch ACKs
 	
 	if (file.pendingAckParts.length >= ACK_BATCH_SIZE) {
 		// Send immediately if batch full
@@ -117,6 +117,24 @@ async function handleIncomingChunk(buffer) {
 }
 
 // Batch and send ACKs to reduce network overhead
+// function sendAckBatch(fileID) {
+// 	const file = incomingFiles.get(fileID);
+// 	if (!file || !file.pendingAckParts.length) return;
+
+// 	if (file.ackTimerId) {
+// 		clearTimeout(file.ackTimerId);
+// 		file.ackTimerId = null;
+// 	}
+
+// 	const parts = file.pendingAckParts.splice(0, 64); // Take up to 64 parts
+	
+// 	sendToPeer(files[fileID]?.uploadedBy, "ACK-chunks", {
+// 		fileID,
+// 		parts
+// 	});
+	
+// 	console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
+// }
 function sendAckBatch(fileID) {
 	const file = incomingFiles.get(fileID);
 	if (!file || !file.pendingAckParts.length) return;
@@ -126,13 +144,13 @@ function sendAckBatch(fileID) {
 		file.ackTimerId = null;
 	}
 
-	const parts = file.pendingAckParts.splice(0, 64); // Take up to 64 parts
-	
+	const parts = file.pendingAckParts.splice(0, 64);
+
 	sendToPeer(files[fileID]?.uploadedBy, "ACK-chunks", {
 		fileID,
 		parts
 	});
-	
+
 	console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
 }
 
@@ -218,7 +236,7 @@ async function flushRxChunkBatch(fileID) {
 
 async function purgeRxChunks(fileID) {
 	const meta = files[fileID];
-	log("Purging cached files for", meta?.name || fileID);
+	log("Download complete, purging cached files for", meta?.name || fileID);
 
 	const db = await openRxDB();
 	const tx = db.transaction(RX_STORE, "readwrite");
@@ -369,7 +387,12 @@ async function startSWDownload(fileID) {
 	const filename = files[fileID]?.name || fileID;
 
 	const sw = navigator.serviceWorker.controller;
-	if (!sw) throw new Error("No SW controller");
+
+	if (!sw) {
+		console.warn("SW not ready yet, retrying…");
+		await new Promise(r => setTimeout(r, 100));
+		return startSWDownload(fileID);
+	}
 
 	const channel = new MessageChannel();
 

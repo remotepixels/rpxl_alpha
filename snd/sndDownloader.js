@@ -3,6 +3,7 @@ self.addEventListener('install', event => {
 	console.log("Installing service SW");
 });
 
+
 self.addEventListener('activate', event => {
 	event.waitUntil((async () => {
 		await self.clients.claim(); // take control of clients immediately
@@ -72,13 +73,13 @@ self.addEventListener("message", event => {
 			completed: false
 		});
 
-const port = event.ports[0];
-if (port) {
-	port.postMessage({
-		type: "download-ready",
-		fileID
-	});
-}
+		const port = event.ports[0];
+		if (port) {
+			port.postMessage({
+				type: "download-ready",
+				fileID
+			});
+		}
 
 	}
 });
@@ -186,17 +187,17 @@ function notifyError(fileID, filename, err) {
 	});
 }
 
-self.addEventListener("message", event => {
-	const { type, fileID, filename } = event.data || {};
+// self.addEventListener("message", event => {
+// 	const { type, fileID, filename } = event.data || {};
 
-	if (type === "prepare-download") {
-		console.log("SW: prepared", fileID);
+// 	if (type === "prepare-download") {
+// 		console.log("SW: prepared", fileID);
 
-		downloads.set(fileID, {
-			filename,
-			activeReaders: 0,
-			completed: false
-		});
+// 		downloads.set(fileID, {
+// 			filename,
+// 			activeReaders: 0,
+// 			completed: false
+// 		});
 
-	}
-});
+// 	}
+// });
