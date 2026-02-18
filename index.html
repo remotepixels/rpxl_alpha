@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="-1"/>
+    <meta name="msapplication-TileColor" content="#2e2e2e"/>
+    <meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+    <meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="icons/favicon.ico">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
+
+    <link rel="stylesheet" href="/styles/styles.css">
+	<link rel="stylesheet" href="/styles/clientstyle.css">
+    <link rel="stylesheet" href="/styles/mobilestyle.css">
+
+    <title>alpha.rpxl.app v3.5 (beta)</title>
+</head>
+
+<body id="body">
+    <div id="shmeg" class="shmeg">
+		<div style="position: fixed; top :0px; left:0px; width:100%; height:40px; background-color: black; z-index: 2; opacity: 1; justify-content: center;">
+			<a href="changelog.html" target="_new">
+				<span style="color: white; position: absolute; top : 10px; height:30px; margin-left:50%; transform: translateX(-50%); width:260px;">Updated 2026-02-13 : See more</span>	
+			</a>
+		</div>
+        <div class="siteHeader" >
+            <div class="text">
+                <!-- <img src="icons/android-chrome-192x192.png" class="siteMainIcon"/> -->
+                <div class="siteTitle">RPXL</div>
+                <p></p>
+                <div class="siteSubTitle">Simple,<br>secure,<br>serverless,<br>collaboration.</div>
+            </div>
+        </div>
+
+        <div class="textBackground">
+            <div class="text">
+                <p>&nbsp;</p>
+                <h4>Stream high quality video from your browser.</h4>
+                <p>Using the incredible open source <a href="https://vdo.ninja">vdo.ninja</a> software created by <a href="https://github.com/steveseguin/vdo.ninja">Steve Seguin</a>.</p>
+				<p>RPXL is an optimised and simplified front end, focused for realtime, editorial approvals.</p>
+                <p>Using a peer to peer model and low latency webRTC for instant, high quality streaming from anywhere, to anywhere.</p>
+				<p>RPXL puts your work front and centre.</p>
+                <p><img src="images/interface.jpg" width="750" height="453" style="border-radius: 10px; overflow: hidden; position: relative; display: inline-block;"></p>
+				<p>&nbsp;</p>
+
+				<!-- <p>
+				<img src="images/join.jpg" width="300" height="420" style="border-radius: 10px; overflow: hidden; margin-left:50px; float:right">
+                <h4>Need to share?</h4>
+                <p>Need to share a file with your peers?</p>
+				<p>No problem, simply drag a file or folder to the browser and it is instantly available to all connected peers.</p>
+                <p>Even better, peers can share files back to you or one another in the same way.</p>
+                <p>Files are never uploaded to a server, RPXL creates a link that allows peers to download, but not modify any files or folders you shared.</p>
+                <p>And being serverless, the moment you disconnect, all shares disappear.</p>
+				</p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p> -->
+
+				<h4>Open source and free, really</h4>
+				<p>No sign-ups, no downloads, no watermarks, no time limits.</p>
+                <p>Want to stream your timeline for to a remote client for quick feedback and approval? Go ahead.</p>
+				<p>&nbsp;</p>
+                <a href="https://alpha.rpxl.app/stream" target="_self" style="text-decoration: none"><button class="botton blue wider">Create a live session</button></a>
+                <p>&nbsp;</p>
+                <p>Clients can join via desktop or mobile to view the stream and if they choose to share their microphone or camera they can communicate with others in the room.</p>
+				<p>Already chatting to someone on the phone and need quick feedback? Use the Quick share link feature, users will be connected directly to the main stream, no login prompts, no device selection.</p>
+                <p>Nothing to download, nothing to update.</p>
+				<p>Want to check out the source? It will give you nightmares but if you feel like a good chuckle... <a href="https://github.com/remotepixels/rpxl" target="_new">view on Github</a></p>
+				<p></p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+
+                <!-- <p>
+				<img src="images/join.jpg" width="300" height="220" style="border-radius: 10px; overflow: hidden; margin-right:50px; float:left">
+                <h4>That one... <br>No the other one..</h4>
+                <p>Sometimes it's easier to show than tell.</p>
+                <p>Simple markup tools allow you to highlight items live on video streams to get your point across.</p>
+				</p>
+                <p>&nbsp;</p>
+				<p>&nbsp;</p> -->
+
+				<p>
+				<img src="images/secure.jpg" width="300" height="520" style="border-radius: 10px; overflow: hidden; margin-left:50px; float:right">
+                <h4>Secure? Yip</h4>
+				<p>WebRTC was designed to be secure from the start, all transfers are encrypted using DTLS (Datagram Transport Layer Security) and SRTP (Secure Real-time Transport Protocol)</p>
+				<p>Once the handshake server has negotiated the WebRTC connection no further data is sent through it, no messages, no data, not even state management.</p>
+				<p>Everything is handled, peer to peer. Which means we don't see your data, we don't record your data and we don't use your data to train AI.</p>
+				<p>All this is handled invisibly and securely behind the scenes, meaning your data is encrypted and stays encrypted.</p>
+				</p>
+              	<p>&nbsp;</p>
+				<p>&nbsp;</p>
+
+                <h4>So what's the catch?</h4>
+                <p>Because all encoding is handled locally, the more peers connect, the greater the load on your machine, typically about ten clients should be fine.</p>
+                <p>We also strongly recommend using a wired ethernet connection as wifi has some inherit latency issues that can cause delays and dropped frames.</p>
+                <p>In order to capture your video stream from your edit package you will either need a capture device, or alternatively use virtual camera software such as OBS or NDI tools.</p>
+                <p>We prioritised speed and ease of use over absolute colour accuracy and audio sync, but it should still be pretty darn good.</p>
+				<p>This tool is not meant to replace file sharing services but offer a higher quality alternative when presenting to smaller groups than current screensharing apps.</p>
+                <p>If you've read this far and still want to give it a go, use the button bellow to get started.</p>
+                <p>&nbsp;</p>
+                <a href="https://alpha.rpxl.app/stream" target="_self" style="text-decoration: none"><button class="botton blue wider">Create a live session</button></a>
+                <p>&nbsp;</p>
+                <hr>
+                <p>&nbsp;</p>
+                <h5>
+                </h5>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="text">
+                <p>&nbsp;</p>
+                Links 
+                <p></p>
+                <a href="https://alpha.rpxl.app/stream/help.html">Creating a stream</a>
+                <p></p>
+                <a href="https://vdo.ninja">vdo.ninja website</a><br>
+                <a href="https://https://docs.vdo.ninja">vdo.ninja documentation</a><br>
+                <a href="https://github.com/steveseguin/vdo.ninja">vdo.ninja github</a>
+                <p></p>
+                <a href="https://discord.com/invite/T4xpQVv">Steve Seguin discord</a>	
+                <p></p>
+                <a href="https://ndi.video/tools/">ndi tools</a><br>
+                <a href="https://obsproject.com">obs studio</a><br>
+                <p style="text-align: right;"><a href="#top">back to top</a></p>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="peerList hidden" id="peerList">
+		<div class="peer">
+			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
+			<span class="peerLabel" id="userLabel"></span>
+			<!-- <span class="peerControl"> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
+			<!-- </span> -->
+		</div>
+    </div>
+    <div class="mainViewer hidden" id="mainViewer">
+   	 	<div class="mainZoom" id="zoomdiv">
+		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+       		<canvas id="markup" class="markup"></canvas>
+    	</div>
+	</div>
+
+    <!--Main interface-->
+    <div id="mainWindow" class="hidden">
+        <div id="bottomMenu" class="toolbar bottom">
+            <div class="toolbar-section left">
+                <div class="toolset">
+                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+                </div>
+            </div>
+            <div class="toolbar-section center">
+                <div class="toolset" id="toolAnnotations">
+                    <button class="tool disable hidden" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                </div>
+
+            </div>
+            <div class="toolbar-section right">
+                <div class="toolset">
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="copyCreditGrad"></div> -->
+        <div class="copyText toolbar-section right" id="statusLeft"></div>
+		<!-- <div class="copyText toolbar-section right" id="statusRight"></div> -->
+    </div>
+
+    <div class="popupBG hidden" id="popupBG"></div>
+
+    <!--enter username, select camera and microphone dialog-->
+    <dialog id="settingsDialog" class="toolpopup top middle hidden">
+		<div id="helpIcon" style="position: absolute; top:10px; right:10px; z-index: 10;">
+			<a href="/help.html" target="_new"><span class="material-symbols-outlined">help</span></a>
+		</div>
+        <div class="tableClient">
+            <div id="camPreview" style="grid-column: 1 / span 2;">
+                <video id="camera" class="camera " autoplay playsinline poster=""></video>
+                <span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span></span>
+            </div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">account_circle</span></div>
+            <div><input type="text" maxlength="25" class="textinput" id="name" placeholder="Name (Required)" contenteditable="true" autocomplete="off"></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">mic</span></div><div class="custom-select"><select id="microphoneSource" contenteditable="true"><option value="">None</option></select></div>
+            <div><span class="material-symbols-outlined" style="justify-content: center; align-items: center;">photo_camera</span></div><div class="custom-select"><select id="cameraSource" contenteditable="true"><option value="">None</option></select></div>
+            <div style="grid-column: 1 / span 2; height:5px;"></div>
+            <div style="grid-column: 1 / span 2;"><button id="checkLogin" class="botton blue wider">Join</button></div>
+        </div>
+        <!-- duplicate elements not used (so use same logic in stream and client) -->
+        <div class="hidden">Video source</div><div class="custom-select hidden"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+        <div class="hidden">Audio source</div><div class="custom-select hidden"><select contenteditable="true" id="audioSource"><option value="">None</option></select> </div>
+        <div style="grid-column: 1 / span 2 hidden" id="settingsDialogVideoAudioPreview"><video id="video" class="videosource hidden" autoplay playsinline poster="" muted></video><span id="meterGraph" class="meterGraph hidden"><span id="audiometer" class="meter hiddden"></span></div> 
+    </dialog>
+
+    <!----- popup color menu ------>
+    <dialog id="paletteDialog" class="toolpopup bottom middle hidden">
+            <div><span class="colorpot" role="button" value="black" aria-expanded="false" style="background-color: black;"></span>
+				<span class="colorpot selectedcolorpot" role="button" value="white" aria-expanded="true" style="background-color: white;"></span>
+				<span class="colorpot" role="button" value="cyan" aria-expanded="false" style="background-color: cyan;"></span>
+				<span class="colorpot" role="button" value="magenta" aria-expanded="false" style="background-color: magenta;"></span>
+				<span class="colorpot" role="button" value="yellow" aria-expanded="false" style="background-color: yellow;"></span>
+			</div>
+    </dialog>
+
+    <!----- Permissions ------>
+    <div id="permissionsCheck">
+        <dialog id="permissionsDialogClient" class="top middle hidden " style="top:55px;">
+            <span class="material-symbols-outlined" style="font-size:125px">error</span><br>
+            <h2>Access to your microphone<br>or camera is blocked.</h2>
+            <p>If you choose to join without a<br>microphone or camera other<br>guests will not be able to<br>hear or see you.</p>
+            <p>For help on how to allow<br>access, <a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new">click here.</a></p>
+            <p>If you wish to join anyway</p>
+            <button id="permissionIgnore" class="botton blue Wider" autofocus> Join anyway </button>
+            <!-- <h5>Mic and camera can be muted.</h4> -->
+        </dialog>
+    </div>
+	<!--warning banners and notifications-->
+	<div id="bannerStack" aria-live="polite"></div>
+
+	<template id="bannerTemplate">
+   		<div class="banner">
+			<span>	</span>
+    	</div>
+	</template>
+    <!----- popup stream zoomed popup------>
+    <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+
+</body>
+</html>
+
+<script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/storage.js"></script>
+<script src="/scripts/global.js"></script>
+<script src="/scripts/initdevice.js"></script>
+<script src="/scripts/initstreams.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/listeners.js"></script>
+<script src="/scripts/interface.js"></script>
+<script src="/scripts/markup.js"></script>
+
+<script lang="javascript">
+sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+
+const APP_NS = 'client-Alpha-RPXL';
+const devURL = window.location.origin;
+let isVDOReady = false;
+
+randomBG (); //from interface.js
+
+//local event listeners (client only)
+document.getElementById("checkLogin").addEventListener("pointerdown", setupSession);
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        setupSession();
+		}
+    }, { once: true });
+
+//check session url parameter if supplied
+checkSessionURL ();
+
+async function checkSessionURL() {
+    const SID_REGEX = /^[A-Za-z0-9]{24}$/;
+    const params = new URLSearchParams(window.location.search.slice(1));
+
+    if (!params.has('SID')) return;
+
+    const SID = params.get('SID');
+
+    // Validate strictly: only letters & numbers, exactly 24 chars
+    if (!SID_REGEX.test(SID)) {
+        alert('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.');
+		window.location.href = window.location.origin;
+        return;
+    }
+
+    sessionStorage.setItem("sessionID", SID); //store temporarily in session storage
+    shmeg.classList.add("hidden");
+	await getDevices();    //from initdevice.js
+	[userAudioSelect, userVideoSelect]
+		.forEach(sel => sel.addEventListener('change', scheduleSelectionChange));
+	await handleSelectionChange(); // single attach from initdevice.js
+	
+    const previousSettingsJSON = localStorage.getItem(APP_NS);
+    if (!previousSettingsJSON) {
+        console.log("No previous settings found in localStorage");
+        settingsDialog.classList.remove("hidden");
+        settingsDialog.show();
+
+        requestAnimationFrame(() => {
+            document.getElementById("name").focus();
+        });
+    } else {
+        const settings = JSON.parse(previousSettingsJSON);
+        const last = settings[0];
+
+        //console.log(`Restoring settings from localStorage`);
+        document.getElementById("name").value = decodeURIComponent(last.userName);
+		restoreSettingsClient()   //from initdevice.js
+
+        settingsDialog.classList.remove("hidden");
+        settingsDialog.show();
+		
+        await handleSelectionChange(); // single attach from initdevice.js
+		
+        requestAnimationFrame(() => {
+            document.getElementById("name").focus();
+        });
+    }
+}
+
+//check that the user has entered a name and join session
+function setupSession() {
+    const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
+    const cameraSource = document.getElementById("cameraSource").selectedOptions[0].value;
+    const microphoneSource = document.getElementById("microphoneSource").selectedOptions[0].value;
+
+    //if no username flash and stop;
+    if (!sanitizedUserName) {           
+        document.getElementById("name").focus();
+        document.getElementById("name").style.animation = "pulse 500ms";
+        setTimeout(() => { document.getElementById("name").style.animation = "none"; }, 500);
+        return;
+    } 
+
+    settingsDialog.close(); 
+    ["settingsDialog", "popupBG", "shmeg"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+    }); 
+    document.body.style.backgroundImage = "none";
+
+	const sessionID = sessionStorage.getItem("sessionID");
+	const entry = {
+		userName: sanitizedUserName,
+		cameraSource: cameraSource || "",
+		microphoneSource: microphoneSource || ""
+	};
+
+	const sessionsJSON = localStorage.getItem(APP_NS);
+	let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
+	sessions.unshift(entry);
+
+	sessions = sessions.slice(0, 1); //just keep last session (use this format so re-use logic from stream can be used)
+
+	localStorage.setItem(APP_NS, JSON.stringify(sessions));
+
+	//change login dialog layout (remove camera preview)
+	document.getElementById("helpIcon").classList.add("hidden");
+	document.getElementById("settingsDialog").classList.remove("top", "middle");
+	document.getElementById("settingsDialog").classList.add("toolpopup", "bottom", "left");
+	document.getElementById("camPreview").style.display = "none";
+	document.getElementById("checkLogin").innerHTML = "Change settings";
+
+	checkLogin.removeEventListener("pointerdown", setupSession);    // Remove start session listener 
+
+	// Events to allow zooming in of stream
+	window.addEventListener("wheel", onWheel, { passive: false });
+	window.addEventListener("pointerdown", onMouseDown);
+	window.addEventListener("pointermove", onMouseMove);
+	window.addEventListener("pointerup", onMouseUp);
+
+	checkLogin.addEventListener("pointerdown", () => {
+		initUserStream();//from initvdo.js
+	});
+
+	["mainWindow", "peerList", "mainViewer"].forEach(id => {
+		document.getElementById(id).classList.remove("hidden");
+	});
+
+	VDOConnect(sessionID);
+}
+</script>
