@@ -113,7 +113,9 @@ h5 {
     margin-bottom: -20px;
 	background-color: var(--color-dark-bg);
 	}
-
+.footer a:hover{
+	 color: light-dark(var(--color-light-white), var(--color-light-grey))!important;
+}
 .textBackground {
     margin-top:-20px;
     margin-bottom:-20px;
