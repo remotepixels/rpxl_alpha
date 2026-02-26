@@ -312,8 +312,8 @@ async function initMainStream() {
 				video: {
 					deviceId: { exact: videoCurrentSource },
 					width: { ideal: width },
-					height: { ideal: height },
-					frameRate: { ideal: 30, max: 60 }
+					height: { ideal: height }//,
+					//frameRate: { ideal: 25, max: 30 }
 				},
 				audio: false
 			});
