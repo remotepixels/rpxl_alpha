@@ -190,7 +190,7 @@ const mainVideo = document.getElementById("mainStream");
 const volumeSlider = document.getElementById("toolStreamVolume");
 
 // Initialize volume
-mainVideo.volume = volumeSlider.value / 100;
+mainVideo.volume = volumeSlider.value / 100 ?? 10;
 
 volumeSlider.addEventListener("input", () => {
   mainVideo.volume = volumeSlider.value / 100;
@@ -486,7 +486,7 @@ function randomBG() {
 	document.body.style.height = `100%`;
 	document.body.style.backgroundSize = `cover`;
 
-	if (!isStreamer && !isQuickShare) {
+	if (!isStreamer && !isQuickShare && !isTVShare) {
 		const header = document.querySelector(`.siteHeader`);
 		header.style.backgroundImage = `url('${imageUrl}')`;
 		header.style.width = `100%`;

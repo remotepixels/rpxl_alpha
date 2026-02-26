@@ -35,7 +35,7 @@ async function getDevices() {
 		micAllowed = !!probeStream.getAudioTracks()[0];
 		camAllowed = !!probeStream.getVideoTracks()[0];
 	} catch (e) {
-		console.warn("Permission probe failed:", e);
+		console.log("Permission probe failed:", e);
 	}
 
 	if (probeStream) {
@@ -160,6 +160,7 @@ async function handleSelectionChange() {
 		reconcileAudioPreview("user", selectedUserAudio),
 		reconcileVideoPreview("user", selectedUserVideo)
 	]);
+
 	ensureVULoop();
 }
 
@@ -188,7 +189,7 @@ async function reconcileAudioPreview(role, deviceId) {
 
 	if (!deviceId) return;
 
-	// Start new audio preview, only preview on first run (vu hidden after)
+	// Start new audio preview, only preview on first run (vu hidden after)	
 	if (firstRun == true) {
 		p.audioStream = await navigator.mediaDevices.getUserMedia({
 			audio: { deviceId: { exact: deviceId } }
@@ -201,6 +202,10 @@ async function reconcileAudioPreview(role, deviceId) {
 		source.connect(p.analyser);
 
 		p.audioDeviceId = deviceId;
+
+		if (p.audioStream && role === "main") {
+			audioPreview.srcObject = p.audioStream;
+		}
 	}
 }
 
@@ -239,9 +244,17 @@ function ensureVULoop() {
 	vuInterval = setInterval(() => {
 		if (PREVIEWS.main.analyser) {
 			updateVU(PREVIEWS.main.analyser, mainVU);
+		} else {
+			mainVU.style.width = "0%";
 		}
 		if (PREVIEWS.user.analyser) {
 			updateVU(PREVIEWS.user.analyser, userVU);
+		} else {
+			if (isStreamer) {
+				userVU.style.width = "0%";
+			} else {	
+				userVU.style.height = "0%";
+			}
 		}
 	}, 10);
 }
@@ -249,6 +262,11 @@ function ensureVULoop() {
 function updateVU(analyser, vuElement) {
 	const dataArray = new Uint8Array(analyser.frequencyBinCount);
 	analyser.getByteFrequencyData(dataArray);
-	const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
-	vuElement.style.height = `${Math.min(avg, 100)}%`;
+	const avg = (dataArray.reduce((a, b) => a + b) / dataArray.length) | 0;
+	//console.log("avg", avg);	
+	if (isStreamer) {
+		vuElement.style.width = `${avg}%`;
+	} else {
+		vuElement.style.height = `${avg}%`;
+	}
 }

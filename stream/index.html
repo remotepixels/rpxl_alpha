@@ -43,6 +43,7 @@
     <div class="mainViewer hidden" id="mainViewer">
    	 	<div class="mainZoom" id="zoomdiv">
 		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+			<span id="mainVU" class="mainMeter"><span id="mainAudioMeter" class="meter"></span></span>
        		<canvas id="markup" class="markup"></canvas>
     	</div>
 	</div>
@@ -90,7 +91,7 @@
             </div>
             <div class="toolbar-section right">
                 <div class="toolset">
-                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="80" min="0" max="100" /></span>
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
                 </div>
             </div>
         </div>
@@ -120,7 +121,7 @@
             <!-- <div><input type="text" class="textinput" maxlenght="40" id="password" name="clientName" placeholder="(Optional)" contenteditable="true"></div> -->
         </div>
         <!-- <div style="width:100%"><hr></div> -->
-		<div style="width:100%; margin:10px 0px;"></div>
+		<div style="width:100%; margin:3px 0px;"></div>
         <div class="tableStream" id="settingsDialogSessionSettings"">
             <div>Resolution</div>
 			<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
@@ -136,7 +137,8 @@
             <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
             <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
 			<div style="grid-column: 3; grid-row: 1 / span 4;" id="settingsDialogVideoAudioPreview">
-				<video id="video" class="videosource" autoplay playsinline disablepictureinpicture muted></video>
+				<video id="video" class="videosource" autoplay playsinline disablepictureinpicture></video>
+				<audio id="audioPreview" class="audiosource" autoplay playsinline disablepictureinpicture></audio>
 				<span id="meterGraph" class="meterGraph">	<span id="audiometer" class="meter"></span>	</span>
 			</div>
         </div>
@@ -152,8 +154,8 @@
             <div>Microphone</div>
 			<div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
             <div id="settingsDialogCameraMicPreview" style="grid-column: 3; grid-row: 1 / span 4;">
-				<video id="camera" class="camera" autoplay playsinline disablepictureinpicture muted></video>
-				<span id="meterGraph" class="meterGraph">	<span id="micmeter" class="meter"></span>	</span>
+				<video id="camera" class="camera" autoplay playsinline disablepictureinpicture></video>
+				<span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span>	</span>
 			</div>
         </div>
         <div id="moresettingsHR" class="hidden" style="width:100%; margin:10px 0px;"><HR></div>
@@ -240,7 +242,7 @@
 	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 	sessionStorage.setItem("sessionID", generateRandomID());  //create session ID and store in session storage
 
-	const APP_NS = 'host-Alpha-RPXL';
+	const APP_NS = 'host-RPXL';
 	const devURL = window.location.origin;
 	let historyBGAttached = false;
 	let isVDOReady = false;
@@ -449,10 +451,11 @@
 		 camera.srcObject = null;
 
 		//Change create dialog layout for settings to re-use it
+
 		["settingsDialog", "historyButton", "buttonMoreSettings", "settingsDialogCameraMicPreview", "settingsDialogVideoAudioPreview"].forEach(id => {
 			document.getElementById(id).classList.add("hidden");
 		});
-		// settingsDialogProjectID.style.width = "200px";
+		settingsDialogProjectID.style.width = "200px";
 		project.style.width = "200px";
 		project.style.left = "5px";
 		moresettingsHR.classList.remove("hidden");

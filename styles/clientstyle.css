@@ -19,10 +19,10 @@
 .camera {
     /* display: block; */
     position: relative;
-    top:10px;
+    top:5px;
     left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 30px;;
+    margin-bottom: 20px;;
     object-fit: cover;
     width: 220px;
     height: 220px;
@@ -39,11 +39,22 @@
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden;
-    height: 240px;
-    width: 240px;
+    height: 230px;
+    width: 230px;
     border-radius: 100%;
     border: var(--border-width) solid light-dark(var(--color-light-white), var(--color-dark-grey));
     background-color: light-dark( white, var(--color-dark-bg));
+}
+.meter {
+	position: absolute;
+	display: inline-block;
+	color: light-dark(var(--color-light-grey), var(--color-light-grey));
+	background-color: dodgerblue;
+	left: 0px;
+	width: 100%;
+	height: 0%;
+	bottom: 0px;
+	transition: height 100ms linear;
 }
 .shmeg {
 	overflow-x: hidden;

@@ -4,6 +4,7 @@ let userStreamID = generateRandomID();
 const sessionID = sessionStorage.getItem("sessionID");
 const isStreamer = window.location.pathname.startsWith("/stream");
 const isQuickShare = window.location.pathname.startsWith("/qs");
+const isTVShare = window.location.pathname.startsWith("/tv");
 const mainVideoPreview = document.getElementById("mainStream");
 let mainStreamAudio = false;
 let userStreamAudio = "micStandby";
@@ -261,6 +262,8 @@ async function initUserStream() {
 
 async function initMainStream() {
 	//load previous settings
+	audioPreview.srcObject = null;
+
 	const previousSettingsJSON = localStorage.getItem(APP_NS);
 	if (!previousSettingsJSON) return;
 
@@ -291,7 +294,7 @@ async function initMainStream() {
 
 	let currentQuality = getCheckedRadioValue("quality") || "low";
 	//let currentQuality = document.getElementById("quality");
-	console.warn("quality", currentQuality);
+	//console.warn("quality", currentQuality);
 
 	const invalid = new Set(["", "0", "null", "none", null]);
 	const videoSelect = document.getElementById("videoSource");
@@ -350,9 +353,9 @@ async function initMainStream() {
 			const newMediaStream = await navigator.mediaDevices.getUserMedia({
 				audio: {
 					deviceId: { exact: audioCurrentSource },
-					echoCancellation: true,
-					noiseSuppression: true,
-					autoGainControl: true
+					echoCancellation: false,
+					noiseSuppression: false,
+					autoGainControl: false
 				},
 				video: false
 			});

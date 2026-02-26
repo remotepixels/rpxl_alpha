@@ -19,6 +19,7 @@ function initStream(whichStream) {
 		audio
 	};
 }
+
 //creates "silent" audio track, replaced later or used if device set to none
 function initAudioTrack() {
 	const ctx = new AudioContext();
@@ -43,6 +44,7 @@ function initAudioTrack() {
 
 	return { track, ctx };
 }
+
 //creates color bars placeholder for main track
 function initVideoTrack() {
 	const bgColor = '#141414';
@@ -113,6 +115,7 @@ function initVideoTrack() {
 	};
 	return { track, canvasMS, stream };
 }
+
 //creates placeholder user video track, lovely shades of pastel
 function initUserVideoTrack() {
 	let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());

@@ -105,7 +105,6 @@ function setupVDOListeners() {
 	});
 
 	vdo.addEventListener('dataReceived', (event) => {
-		//console.warn(`Data received from viewer:`, event);
 		const uuid = event.detail.uuid;
 		const data = event.detail.data;
 		const streamID = event.detail.streamID;
@@ -144,7 +143,11 @@ function setupVDOListeners() {
 
 		if (data.type === 'mainStreamVU') {
 			const MSVolume = data.volume;
-			console.warn("recieved info for user stream audio VU", MSVolume);
+			console.warn("recieved info for main stream audio VU", MSVolume);
+		}
+		if (data.type === 'userStreamVU') {
+			const USVolume = data.volume;
+			console.warn("recieved info for user stream", streamID, " audio VU", USVolume);
 		}
 
 		if (data.type === 'markup') {
@@ -306,3 +309,75 @@ window.addEventListener('beforeunload', () => {
 	}
 });
 
+
+	//VDO (WAITING ROOM) LISTENERS
+	function setupVDOWRListeners() {
+		//console.warn("setting up waiting room listeners",room);
+
+		vdoWR.addEventListener(`connected`, (event) => {
+		//	console.log("connected to signaling server");
+		});
+
+		vdoWR.addEventListener(`disconnected`, (event) => {
+		//	console.log("disconnected to signaling server");
+		});
+		vdoWR.addEventListener('peerConnected', (event) => {
+			playBeep(400, 1);
+
+			const guestUUID = event.detail.uuid;
+			if (!guestUUID) return;
+
+			// convert performance timestamp to Date
+			const joinedAt = Date.now() - performance.now() + event.timeStamp;
+
+			//waitingPeers.set(guestUUID, joinedAt);
+
+			//renderWaitingPeers();
+			//log(`Peer : ${guestUUID} joined waiting room at : ${formatTime(joinedAt)}`);
+		});
+
+		vdoWR.addEventListener("peerDisconnected", (event) => {
+			const uuid = event.detail?.uuid;
+			if (!uuid) return;
+
+			//waitingPeers.delete(uuid);
+			//renderWaitingPeers();
+		});
+
+		vdoWR.addEventListener('dataReceived', (event) => {
+			const uuid = event.detail.uuid;
+			const data = event.detail.data;
+
+			//console.warn('control message waiting room:', event);
+			if (data.dataType === "migrate") {
+				const target = data.target;
+				mainRoom = data.roomid;
+
+				vdoWR.sendData({
+					dataType: 'peer-disconnect',
+					timestamp: Date.now()
+				});
+
+				//waitingPeers.delete(uuid);
+				//renderWaitingPeers();
+				log("Host has let you in");
+				vdoWR.disconnect();
+				sleep(500); 
+
+				//createVDOroom();
+
+				//["joinShareDialog", "helpIcon", "waitingButton"].forEach(id => {
+				//	document.getElementById(id).style.display = "none";
+				//});
+
+				//document.getElementById('dropArea').classList.add('hidden');
+				//document.getElementById('topmenu').classList.remove('hidden');
+				//document.getElementById('subToolBar').classList.remove('hidden');
+				//document.getElementById('dragDropMessage').textContent = "Drop to add files"
+				//document.getElementById('dragDropSubMessage').textContent = ""
+
+				//firstInteraction = false;
+				return;
+			}
+		});
+	}

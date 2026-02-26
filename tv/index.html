@@ -14,8 +14,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
-    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
-    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/icons/favicon.ico">
     <meta name="color-scheme" content="light dark">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,116 +23,185 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-    <link rel="stylesheet" href="../styles/styles.css">
-    <title>alpha.rpxl.app v3 | Smart TV View (beta)</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>rpxl.app v3.5 | Smart TV View</title>
     
 </head>
 <style>
-.mainZoom {
-        left: 0px;
-        top: 0px;
-        height: 100%;
-        width:100%;
-    }
-.sessionID {
-    --w: 30px;   /* control the width for each letter */
-    --g: 5px; /* the gap between letters */
 
-    font-size: 32px;  
-    line-height: 40px; /* control the height */
-    letter-spacing: var(--w);
-    font-family: monospace;
-    width: 460px;
-    transform: translateX(8px);
-    margin: 10px 0px 0px 0px;
-    padding-left:11px;
-    padding-top:10px;
-    padding-bottom: 5px;
-    clip-path: inset(0 15px 0 0);
-    justify-content: center;
-    background:
-    repeating-linear-gradient(90deg,
-        light-dark(var(--color-light-bg), var(--color-dark-grey)) 0 var(--border-width), /*left edge of block*/
-        light-dark(var(--color-light-white), var(--color-mid-grey)) 0 calc(1ch + var(--w) - var(--g) - var(--border-width)),/*colour of the ID blocks*/
-        light-dark(var(--color-light-bg), var(--color-dark-grey)) 0 calc(1ch + var(--w) - var(--g)), /*right edge o blocks*/
-        light-dark(var(--color-light-bg), var(--color-dark-grey)) 0 calc(1ch + var(--w)));/*colour of gaps between the ID blocks*/
-}
-.dialogContent.shake {
-    animation: shake 0.4s ease;
-}
- @keyframes shake {
-	0% {transform: translateX(0px); }
-	15% {transform: translateX(-5px);}
-	30% {transform: translateX(10px);}
-	45% {transform: translateX(-15px);}
-	60% {transform: translateX(15px);}
-	75% {transform: translateX(-5px);}
-	100% {transform: translateX(0px); animation-timing-function: ease-in;}
-}
-</style>>
+.loginDialog {
+	position: fixed;
+	display: flex;
 
+	flex-direction: column;
+	align-items: center;
+	justify-content: top;
+	top: 30%;
+	left: 0;
+	/* margin: 20px; */
+	text-align: center;
+	padding: 20px;
+	border-radius: 8px;
+	z-index: 100;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+}
+.largeIcon {
+	font-size: clamp(1rem, 20dvh, 32rem);
+	color: light-dark(var(--color-mid-grey), var(--color-light-grey));
+}
+.scode {
+	color: light-dark(var(--color-dark-bg), var(--color-light-white));
+	font-family: ui-monospace, monospace;
+	font-size: 24px;
+	letter-spacing: 14px;
+	margin: 5px;
+	border: 1px solid light-dark(var(--color-dark-bg), var(--color-light-white));
+}
+</style>
 
 <body id="body">
-    <!--iframes for vdo ninja-->
-    <div class="mainZoom hidden" id="zoomdiv">
-        <iframe class="mainstreamiframe" id="mainStream" allow="autoplay;camera;microphone;fullscreen;picture-in-picture;display-capture;midi;geolocation;screen-wake-lock;"></iframe>   
+	<div class="peerList hidden" id="peerList">
+		<div class="peer">
+			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
+			<span class="peerLabel" id="userLabel"></span>
+			<!-- <span class="peerControl"> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
+				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
+			<!-- </span> -->
+		</div>
+    </div>
+    <div class="mainViewer hidden" id="mainViewer">
+   	 	<div class="mainZoom" id="zoomdiv">
+		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+       		<canvas id="markup" class="markup"></canvas>
+    	</div>
+	</div>
+
+
+    <!--Main interface-->
+    <div id="mainWindow" class="hidden">
+        <div id="bottomMenu" class="toolbar bottom">
+            <div class="toolbar-section left">
+                <div class="toolset">
+                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
+                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
+                </div>
+            </div>
+            <div class="toolbar-section center">
+                <div class="toolset" id="toolAnnotations">
+                    <button class="tool disable hidden" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
+                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
+                </div>
+
+            </div>
+            <div class="toolbar-section right">
+                <div class="toolset">
+                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
+                </div>
+            </div>
+        </div>
+        <div class="copyCreditGrad"></div>
+        <div class="copyText toolbar-section left" id="statusLeft"></div>
+		<div class="copyText toolbar-section right" id="statusRight"></div>
     </div>
 
-    <!--enter session ID dialog-->
-    <dialog open id="sessionDialog" class="centerhorizontal top">
-        <div><h2>Enter a Session ID to continue</h2></div>
-        <div><input type="text" maxlength="9" class="sessionID" id="sessionID" contenteditable="true" style="text-transform:uppercase" autofocus autocomplete="off"></div>
-        <div><h3>9 character code supplied by the streamer</h3></div>
-        <div><button id="checkSession" class="botton buttonblue buttonWider">Continue</button></div>
-    </dialog>
-
+    <div class="popupBG hidden" id="popupBG"></div>
+    
+	
+	<div id="loginDialog" class="loginDialog">
+		<div id="joinShareDialog" onclick="event.stopPropagation()" style="border-radius:10px; background-color:light-dark(var(--color-light-bg), var(--color-dark-grey)); box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25); cursor: default!important;">
+			<h2 style="height:20px; margin:10px; color:light-dark(var(--color-dark-bg), var(--color-light-bg));">Enter code to join a session</h2><br>
+			<input type="text" class="scode" maxlenght="8" id="shareCodeInput" style="width:300px; margin: 0px 20px 5px 20px; padding:5px 0px 5px 10px; font-size: 30px; border-radius: 5px; color: light-dark(black, white);" placeholder="XXXX-XXXX">
+			<div style="margin-bottom:10px;"><button id="joinButton" class="joinbutton blue wider" >Join</button></div>
+		</div>
+	</div>
 </body>
 </html>
 
-<script src="../scripts/initui.js"></script>
-<script src="../scripts/initvdo.js"></script>
+<script src="/scripts/vdoninja-sdk.js"></script>
+<script src="/scripts/storage.js"></script>
+<script src="/scripts/global.js"></script>
+<script src="/scripts/initdevice.js"></script>
+<script src="/scripts/initstreams.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/listeners.js"></script>
+<script src="/scripts/interface.js"></script>
+<script src="/scripts/markup.js"></script>
 
 <script lang="javascript">
+	const input = document.getElementById("shareCodeInput");
+	const joinWithShareCode = document.getElementById("joinButton");
 
-randomBG (); //initui.js
+	const APP_NS = 'tv-RPXL';
+	const devURL = window.location.origin;
+	let isVDOReady = false;
 
-localStorage.clear(); //clear local storage on load to avoid issues with old settings
-sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+	randomBG (); 
 
-document.getElementById("sessionID").focus();
-document.getElementById("checkSession").addEventListener("click", checkEnteredSession);
-document.getElementById("sessionID").addEventListener("keypress", function(event) {
-	if (event.key === "Enter") {
-		event.preventDefault();
-		document.getElementById("checkSession").click();
+	localStorage.clear(); //clear local storage on load to avoid issues with old settings
+	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
+
+	const vdoWR = new VDONinjaSDK({
+		salt: "rpxl.app",
+		allowFallback: false,
+		debug: false
+	});
+
+	//join with share code
+	joinWithShareCode.addEventListener('pointerdown', joinWaitingRoom);
+
+	// Enter key on share code input
+	input.addEventListener("keydown", e => {
+	if (e.key === "Enter") {
+			e.preventDefault();
+			joinWaitingRoom();
 		}
 	});
 
-function checkEnteredSession() {
-    const sessionIDEntered = sessionID.value.trim();
-    const sessionIDEnteredUppercase = sessionIDEntered.toUpperCase();
-    const sessionIDEnteredSanitized = encodeURIComponent(sessionIDEnteredUppercase);
+	//HANDLE SHORT CODE INPUT (UPPERCASE NO FUNNY'S)
+	input.addEventListener("input", e => {
+		let v = input.value;
 
-    // Shake dialog if session ID incorrect
-    function showError() {
-        sessionDialog.style.animation = "shake 500ms";
-        setTimeout(() => { sessionDialog.style.animation = "none"; }, 300);
-        sessionID.value = "";
-        sessionID.focus();
-    }
+		v = v.replace(/[^a-zA-Z0-9]/g, "");
+		v = v.toUpperCase();
+		v = v.slice(0, 8);
 
-    if (!sessionIDEnteredSanitized || sessionIDEnteredSanitized.length !==9) {
-        showError();
-        return;
-    }
-    sessionStorage.setItem("sessionID", sessionIDEnteredSanitized);
-    sessionStorage.setItem("username", "Smart TV Viewer")
-    sessionStorage.setItem("director", "false");        
+		if (v.length > 4) {
+			v = v.slice(0, 4) + "-" + v.slice(4);
+		}
 
-    sessionDialog.close();
-    sessionDialog.classList.add("hidden");
-    document.body.style.backgroundImage = "none";
+		input.value = v;
+	});
 
-    viewMainStream (); //initvdo
-}
+
+	//JOIN WAITING ROOM (SHORT CODE)
+	async function joinWaitingRoom() {
+		const prettyShare = input.value;
+		const shareCode = input.value.replace("-", "");
+
+		if (shareCode.length !== 8) {
+			input.value = null;
+			return;
+		};
+
+		await vdoWR.autoConnect({
+				room: shareCode,
+				mode: "half",	//data only
+				password: ""
+			});
+
+		console.log('Joined waiting room :', shareCode);
+		setupVDOWRListeners();
+
+		firstInteraction = false;
+		document.getElementById("joinShareDialog").innerHTML = `
+		<div style="padding:20px"><span class="material-symbols-outlined largeIcon">orbit</span><br>
+		<h2>Joined waiting room</h2><br>
+		<h2>(${prettyShare})</h2><br>
+		<h3>Host will let you in</h1></div>`
+	}
 </script>
