@@ -27,7 +27,7 @@
 	<link rel="stylesheet" href="/styles/clientstyle.css">
     <link rel="stylesheet" href="/styles/mobilestyle.css">
 
-    <title>alpha.rpxl.app v3.5 (beta)</title>
+    <title>rpxl.app v3.5</title>
 </head>
 
 <body id="body">
@@ -268,7 +268,7 @@ let isVDOReady = false;
 randomBG (); //from interface.js
 
 //local event listeners (client only)
-document.getElementById("checkLogin").addEventListener("pointerdown", setupSession);
+document.getElementById("checkLogin").addEventListener("pointerup", setupSession);
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -371,7 +371,7 @@ function setupSession() {
 	document.getElementById("camPreview").style.display = "none";
 	document.getElementById("checkLogin").innerHTML = "Change settings";
 
-	checkLogin.removeEventListener("pointerdown", setupSession);    // Remove start session listener 
+	checkLogin.removeEventListener("pointerup", setupSession);    // Remove start session listener 
 
 	// Events to allow zooming in of stream
 	window.addEventListener("wheel", onWheel, { passive: false });
@@ -379,7 +379,7 @@ function setupSession() {
 	window.addEventListener("pointermove", onMouseMove);
 	window.addEventListener("pointerup", onMouseUp);
 
-	checkLogin.addEventListener("pointerdown", () => {
+	checkLogin.addEventListener("pointerup", () => {
 		initUserStream();//from initvdo.js
 	});
 

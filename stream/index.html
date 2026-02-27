@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="/styles/styles.css">
     <link rel="stylesheet" href="/styles/streamstyle.css">
 
-    <title>alpha.rpxl.app v3.5 | Stream (beta)</title>
+    <title>rpxl.app v3.5 | Stream</title>
 </head>
 
 <body id="body">
@@ -43,7 +43,7 @@
     <div class="mainViewer hidden" id="mainViewer">
    	 	<div class="mainZoom" id="zoomdiv">
 		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-			<span id="mainVU" class="mainMeter"><span id="mainAudioMeter" class="meter"></span></span>
+			<!-- <span id="mainVU" class="mainMeter"><span id="mainAudioMeter" class="meter"></span></span> -->
        		<canvas id="markup" class="markup"></canvas>
     	</div>
 	</div>
@@ -258,7 +258,7 @@
 	if (isMobile) {
 		mobileDialog.classList.remove("hidden");
 		mobileDialog.show();
-		mobileDismiss.addEventListener("pointerdown", () => {
+		mobileDismiss.addEventListener("pointerup", () => {
 			mobileDialog.classList.add("hidden");
 			mobileDialog.close();
 		});
@@ -290,7 +290,7 @@
 
 		// Attach background listener ONCE
 		if (!historyBGAttached) {
-			window.addEventListener("pointerdown", (e) => {
+			window.addEventListener("pointerup", (e) => {
 				if (e.target.matches("#popupHistoryBG")) {
 					closeDialog(openModal, openIcon);
 					document.getElementById("popupHistoryBG").classList.add("hidden");
@@ -362,7 +362,7 @@
 	}
 
 	//more settings menu on create dialogue flyout
-	buttonMoreSettings.addEventListener("pointerdown", () => {
+	buttonMoreSettings.addEventListener("pointerup", () => {
 		const isExpanded = buttonMoreSettings.getAttribute("aria-expanded") === "true";
 		buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
 		buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
@@ -371,14 +371,14 @@
 		
 	});
 
-	document.getElementById('startSessionButton').addEventListener('pointerdown', startSession);
+	document.getElementById('startSessionButton').addEventListener('pointerup', startSession);
 
 	//share button (main, quick and obs)
 	function setupShareButton(buttonId, sessionID, urlFormatter) {
 		const btn = document.getElementById(buttonId);
 		if (!btn) return;
 
-		btn.addEventListener("pointerdown", () => {
+		btn.addEventListener("pointerup", () => {
 			const value = sessionStorage.getItem(sessionID);
 			if (!value) return;
 
@@ -395,7 +395,7 @@
 	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${value}`);
 	//setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
 
-	confirmQuit.addEventListener("pointerdown", function () {
+	confirmQuit.addEventListener("pointerup", function () {
 		vdo.disconnect();
 		vdoMS.disconnect()
 
@@ -471,14 +471,14 @@
 		moresettings.classList.add("hideTableColumn");
 		settingsDialogSessionSettings.classList.add("hideTableColumn");
 
-		startSessionButton.removeEventListener("pointerdown", startSession);    // Remove start session listener and add settings change listener
+		startSessionButton.removeEventListener("pointerup", startSession);    // Remove start session listener and add settings change listener
 
 		window.addEventListener("wheel", onWheel, { passive: false });
 		window.addEventListener("pointerdown", onMouseDown);
 		window.addEventListener("pointermove", onMouseMove);
 		window.addEventListener("pointerup", onMouseUp);
 
-		startSessionButton.addEventListener("pointerdown", () => {
+		startSessionButton.addEventListener("pointerup", () => {
 			initUserStream();//from initvdo.js
 		});
 

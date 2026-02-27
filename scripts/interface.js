@@ -165,27 +165,27 @@ popupBG.addEventListener("pointerdown", function(e) {
 });
 
 //actual button assignments
-if (toolHistory) { toolHistory.addEventListener("pointerdown", function () { loadHistoryIntoDialog(); });}
-if (toolShare) { toolShare.addEventListener("pointerdown", function () { openDialog(shareDialog, toolShare); });}
-if (toolQuit) { toolQuit.addEventListener("pointerdown", function () { openDialog(quitDialog, toolQuit); });}
+if (toolHistory) { toolHistory.addEventListener("pointerup", function () { loadHistoryIntoDialog(); });}
+if (toolShare) { toolShare.addEventListener("pointerup", function () { openDialog(shareDialog, toolShare); });}
+if (toolQuit) { toolQuit.addEventListener("pointerup", function () { openDialog(quitDialog, toolQuit); });}
 
-if (toolSettings) { toolSettings.addEventListener("pointerdown", function () { 
+if (toolSettings) { toolSettings.addEventListener("pointerup", function () { 
     if (isStreamer) {  restoreSettingsHost(); }
     restoreSettingsClient();
     openDialog(settingsDialog, toolSettings); });
 }
 
-if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("pointerdown", function() { toolMuteMicrophoneSelect(); });}
-if (toolMuteCamera) { toolMuteCamera.addEventListener("pointerdown", function() { toolMuteCameraSelect(); });}
+if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("pointerup", function() { toolMuteMicrophoneSelect(); });}
+if (toolMuteCamera) { toolMuteCamera.addEventListener("pointerup", function() { toolMuteCameraSelect(); });}
 
-if (toolBlindStream) { toolBlindStream.addEventListener("pointerdown", function() { toolBlindStreamSelect(); });}
-if (toolMuteStream) { toolMuteStream.addEventListener("pointerdown", function() { toolMuteStreamSelect(); });}
+if (toolBlindStream) { toolBlindStream.addEventListener("pointerup", function() { toolBlindStreamSelect(); });}
+if (toolMuteStream) { toolMuteStream.addEventListener("pointerup", function() { toolMuteStreamSelect(); });}
 
-if (toolDraw) { toolDraw.addEventListener("pointerdown", function() { toolDrawSelect(); });}
-if (toolPalette) { toolPalette.addEventListener("pointerdown", function () { openDialog(paletteDialog, toolPalette); });}
-if (toolEraser) { toolEraser.addEventListener("pointerdown", function() { toolEraserSelect(); });}
+if (toolDraw) { toolDraw.addEventListener("pointerup", function() { toolDrawSelect(); });}
+if (toolPalette) { toolPalette.addEventListener("pointerup", function () { openDialog(paletteDialog, toolPalette); });}
+if (toolEraser) { toolEraser.addEventListener("pointerup", function() { toolEraserSelect(); });}
 
-//if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerdown", function() { toolStreamVolumeSelect(); });}
+//if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerup", function() { toolStreamVolumeSelect(); });}
 const mainVideo = document.getElementById("mainStream");
 const volumeSlider = document.getElementById("toolStreamVolume");
 
@@ -284,7 +284,7 @@ function toolDrawSelect () {
         document.getElementById("markup").style.display = "block";
         document.getElementById("markup").style.cursor = "crosshair";
 
-        canvas.addEventListener('pointerdown', startDrawing);
+        canvas.addEventListener('pointerup', startDrawing);
         canvas.addEventListener('pointermove', draw);
         canvas.addEventListener('pointerup', endDrawing);
         canvas.addEventListener('mouseout', endDrawing);
@@ -294,7 +294,7 @@ function toolDrawSelect () {
 
         document.getElementById("markup").style.cursor = "default";
 
-        canvas.removeEventListener('pointerdown', startDrawing);
+        canvas.removeEventListener('pointerup', startDrawing);
         canvas.removeEventListener('pointermove', draw);
         canvas.removeEventListener('pointerup', endDrawing);
         canvas.removeEventListener('mouseout', endDrawing);
@@ -303,7 +303,7 @@ function toolDrawSelect () {
 
 // specific for markup color pots popup
 colorPots.forEach(colorPot => {
-    colorPot.addEventListener('pointerdown', () => {
+    colorPot.addEventListener('pointerup', () => {
         const newSelectedColor = colorPot.getAttribute('value');
         color = newSelectedColor;
 
