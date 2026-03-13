@@ -1,0 +1,209 @@
+.dialog {
+	position: absolute;
+	display: grid;
+	width:fit-content;
+    background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	gap: 2px 2px;
+	align-items: center;
+	padding: 10px 15px;
+	border-radius: var(--radius-big);
+	box-shadow: var(--shadows);
+	z-index:10;
+}
+
+.dialog.middle {
+	left:unset;
+	top:unset;
+	bottom:unset;
+	right:unset;
+	left: 50%;
+	top: var(--toolbar-height);
+	transform: translate(-50%);
+}
+
+/* setting dialog */
+.settings {
+	position: absolute;
+	right:var(--toolbar-width);
+	bottom:5px;
+	grid-template-columns: 90px 200px 200px;
+}
+
+.settings::after {
+	position: absolute;
+	bottom:15px;
+	right:-20px;
+	content: "";
+	border: 10px solid transparent;
+	border-color: transparent transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+
+.settings.hidearrow::after {
+	display: none;
+}
+
+.settings-section {
+	grid-column:  1 / -1; 
+	margin: 5px 0px 5px 0px;
+}
+
+.settings-preview-session {
+	grid-column: 3;
+	grid-row: span 4;
+	display:flex;
+	flex-direction:column;
+	justify-content:flex-end;
+	align-self: end;
+}
+
+.settings-preview {
+	grid-column: 3;
+	grid-row: span 4;
+	display:flex;
+	flex-direction:column;
+	justify-content:flex-end;
+	align-self: end;
+}
+
+.videosource {
+	width:200px;
+	height:165px;
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+	border-radius: var(--radius-big);
+	padding-right:10px;
+}
+
+.vu-meter {
+	position: absolute;
+	overflow: hidden;
+	right :15px;
+	width:10px;
+	height:165px;
+	background-color: light-dark(var(white), var(--color-mid-grey));
+	border-radius: var(--radius-big);
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
+	border-left:2px solid light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+
+.meter {	
+	--vu: 0;
+	position: absolute;
+	display: inline-block;
+	bottom: 0px;
+	width:100%;
+	background-color: var(--color-blue);
+}
+
+
+/* History popup */
+#toolHistory {
+	position: relative;
+	left:80px;
+	height:30px;
+    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+	z-index:3;
+}
+
+#historyDialog{
+	position:fixed;
+	margin-left:50%;
+	transform: translate(-50%, 115px);
+	width: 505px;
+	z-index: 12;
+	background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	border-radius: var(--radius-big);
+	padding: 5px 5px;
+	box-shadow: var(--shadows);
+	height:fit-content;
+	z-index:10;
+	display:unset;
+	top:unset!important;
+	left:unset!important;
+}
+
+#historyDialog::after{
+	position: absolute;
+	top:-20px;
+	right:15px;
+	content: "";
+	border: 10px solid transparent;
+	border-color: transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey)) transparent ;
+}
+
+.history-heading{
+		display:inline-block;
+		padding: 5px 10px;
+		border-bottom: 2px solid light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+
+.history-item{
+	display:inline-block;
+}
+
+.history-date{
+	display:inline-block;
+	position: absolute;
+	right:0px;
+	width:130px;
+}
+
+/* sharing dialog */
+.sharing {
+	position: absolute;
+	right:var(--toolbar-width);
+	top:5px;
+}
+
+.sharing::after {
+	position: absolute;
+	top:70px;
+	right:-20px;
+	content: "";
+	border: 10px solid transparent;
+	border-color: transparent transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+
+.link, #smartTV{
+	position: relative;
+	text-align: left;
+	margin: 0px;
+	padding: 10px;
+	border: 0px;
+	width: 100%;
+	height: fit-content;
+	border-radius: var(--radius-big);
+	color: light-dark(var(--color-dark-bg), var(--color-light-grey));
+	cursor: pointer;
+}
+
+.link:hover {
+	color: light-dark(var(--color-dark-bg), var(--color-light-white));
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+
+.smartTV-code {
+	color: light-dark(var(--color-dark-bg), var(--color-light-white));
+	font-family: ui-monospace, monospace;
+	font-size: 15px;
+	letter-spacing: 5px;
+}
+
+/* error for devices blocked or mobile browser */
+.dialog.error {
+	position: absolute;
+	display: unset;
+	left: 50%;
+	top: 10%;
+	justify-content:center;
+	transform: translate(-50%);
+    min-width: fit-content;
+    /* max-width: 400px; */
+	text-align: center;
+    padding: 10px 30px;
+    border-radius: var(--radius-big);
+    pointer-events: auto;
+	background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	box-shadow: var(--shadows);
+	z-index:20;
+}

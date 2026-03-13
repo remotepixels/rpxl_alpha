@@ -18,8 +18,23 @@
 //		user:null
 //		}
 //   }
-// }
+let isVDOReady = false;
+let firstRun = true;
+let userStreamID = generateRandomID();
+let settingsSnapshot = null; //dialog snapshot state
+let localUUID = null;
+
+let mainStreamAudio = false;
+let userStreamAudio = "micStandby";
+let wakeLock = null;
+
+const devURL = window.location.origin;
 const REGISTRY = new Map();
+
+const isStreamer = window.location.pathname.startsWith("/stream");
+const isQuickShare = window.location.pathname.startsWith("/qs");
+const isTVShare = window.location.pathname.startsWith("/tv");
+const mainVideoPreview = document.getElementById("mainStream");
 
 //main and user streams and tracks used for local playback used in initvdo.js
 //should probaly merge with REGISTRY???????
@@ -39,7 +54,47 @@ const STREAMS = {
 	main: null
 };
 
-let wakeLock = null;
+// enter and escape keys to dismiss dialogs
+window.addEventListener("keydown", handleKey);
+
+function isVisible(el) {
+    return !el.classList.contains("hidden");
+}
+
+function handleKey(event) {
+    const el = document.activeElement;
+    // if ( el.matches("input, textarea") || el.isContentEditable ) return; 
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+
+		if (isVisible(settingsDialog) && firstRun == true) {
+			startSession();
+			settingsDialog.classList.toggle("hidden");
+		}
+
+		if (isVisible(settingsDialog) && firstRun == false) {
+			initUserStream();
+			settingsDialog.classList.toggle("hidden");
+		}		
+
+    }
+    if (event.key === "Escape") {
+        event.preventDefault();
+		if (isStreamer && isVisible(shareDialog)) {
+			shareDialog.classList.add("hidden");
+		}
+		if (isStreamer && isVisible(historyDialog)) {
+			historyDialog.classList.add("hidden");
+		}
+		if (isVisible(settingsDialog) && firstRun == true) return;
+
+		if (isVisible(settingsDialog) && firstRun == false) {
+			settingsDialog.classList.toggle("hidden");
+		}
+    }
+
+}
 
 //WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
 async function enableWakeLock() {
@@ -76,169 +131,23 @@ function generateRandomID(len = 24) {
 	return Array.from(arr, n => chars[n % chars.length]).join('');
 }
 
-//make sure any streamID's recieved are valid (20chars long, can start with ms_ or hs_)
-function isValidStreamID(id) {
-	if (typeof id !== "string") return false;
 
-	const PREFIXES = ["ms_", "hs_"];
-	const RANDOM_ID_LENGTH = 24;
-	const BASE62_RE = /^[A-Za-z0-9]+$/;
+function playBeep(freq = 880, duration = 0.15) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
 
-	let randomPart = id;
-	let hasKnownPrefix = false;
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
 
-	for (const prefix of PREFIXES) {
-		if (id.startsWith(prefix)) {
-			randomPart = id.slice(prefix.length);
-			hasKnownPrefix = true;
-			break;
-		}
-	}
+  osc.start();
 
-	// reject strings that *look* prefixed but aren't valid
-	if (!hasKnownPrefix && id.includes("_")) return false;
+  gain.gain.setValueAtTime(0.05, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
 
-	return randomPart.length === RANDOM_ID_LENGTH &&
-		BASE62_RE.test(randomPart);
-}
-
-//creates REGISTRY of all connected peers, their stream, tracks, labels etc.
-function addToRegistry(uuid, label = null, streamID = null, track = null) {
-	if (!uuid) return; //stop if no uuid
-	//add uuid to registry if it doesn't exist
-	if (!REGISTRY.has(uuid)) {
-		REGISTRY.set(uuid, {
-			uuid,
-			label,
-			streams: new Map(),
-			transports: {}
-		});
-	}
-
-	const peer = REGISTRY.get(uuid);
-
-	if (!isValidStreamID(streamID) || (!streamID)) {
-		//console.warn("Invalid stream ID:", streamID);
-		return;
-	}
-
-	//add stream to registry if it doesn't exist
-	if (!peer.streams.has(streamID)) {
-		peer.streams.set(streamID, {
-			streamID,
-			audio: null,
-			video: null
-		});
-
-		//connect to stream
-		vdo.quickView({
-			streamID: streamID,
-			room: sessionID
-		}).then(() => {
-			//console.warn(`Now viewing: ${streamID}`, 'success');
-		}).catch(err => {
-			console.warn(`Failed to view: ${err.message}`, 'error');
-			return;
-		});
-	}
-
-	const stream = peer.streams.get(streamID);
-
-	if (label) {
-		peer.label = label;
-	}
-
-	addPeerToDOM(uuid, streamID, label);
-
-	if (!track) return;
-	//add tracks to registry if doesn't exist
-	if (track.kind === "audio") {
-		stream.audio = {
-			trackID: track.id,
-			track,
-			label: track.label ?? null,
-			muted: track.muted ?? false,
-			readyState: track.readyState ?? "live"
-		};
-	} else if (track.kind === "video") {
-		stream.video = {
-			trackID: track.id,
-			track,
-			label: track.label ?? null,
-			muted: track.muted ?? false,
-			readyState: track.readyState ?? "live"
-		};
-	}
-	addTracksToStream(uuid, streamID, track)
-}
-
-//attaches tracks to streams in DOM, ms_(main stream) is always dropped in main viewer
-function addTracksToStream(uuid, streamID, track) {
-	let whichStream = null;
-	if (!isStreamer && streamID.startsWith("ms_")) {
-		whichStream = document.getElementById('mainStream');
-	} else {
-		whichStream = document.getElementById(`video_${uuid}`);
-	}
-	if (!whichStream) {
-		//console.log("something very bad has happened");
-		return;
-	}
-
-	if (!whichStream.srcObject) {
-		whichStream.srcObject = new MediaStream();
-	}
-	const stream = whichStream.srcObject;
-
-	try {
-		stream.getTracks().filter(t => t.kind === track.kind).forEach(t => stream.removeTrack(t));
-	} catch (e) {
-		console.warn("failed to remove tracks from stream ", stream, track)
-	}
-
-	try { stream.addTrack(track); } catch (e) {
-		console.warn("failed to add tracks to stream ", stream, track)
-	}
-
-	if (track.kind === 'audio') {
-		//do not reassigning srcObject, just ensure playback
-
-	}
-	if (track.kind === 'video') {
-		//do not reassigning srcObject, just ensure playback
-		whichStream.muted = false;
-		whichStream.playsInline = true;
-		whichStream.disablePictureInPicture = true;
-		whichStream.preload = "metadata";
-
-		whichStream.play().catch(() => { });
-	}
-
-	if (track.kind === 'audio' && streamID.startsWith("ms_")) {
-		//reactivateTools("streamAudio");
-	}
-	if (track.kind === 'video' && streamID.startsWith("ms_")) {
-		//reactivateTools("streamVideo");
-	}
-}
-
-//low capture quality, low bandwidth, low framerate
-function limitVideoBitrateForUser() {
-	let brMax = "40kbps";
-	let brMin = "20kbps";
-	let frameRate = 15;
-
-	vdo.updatePublisherMedia({
-	media: {
-		video: {
-			height: 80,
-			maxBitrate: brMax,
-			minBitrate: brMin,
-			frameRate: frameRate
-			}
-		}
-	});
-
+  osc.stop(ctx.currentTime + duration);
 }
 
 //liimits main stream bitrate (and it works now biches)
@@ -292,3 +201,43 @@ function limitVideoBitrateForMainStream(bitrate, height) {
 	});
 }
 
+
+
+
+function snapshotDialog(dialog) {
+	const snapshot = {};
+
+	dialog.querySelectorAll("input, select, textarea").forEach(el => {
+		if (el.type === "checkbox" || el.type === "radio") {
+			snapshot[el.id] = el.checked;
+		} else {
+			snapshot[el.id] = el.value;
+		}
+	});
+
+	return snapshot;
+}
+
+function restoreDialog(dialog, snapshot) {
+	if (!snapshot) return;
+
+	dialog.querySelectorAll("input, select, textarea").forEach(el => {
+		if (!(el.id in snapshot)) return;
+
+		if (el.type === "checkbox" || el.type === "radio") {
+			el.checked = snapshot[el.id];
+		} else {
+			el.value = snapshot[el.id];
+		}
+	});
+}
+
+function updateMainVULevel(levelMain) {
+	//console.log("updating main VU level to ", levelMain);
+	mainStreamVU.style.height = `${levelMain}%`;
+}
+
+function updatePeerVULevel(uuid, level) {
+	//console.log("updating main VU level to ", levelMain);
+	//mainStreamVU.style.height = `${level}%`;
+}

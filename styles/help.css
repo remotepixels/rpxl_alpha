@@ -10,9 +10,7 @@ body {
     background-color: var(--color-mid-grey);
     background-image: none;
     }
-a:hover {
-    color: var(--color-light-bg); 
-}
+
 .content {
     padding-bottom: 10px;
     }
@@ -21,6 +19,7 @@ h1 {
 	font-weight: 400;
     color: var(--color-light-bg); 
 	}
+
 .h2 {
 	display:inline-block;
     margin-left: 15px;
@@ -29,17 +28,20 @@ h1 {
         color: var(--color-light-bg); 
 		padding-top:40px;
 	}
+
 h3 {
 	font-size: 18px;
 	font-weight: 400;
         color: var(--color-light-bg); 
 	}
+
 img {
     position: relative;
     left:0px;
     padding-bottom: 50px;
     max-width:100%;
 }
+
 .point {
     display: inline-flex;
     text-align: center;
@@ -52,8 +54,9 @@ img {
     height:20px;
     border-radius: var(--radius-big);
     color: var(--color-light-bg);  
-    background-color: dodgerblue;
+    background-color: var(--color-blue);
 }
+
 .pointItem {
 	margin: 10px 10px 10px 60px;
     position: relative;
@@ -61,6 +64,7 @@ img {
     width:80%;
     /* margin-bottom: 15px; */
 }
+
 .navbarItem {
     left: 0px;
     width: 0px;
@@ -68,25 +72,30 @@ img {
     padding-bottom: unset;
     max-width: unset;
     }
+
 .navbarItemDesc {
     position: relative;
     display: inline-block;
     left: 10px;
     top: -7px;
     }
+
 p {
-        color: var(--color-light-bg); 
+    color: var(--color-light-bg); 
     width:90%;
     margin-bottom: 30px;
 }
+
 br {
     margin-bottom: 10px;
 }
+
 hr {
     margin: 20px;
     width:90%;
     border: 1px solid var(--color-light-grey);
 }
+
 #navbar {
     position: fixed;
     top: 0;
@@ -104,7 +113,6 @@ hr {
     align-items: center;
     border-right:1px solid #333;
     }
-
 
 @media (max-width: 600px) {
 

@@ -1,28 +1,18 @@
-//sets up vdoninja and streams
-let firstRun = true;
-let userStreamID = generateRandomID();
-const sessionID = sessionStorage.getItem("sessionID");
-const isStreamer = window.location.pathname.startsWith("/stream");
-const isQuickShare = window.location.pathname.startsWith("/qs");
-const isTVShare = window.location.pathname.startsWith("/tv");
-const mainVideoPreview = document.getElementById("mainStream");
-let mainStreamAudio = false;
-let userStreamAudio = "micStandby";
-
 //vdo sdk's, 
-const vdo = new VDONinjaSDK({
+let vdo, vdoMS, vdoTV;
+const config = {
 	salt: "rpxl.app",
 	allowFallback: false,
 	debug: false
-});
+};
 
-//if host then start second sdk for main stream only
-const vdoMS = new VDONinjaSDK({
-	salt: "rpxl.app",
-	allowFallback: false,
-	debug: false
-});
+vdo = new VDONinjaSDK(config);
 
+//if streamer prime extra instances, main stream, smart TV's, waiting room
+if (isStreamer) {
+	vdoMS = new VDONinjaSDK(config);
+	vdoTV = new VDONinjaSDK(config);
+}
 
 //connect to vdo.ninja and join room always publish a user track
 async function VDOConnect(sessionID) {
@@ -32,7 +22,7 @@ async function VDOConnect(sessionID) {
 	STREAMS.user = userInit.stream;
 	TRACKS.user.video = userInit.video.track;
 	TRACKS.user.audio = userInit.audio.track;
-	let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
+	//let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
 
 	await vdo.connect({
 		password: null,
@@ -43,10 +33,10 @@ async function VDOConnect(sessionID) {
 	await vdo.joinRoom({
 		room: sessionID,
 		mode: "full",
-		label: sanitizedCurrentUserName,
 		video: true,
 		audio: true,
 		data: true,
+		claim: true,  
 		viewOptions: {
 			quality: 2,
 			scale: .10
@@ -111,8 +101,6 @@ async function VDOConnect(sessionID) {
 
 		await vdoMS.publish(STREAMS.main, { streamID: mainStreamID, role: "publisher" });
 		document.getElementById("mainStream").srcObject = STREAMS.main;
-
-		//sessionStorage.setItem("mainStreamID", mainStreamID);
 	}
 
 	initUserStream();
@@ -154,11 +142,10 @@ async function initUserStream() {
 		el.focus();
 		return;
 	}
+
 	const invalid = new Set(["", "0", "null", "none", null]); //list of invalid sources
-	const cameraSelect = document.getElementById("cameraSource");
-	const microphoneSelect = document.getElementById("microphoneSource");
-	const cameraCurrentSource = cameraSelect?.value ?? "";
-	const microphoneCurrentSource = microphoneSelect?.value ?? "";
+	const cameraCurrentSource = userVideoSelect?.value ?? ""; //from initdevice.js
+	const microphoneCurrentSource = userAudioSelect?.value ?? "";
 
 	if (cameraCurrentSource !== last.cameraSource || firstRun === true) {
 		let oldVideoTrack = TRACKS.user.video;
@@ -178,13 +165,15 @@ async function initUserStream() {
 			newVideoTrack = newMediaStream.getVideoTracks()[0];
 			newMediaStream.getAudioTracks().forEach(t => t.stop());
 
-			reactivateTools("userCamera");
+			//reactivateTools("userCamera");
+			setTools("camera", true);
 		} else {
 			//console.warn("no user camera selected using placeholder");
 			const tempVideo = initUserVideoTrack();
 			newVideoTrack = tempVideo.track;
 
-			deactivateTools("userCamera");
+			// deactivateTools("userCamera");
+			setTools("camera", false);
 			hideBannerByKey("cam_muted");
 		}
 
@@ -198,6 +187,8 @@ async function initUserStream() {
 
 			oldVideoTrack.stop();
 			TRACKS.user.video = newVideoTrack;
+
+			//store selected devices for user stream in local storage
 			storeSelectedDevicesUser();
 
 			//go through each connection and re-limit bitrate for user stream
@@ -224,14 +215,19 @@ async function initUserStream() {
 			newMediaStream.getVideoTracks().forEach(t => t.stop());
 			userStreamAudio = "micLive"; //this is a real audio
 
-			reactivateTools("userMicrophone");
+			//reactivateTools("userMicrophone");
+			setTools("microphone", true);
 		} else {
 			const tempAudio = initAudioTrack();
 			newAudioTrack = tempAudio.track;
-			userStreamAudio = "micStandby"; //placeholder audio
+			userStreamAudio = "micOffline"; //placeholder audio
 
-			deactivateTools("userMicrophone");
+			//reset button status
+			setTools("microphone", false);
 			hideBannerByKey("mic_muted");
+			const button = document.querySelector('[data-action="muteMicrophone"]');
+			button.setAttribute("aria-pressed", false);
+			button.classList.toggle("selected", false);
 			//console.warn("no user microphone selected usinf placeholder);
 		}
 
@@ -251,13 +247,17 @@ async function initUserStream() {
 
 			oldAudioTrack.stop();
 			TRACKS.user.audio = newAudioTrack;
+
+			//store selected devices for user stream in local storage
 			storeSelectedDevicesUser();
 		}
 	}
-	if (!isStreamer) firstRun = false; //we've run it before
-	if (isStreamer) initMainStream();
+	if (!isStreamer) {
+		firstRun = false; 
+		settingsDialog.classList.add("hidden");
+	}
 
-	closeDialog(openModal, openIcon);
+	if (isStreamer) initMainStream();	//more to do
 }
 
 async function initMainStream() {
@@ -297,10 +297,8 @@ async function initMainStream() {
 	//console.warn("quality", currentQuality);
 
 	const invalid = new Set(["", "0", "null", "none", null]);
-	const videoSelect = document.getElementById("videoSource");
-	const audioSelect = document.getElementById("audioSource");
-	const videoCurrentSource = videoSelect?.value ?? "";
-	const audioCurrentSource = audioSelect?.value ?? "";
+	const videoCurrentSource = mainVideoSelect?.value ?? ""; //from initdevice.js
+	const audioCurrentSource = mainAudioSelect?.value ?? "";
 
 	if (videoCurrentSource !== last.videoSource || height != last.resolution || currentQuality != last.quality || firstRun === true) {
 		let oldVideoTrack = TRACKS.main.video;
@@ -325,6 +323,9 @@ async function initMainStream() {
 			newVideoTrack = tempVideo.track;
 
 			hideBannerByKey("video_blind");
+			const button = document.querySelector('[data-action="muteVideo"]');
+			button.setAttribute("aria-pressed", false);
+			button.classList.toggle("selected", false);
 			//console.warn("no user camera selected using placeholder");
 		}
 
@@ -338,6 +339,7 @@ async function initMainStream() {
 
 			oldVideoTrack.stop();
 			TRACKS.main.video = newVideoTrack;
+
 			limitVideoBitrateForMainStream(currentQuality, height);
 
 			storeSelectedDevicesSession();
@@ -363,14 +365,20 @@ async function initMainStream() {
 			newAudioTrack = newMediaStream.getAudioTracks()[0];
 			newMediaStream.getVideoTracks().forEach(t => t.stop());
 			mainStreamAudio = true; //this is a real audio source so allow volue control
-			reactivateTools("streamAudio");
+			
+			setTools("audio", true);
 		} else {
 			//console.warn("no audio source selected creating empty stream");
 			const tempAudio = initAudioTrack();
 			newAudioTrack = tempAudio.track;
 			mainStreamAudio = false	//placeholder audio, no volume control
-			deactivateTools("streamAudio");
+			
+			//reset button status
+			setTools("audio", false);
 			hideBannerByKey("audio_muted");
+			const button = document.querySelector('[data-action="muteAudio"]');
+			button.setAttribute("aria-pressed", false);
+			button.classList.toggle("selected", false);
 		}
 
 		if (oldAudioTrack !== newAudioTrack) {
@@ -387,14 +395,12 @@ async function initMainStream() {
 				timestamp: Date.now()
 			});
 
-			// if (mainStreamAudio) {
-			// 	const videoEL = document.getElementById("mainStream");
-			// 	initMainStreamVU(videoEL);
-			// }
 			oldAudioTrack.stop();
 			TRACKS.main.audio = newAudioTrack;
+
 			storeSelectedDevicesSession();
 		}
 	}
 	firstRun = false;
+	settingsDialog.classList.add("hidden");
 }

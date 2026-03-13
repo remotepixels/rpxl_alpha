@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -12,366 +11,297 @@
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
-    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#5bbad5">
-    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/icons/favicon.ico">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-    <link rel="stylesheet" href="/styles/styles.css">
-    <link rel="stylesheet" href="/styles/streamstyle.css">
+	<link rel="stylesheet" href="/styles/base.css">
+	<link rel="stylesheet" href="/styles/toolbars.css">
+	<link rel="stylesheet" href="/styles/banners.css">
+	<link rel="stylesheet" href="/styles/dialogs.css">
+	<link rel="stylesheet" href="/styles/main-panel.css">
+	<link rel="stylesheet" href="/styles/side-panel-base.css">
+	<link rel="stylesheet" href="/styles/side-panel-peers.css">
+	<link rel="stylesheet" href="/styles/side-panel-chat.css">
+	<link rel="stylesheet" href="/styles/side-panel-files.css">
 
-    <title>rpxl.app v3.5 | Stream</title>
+    <title>rpxl.app v4 | Stream</title>
 </head>
+<style>
 
+</style>
 <body id="body">
-    <div class="peerList hidden" id="peerList">
-		<div class="peer">
-			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
-			<span id ="userLabel" class="peerLabel"></span>
-			<!-- <span class="peerControl"> -->
-				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
-				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
-			<!-- </span> -->
+	<div id="app" class="app hidden">
+		<div class="mainViewer">
+			<!-- main window -->
+			<div id="sessionName" class="session-name"></div>
+			<div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+			<div id="mainVU"><span id="mainStreamVU" class="meter" data-property="--vu"></span></div>
+			<div class="mainZoom" id="zoomdiv">
+				<video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+				<canvas id="markup" class="markup" data-requires="video"></canvas>
+			</div>
+			<!-- main toolbar -->
+			<div class="toolbar-horiz fade">
+				<button class="tool red" id="toolBlindStream" data-ui="toggle" data-action="muteVideo" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">movie</span></button>
+				<button class="tool red" id="toolMuteStream" data-ui="toggle" data-action="muteAudio" data-requires="audio" aria-pressed="false"><span class="material-symbols-outlined">volume_up</span></button>
+				<div class="tool tool-spacer-horiz" data-requires="video" ></div>
+				<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+				<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
+				<button class="tool" id="toolEraser" data-ui="action" data-action="eraseTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">ink_eraser</span></button>
+				<div class="tool tool-spacer-horiz disabled" data-requires="audio" ></div>
+				<span class="tool material-symbols-outlined volume-icon disabled" id="iconVolume" data-requires="audio">volume_down</span>
+				<span class="tool volume" id="toolVolume disabled" data-requires="audio"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
+			</div>
 		</div>
-    </div>
-    <div class="mainViewer hidden" id="mainViewer">
-   	 	<div class="mainZoom" id="zoomdiv">
-		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-			<!-- <span id="mainVU" class="mainMeter"><span id="mainAudioMeter" class="meter"></span></span> -->
-       		<canvas id="markup" class="markup"></canvas>
-    	</div>
+		<!-- peers -->
+		<div class="side-panel hidden" id="sidePeers">
+			<div id="user" class="peer">
+				<div id="userStreamVU" class="peerVU" data-property="--vu">
+					<video id="userStream" class="peerStream" autoplay playsinline disablepictureinpicture></video>
+				</div>
+				<span id="userLabel" class="peerLabel"></span>
+				<!-- <span class="material-symbols-outlined peer-options" data-ui="popover" data-target="peerControls" aria-expanded="false">more_vert</span> -->
+			</div>
+		</div>
+		<!-- waiting room -->
+		<div class="side-panel hidden" id="sideWaitingRoom">
+			<div class="toolbar" style="position: unset;">
+				<label>Waiting room</label>
+			</div>
+		</div>
+		<!-- Chat -->
+		<div class="side-panel pad hidden" id="sideChat">
+			<div class="chat" id="chatContainer">
+			</div>
+			<div class="toolbar bottom">
+				<div>
+					<textarea id="inputChatMessage" autocomplete="off"></textarea>
+				</div>
+				<div>
+					<button id="sendMessage" class="button bold blue" data-ui="tool" data-tool="sendMessage">+</button>
+				</div>
+			</div>
+		</div>
+		<!-- Files -->
+		<div class="side-panel pad hidden" id="sideFiles">
+			<div class="toolbar">
+				<div>
+					<button class="tool blue"id="toolAddFile" data-ui="action"  data-action="upload"><span class="material-symbols-outlined">drive_folder_upload</span></button>
+				</div>
+				<div class="tool-spacer-horiz"></div>
+				<div class="radioset" role="radiogroup" aria-labelledby="resolution" data-group="">
+				<label><input type="radio" name="sortLatest" id="sortLatest" data-ui="tool" data-group="sortBy" data-tool="sortLatest" aria-pressed="true" checked>Latest</label>
+				<label><input type="radio" name="sortName" id="sortName" data-ui="tool" data-group="sortBy" data-tool="sortName" aria-pressed="false">Name</label>
+				</div>
+			</div>
+		</div>
+		<!-- side toolbar -->
+		<div class="toolbar-side">
+			<div class="tool-set">
+				<button class="tool" id="toolHelp" data-ui="action" data-action="help">?</button>
+				<div class="tool-spacer-vert"></div>
+			<button class="tool" id="toolShare" data-ui="dialog" data-target="shareDialog"><span class="material-symbols-outlined">ios_share</span></button>
+				<div class="tool-spacer-vert"></div>
+				<button class="tool hidden" id="toolWaitingRoom" data-ui="panel" data-group="panel" data-target="sideWaitingRoom" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">room_service</span></button>		
+				<button class="tool" id="toolPeers" data-ui="panel" data-group="panel" data-target="sidePeers" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>		
+				<button class="tool" id="toolChat" data-ui="panel" data-group="panel" data-target="sideChat" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">chat_bubble</span></button>
+				<button class="tool" id="toolFiles" data-ui="panel" data-group="panel" data-target="sideFiles" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">folder</span></button>
+			</div>
+			<div class="tool-set bottom">
+				<button class="tool red" id="toolMuteMicrophone" data-ui="toggle" data-group="userTools" data-state="toolMuteMicrophone" data-action="muteMicrophone" data-requires="microphone" aria-pressed="false"><span class="material-symbols-outlined">mic</span></button>
+				<button class="tool" id="toolMuteCamera" data-ui="toggle" data-group="userTools" data-state="toolMutecamera" data-action="muteCamera" data-requires="camera" aria-pressed="false"><span class="material-symbols-outlined">photo_camera</span></button>
+				<div class="tool-spacer-vert"></div>
+				<button class="tool" id="toolSettings" data-ui="dialog" data-target="settingsDialog"><span class="material-symbols-outlined">settings</span></button>
+			</div>
+		</div>
+	</div>
+	<!-- colour palet -->
+	<div id="colorPalette" class="popover pallet hidden"  data-close-outside>
+		<span class="colorpot" data-ui="action" aria-pressed="false" value="black" style="background-color: black;"></span>
+		<span class="colorpot" data-ui="action" value="grey" style="background-color: grey;"></span>
+		<span class="colorpot selectedcolorpot" data-ui="action" aria-pressed="true"  value="white" style="background-color: white;"></span>
+		<br>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="cyan" style="background-color: cyan;"></span>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="magenta" style="background-color: magenta;"></span>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="yellow" style="background-color: yellow;"></span>
+		<br>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="red" style="background-color: red;"></span>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="green" style="background-color: green;"></span>
+		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="blue" style="background-color: blue;"></span>
+	</div>
+	<!-- peer controls -->
+	<div id="peerControls" class="popover hidden"  data-close-outside>
+		<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
+		<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
+		<div class="tool-spacer-horiz"></div>
+		<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
+	</div>
+	<!-- setting dialog -->
+	<div id="settingsDialog" class="dialog settings middle hidearrow">
+		<div class="settings-section bold">Session settings</div>
+		<div>Title</div>
+			<input style="width:404px" type="text" class="textinput" maxlength="55" id="project" name="clientName" placeholder="(Optional)">
+			<button id="toolHistory" data-ui="popover" data-target="historyDialog"><span class="material-symbols-outlined">history</span></button>
+		<div>Resolution</div>
+		<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
+			<label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label>
+			<label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label>
+		</div>
+		<div class="settings-preview">
+			<video id="videoPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
+			<audio id="audioPreview" class="audiosource" autoplay playsinline disablepictureinpicture></audio>
+			<span id="meterGraph" class="vu-meter"><span id="mainPreviewVU" class="meter"></span>	</span>
+		</div>
+		<div>Quality</div>
+		<div class="radioset" role="radiogroup" aria-labelledby="quality" role="button">
+			<label><input type="radio" name="quality" id="qualityHigh" value="high" >High</label>
+			<label><input type="radio" name="quality" id="qualityMed" value="med" checked>Med</label>
+			<label><input type="radio" name="quality" id="qualityLow" value="low" >Low</label>
+		</div>
+		<div>Video source</div>
+			<div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+		<div>Audio source</div>
+			<div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
+		<div class="settings-section optional hidden" style="margin:2px;"></div>
+
+		<div id="settingsUser" class="settings-section bold optional hidden" style="grid-column:  1 / 2; margin-top:12px; margin-bottom:12px;">User settings</div>
+		<div class="settings-preview optional hidden">
+			<video id="cameraPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
+			<span id="meterGraph" class="vu-meter"><span id="userPreviewVU" class="meter"></span>	</span>
+		</div>
+		<div class="optional hidden">User</div>
+			<input  class="optional hidden" type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" autocomplete="off">
+		<div class="optional hidden">Camera</div>
+			<div class="custom-select optional hidden"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
+		<div class="optional hidden">Microphone</div>
+			<div class="custom-select optional hidden"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
+		<div class="settings-section" style="margin:2px;"></div>
+		<div><button id="buttonMoreSettings" class="button bold">+</button></div>
+		<div id="spacer"></div>
+		<div><button id="startSessionButton" class="button blue wider">Start session</button></div>
+	</div>
+	<!-- history dialog -->
+	<div id="historyDialog" class=" popover hidden"  data-close-outside>
+		<span class="history-heading bold">IMPORTANT Loading a previous project will re-use existing share links</span>
+	</div>				
+	<!-- share dialog -->
+	<div id="shareDialog" class="dialog sharing hidden" data-close-outside>
+		<div class="link" id="copyMainLink">
+			<div class="bold">Main share link (default)</div>
+			Users join main session
+			<br>Full comms and markup
+		</div>
+		<div class="link" id="copyQuickLink">
+			<div class="bold">Quick share link</div>
+			Use for faster, no prompt joins
+			<br>No comms, only host can markup
+		</div>
+		<div class="link" id="copyQuickLink">
+			<div class="bold">Waiting room share link</div>
+			Users join a waiting room
+			<br>Full comms and markup
+		</div>
+		<!-- <div class="link" id="copyQuickLink">
+			<div class="bold">OBS share link</div>
+			Direct link to main source only
+			<br>Use for recording through OBS
+		</div>
+		<div class="link" id="copyQuickLink">
+			<div class="bold">FFMPEG share link</div>
+			URL Source for FFMPEG
+			<br>Use with Decklink utility for playout
+		</div> -->
+		<div class="smartTV" id="smartTV">
+			<div class="bold">Smart TV link</div> <input type="text" maxlength="25" class="textinput smartTV-code " id="name" name="smartTVCode" placeholder="XXXX - XXXX" autocomplete="off">
+			<button id="startTVButton" class="button blue" style="width: 40px;">+</button>
+			<br>Enter code displayed on Smart TV
+			<br>(https://rpxl.app/tv)
+		</div>
 	</div>
 
-    <!------------------------Main interface------------------>
-    <div id="mainWindow" class="hidden ">
-        <!--top menu bar-->
-        <div id="topmenu" class="toolbar top">
-            <div class="toolbar-section left">
-                <div class="toolset">
-                    <button class="tool moresettings" id="toolShare" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button>
-                </div>
-            </div>
-            <div class="toolbar-section center">
-                <div><h2 id="sessionName" class="centervertical">RPXL</h2></div>
-            </div>
-            <div class="toolbar-section right">
-                <div class="toolset">
-  					<button class="tool red moresettings" id="toolQuit" aria-expanded="false" role="button"><span class="material-symbols-outlined">mode_off_on</span></button>
-                </div>
-            </div>
-        </div>
-        <!--bottom menu bar-->
-        <div id="bottomMenu" class="toolbar bottom">
-            <div class="toolbar-section left">
-                <div class="toolset">
-                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
-                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" disabled role="button"><span class="material-symbols-outlined">mic</span></button>
-                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
-                </div>
-            </div>
-            <div class="toolbar-section center">
-				<div class="toolset">
-					<button class="tool disable hidden" aria-expanded="false" id="toolFileShare" disabled role="button"><span class="material-symbols-outlined">folder</span></button>
- 				</div>
+	<!-- mobile browser -->
+	<div id="mobileDialog" class="dialog error hidden">
+		<span class="material-symbols-outlined" style="font-size:105px">error</span><br>
+		<h2>Warning : Mobile browser detected</h2>
+		<p>Mobile streaming might work but your mileage may vary. This only affects the streamer, guests can connect via desktop or mobile device.</p>
+		<hr>
+		<button id="mobileDismiss" class="button blue wider"> Try anyway </button>
+	</div>
 
-                <div class="toolset">
-					<button class="tool red disable hidden " aria-expanded="false" id="toolBlindStream" disabled role="button"><span class="material-symbols-outlined">movie</span></button>
-					<button class="tool red disable hidden" aria-expanded="false" id="toolMuteStream" disabled role="button"><span class="material-symbols-outlined">volume_up</span></button>
-                    <button class="tool disable hidden spacer" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
-                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser</span></button>
-                    <!-- <button class="tool streamtool disable" aria-expanded="false" id="toolSlideLibrary" disabled role="button"><span class="material-symbols-outlined">slide_library</span></button> -->
-                </div>
-            </div>
-            <div class="toolbar-section right">
-                <div class="toolset">
-                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
-                </div>
-            </div>
-        </div>
-        <!-- <div class="copyCreditGrad"></div> -->
-        <!-- <div class="copyText toolbar-section left" id="statusLeft"></div> -->
-    </div>
+	<!----- Permissions ------>
+	<div id="permissionsDialog" class="dialog error hidden">
+		<span class="material-symbols-outlined" style="font-size:105px">error</span><br>
+		<h2>Warning : Video or audio permissions blocked</h2>
+		<p>Please check your browser settings to allow<br>access to your video and audio sources</p>
+		<p>You will be able to disable them at any time</p>
+		<hr>
+		<a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new"><button id="permissionMicHelp" class="button blue wider"> Click here for more info</button></a>
+	</div>
 
-    <div class="popupBG hidden" id="popupBG"></div>
-
-    <!--Setup screen, also used as setting panel later-->
-    <dialog open id="settingsDialog" class="toolpopup top middle" style="min-width:620px">
-        <div class="" id="settingsDialogTitleCreate" style="text-align: left; width:100%;">
-            <h2 id="createHeadingSession" style="padding-bottom: 10px;">Create live session</h2><a href="/help.html" target="_blank" class="helpicon">
-            <span class="material-symbols-outlined">help</span></a>
-        </div>
-        <div class="tableStream" id="settingsDialogProjectID">
-            <div>Project</div>
-            <div  style="grid-column: 2 / span 3;">
-				<input type="text" class="textinput" maxlength="55" id="project" name="clientName" placeholder="(Optional)" contenteditable="true">
-				<span class="toolset" id="historyButton">
-					<button class="tool moresettings" id="toolHistory" aria-expanded="false" role="button">
-						<span class="material-symbols-outlined">history</span>
-					</button>
-				</span>
-			</div>
-			<!-- <div>Password</div> -->
-            <!-- <div><input type="text" class="textinput" maxlenght="40" id="password" name="clientName" placeholder="(Optional)" contenteditable="true"></div> -->
-        </div>
-        <!-- <div style="width:100%"><hr></div> -->
-		<div style="width:100%; margin:3px 0px;"></div>
-        <div class="tableStream" id="settingsDialogSessionSettings"">
-            <div>Resolution</div>
-			<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
-				<label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label>
-				<label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label>
-			</div>
-            <div>Quality</div>
-			<div class="radioset" role="radiogroup" aria-labelledby="quality" role="button">
-				<label><input type="radio" name="quality" id="qualityHigh" value="high" >High</label>
-				<label><input type="radio" name="quality" id="qualityMed" value="med" checked>Med</label>
-				<label><input type="radio" name="quality" id="qualityLow" value="low" >Low</label>
-			</div>
-            <div>Video source</div><div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
-            <div>Audio source</div><div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
-			<div style="grid-column: 3; grid-row: 1 / span 4;" id="settingsDialogVideoAudioPreview">
-				<video id="video" class="videosource" autoplay playsinline disablepictureinpicture></video>
-				<audio id="audioPreview" class="audiosource" autoplay playsinline disablepictureinpicture></audio>
-				<span id="meterGraph" class="meterGraph">	<span id="audiometer" class="meter"></span>	</span>
-			</div>
-        </div>
-        <div style="width:100%; margin:10px 0px;"></div>
-        <div class="tableStream collapsed" id="moresettings">
-            <div style="grid-column: 1 / span 2;"><h2 id="createOptional">Optional user settings</h2></div>
-            <div>User</div>
-			<div>
-				<input type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" contenteditable="true" autocomplete="off">
-			</div>
-            <div>Camera</div>
-			<div class="custom-select"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
-            <div>Microphone</div>
-			<div class="custom-select"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
-            <div id="settingsDialogCameraMicPreview" style="grid-column: 3; grid-row: 1 / span 4;">
-				<video id="camera" class="camera" autoplay playsinline disablepictureinpicture></video>
-				<span id="meterGraph" class="meterGraph"><span id="micmeter" class="meter"></span>	</span>
-			</div>
-        </div>
-        <div id="moresettingsHR" class="hidden" style="width:100%; margin:10px 0px;"><HR></div>
-        <div id="settingsDialogButtons" style="position: relative; width: 100%; display: inline-flex; justify-content: space-between; align-items: center;">
-            <div><button id="buttonMoreSettings" class="tool moresettings wider" aria-expanded="false">More setings</button></div>
-            <div><button id="startSessionButton" class="botton blue wider">Start session</button></div>
-        </div>
-    </dialog>
-
-    <!----- history dialog ------>
-    <div class="popupBG hidden" id="popupHistoryBG"></div>
-    <dialog id="historyDialog" class="toolpopup top right hidden">
-    </dialog>
-
-    <!----- share dialog ------>
-    <dialog id="shareDialog" class="toolpopup top left share hidden">
-        <button class="link" id="copyMainLink"><h2>Main share link</h2><br> Full communication and markup </button>
-        <button class="link" id="copyQuickLink"><h2>Quick share link</h2><br> No communications, host can markup<br>Use for faster, no prompt joins</button>
-        <!-- <button class="link" id="copyOBSLink"><h2>OBS source link</h2><br> URL for input to OBS browser source </button> -->
-       <!-- <button class="link" id="copyOBSLink"><h2>WHIP source link</h2><br> URL for input to FFMPEG<br>Can be used to output to Decklink</button> -->
-    </dialog>
-
-    <!----- quit dialog ------>
-    <dialog id="quitDialog" class="confirmpopup hidden">
-        <button id="confirmQuit" class="button tool red wider"> Confirm quit </button>
-    </dialog>
-
-    <!----- color menu ------>
-    <dialog id="paletteDialog" class="toolpopup bottom middle hidden">
-        <span class="colorpot" role="button" value="black" aria-expanded="false"
-            style="background-color: black;"></span><span class="colorpot selectedcolorpot" role="button" value="white"
-            aria-expanded="true" style="background-color: white;"></span><span class="colorpot" role="button"
-            value="cyan" aria-expanded="false" style="background-color: cyan;"></span><span class="colorpot"
-            role="button" value="magenta" aria-expanded="false" style="background-color: magenta;"></span><span
-            class="colorpot" role="button" value="yellow" aria-expanded="false"
-            style="background-color: yellow;"></span>
-    </dialog>
-
-    <!-- mobile browser -->
-    <dialog id="mobileDialog" class="toolpopup top middle hidden" style="width:600px!important; top:70px;">
-        <span class="material-symbols-outlined" style="font-size:125px">error</span><br>
-        <h2>Warning : Mobile browser detected</h2>
-        <p>Currently, streaming is desktop only.</p>
-        <p>Mobile streaming might work but your mileage may vary. This only affects the streamer, guests can connect via desktop or mobile device.</p>
-        <hr>
-        <button id="mobileDismiss" class="botton blue wider"> Try anyway </button>
-    </dialog>
-
-    <!----- Permissions ------>
-    <dialog id="permissionsDialogStream" class="toolpopup top middle hidden" style="width:410px!important; top:70px">
-        <span class="material-symbols-outlined" style="font-size:125px">error</span><br>
-        <h2>Warning : Video or audio permissions blocked</h2>
-        <p>Please check your browser settings to allow<br>access to your video and audio sources.</p>
-        <p>You will be able to disable them at any time.</p>
-        <hr>
-        <a href="https://www.google.com/search?q=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&rlz=1C5CHFA_enCH1148CH1149&oq=browser+miicrophone+and+camera+permissions+setup+for+desktop+and+mobile&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIxMDk0ajBqN6gCCLACAfEFhqUbtfZyAjs&sourceid=chrome&ie=UTF-8" target="_new"><button id="permissionMicHelp" class="botton buttonblue buttonWider"> Click here for more info</button></a>
-    </dialog>
-
+	<!-- notifications -->
 	<div id="bannerStack" aria-live="polite"></div>
-
 	<template id="bannerTemplate">
-   		<div class="banner">
+		<div class="banner">
 			<span>	</span>
-    	</div>
+		</div>
 	</template>
-
-    <!----- popup stream zoomed popup------>
-    <div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
-
-</body>
+	</body>
 </html>
 
 <script src="/scripts/vdoninja-sdk.js"></script>
-<script src="/scripts/storage.js"></script>
 <script src="/scripts/global.js"></script>
 <script src="/scripts/initdevice.js"></script>
+<script src="/scripts/storage.js"></script>
 <script src="/scripts/initstreams.js"></script>
+<script src="/scripts/inithistory.js"></script>
 <script src="/scripts/initvdo.js"></script>
 <script src="/scripts/listeners.js"></script>
 <script src="/scripts/interface.js"></script>
+<script src="/scripts/peers.js"></script>
+<script src="/scripts/chat.js"></script>
 <script src="/scripts/markup.js"></script>
 
 <script type="text/javascript">
-	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
-	sessionStorage.setItem("sessionID", generateRandomID());  //create session ID and store in session storage
+	const APP_NS = 'RPXL-Hosts';
 
-	const APP_NS = 'host-RPXL';
-	const devURL = window.location.origin;
 	let historyBGAttached = false;
-	let isVDOReady = false;
 	let mainPublished = false;
+	let sessionID = generateRandomID();
+	let waitingRoomID = generateRandomID();
+	console.log("generating new session id :", sessionID);
 
-	randomBG(); //random background image from interface.js
-	restoreSetingsLast(); //restore last used settings from local storage
-	
+	randomBG(); //interface.js
+	restoreSetingsLast(); //storage.js
+	loadHistoryIntoDialog();	//inithistory.js
+
 	//check if mobile device and warn user
 	const mobileDialog = document.getElementById("mobileDialog");
 	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 	if (isMobile) {
 		mobileDialog.classList.remove("hidden");
-		mobileDialog.show();
 		mobileDismiss.addEventListener("pointerup", () => {
 			mobileDialog.classList.add("hidden");
-			mobileDialog.close();
 		});
-		//console.log("User is on a mobile device.");
-	}
-
-	//pretty date in history dialog
-	function formatDateISO(dateString) {
-		const d = new Date(dateString);
-		return (
-			d.getFullYear() + "-" +
-			String(d.getMonth() + 1).padStart(2, "0") + "-" +
-			String(d.getDate()).padStart(2, "0") + " " +
-			String(d.getHours()).padStart(2, "0") + ":" +
-			String(d.getMinutes()).padStart(2, "0")
-		);
-	}
-
-	//create session history drop down
-	function loadHistoryIntoDialog() {
-		const sessionsJSON = localStorage.getItem(APP_NS);
-		if (!sessionsJSON) return;
-
-		const sessions = JSON.parse(sessionsJSON);
-		const dialog = document.getElementById("historyDialog");
-
-		openDialog(historyDialog, toolHistory);
-		document.getElementById("popupHistoryBG").classList.remove("hidden");
-
-		// Attach background listener ONCE
-		if (!historyBGAttached) {
-			window.addEventListener("pointerup", (e) => {
-				if (e.target.matches("#popupHistoryBG")) {
-					closeDialog(openModal, openIcon);
-					document.getElementById("popupHistoryBG").classList.add("hidden");
-				}
-			});
-			historyBGAttached = true;
-		}
-
-		dialog.innerHTML = `
-        <span class="historyHeader"><h2>IMPORTANT : Loading a previous project will re-use existing share links</h2></span><br>
-        <hr>`; // reset
-
-		sessions.forEach(entry => {
-			const project = decodeURIComponent(entry.projectName) || "Unnamed project";
-			const formattedDate = formatDateISO(entry.createdAt);
-
-			const btn = document.createElement("button");
-			btn.className = "link historyEntry";
-			btn.dataset.sessionId = entry.sessionID;
-
-			btn.innerHTML = `
-            <h2>${project}</h2>
-            <span class="date">${formattedDate}</span>
-        `;
-
-			btn.addEventListener("click", async () => {
-				restoreSessionFromHistory(entry);
-				//console.log(`Restored session from history: ${entry.sessionID}`);
-			});
-
-			dialog.appendChild(btn);
-		});
-	}
-	//restore session ID and session name from history entry selected
-	async function restoreSessionFromHistory(entry) {
-		// Restore sessionID + projectName only here
-		sessionStorage.setItem("sessionID", entry.sessionID);
-		console.log(`Restored sessionID: ${entry.sessionID} from history`);
-
-		const projectInput = document.getElementById("project");
-		projectInput.value = decodeURIComponent(entry.projectName) === "Unnamed project"
-			? ""
-			: decodeURIComponent(entry.projectName);
-
-		// Restore all *other* UI settings
-		await restoreSettingsHost(entry); //from initui.js
-		await handleSelectionChange(); // single attach
-		closeDialog(openModal, openIcon);
-		document.getElementById("popupHistoryBG").classList.add("hidden");
-	}
-	//restore last used settings from local storage on load
-	async function restoreSetingsLast() {
-		document.getElementById("project").value = ""; //clear project name on load
-		await getDevices();        // enumerate only / or release probes
-		[mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect]
-			.forEach(sel => sel.addEventListener('change', scheduleSelectionChange));
-		await handleSelectionChange(); // single attach
-
-		const sessionsJSON = localStorage.getItem(APP_NS);
-		if (!sessionsJSON) return;
-
-		const sessions = JSON.parse(sessionsJSON);
-		if (!sessions.length) return;
-
-		const last = sessions[0];
-
-		restoreSettingsHost(last); // UI only
-		await handleSelectionChange(); // single attach
 	}
 
 	//more settings menu on create dialogue flyout
 	buttonMoreSettings.addEventListener("pointerup", () => {
 		const isExpanded = buttonMoreSettings.getAttribute("aria-expanded") === "true";
 		buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
-		buttonMoreSettings.innerHTML = isExpanded ? "More settings" : "Less settings";
-		document.getElementById("moresettings").classList.toggle("collapsed");
-		document.getElementById("moresettingsHR").classList.toggle("hidden");
-		
+		buttonMoreSettings.innerHTML = isExpanded ? "+" : "-";
+		document.querySelectorAll(".optional").forEach(e => e.classList.toggle("hidden"));
 	});
 
-	document.getElementById('startSessionButton').addEventListener('pointerup', startSession);
+	startSessionButton.addEventListener("pointerup", startSession, { once: true, passive: true });
 
 	//share button (main, quick and obs)
 	function setupShareButton(buttonId, sessionID, urlFormatter) {
@@ -379,112 +309,58 @@
 		if (!btn) return;
 
 		btn.addEventListener("pointerup", () => {
-			const value = sessionStorage.getItem(sessionID);
-			if (!value) return;
+			//const value = sessionStorage.getItem(sessionID);
+			if (!sessionID) return;
 
-			const url = urlFormatter(value);
-			//console.log(`Copying to clipboard: ${url}`);
+			const url = urlFormatter(sessionID);
 			navigator.clipboard.writeText(url).then(() => {
-				closeDialog(shareDialog, toolShare);    //close share dialog
-				showBanner({ message:"Link copied to clipboard", type:"notification", timeout:3000 });
+				showBanner({ message:"Link copied to clipboard", type:"notification", timeout:3000 }); //interface.js
 			});
+
+			shareDialog.classList.toggle("hidden");
 		});
 	}
 
-	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${value}`);
-	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${value}`);
+	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${sessionID}`);
+	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${sessionID}`);
 	//setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
 
-	confirmQuit.addEventListener("pointerup", function () {
-		vdo.disconnect();
-		vdoMS.disconnect()
-
-		document.getElementById("mainStream").src = "";
-		document.getElementById("userStream").src = "";
-
-		location.reload();
-	});
-
 	async function startSession() {
-		//stuff to run once and once only when starting session
-		const sessionID = sessionStorage.getItem("sessionID");
-		const timestamp = new Date().toISOString();
-		const sanitizedProject = encodeURIComponent(document.getElementById("project").value.trim());
-		const resolution = getCheckedRadioValue("resolution"); //from initui.js
-		const quality = getCheckedRadioValue("quality"); //from initui.js
-		const videoSource = document.getElementById("videoSource").selectedOptions[0].value;
-		const audioSource = document.getElementById("audioSource").selectedOptions[0].value;
-		const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim()) || "";
-		const cameraSource = document.getElementById("cameraSource").selectedOptions[0].value;
-		const microphoneSource = document.getElementById("microphoneSource").selectedOptions[0].value;
-
-		const entry = {
-			sessionID: sessionID || "",
-			createdAt: timestamp || "",
-			projectName: sanitizedProject || "",
-			resolution: resolution || "",
-			quality: quality || "",
-			videoSource: videoSource || "",
-			audioSource: audioSource || "",
-			userName: sanitizedUserName || "",
-			cameraSource: cameraSource || "",
-			microphoneSource: microphoneSource || ""
-		};
-
-		const sessionsJSON = localStorage.getItem(APP_NS);
-		let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
-
-		sessions.unshift(entry);
-		sessions = sessions.slice(0, 5);
-
-		localStorage.setItem(APP_NS, JSON.stringify(sessions)); //store session settings in local storage for history
+		createNewStoreEntry(); //storage.js
 
 		navigator.clipboard.writeText(`${devURL}/?SID=${sessionID}`);  
 
-		//hide stream settings creation dialog
-		sessionName.innerHTML = decodeURIComponent(sanitizedProject);
-		settingsDialog.close();
+		sessionName.textContent = document.getElementById("project").value.trim()
 		document.body.style.backgroundImage = "none";
-
-		//remove any previews
-		 video.srcObject = null;
-		 camera.srcObject = null;
+		
+		//stop previews
+		videoPreview.srcObject = null;
+		audioPreview.srcObject = null;
+		cameraPreview.srcObject = null;
 
 		//Change create dialog layout for settings to re-use it
-
-		["settingsDialog", "historyButton", "buttonMoreSettings", "settingsDialogCameraMicPreview", "settingsDialogVideoAudioPreview"].forEach(id => {
+		["settingsDialog", "toolHistory", "spacer", "buttonMoreSettings"].forEach(id => {
 			document.getElementById(id).classList.add("hidden");
 		});
-		//settingsDialogProjectID.style.width = "200px";
+		settingsDialog.setAttribute("data-close-outside", "");
 		project.style.width = "200px";
-		project.style.left = "5px";
-		moresettingsHR.classList.remove("hidden");
-		settingsDialog.classList.remove("middle", "top", "min-width");
-		settingsDialog.style.minWidth = "fit-content";
-		settingsDialog.classList.add("toolpopup", "bottom", "left");
-		createHeadingSession.innerHTML = "Session settings";
-		settingsDialogSessionSettings.style.gridTemplateColumns = "110px 200px";
-		createOptional.innerHTML = "User settings";
-		moresettings.classList.remove("collapsed", "hidden");
-		settingsDialogButtons.style.justifyContent = "center";
-		startSessionButton.innerHTML = "Change settings";
-		moresettings.classList.add("hideTableColumn");
-		settingsDialogSessionSettings.classList.add("hideTableColumn");
+		document.querySelectorAll(".optional").forEach(e => e.classList.remove("hidden"));
+		document.querySelectorAll(".settings-preview").forEach(e => e.classList.add("hidden"));
+		settingsDialog.style.gridTemplateColumns = "90px 200px";
+		settingsDialog.classList.remove("middle", "hidearrow");
+		settingsUser.style.gridColumn = "1 / -1";
+		startSessionButton.innerHTML = "Apply settings";
 
-		startSessionButton.removeEventListener("pointerup", startSession);    // Remove start session listener and add settings change listener
-
-		window.addEventListener("wheel", onWheel, { passive: false });
-		window.addEventListener("pointerdown", onMouseDown);
-		window.addEventListener("pointermove", onMouseMove);
-		window.addEventListener("pointerup", onMouseUp);
+		zoomdiv.addEventListener("wheel", onWheel, { passive: false });
+		zoomdiv.addEventListener("pointerdown", onMouseDown);
+		zoomdiv.addEventListener("pointermove", onMouseMove);
+		zoomdiv.addEventListener("pointerup", onMouseUp);
 
 		startSessionButton.addEventListener("pointerup", () => {
 			initUserStream();//from initvdo.js
 		});
 
-		["mainWindow", "peerList", "mainViewer"].forEach(id => {
-			document.getElementById(id).classList.remove("hidden");
-		});
+		document.getElementById("app").classList.remove("hidden");
 
 		VDOConnect(sessionID);
 	}

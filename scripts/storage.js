@@ -1,10 +1,5 @@
 //used to reset setttings dialog to previous values on open for host
-async function restoreSettingsHost() {
-	const previousSettingsJSON = localStorage.getItem(APP_NS);
-	if (!previousSettingsJSON) return;
-
-	const settings = JSON.parse(previousSettingsJSON);
-	const entry = settings && settings[0];
+async function restoreSettingsHost(entry) {
 	if (!entry) return;
 
 	if (entry.resolution === "1080") document.getElementById("res1080P").checked = true;
@@ -59,7 +54,44 @@ async function restoreDeviceSelection(selectId, savedDeviceId) {
 	}
 }
 
+//check quality and resolution radio buttons
+function getCheckedRadioValue(name) {
+	const selected = document.querySelector(`input[name="${name}"]:checked`);
+	return selected ? selected.value : null;
+}
+
 //store session settings to localStorage
+function createNewStoreEntry() {
+		const timestamp = new Date().toISOString();
+		const sanitizedProject = encodeURIComponent(document.getElementById("project").value.trim());
+		const resolution = getCheckedRadioValue("resolution"); //from initui.js
+		const quality = getCheckedRadioValue("quality"); //from initui.js
+		const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim()) || "";
+
+		const entry = {
+			sessionID: sessionID || "",
+			createdAt: timestamp || "",
+			projectName: sanitizedProject || "",
+			resolution: resolution || "",
+			quality: quality || "",
+			videoSource: mainVideoSelect.selectedOptions[0].value || "",
+			audioSource: mainAudioSelect.selectedOptions[0].value || "",
+			userName: sanitizedUserName || "",
+			cameraSource: userVideoSelect.selectedOptions[0].value || "",
+			microphoneSource: userAudioSelect.selectedOptions[0].value || "",
+		};
+
+		//console.log("saving:", entry);
+
+		const sessionsJSON = localStorage.getItem(APP_NS);
+		let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
+
+		sessions.unshift(entry);
+		sessions = sessions.slice(0, 5);
+
+		localStorage.setItem(APP_NS, JSON.stringify(sessions));
+}
+
 function storeSelectedDevicesSession() {
 	const sessionsJSON = localStorage.getItem(APP_NS);
 	if (!sessionsJSON) return;
@@ -68,17 +100,14 @@ function storeSelectedDevicesSession() {
 	if (sessions.length === 0) return;
 
 	const latest = sessions[0]; // do NOT replace timestamp or sessionID
-
 	const projectInput = document.getElementById("project");
-	const video = document.getElementById("videoSource");
-	const audio = document.getElementById("audioSource");
 
 	const merged = updateSessionEntry(latest, {
 		projectName: encodeURIComponent(projectInput.value.trim() || ""),
 		resolution: getCheckedRadioValue("resolution") || "720",
 		quality: getCheckedRadioValue("quality") || "med",
-		videoSource: video.selectedOptions[0].value || "",
-		audioSource: audio.selectedOptions[0].value || "",
+		videoSource: mainVideoSelect.selectedOptions[0].value || "",
+		audioSource: mainAudioSelect.selectedOptions[0].value || "",
 	});
 
 	sessions[0] = merged;
@@ -96,18 +125,17 @@ function storeSelectedDevicesUser() {
 	const latest = sessions[0]; // do NOT replace timestamp or sessionID
 
 	const sanitizedUserName = encodeURIComponent(document.getElementById("name").value.trim());
-	const camera = document.getElementById("cameraSource");
-	const microphone = document.getElementById("microphoneSource");
 
 	const merged = updateSessionEntry(latest, {
 		userName: sanitizedUserName || "",
-		cameraSource: camera.selectedOptions[0].value || "",
-		microphoneSource: microphone.selectedOptions[0].value || "",
+		cameraSource: userVideoSelect.selectedOptions[0].value || "",
+		microphoneSource: userAudioSelect.selectedOptions[0].value || "",
 	});
 
 	sessions[0] = merged;
 	localStorage.setItem(APP_NS, JSON.stringify(sessions));
 }
+
 //used if user changes any settings during a session
 function updateSessionEntry(baseEntry, updates) {
 	return { ...baseEntry, ...updates };

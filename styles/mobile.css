@@ -1,0 +1,65 @@
+@media (max-width: 760px) {
+	.siteHeader {
+		height: 400px;
+	}
+
+	.text {
+		max-width: 550px;
+	}
+
+	.siteTitle {
+		font-size: 80px;
+	}
+
+	.siteSubTitle {
+		font-size: 50px;
+	}
+
+	h4 {
+		font-size: 25px;
+	}
+
+	img {
+		scale: 0.85;
+		transform-origin: 0%;
+	}
+}
+
+@media (max-width: 420px) {
+	.siteHeader {
+		height: 330px;
+	}
+
+	.text {
+		max-width: 300px;
+	}
+
+	.siteTitle {
+		font-size: 90px;
+	}
+
+	.siteSubTitle {
+		font-size: 32px;
+	}
+
+	h4 {
+		font-size: 25px;
+	}
+
+	img {
+		scale: 1;
+	}
+	.banner {
+		min-width: 300px!important;
+	}
+	#toolHelp, .tool-spacer-vert, #toolWaitingRoom, #iconVolume {
+		display: none!important;
+ 	}
+}
+
+@media (max-height: 430px) {
+ #toolHelp, .tool-spacer-vert, #toolWaitingRoom, #iconVolume {
+	display: none!important;
+ }
+
+}

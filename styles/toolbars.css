@@ -1,0 +1,173 @@
+.toolbar {
+	position: absolute;
+	width:298px;
+	height:var(--button-height);
+	padding: 5px 0px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	gap: 5px;
+ 	background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	right:calc(var(--toolbar-width) + 2px);
+	z-index:2;
+}
+.toolbar.bottom {
+	position: absolute;
+	height:unset;
+	bottom: 0px;
+	padding-bottom:10px;
+	display: flex;
+	align-items: flex-end;
+	gap:5px;
+}
+
+.toolbar-horiz {
+	position: absolute;
+	height:calc(var(--button-height) + 10px);
+	bottom: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 5px;
+	display: flex;
+	justify-content: center;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	gap: 5px;
+ 	background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	border-radius: var(--radius-big);
+	z-index:2;
+	opacity: 1;
+    transition: opacity 0.4s ease;
+}
+.toolbar-horiz.fade {
+    opacity: 0;
+    pointer-events: none; 
+}
+.toolbar-side {
+    width: var(--toolbar-width);
+	display: grid;
+	gap: 5px;
+    background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	padding:5px 5px 10px 5px;
+	z-index: 2;
+}
+
+.tool-set{
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+.tool-set.bottom {
+	position: absolute;
+	bottom: 10px;
+}
+.tool {
+	position: relative;
+	width: var(--button-width);
+	height: var(--button-height);
+	justify-content: center;
+	align-items: center;
+	display:grid;
+	cursor: pointer;
+	color: light-dark(var(--color-light-grey), var(--color-light-grey));
+	background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	border-radius: var(--radius-big);
+}
+.tool[data-count]:not([data-count="0"]):not([data-count=""])::after {
+	content: attr(data-count);
+	position: absolute;
+	top: 20px;
+	right: 0px;
+	min-width: 18px;
+	height: 18px;
+	padding: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--color-light-bg);
+	background: light-dark(var(--color-blue), var(--color-blue));
+	outline: 1px solid;
+	border-radius: 50%;
+}
+.tool:hover {
+	color: light-dark(var(--color-dark-grey), var(--color-light-bg));
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.tool.selected {
+	color: light-dark(var(--color-dark-grey), var(--color-light-bg));
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.tool.red:hover, .tool.red.selected {
+	color: light-dark(var(--color-light-bg), var(--color-light-bg));
+	background-color: var(--color-red);
+}
+button[data-ui="toggle"] {
+    position: relative;
+}
+button[aria-pressed="true"] {
+    color: light-dark(var(--color-dark-grey), var(--color-light-bg));
+}
+button[data-ui="toggle"][aria-pressed="true"]::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    opacity: 1;
+}
+
+.tool-spacer-vert{
+	margin:5px;
+	width:30px;
+	height:2px;
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+.tool-spacer-horiz{
+	margin:5px;
+	width:2px;
+	height:30px;
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+
+/* color pallet */
+.popover {
+	position: fixed;
+	height:fit-content;
+	width:fit-content;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+    background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	gap: 5px 10px;
+	align-items: center;
+	padding: 5px 5px;
+	border-radius: var(--radius-big);
+	box-shadow: var(--shadows);
+	z-index: 11;
+}
+.pallet {
+	display: unset;
+	width:140px; 
+}
+.colorpot {
+	display: inline-block;
+	padding: 10px;
+		margin:5px;
+	width: 30px;
+	height: 30px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+.selectedcolorpot, .colorpot:hover {
+	outline: 2px solid light-dark(var(--color-light-grey), var(--color-light-grey));
+	outline-offset: 3px;
+}

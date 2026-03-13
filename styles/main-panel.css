@@ -1,0 +1,126 @@
+.viewer {
+	position:relative;
+    flex: 1;                      
+    background: light-dark(var(--color-light-grey), var(--color-dark-bg));
+	padding:10px;
+}
+
+/* Zoom popup when zooming stream */
+#zoom-popup {
+	position: absolute;
+	right: 5px;
+	top:5px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	padding: 8px 14px;
+	border-radius: 6px;
+	font-family: sans-serif;
+	font-size: 14px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease;
+	z-index: 5;
+}
+
+#zoom-popup.visible {
+	opacity: 0.75;
+}
+
+.mainViewer {
+	position:relative;
+    flex: 1;                             
+    background: light-dark(var(--color-light-grey), var(--color-dark-bg));
+	padding:2px;
+}
+
+#mainVU{
+	position: fixed;
+	display: inline-block;
+	width:5px;
+	height:100dvh;
+	background: repeating-linear-gradient( to top, var(--color-light-white) 0 2px, transparent 0px 80px ) left / 20px 100dvh no-repeat;
+	opacity: 0.8;
+	z-index:12;
+}
+
+.mainZoom {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width:100%;
+	transform: translate(0, 0) scale(1);
+	transform-origin: center center;
+	will-change: transform;	
+	padding-left:10px;
+}
+
+.mainStream {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+.markup {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+}
+
+canvas, .mainZoom {
+	touch-action: none;
+}
+
+.session-name {
+	position: absolute;
+	top:10px;
+	left:10px;
+	z-index:2;
+	color: light-dark(var(--color-dark-bg), var(--color-ligh-bg)) !important;
+	opacity: 1;
+}
+.mainVU {
+    --vu: 0;
+    contain: paint;
+
+    position: relative;
+    width: 60px;
+    height: 100%;
+
+    border-radius: 0%;
+    overflow: hidden;   /* important */
+
+    outline: 3.25px solid light-dark(white, var(--color-mid-grey));
+    outline-offset: -3px;
+}
+.mainVU.disabled {
+    outline: 3px solid black;
+	outline-offset: -3px;
+}
+.mainVU::before {
+    content: "";
+    position: absolute;
+    inset: 0px;
+
+    background: linear-gradient(
+		to top,
+        var(--color-blue) calc(var(--vu) * 1%),
+        transparent 0
+    );
+
+    -webkit-mask: radial-gradient(circle, transparent 63%, black 64%);
+            mask: radial-gradient(circle, transparent 63%, black 64%);
+
+    pointer-events: none;
+}
+.mainVU.muted {
+    outline: 3px solid red;
+	outline-offset: -3px;
+}
+
+.mainVU.muted::before {
+    display: none;
+}

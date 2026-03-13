@@ -245,6 +245,14 @@ function sendFullState(targetUUID) {
     });
 }
 
+//resize markup canvas on window resize
+window.addEventListener("resize", () => {
+	wait(50); //wait for resize to finish	
+	//document.documentElement.requestFullscreen();
+
+	resizeMarkupCanvas() //markup.js
+});
+
 function resizeMarkupCanvas() {
 	const video = document.getElementById("mainStream");
 	const canvas = document.getElementById("markup");

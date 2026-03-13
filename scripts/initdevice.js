@@ -4,28 +4,23 @@ const mainAudioSelect = document.getElementById('audioSource');
 const mainVideoSelect = document.getElementById('videoSource');
 const userAudioSelect = document.getElementById('microphoneSource');
 const userVideoSelect = document.getElementById('cameraSource');
-const mainPreview = document.getElementById('video');
-const userPreview = document.getElementById('camera');
-const mainVU = document.getElementById('audiometer');
-const userVU = document.getElementById('micmeter');
-const startButton = document.getElementById('start-button');
+const mainPreview = document.getElementById('videoPreview');
+const userPreview = document.getElementById('cameraPreview');
+const mainPreviewVU = document.getElementById('mainPreviewVU');
+const userPreviewVU = document.getElementById('userPreviewVU');
+const mainStreamVU = document.getElementById("mainStreamVU");
+const userStreamVU = document.getElementById("userStreamVU");
 
-let devices = [];
-let mainAudioStream = null, userAudioStream = null;
-let mainVideoStream = null, userVideoStream = null;
-let mainAudioContext, userAudioContext, mainAnalyser, userAnalyser, vuInterval;
-let selectionTimer;
+const dataArrayMain = new Uint8Array(128);
+const dataArrayUser = new Uint8Array(128);
+const vuIntervals = {};
+const vuLevels = {};
 
-//debounce user changes so give time for streams and devices to settle
-function scheduleSelectionChange() {
-	clearTimeout(selectionTimer);
-	selectionTimer = setTimeout(handleSelectionChange, 50);
-}
+//attach for dropdowns
+[mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect]
+		.forEach(sel => sel.addEventListener('change', handleSelectionChange));
 
 async function getDevices() {
-	const permissionsDialogStream = document.getElementById("permissionsDialogStream");
-	const permissionsDialogClient = document.getElementById("permissionsDialogClient");
-
 	let probeStream = null;
 	let micAllowed = false;
 	let camAllowed = false;
@@ -44,23 +39,8 @@ async function getDevices() {
 	}
 
 	if (!camAllowed || !micAllowed) {
-		// Streamer
-		if (permissionsDialogStream) {
-			permissionsDialogStream.classList.remove("hidden");
-			permissionsDialogStream.show();
-			settingsDialog?.classList.add("hidden");
-		}
-
-		// Client dialog
-		if (permissionsDialogClient && permissionsDialogClient.classList.contains("hidden")) {
-			permissionsDialogClient.classList.remove("hidden");
-			permissionsDialogClient.show();
-
-			document.getElementById("permissionIgnore")?.focus();
-			document.getElementById("permissionIgnore")?.addEventListener("pointerdown", () => {
-				document.getElementById("permissionsCheck")?.classList.add("hidden");
-			});
-		}
+		permissionsDialog.classList.remove("hidden");
+		settingsDialog.classList.add("hidden");
 
 		// Disable dropdowns
 		if (!micAllowed) {
@@ -71,17 +51,17 @@ async function getDevices() {
 			mainVideoSelect.disabled = true;
 			userVideoSelect.disabled = true;
 		}
-	}
+	}	else {
+		settingsDialog.classList.remove("hidden");
+		document.getElementById("name").focus();
+ 	}
 
 	//ENUMERATE DEVICES 
 	const devices = await navigator.mediaDevices.enumerateDevices();
 	const audioInputs = devices.filter(d => d.kind === "audioinput");
 	const videoInputs = devices.filter(d => d.kind === "videoinput");
 
-	[mainAudioSelect, userAudioSelect].forEach(sel =>
-		sel.innerHTML = '<option value="" selected>None</option>'
-	);
-	[mainVideoSelect, userVideoSelect].forEach(sel =>
+	[mainAudioSelect, userAudioSelect, mainVideoSelect, userVideoSelect].forEach(sel =>
 		sel.innerHTML = '<option value="" selected>None</option>'
 	);
 
@@ -114,7 +94,7 @@ const PREVIEWS = {
 		audioContext: null,
 		analyser: null,
 		vuInterval: null,
-		vuElement: mainVU,
+		vuElement: mainPreviewVU,
 		videoElement: mainPreview
 	},
 	user: {
@@ -125,7 +105,7 @@ const PREVIEWS = {
 		audioContext: null,
 		analyser: null,
 		vuInterval: null,
-		vuElement: userVU,
+		vuElement: userPreviewVU,
 		videoElement: userPreview
 	}
 };
@@ -161,7 +141,26 @@ async function handleSelectionChange() {
 		reconcileVideoPreview("user", selectedUserVideo)
 	]);
 
-	ensureVULoop();
+	if (selectedMainAudio) {
+		ensureVULoop("main");
+	} else {
+		stopVULoop("main");
+		if (isStreamer) mainPreviewVU.style.height = "0%";
+		mainStreamVU.style.setProperty("--vu", 0);
+	}
+
+	//turn off mic button if no microphone selected
+	if (selectedUserAudio) {
+		ensureVULoop("user");
+		userStreamVU.classList.remove("micOffline");
+	} else {
+		stopVULoop("user");
+
+		userPreviewVU.style.height = "0%";
+		//userStreamVU.classList.remove("muted");
+		userStreamVU.classList.add("micOffline");
+		userStreamVU.style.setProperty("--vu", 0);
+	}
 }
 
 async function reconcileAudioPreview(role, deviceId) {
@@ -190,7 +189,7 @@ async function reconcileAudioPreview(role, deviceId) {
 	if (!deviceId) return;
 
 	// Start new audio preview, only preview on first run (vu hidden after)	
-	if (firstRun == true) {
+	// if (firstRun == true) {
 		p.audioStream = await navigator.mediaDevices.getUserMedia({
 			audio: { deviceId: { exact: deviceId } }
 		});
@@ -199,14 +198,15 @@ async function reconcileAudioPreview(role, deviceId) {
 		const source = p.audioContext.createMediaStreamSource(p.audioStream);
 
 		p.analyser = p.audioContext.createAnalyser();
+		p.analyser.fftSize = 128;
 		source.connect(p.analyser);
 
 		p.audioDeviceId = deviceId;
 
-		if (p.audioStream && role === "main") {
+		if (p.audioStream && role === "main" && firstRun == true) {
 			audioPreview.srcObject = p.audioStream;
 		}
-	}
+	// }
 }
 
 async function reconcileVideoPreview(role, deviceId) {
@@ -237,36 +237,67 @@ async function reconcileVideoPreview(role, deviceId) {
 	}
 }
 
-//vu meter update loop
-function ensureVULoop() {
-	if (vuInterval) return;
+function getVULevel(analyser, dataArray) {
+	analyser.getByteTimeDomainData(dataArray);
+	let sum = 0;
 
-	vuInterval = setInterval(() => {
-		if (PREVIEWS.main.analyser) {
-			updateVU(PREVIEWS.main.analyser, mainVU);
-		} else {
-			mainVU.style.width = "0%";
-		}
-		if (PREVIEWS.user.analyser) {
-			updateVU(PREVIEWS.user.analyser, userVU);
-		} else {
-			if (isStreamer) {
-				userVU.style.width = "0%";
-			} else {	
-				userVU.style.height = "0%";
-			}
-		}
-	}, 10);
+	for (let i = 0; i < dataArray.length; i++) {
+		const x = dataArray[i] - 128;
+		sum += x * x;
+	}
+
+	const rms = Math.sqrt(sum / dataArray.length);
+	return (rms / 128) * 100;
 }
 
-function updateVU(analyser, vuElement) {
-	const dataArray = new Uint8Array(analyser.frequencyBinCount);
-	analyser.getByteFrequencyData(dataArray);
-	const avg = (dataArray.reduce((a, b) => a + b) / dataArray.length) | 0;
-	//console.log("avg", avg);	
-	if (isStreamer) {
-		vuElement.style.width = `${avg}%`;
-	} else {
-		vuElement.style.height = `${avg}%`;
+function smoothVU(newLevel, currentLevel) {
+	// fast attack
+	if (newLevel > currentLevel) {
+		return newLevel;
+	}
+
+	// slow decay
+	return currentLevel * 0.95;
+}
+
+function ensureVULoop(whichVU) {
+	if (vuIntervals[whichVU]) return;
+
+	vuIntervals[whichVU] = setInterval(() => {
+
+		const rawLevel = Math.min(
+			getVULevel(PREVIEWS[whichVU].analyser, dataArrayMain) * 2,
+			100
+		);
+
+		vuLevels[whichVU] = smoothVU(rawLevel, vuLevels[whichVU] || 0);
+		const level = Math.round(vuLevels[whichVU]);
+
+		document.getElementById(`${whichVU}PreviewVU`).style.height = `${level}%`;
+		if (whichVU === "main") {
+		document.getElementById(`${whichVU}StreamVU`).style.height = `${level}%`;
+		} else {
+			document.getElementById(`${whichVU}StreamVU`).style.setProperty("--vu", level);
+		}	
+		sendVULevel(whichVU, level);
+		return;
+	}, 40);
+}
+
+function stopVULoop(whichVU) {
+	if (!vuIntervals[whichVU]) return;
+
+	clearInterval(vuIntervals[whichVU]);
+	delete vuIntervals[whichVU];
+}
+
+function sendVULevel(whichVU, vuLevel) {
+	if (connectedPeers > 1) {
+		vdo.sendData({
+			type: 'VUData',
+			whichVU: whichVU,
+			level: vuLevel
+		});
+		//console.log("sent info for VU", whichVU, "level", vuLevel);
 	}
 }

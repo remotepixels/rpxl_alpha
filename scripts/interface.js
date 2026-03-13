@@ -1,307 +1,343 @@
-//interface and toolbar functionality
-//active dialogs and icons
-var openModal = "";
-var openIcon = "";
-const popupBG = document.getElementById("popupBG");
-//streamer tools
-const toolHistory = document.getElementById("toolHistory");
-const toolShare = document.getElementById("toolShare");
-const toolQuit = document.getElementById("toolQuit"); 
-const toolBlindStream = document.getElementById("toolBlindStream");
-const toolMuteStream = document.getElementById("toolMuteStream");
-//setting dialog (all)
-const toolSettings = document.getElementById("toolSettings");
-//user tools
-const toolMuteMicrophone = document.getElementById("toolMuteMicrophone");
-const toolMuteCamera = document.getElementById("toolMuteCamera");
-//file share tools
-const toolFileShare = document.getElementById("toolFileShare");
-//stream tools
-const toolDraw = document.getElementById("toolDraw");
-const toolPalette = document.getElementById("toolPalette");
-const toolEraser = document.getElementById("toolEraser");
-//volume control (local)
-const toolStreamVolume = document.getElementById("toolStreamVolume");
-//default markup color
+let activePeerUUID = null;
+
+//pointer up on buttons with data-ui attribute to trigger UI actions, pointer down to close popups when clicking outside
+document.addEventListener("pointerup", (e) => {
+	if (document.querySelector('[data-tool="toolDraw"][aria-pressed="true"]')) return;
+	if (e.target.closest("#markup")) return;
+
+    const button = e.target.closest("[data-ui]");
+    if (!button) return;
+
+    const ui = UI[button.dataset.ui];
+    if (ui) ui(button);
+});
+
+//pointerdown to cancel dialogs or popovers when clicking outside of them
+document.addEventListener("pointerdown", (e) => {
+    const dialogs = document.querySelectorAll("[data-close-outside]");
+
+    dialogs.forEach(dialog => {
+
+        if (dialog.classList.contains("hidden")) return;
+
+        if (!dialog.contains(e.target)) {
+            dialog.classList.add("hidden");
+			restoreDialog(settingsDialog, settingsSnapshot);
+			handleSelectionChange();
+        }
+
+    });
+});
+
+//hide toolbar after 3 seconds of inactivity, show when mouse moves near bottom or on click
+const toolbar = document.querySelector(".toolbar-horiz");
+let timer;
+
+function resetToolbarTimer() {
+    toolbar.classList.remove("fade");
+
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+        toolbar.classList.add("fade");
+    }, 3000);
+}
+
+//document.addEventListener("pointermove", resetToolbarTimer);
+document.addEventListener("pointerdown", resetToolbarTimer);
+
+document.addEventListener("pointermove", (e) => {
+    if (window.innerHeight - e.clientY < 120) {
+        resetToolbarTimer();
+    }
+});
+
+const chatButton = document.getElementById("toolChat");
+
+chatButton.addEventListener("pointerup", () => {
+	unreadMessages = 0;
+	updateChatBadge();
+});
+
+const peerButton = document.getElementById("toolPeers");
+
+peerButton.addEventListener("pointerup", () => {
+	updatePeerBadge();
+});
+
+//ui types, panels, dialogs, tools, toggles, actions, popovers
+const UI = {
+    panel(button) {
+        const panel = document.getElementById(button.dataset.target);
+        const open = !panel.classList.contains("hidden");
+
+        document.querySelectorAll(".side-panel")
+            .forEach(p => p.classList.add("hidden"));
+
+        document.querySelectorAll('[data-ui="panel"]')
+            .forEach(t => {
+                t.classList.remove("selected");
+                t.setAttribute("aria-expanded","false");
+            });
+
+        if (!open) {
+            panel.classList.remove("hidden");
+            button.classList.add("selected");
+            button.setAttribute("aria-expanded","true");
+        }
+		resizeMarkupCanvas(); //markup.js
+    },
+
+    toggle(button) {
+        const state = button.getAttribute("aria-pressed") === "true";
+        const newState = !state;
+
+        button.setAttribute("aria-pressed", newState);
+        button.classList.toggle("selected", newState);
+
+        runAction(button, newState);
+    },
+
+	tool(button) {
+        const state = button.getAttribute("aria-pressed") === "true";
+        const newState = !state;
+
+        button.setAttribute("aria-pressed", newState);
+        button.classList.toggle("selected", newState);
+
+        runAction(button, newState);
+	},
+
+	action(button) {
+		const state = button.getAttribute("aria-pressed") === "true";
+		const newState = !state;
+
+    	runAction(button, newState);
+    },
+
+    dialog(button) {
+        const dialog = document.getElementById(button.dataset.target);
+		settingsSnapshot = snapshotDialog(settingsDialog); //global.js, store current settings state to recall if user cancels out of dialog
+        dialog.classList.toggle("hidden");
+    },
+
+    popover(button) {
+		//console.log("show popover:", button.dataset.target);
+		const id = button.dataset.target;
+		const popover = document.getElementById(id);
+		const state = button.getAttribute("aria-expanded") === "true";
+
+		const open = !popover.classList.contains("hidden");
+		button.setAttribute("aria-expanded", !state);
+
+		//set activePeerID and toggle options based on peer state
+		const peer = button.closest(".peer");
+		if (peer) {
+			activePeerUUID = peer.dataset.uuid; 
+
+			const vu = peer.querySelector(".peerVU");
+			const micTool = popover.querySelector('[data-requires="remoteAudio"]');
+
+			const hasMic = !vu.classList.contains("micOffline");
+			micTool.classList.toggle("hidden", !hasMic);
+		}
+
+		// close other popovers
+		document.querySelectorAll(".popover").forEach(p => {
+			p.classList.add("hidden");
+		});
+
+		if (open) return;
+
+		//place popup
+		const rect = button.getBoundingClientRect();
+
+		popover.classList.remove("hidden");
+
+		const popW = popover.offsetWidth;
+		const popH = popover.offsetHeight + 5;
+
+		let top = rect.bottom;
+		let left = rect.left + rect.width / 2 - popW / 2;
+
+		// flip above if bottom overflow
+		if (top + popH > window.innerHeight) {
+			top = rect.top - popH;
+		}
+
+		// clamp horizontally
+		left = Math.max(8, Math.min(left, window.innerWidth - popW - 8));
+
+		popover.style.top = top + "px";
+		popover.style.left = left + "px";
+	}
+
+};
+
+const ACTIONS = {
+	//main toolbar
+    muteVideo(state) {
+		if (state) {
+			console.log("Toggling video state (muted)");
+			TRACKS.main.video.enabled = false;
+			showBanner({ key:"video_blind", message:"Main video stream disabled", type:"warning", timeout:null });
+		} 
+		if (!state) {
+			console.log("Toggling video state (live)");
+			TRACKS.main.video.enabled = true;
+			hideBannerByKey("video_blind");
+		}
+    },
+
+    muteAudio(state) {
+		if (state) {
+			console.log("Toggling audio state (muted)");
+			TRACKS.main.audio.enabled = false;
+			showBanner({ key:"audio_muted", message:"Main audio stream disabled", type:"warning", timeout:null });
+		} 
+		if (!state) {
+			console.log("Toggling audio state (live)");
+			TRACKS.main.audio.enabled = true;
+			hideBannerByKey("audio_muted");
+		}
+    },
+
+    drawTool(state) {
+		if (state) {
+			//console.log("Toggling draw tool (on)")
+			document.getElementById("markup").style.cursor = "crosshair";
+			canvas.addEventListener('pointerdown', startDrawing);
+			canvas.addEventListener('pointermove', draw);
+			canvas.addEventListener('pointerup', endDrawing);
+			canvas.addEventListener('mouseout', endDrawing);
+		} 
+		if (!state) {
+			//console.log("Toggling draw tool (off)")
+			document.getElementById("markup").style.cursor = "default";
+			canvas.removeEventListener('pointerdown', startDrawing);
+			canvas.removeEventListener('pointermove', draw);
+			canvas.removeEventListener('pointerup', endDrawing);
+			canvas.removeEventListener('mouseout', endDrawing);
+		}
+    },
+
+    eraseTool() {
+		console.log("Erase tool")
+		toolEraserSelect();
+    },
+
+	//sidebar
+	help() {
+        window.open("/help.html", "_help");
+    },
+
+	remoteToggleMic() {
+		if (!activePeerUUID) return;
+
+		vdo.sendData({
+			type: 'remoteToggleMic',
+			user: activePeerUUID,
+			timestamp: Date.now()
+		},activePeerUUID);
+
+		peerControls.classList.toggle("hidden", true);
+		//console.log("Toggling peer mic", activePeerUUID);
+	},
+
+	moveToRoom() {
+		if (!activePeerUUID) return;
+
+		vdo.sendData({
+			type: 'moveToRoom',
+			user: activePeerUUID,
+			timestamp: Date.now()
+		},activePeerUUID);
+
+		togglePeerRoom(activePeerUUID);
+		peerControls.classList.toggle("hidden", true);
+		//console.log("moving peer", activePeerUUID);
+	},
+
+	kick() {
+		if (!activePeerUUID) return;
+
+		vdo.sendData({
+			type: 'kick',
+			user: activePeerUUID,
+			timestamp: Date.now()
+		},activePeerUUID);
+
+		peerControls.classList.toggle("hidden", true);
+		//console.log("Kicking peer", activePeerUUID);
+	},
+
+    muteMicrophone(state) {
+		const vu = document.getElementById("userStreamVU");
+
+		if (state) {
+			console.log("Toggling microphone state (muted)");
+			TRACKS.user.audio.enabled = false;
+			vu.classList.add("muted");
+
+			vdo.sendData({
+				type: 'userStreamAudio',
+				info: "micMute",
+				timestamp: Date.now()
+			});
+
+			showBanner({ key:"mic_muted", message:"Your Microphone has been muted", type:"warning", timeout:null });
+		} 
+		if (!state) {
+			console.log("Toggling microphone state (live)");
+			TRACKS.user.audio.enabled = true;
+			vu.classList.remove("muted");
+
+			vdo.sendData({
+					type: 'userStreamAudio',
+					info: "micLive",
+					timestamp: Date.now()
+			});
+
+			hideBannerByKey("mic_muted");
+		}
+    },
+
+    muteCamera(state) {
+		if (state) {
+			//console.log("Toggling camera state (muted)");
+			TRACKS.user.video.enabled = false;
+			showBanner({ key:"cam_muted", message:"Your camera has been turned off", type:"notification", timeout:3000 });
+		} 
+		if(!state) {
+			//console.log("Toggling camera state (live)");
+			TRACKS.user.video.enabled = true;
+			hideBannerByKey("cam_muted");
+		}
+    },
+};
+
+function runAction(button, state) {
+    const action = ACTIONS[button.dataset.action];
+
+    if (action) action(state, button);
+}
+
 var color = "white";
 const colorPots = document.querySelectorAll('.colorpot');
 //popup banner
 const activeBanners = new Map();
 
-function deactivateTools(whichTools) {
-	if (!whichTools || whichTools.length === 0) return;
+function setTools(source, state) {
+    const tools = document.querySelectorAll(`[data-requires="${source}"]`);
 
-	let toolConfig = {};
+    tools.forEach(tool => {
+        tool.classList.toggle("hidden", !state);
+		tool.setAttribute("aria-pressed", "false");
+    });
 
-	if (whichTools === "userMicrophone") {
-		toolConfig = {
-			toolMuteMicrophone: { icon: "mic" },
-		};
-	}
-	if (whichTools === "userCamera") {
-		toolConfig = {
-			toolMuteCamera: { icon: "photo_camera" }
-		};
-	}
-
-	if (whichTools === "fileShare") {
-		toolConfig = {
-			toolFileShare: { icon: "folder" }
-		};
-	}
-
-	if (whichTools === "streamVideo") {
-		toolConfig = {
-			toolDraw: { icon: "format_ink_highlighter" },
-			toolPalette: { icon: "palette" },
-			toolEraser: { icon: "ink_eraser" },
-			toolBlindStream: { icon: "movie_off" }
-		};
-	}
-	if (whichTools === "streamAudio") {
-		toolConfig = {
-			toolMuteStream: { icon: "volume_up" },
-			toolVolume: { icon: "" }
-		};
-	}
-
-	document.querySelectorAll(".tool").forEach(tool => {
-		const cfg = toolConfig[tool.id];
-		if (!cfg) return; // skip tools we don't care about
-
-		tool.disabled = true;
-		tool.classList.add("disable", "hidden");
-		tool.classList.remove("selected");
-		tool.setAttribute("aria-expanded", "false");
-		if (cfg.icon) tool.lastElementChild.textContent = cfg.icon;
-	});
-
-	// close all open dialogs
-	document.querySelectorAll("dialog:not(.hidden)").forEach(modal => {
-		modal.classList.add("hidden");
-		modal.close();
-	});
 }
 
-function reactivateTools(whichTools) {
-	if (!whichTools || whichTools.length === 0) return;
-
-	let toolConfig = {};
-
-	if (whichTools === "userMicrophone") {
-		toolConfig = {
-			toolMuteMicrophone: { icon: "mic" },
-		};
-	}
-	if (whichTools === "userCamera") {
-		toolConfig = {
-			toolMuteCamera: { icon: "photo_camera" }
-		};
-	}
-
-	if (whichTools === "fileShare") {
-		toolConfig = {
-			toolFileShare: { icon: "folder" }
-		};
-	}
-
-	if (whichTools === "streamVideo") {
-		toolConfig = {
-			toolDraw: { icon: "format_ink_highlighter" },
-			toolPalette: { icon: "palette" },
-			toolEraser: { icon: "ink_eraser" },
-			toolBlindStream: { icon: "movie_off" }
-		};
-	}
-
-	if (whichTools === "streamAudio") {
-		toolConfig = {
-			toolMuteStream: { icon: "volume_up" },
-			toolVolume: { icon: "" }
-		};
-
-	}
-	document.querySelectorAll(".tool").forEach(tool => {
-		const cfg = toolConfig[tool.id];
-		if (!cfg) return; // skip tools we don't care about
-
-		tool.disabled = false;
-		tool.classList.remove("disable", "hidden");
-	});
-}
-
-//open ppopup dialogs and menus
-function openDialog (dialog, toolIcon) {
-    document.getElementById("popupBG").classList.remove("hidden");
-    dialog.classList.remove("hidden");
-    dialog.show();
-    toolIcon.setAttribute("aria-expanded", "true"); 
-    toolIcon.classList.toggle("selected"); 
-    openModal = dialog; 
-    openIcon = toolIcon;
-}
-
-function closeDialog(dialog, toolIcon) {
-    if (!dialog) return; // safety check
-
-    document.getElementById("popupBG").classList.add("hidden");
-
-    dialog.classList.add("hidden");
-    if (typeof dialog.close === "function") dialog.close();
-    if (toolIcon) {
-        toolIcon.setAttribute("aria-expanded", "false");
-        toolIcon.classList.remove("selected");
-    }
-
-    openModal = "";
-    openIcon = "";
-}
-
-//clicking the background to dismiss dialogs
-popupBG.addEventListener("pointerdown", function(e) {
-    if (e.target.matches("#popupBG")) {
-        closeDialog(openModal, openIcon);
-    }
-});
-
-//actual button assignments
-if (toolHistory) { toolHistory.addEventListener("pointerup", function () { loadHistoryIntoDialog(); });}
-if (toolShare) { toolShare.addEventListener("pointerup", function () { openDialog(shareDialog, toolShare); });}
-if (toolQuit) { toolQuit.addEventListener("pointerup", function () { openDialog(quitDialog, toolQuit); });}
-
-if (toolSettings) { toolSettings.addEventListener("pointerup", function () { 
-    if (isStreamer) {  restoreSettingsHost(); }
-    restoreSettingsClient();
-    openDialog(settingsDialog, toolSettings); });
-}
-
-if (toolMuteMicrophone) { toolMuteMicrophone.addEventListener("pointerup", function() { toolMuteMicrophoneSelect(); });}
-if (toolMuteCamera) { toolMuteCamera.addEventListener("pointerup", function() { toolMuteCameraSelect(); });}
-
-if (toolBlindStream) { toolBlindStream.addEventListener("pointerup", function() { toolBlindStreamSelect(); });}
-if (toolMuteStream) { toolMuteStream.addEventListener("pointerup", function() { toolMuteStreamSelect(); });}
-
-if (toolDraw) { toolDraw.addEventListener("pointerup", function() { toolDrawSelect(); });}
-if (toolPalette) { toolPalette.addEventListener("pointerup", function () { openDialog(paletteDialog, toolPalette); });}
-if (toolEraser) { toolEraser.addEventListener("pointerup", function() { toolEraserSelect(); });}
-
-//if (toolStreamVolume) { toolStreamVolume.addEventListener("pointerup", function() { toolStreamVolumeSelect(); });}
-const mainVideo = document.getElementById("mainStream");
-const volumeSlider = document.getElementById("toolStreamVolume");
-
-// Initialize volume
-mainVideo.volume = volumeSlider.value / 100 ?? 10;
-
-volumeSlider.addEventListener("input", () => {
-  mainVideo.volume = volumeSlider.value / 100;
-});
-
-//mute local user microphone and camera
-function toolMuteMicrophoneSelect () {
-    if (toolMuteMicrophone.getAttribute("aria-expanded") == "false") {
-        toolMuteMicrophone.setAttribute("aria-expanded", "true");
-        toolMuteMicrophone.classList.toggle("selected");  
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic_off";
-		TRACKS.user.audio.enabled = false;
-		
-		vdo.sendData({
-				type: 'userStreamAudio',
-				info: "micMute",
-				timestamp: Date.now()
-		});
-
-		showBanner({ key:"mic_muted", message:"Your Microphone has been muted", type:"warning", timeout:null });
-    } else {
-        toolMuteMicrophone.setAttribute("aria-expanded", "false");
-        toolMuteMicrophone.classList.toggle("selected"); 
-        toolMuteMicrophone.lastElementChild.innerHTML = "mic";
-		TRACKS.user.audio.enabled = true;
-
-		vdo.sendData({
-				type: 'userStreamAudio',
-				info: "micLive",
-				timestamp: Date.now()
-		});
-
-		hideBannerByKey("mic_muted");
-    }
-}
-
-function toolMuteCameraSelect () {
-    if (toolMuteCamera.getAttribute("aria-expanded") == "false") {
-        toolMuteCamera.setAttribute("aria-expanded", "true");
-        toolMuteCamera.classList.toggle("selected");  
-        toolMuteCamera.lastElementChild.innerHTML = "no_photography";
-		TRACKS.user.video.enabled = false;
-		showBanner({ key:"cam_muted", message:"Your camera has been turned off", type:"notification", timeout:3000 });
-    } else {
-        toolMuteCamera.setAttribute("aria-expanded", "false");
-        toolMuteCamera.classList.toggle("selected"); 
-        toolMuteCamera.lastElementChild.innerHTML = "photo_camera";
-		TRACKS.user.video.enabled = true;
-		hideBannerByKey("cam_muted");
-    }
-}
-
-//main stream mute and volume
-function toolMuteStreamSelect () {
-    if (toolMuteStream.getAttribute("aria-expanded") == "false") {
-		toolMuteStream.setAttribute("aria-expanded", "true");
-		toolMuteStream.classList.toggle("selected"); 
-        toolMuteStream.lastElementChild.innerHTML = "volume_off";
-		TRACKS.main.audio.enabled = false;
-		showBanner({ key:"audio_muted", message:"Main audio stream disabled", type:"warning", timeout:null });
-    } else {
-        toolMuteStream.setAttribute("aria-expanded", "false");
-        toolMuteStream.classList.toggle("selected"); 
-        toolMuteStream.lastElementChild.innerHTML = "volume_up";
-        TRACKS.main.audio.enabled = true;
-		hideBannerByKey("audio_muted");
-    }
-}
-function toolBlindStreamSelect () {
-    if (toolBlindStream.getAttribute("aria-expanded") == "false") {
-		toolBlindStream.setAttribute("aria-expanded", "true");
-		toolBlindStream.classList.toggle("selected"); 
-        toolBlindStream.lastElementChild.innerHTML = "movie_off";
-		TRACKS.main.video.enabled = false;
-		showBanner({ key:"video_blind", message:"Main video stream disabled", type:"warning", timeout:null });
-    } else {
-        toolBlindStream.setAttribute("aria-expanded", "false");
-        toolBlindStream.classList.toggle("selected"); 
-        toolBlindStream.lastElementChild.innerHTML = "movie";
-        TRACKS.main.video.enabled = true;
-		hideBannerByKey("video_blind");
-    }
-}
-
-//markup tools
-function toolDrawSelect () {
-    if (toolDraw.getAttribute("aria-expanded") == "false") {
-		toolDraw.setAttribute("aria-expanded", "true");
-        toolDraw.classList.toggle("selected"); 
-
-        document.getElementById("markup").style.display = "block";
-        document.getElementById("markup").style.cursor = "crosshair";
-
-        canvas.addEventListener('pointerup', startDrawing);
-        canvas.addEventListener('pointermove', draw);
-        canvas.addEventListener('pointerup', endDrawing);
-        canvas.addEventListener('mouseout', endDrawing);
-    } else {
-		toolDraw.setAttribute("aria-expanded", "false");
-        toolDraw.classList.toggle("selected"); 
-
-        document.getElementById("markup").style.cursor = "default";
-
-        canvas.removeEventListener('pointerup', startDrawing);
-        canvas.removeEventListener('pointermove', draw);
-        canvas.removeEventListener('pointerup', endDrawing);
-        canvas.removeEventListener('mouseout', endDrawing);
-    }
-}
-
-// specific for markup color pots popup
+// // specific for markup color pots popup
 colorPots.forEach(colorPot => {
     colorPot.addEventListener('pointerup', () => {
         const newSelectedColor = colorPot.getAttribute('value');
@@ -328,6 +364,7 @@ function showBanner({ key, message, type = "notification", timeout = null}) {
 
     const banner = tpl.content.firstElementChild.cloneNode(true);
     banner.classList.add(type);
+	banner.classList.add("enter");
     banner.dataset.key = key || "";
 
     banner.querySelector("span").textContent = message;
@@ -351,6 +388,7 @@ function hideBanner(banner) {
     const key = banner.dataset.key;
     if (key) activeBanners.delete(key);
 
+	banner.classList.remove("enter");
     banner.classList.add("exit");
     banner.addEventListener(
         "animationend",
@@ -364,115 +402,7 @@ function hideBannerByKey(key) {
     if (banner) hideBanner(banner);
 }
 
-//adding peers and tracks to DOM
-//adds any incoming video to the DOM, ms_ (main stream is ignored), hs_ (host) is always placed top 
-function addPeerToDOM(uuid, streamID, label = null) {
-	if (streamID.startsWith("ms_") || null) return;
-
-	const peerListContainer = document.querySelector(".peerList");
-	// Prevent duplicates
-	if (document.getElementById(`peer_${uuid}`)) return;
-
-	const peerDiv = document.createElement("div");
-	peerDiv.className = "peer";
-	peerDiv.id = `peer_${uuid}`;  // unique ID for later access
-
-	// Create video element
-	const video = document.createElement("video");
-	video.className = "peerStream";
-	video.id = `video_${uuid}`;
-	video.autoplay = true;
-	video.playsInline = true;
-	video.disablePictureInPicture = true;
-
-	// Create label
-	const span = document.createElement("span");
-	span.className = "peerLabel";
-	if (streamID.startsWith("hs_")) {
-		span.textContent = label || uuid.slice(0, 10) + " (Host)";
-	} else {
-		span.textContent = label || uuid.slice(0, 10); // fallback to uuid if no name
-	}
-	peerDiv.appendChild(video);
-	peerDiv.appendChild(span);
-
-	if (streamID.startsWith("hs_")) {
-		peerListContainer.prepend(peerDiv);
-	} else {
-		peerListContainer.appendChild(peerDiv);
-	}
-}
-
-function updateDOMLabel(uuid, streamID, label) {
-	if (streamID.startsWith("hs_")) {
-		label = decodeURIComponent(label) + " (Host)";
-	} else {
-		label = decodeURIComponent(label);
-	}
-
-	if (!label) return;
-	const labelEl = document.querySelector(`#peer_${uuid} .peerLabel`);
-	if (labelEl) labelEl.textContent = label;
-	//console.warn(`Set label for peer ${uuid} to ${label}`, 'info');
-}
-
-function updateDOMuserAudio(uuid, audio) {
-	if (!uuid) return;
-
-	const video = document.querySelector(`#video_${uuid}`);
-	if (!video) return;
-
-	if (audio === "micStandby") {
-		video.classList.remove("micLive", "micMute");
-		video.classList.add("micStandby");
-		return;
-	}
-	if (audio === "micMute") {
-		video.classList.remove("micLive", "micStandby");
-		video.classList.add("micMute");
-		return;
-	}	
-	if (audio === "micLive") {
-				video.classList.remove("micStandby", "micMute");
-		video.classList.add("micLive");
-		return;
-	}	
-}
-
-
-async function disconnectPeer(uuid) {
-	const mainStream = document.getElementById("mainStream");
-	const peer = REGISTRY.get(uuid);
-	if (!peer) return;
-	const streams = peer.streams;
-
-	for (let streamID of streams.keys()) {
-		if (streamID.startsWith("ms_")) {
-			mainStream.srcObject.getTracks().forEach(t => t.stop());
-			mainStream.srcObject = null;
-			deactivateTools("streamVideo");
-			deactivateTools("streamAudio");
-		}
-	}
-
-	const peerDiv = document.getElementById(`peer_${uuid}`);
-	//vdo.stopViewing(streams);
-	if (!peerDiv) return;
-
-	//stop media
-	peerDiv.querySelectorAll("video, audio").forEach(el => {
-		if (el.srcObject) {
-			el.srcObject.getTracks().forEach(t => t.stop());
-			el.srcObject = null;
-		}
-	});
-
-	peerDiv.remove();
-	streams.clear();
-	REGISTRY.delete(uuid);
-}
-
-//other interface bits, storing device info, recalling history etc
+// //other interface bits, storing device info, recalling history etc
 function randomBG() {
 	// Detect dark / light mode and select bg
 	const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -492,10 +422,4 @@ function randomBG() {
 		header.style.width = `100%`;
 		header.style.backgroundSize = `cover`;
 	}
-}
-
-//check quality and resolution radio buttons
-function getCheckedRadioValue(name) {
-	const selected = document.querySelector(`input[name="${name}"]:checked`);
-	return selected ? selected.value : null;
 }

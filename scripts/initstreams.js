@@ -123,11 +123,11 @@ function initUserVideoTrack() {
 	
 	const hue = Math.floor(Math.random() * 360);
 	const saturation = 20 + Math.random() * 20;   // pastel base
-	const lightness = 30 + Math.random() * 5;
+	const lightness = 30 + Math.random() * 25;
 
 	// Gradient endpoints
 	const lightSat = saturation - 10;
-	const lightLum = lightness + 10;
+	const lightLum = lightness + 20;
 	const darkSat  = saturation + 15;
 	const darkLum  = lightness - 10;
 
@@ -172,22 +172,4 @@ function initUserVideoTrack() {
 	};
 
 	return { track, canvas, stream };
-}
-
-function playBeep(freq = 880, duration = 0.15) {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = "sine";
-  osc.frequency.value = freq;
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start();
-
-  gain.gain.setValueAtTime(0.2, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-
-  osc.stop(ctx.currentTime + duration);
 }

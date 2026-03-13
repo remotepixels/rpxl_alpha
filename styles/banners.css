@@ -1,0 +1,65 @@
+#bannerStack {
+    position: fixed;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    z-index: 30;
+    pointer-events: none;
+}
+.banner {
+	height:var(--button-height);
+    min-width: 380px;
+    max-width: min(90vw, 600px);
+	text-align: center;
+    padding: 10px 30px;
+    border-radius: var(--radius-big);
+    opacity: 0;
+    pointer-events: auto;
+	transition: opacity 0.4s ease;
+}
+
+.banner.warning {
+    background: var(--color-red);
+    color: var(--color-light-bg);
+}
+.banner.notification {
+	background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	color: light-dark(var(--color-dark-grey), var(--color-light-white));
+}
+.banner.enter {
+    animation: bannerIn 250ms ease-out forwards;
+}
+
+.banner.exit {
+    animation: bannerOut 200ms ease-out forwards;
+}
+@keyframes bannerIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(5px);
+    }
+}
+
+@keyframes bannerOut {
+    from {
+        opacity: 1;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+#bannerStack > * {
+    transition: transform 200ms ease;
+    will-change: transform;
+}
+

@@ -1,0 +1,19 @@
+/* side panel */
+.side-panel {
+	display: flex;
+	flex-direction: column;
+    width: 300px;
+    transition: width 0.25s ease;
+    overflow: hidden;
+	overflow-y: auto;
+    background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+	border-right: 2px solid light-dark(var(--color-light-white), var(--color-dark-bg));
+	z-index: 2;
+	visibility: visible;
+}
+.side-panel.collapsed {
+    width: 0;
+}
+.side-panel.pad {
+	padding: 5px;
+}
