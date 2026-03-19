@@ -1,3 +1,45 @@
+@media (orientation: portrait) {
+	.app {
+		flex-direction: column;
+
+	}
+	.toolbar-horiz {
+		bottom:50px;;
+	}
+	.toolbar.vert {
+			flex-direction: row;
+	}
+	.tool-set.vert.bottom {
+			margin-left:auto;
+	}
+	.tool-set.vert {
+			flex-direction: row;
+	}
+	.tool.spacer {
+		display:none;
+	}
+	.tool {
+		width:50px;
+	}
+	.mainViewer {
+		height:50%;
+	}
+	.mainZoom {
+		padding:5px;
+	}
+	.side-panel{
+		height:50%;
+		width:100%;
+	}
+	#mainVU{
+		display:none;
+	}
+	#settingsDialog {
+		margin-bottom:10px;
+	}
+}
+
+/* 
 @media (max-width: 760px) {
 	.siteHeader {
 		height: 400px;
@@ -62,4 +104,4 @@
 	display: none!important;
  }
 
-}
+} */

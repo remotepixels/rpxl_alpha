@@ -1,14 +1,12 @@
 .dialog {
 	position: absolute;
-	display: grid;
 	width:fit-content;
     background: light-dark(var(--color-light-bg), var(--color-dark-grey));
-	gap: 2px 2px;
-	align-items: center;
 	padding: 10px 15px;
 	border-radius: var(--radius-big);
 	box-shadow: var(--shadows);
 	z-index:10;
+
 }
 
 .dialog.middle {
@@ -23,13 +21,17 @@
 
 /* setting dialog */
 .settings {
-	position: absolute;
-	right:var(--toolbar-width);
-	bottom:5px;
+	/* position: absolute; */
+	/* right:var(--toolbar-width);
+	bottom:5px; */
+	display: grid;
+	gap: 2px 5px;
+	align-items: center;
 	grid-template-columns: 90px 200px 200px;
+
 }
 
-.settings::after {
+#settingsDialog::after {
 	position: absolute;
 	bottom:15px;
 	right:-20px;
@@ -38,12 +40,11 @@
 	border-color: transparent transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
 
-.settings.hidearrow::after {
+#settingsDialog.hidearrow::after {
 	display: none;
 }
 
 .settings-section {
-	grid-column:  1 / -1; 
 	margin: 5px 0px 5px 0px;
 }
 
@@ -95,46 +96,17 @@
 	background-color: var(--color-blue);
 }
 
-
 /* History popup */
-#toolHistory {
-	position: relative;
-	left:80px;
-	height:30px;
-    background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
-	z-index:3;
-}
-
-#historyDialog{
-	position:fixed;
-	margin-left:50%;
-	transform: translate(-50%, 115px);
-	width: 505px;
-	z-index: 12;
-	background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
-	border-radius: var(--radius-big);
-	padding: 5px 5px;
-	box-shadow: var(--shadows);
-	height:fit-content;
-	z-index:10;
-	display:unset;
-	top:unset!important;
-	left:unset!important;
-}
-
-#historyDialog::after{
-	position: absolute;
-	top:-20px;
-	right:15px;
-	content: "";
-	border: 10px solid transparent;
-	border-color: transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey)) transparent ;
-}
-
 .history-heading{
 		display:inline-block;
-		padding: 5px 10px;
-		border-bottom: 2px solid light-dark(var(--color-light-white), var(--color-mid-grey));
+		position: absolute;
+		left: 5px;
+		bottom: 5px;
+		padding:10px 20px 20px 20px;
+		background: light-dark(var(--color-light-bg), var(--color-dark-grey));
+		z-index:12;
+		/* padding: 10px 10px; */
+		border-top: 2px solid light-dark(var(--color-light-white), var(--color-mid-grey));
 }
 
 .history-item{
@@ -152,12 +124,13 @@
 .sharing {
 	position: absolute;
 	right:var(--toolbar-width);
-	top:5px;
+	top:10px;
+	padding:10px;
 }
 
 .sharing::after {
 	position: absolute;
-	top:70px;
+	top:60px;
 	right:-20px;
 	content: "";
 	border: 10px solid transparent;

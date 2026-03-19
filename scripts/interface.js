@@ -30,7 +30,7 @@ document.addEventListener("pointerdown", (e) => {
 });
 
 //hide toolbar after 3 seconds of inactivity, show when mouse moves near bottom or on click
-const toolbar = document.querySelector(".toolbar-horiz");
+const toolbar = document.querySelector(".toolbar");
 let timer;
 
 function resetToolbarTimer() {
@@ -87,6 +87,45 @@ const UI = {
         }
 		resizeMarkupCanvas(); //markup.js
     },
+
+	section(button) {
+		const target = button.dataset.target;
+		const sections = document.querySelectorAll("[data-section]");
+
+		document.querySelectorAll('[data-group="section"]').forEach(btn => {
+			btn.classList.remove("selected");
+			btn.setAttribute("aria-pressed", "false");
+		});
+
+		button.classList.add("selected");
+		button.setAttribute("aria-pressed", "true");
+
+		sections.forEach(sec => sec.classList.add("hidden"));
+
+		if (firstRun && target === "sectionUser") {
+			sectionSession.classList.remove("hidden");
+		}
+
+		document.getElementById(target).classList.remove("hidden");
+
+	},
+
+	sort(button) {
+        const sortOption = button.dataset.action
+        //const open = sortOption.classList.contains("selected");
+
+        document.querySelectorAll('[data-group="sortOptions"]').forEach(btn => {
+                btn.classList.remove("selected");
+                btn.setAttribute("aria-expanded","false");
+            });
+
+        button.classList.add("selected");
+        button.setAttribute("aria-expanded","true");
+
+		currentSort = sortOption;
+		rerenderFileTree();
+		//console.log("sort by", sortOption);
+	},
 
     toggle(button) {
         const state = button.getAttribute("aria-pressed") === "true";

@@ -31,10 +31,22 @@ let wakeLock = null;
 const devURL = window.location.origin;
 const REGISTRY = new Map();
 
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const isStreamer = window.location.pathname.startsWith("/stream");
 const isQuickShare = window.location.pathname.startsWith("/qs");
 const isTVShare = window.location.pathname.startsWith("/tv");
 const mainVideoPreview = document.getElementById("mainStream");
+
+	//check if mobile device and warn user
+	const mobileDialog = document.getElementById("mobileDialog");
+
+
+	if (isMobile) {
+		mobileDialog.classList.remove("hidden");
+		mobileDismiss.addEventListener("pointerup", () => {
+			mobileDialog.classList.add("hidden");
+		});
+	}
 
 //main and user streams and tracks used for local playback used in initvdo.js
 //should probaly merge with REGISTRY???????

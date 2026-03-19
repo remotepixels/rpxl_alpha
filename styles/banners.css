@@ -11,8 +11,8 @@
 }
 .banner {
 	height:var(--button-height);
-    min-width: 380px;
-    max-width: min(90vw, 600px);
+    min-width: 300px;
+    /* max-width: min(90vw, 600px); */
 	text-align: center;
     padding: 10px 30px;
     border-radius: var(--radius-big);

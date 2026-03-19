@@ -74,6 +74,14 @@ function setupVDOListeners() {
 			timestamp: Date.now()
 		}, uuid);
 
+		vdo.sendData({
+			type: "markup",
+			overlayNinja: {
+				action: "syncState",
+				to: uuid
+			}
+		}, uuid);
+
 		if (isStreamer) {
 			// wait(500); //wait for peer to be ready to receive data, otherwise can get lost????
 			let currentProjectName = encodeURIComponent(project.value.trim() || "");
@@ -94,14 +102,6 @@ function setupVDOListeners() {
 				type: 'mainStreamAudio',
 				info: mainStreamAudio,
 				timestamp: Date.now()
-			}, uuid);
-
-			vdo.sendData({
-				type: "markup",
-				overlayNinja: {
-					action: "syncState",
-					to: uuid
-				}
 			}, uuid);
 
 			vdo.sendData({

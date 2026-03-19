@@ -42,6 +42,9 @@ inputChatMessage.addEventListener("input", () => {
     inputChatMessage.style.height = "40px";
     inputChatMessage.style.height =
         Math.min(inputChatMessage.scrollHeight, 150) + "px";
+		sendMessageButton.style.height = "40px";
+		    sendMessageButton.style.height =
+        Math.min(inputChatMessage.scrollHeight, 150) + "px";
 });
 
 function sendMessage() {
@@ -50,6 +53,7 @@ function sendMessage() {
     addMessage(text);
     inputChatMessage.value = "";
 	inputChatMessage.style.height = "40px";
+		sendMessageButton.style.height = "40px";
 }
 
 function addMessage(text) {

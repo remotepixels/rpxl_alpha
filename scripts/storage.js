@@ -87,7 +87,7 @@ function createNewStoreEntry() {
 		let sessions = sessionsJSON ? JSON.parse(sessionsJSON) : [];
 
 		sessions.unshift(entry);
-		sessions = sessions.slice(0, 5);
+		sessions = sessions.slice(0, 10);
 
 		localStorage.setItem(APP_NS, JSON.stringify(sessions));
 }

@@ -4,6 +4,7 @@
 	align-items: center; 
 	gap: 0px;
 	padding: 4px 5px 4px 4px;
+	border-radius: var(--radius-big);
 	/* cursor: pointer; */
 }
 .peerVU {
@@ -51,7 +52,7 @@
 }
 .peer-options {
 	flex:0;
-	width:15px;
+	width:20px;
 	cursor: pointer;
 }
 .peer:hover {

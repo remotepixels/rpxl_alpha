@@ -1,0 +1,262 @@
+/* #sideFiles {
+	margin: 0px 0px 0px 5px;
+} */
+
+#sideFiles .tool-spacer-horiz {
+	margin:0px 20px;
+}
+.tool[data-group="sortOptions"] {
+	width:120px;
+}
+h1 {
+	color: light-dark(var(--color-dark-bg), var(--color-light-grey));
+	font-size: 30px;
+	margin: 5px, 10px, 5px, 10px;
+}
+
+.largeIcon {
+	font-size: clamp(1rem, 50dvh, 32rem);
+	color: light-dark(var(--color-mid-grey), var(--color-light-grey));
+}
+
+.drop {
+	position: fixed;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	top: 0;
+	left: 0;
+	margin: 10px;
+	border: 2px solid light-dark(var(--color-mid-grey), var(--color-light-grey));
+	padding: 20px;
+	border-radius: var(--radius-big);
+	background: light-dark(var(--color-light-grey), var(--color-mid-grey));
+	z-index: 3;
+	width: calc(100dvw - 70px);
+	height: calc(100dvh - 20px);
+	transition: all 0.2s ease-in-out;
+	pointer-events: none;
+	/* box-shadow: var(--shadows); */
+	opacity: 0;
+	/* cursor: pointer; */
+}
+
+.drop>div {
+	text-align: center;
+}
+
+.drop.dragover {
+	border-color: light-dark(var(--color-dark-grey), var(--color-light-white));
+	opacity: .75;
+	/* box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25); */
+	pointer-events: auto;
+}
+
+#filePicker {
+	opacity: 0;
+	position: absolute;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.file-list {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: none;
+	transition: all 0.3s ease;
+	margin: 0px;
+
+	/* padding: 5px; */
+}
+
+.folder-header {
+	padding:5px;
+	font-weight: bold;
+	/* background-color: light-dark(var(--color-light-bg), var(--color-dark-bg)); */
+	/* border-bottom: 2px solid light-dark(var(--color-light-white), var(--color-dark-grey)); */
+	vertical-align: middle;
+	justify-content: left;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+		border-radius: var(--radius-big);
+}
+
+.folder-header:hover {
+	background: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+
+.folder-icon {
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+}
+
+.folder-text {
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	font-weight: 400;
+	cursor: pointer;
+}
+
+.folder-delete,
+.folder-download {
+	display: relative;
+	cursor: pointer;
+	font-size: 20px;
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	width: 20px;
+	/* margin-left:auto; */
+	vertical-align: middle;
+	justify-content: right;
+	margin: 2px 5px 2px auto;
+}
+
+.folder-contents {
+	/* border-left:2px solid light-dark(var(--color-light-white), var(--color-dark-grey)); */
+	margin-left:7px;
+	overflow: hidden;
+	max-height: 0;
+	opacity: 0;
+	transform: translateY(-5px);
+	transition:
+		max-height 0.3s ease-out,
+		opacity 0.3s ease-out,
+		transform 0.3s ease-out;
+}
+
+/* Expanded state */
+.folder-contents.open {
+	max-height: fit-content;
+	opacity: 1 !important;
+	transform: translateY(0);
+}
+
+.folder.local .folder-header .folder-text {
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	margin-left: 0px;
+}
+
+.folder.remote .folder-header .folder-text {
+	color: #1e90ff;
+}
+
+.folder.remote .folder-icon {
+	color: #1e90ff;
+}
+
+.folder.local .folder-icon {
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	margin-right: 0px;
+}
+
+.file-item {
+	display: flex;
+	padding:5px 0px 5px 5px;
+	margin:0px;
+	align-items: left;
+	/* background-color: light-dark(var(--color-light-bg), var(--color-dark-bg)); */
+}
+
+.file-item:hover {
+	background: light-dark(var(--color-light-white), var(--color-mid-grey));
+
+}
+
+.file-item.local {
+	color: light-dark(var(--color-light-grey), var(--color-light-grey));
+}
+
+.file-item.remote .file-name {
+	color: #1e90ff;
+}
+
+.file-name {
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	width:220px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-right: auto;
+	cursor: default;
+	/* border:1px solid green; */
+}
+
+.file-size {
+	/* font-size: 14px; */
+	color: light-dark(var(--color-light-grey), var(--color-light-grey));
+	/* margin-left: auto; */
+	text-align: right;
+	width: 50px;
+	cursor: default;
+	/* border:1px solid green; */
+}
+
+.file-delete,
+.file-download {
+	cursor: pointer;
+	font-size: 20px;
+	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
+	right: 0px;
+	width: 20px;
+	vertical-align: middle;
+	justify-content: right;
+	margin: 2px 5px 2px 10px;
+}
+
+.file-dead {
+	color: rgb(255, 0, 0) !important;
+	background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
+			red 47%,
+			light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%) !important;
+	/* pointer-events: none; */
+}
+
+.file-dead>span {
+	/* background: linear-gradient ( light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%, red 47%, light-dark(var(--color-light-bg), var(--color-dark-bg)) 48%); */
+	color: rgb(255, 0, 0) !important;
+	/* pointer-events: none; */
+}
+
+.file-dead:hover {
+	color: rgb(255, 0, 0) !important;
+	background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
+			red 47%,
+			light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%) !important;
+
+}
+
+.fade-slide-out {
+	opacity: 0;
+	transform: translateY(-10px);
+	transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.roundProgressBarBG {
+	margin: 0px;
+	padding: 0px;
+	margin-right: 8px;
+	margin-left: 16px;
+	transform: translateX(-4px);
+	width: 26px;
+	height: 26px;
+	background-color: light-dark(var(--color-light-white), var(--color-dark-grey));
+	border-radius: 50%;
+	overflow: hidden;
+	position: relative;
+}
+
+.roundProgressBarFill {
+	width: 100%;
+	height: 100%;
+}
+
+.roundProgressBarCenter {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
+}

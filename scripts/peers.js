@@ -305,25 +305,6 @@ async function disconnectPeer(uuid) {
 	updatePeerRoomCount();
 }
 
-async function moveToRoom(room, uuid){
-
-
-		
-	console.log("moving to ", moveToRoom);
-	connectedPeers = 0;
-
-
-	const peer = document.querySelector(`.toolbar-horiz`);
-	peer.classList.add("hidden");
-	mainStream.classList.add("hidden");
-	sideFiles.classList.add("hidden");
-	sideChat.classList.add("hidden");
-	toolChat.classList.add("hidden");
-	toolFiles.classList.add("hidden");
-	
-
-}
-
 function togglePeerRoom(uuid) {
 	let peer = null;
 	if (uuid === localUUID) {
@@ -412,6 +393,11 @@ function updateRoomUI(moveToRoom) {
     const chatBtn = document.getElementById("toolChat");
     const filesBtn = document.getElementById("toolFiles");
     const peersBtn = document.getElementById("toolPeers");
+	const mainToolbar = document.querySelector(".toolbar-horiz");
+	const mainVideo = document.querySelector(".mainStream");
+	const zoomIndicator = document.querySelector(".zoom-popup");
+	const mainVU =  document.getElementById("mainStreamVU");
+	const markup = document.getElementById("markup");
 
     if (moveToRoom === "lobby") {
         chatBtn.classList.remove("hidden");
@@ -419,10 +405,24 @@ function updateRoomUI(moveToRoom) {
         chatBtn.classList.add("hidden");
         filesBtn.classList.add("hidden");
         peersBtn.classList.add("hidden");
+		mainToolbar.classList.add("hidden");
+
+		mainVU.classList.add("hidden");
+		zoomIndicator.classList.add("hidden");
+		mainVideo.classList.add("hidden");
+		markup.classList.add("hidden");
+		setPeerAudio(mainVideo, false);
     } else {
 		waitingRoomBtn.classList.add("hidden");
         chatBtn.classList.remove("hidden");
         filesBtn.classList.remove("hidden");
         peersBtn.classList.remove("hidden");
+		mainToolbar.classList.remove("hidden");
+		
+		mainVU.classList.remove("hidden");
+		zoomIndicator.classList.remove("hidden");
+		mainVideo.classList.remove("hidden");
+		markup.classList.remove("hidden");
+		setPeerAudio(mainVideo, true);
     }
 }

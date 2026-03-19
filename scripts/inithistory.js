@@ -4,13 +4,13 @@ function loadHistoryIntoDialog() {
 	if (!sessionsJSON) return;
 
 	const sessions = JSON.parse(sessionsJSON);
-	const dialog = document.getElementById("historyDialog");
+	const dialog = document.getElementById("sectionHistory");
 
 	dialog.innerHTML = `
-	<span class="history-heading bold">IMPORTANT Loading a previous project will re-use existing share links</span>`; // reset
+	<span class="history-heading bold">IMPORTANT Using a previous session will re-use the existing share links</span>`; // reset
 
 	sessions.forEach(entry => {
-		const project = decodeURIComponent(entry.projectName) || "Unnamed project";
+		const project = decodeURIComponent(entry.projectName) || "Unnamed session";
 		const formattedDate = formatDateISO(entry.createdAt);
 
 		const btn = document.createElement("button");
@@ -31,20 +31,21 @@ function loadHistoryIntoDialog() {
 }
 //restore session ID and session name from history entry selected
 async function restoreSessionFromHistory(entry) {
-	sessionID = entry.sessionID;
-	console.log(`Restored sessionID: ${sessionID} from history`);
-	alert("Session ID restored from history.\n\nLoading a previous project will re-use existing share links, anyone with the link can access the session.");
+	if (confirm("Restoring project from history.\n\nAny previously shared links from this project will become active again and may allow others to access this session.")) {
+		sessionID = entry.sessionID;
+		console.log(`Restored sessionID: ${sessionID} from history`);
 
-	const projectInput = document.getElementById("project");
-	projectInput.value = decodeURIComponent(entry.projectName) === "Unnamed project"
-		? ""
-		: decodeURIComponent(entry.projectName);
+		const projectInput = document.getElementById("project");
+		projectInput.value = decodeURIComponent(entry.projectName) === "Unnamed project"
+			? ""
+			: decodeURIComponent(entry.projectName);
 
-	// Restore all *other* UI settings
-	await restoreSettingsHost(entry); //from initui.js
-	await handleSelectionChange(); // single attach
-	historyDialog.classList.toggle("hidden");
-
+		// Restore all *other* UI settings
+		await restoreSettingsHost(entry); //from initui.js
+		await handleSelectionChange(); // single attach
+		//historyDialog.classList.toggle("hidden");
+		startSession();
+	}
 }
 
 //restore last used settings from local storage on load

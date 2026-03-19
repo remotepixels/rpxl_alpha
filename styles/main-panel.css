@@ -30,7 +30,7 @@
 	position:relative;
     flex: 1;                             
     background: light-dark(var(--color-light-grey), var(--color-dark-bg));
-	padding:2px;
+	/* padding:2px; */
 }
 
 #mainVU{
@@ -48,11 +48,12 @@
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	width:100%;
+	width: 100%;
 	transform: translate(0, 0) scale(1);
 	transform-origin: center center;
 	will-change: transform;	
-	padding-left:10px;
+	padding:5px 5px 5px 10px;
+
 }
 
 .mainStream {
@@ -60,6 +61,7 @@
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
+
 }
 
 .markup {
@@ -82,6 +84,7 @@ canvas, .mainZoom {
 	color: light-dark(var(--color-dark-bg), var(--color-ligh-bg)) !important;
 	opacity: 1;
 }
+
 .mainVU {
     --vu: 0;
     contain: paint;
@@ -96,10 +99,12 @@ canvas, .mainZoom {
     outline: 3.25px solid light-dark(white, var(--color-mid-grey));
     outline-offset: -3px;
 }
+
 .mainVU.disabled {
     outline: 3px solid black;
 	outline-offset: -3px;
 }
+
 .mainVU::before {
     content: "";
     position: absolute;
@@ -116,6 +121,7 @@ canvas, .mainZoom {
 
     pointer-events: none;
 }
+
 .mainVU.muted {
     outline: 3px solid red;
 	outline-offset: -3px;

@@ -14,6 +14,31 @@
     z-index: 3;
 }
 
+/* setting dialog */
+.settings {
+	display: grid;
+	gap: 5px;
+	align-items: left;
+	grid-template-columns: 40px 200px;
+	margin:5px 0px 5px -5px;
+
+}
+.settings>div {
+
+}
+#settingsDialog::after {
+	position: absolute;
+	bottom:15px;
+	right:-20px;
+	content: "";
+	border: 10px solid transparent;
+	border-color: transparent transparent transparent light-dark(var(--color-light-bg), var(--color-dark-grey));
+}
+
+#settingsDialog.hidearrow::after {
+	display: none;
+}
+
 .vu-meter {
     position: absolute;
     left: 50%;

@@ -31,6 +31,7 @@
 	<link rel="stylesheet" href="/styles/side-panel-peers.css">
 	<link rel="stylesheet" href="/styles/side-panel-chat.css">
 	<link rel="stylesheet" href="/styles/side-panel-files.css">
+	<link rel="stylesheet" href="/styles/mobile.css">
 
     <title>rpxl.app v4 | Stream</title>
 </head>
@@ -49,20 +50,30 @@
 				<canvas id="markup" class="markup" data-requires="video"></canvas>
 			</div>
 			<!-- main toolbar -->
-			<div class="toolbar-horiz fade">
-				<button class="tool red" id="toolBlindStream" data-ui="toggle" data-action="muteVideo" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">movie</span></button>
-				<button class="tool red" id="toolMuteStream" data-ui="toggle" data-action="muteAudio" data-requires="audio" aria-pressed="false"><span class="material-symbols-outlined">volume_up</span></button>
-				<div class="tool tool-spacer-horiz" data-requires="video" ></div>
-				<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-				<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
-				<button class="tool" id="toolEraser" data-ui="action" data-action="eraseTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">ink_eraser</span></button>
-				<div class="tool tool-spacer-horiz disabled" data-requires="audio" ></div>
-				<span class="tool material-symbols-outlined volume-icon disabled" id="iconVolume" data-requires="audio">volume_down</span>
-				<span class="tool volume" id="toolVolume disabled" data-requires="audio"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
+			<div class="toolbar horiz fade">
+				<div class="tool-set">
+					<button class="tool red" id="toolBlindStream" data-ui="toggle" data-action="muteVideo" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">movie</span></button>
+					<button class="tool red" id="toolMuteStream" data-ui="toggle" data-action="muteAudio" data-requires="audio" aria-pressed="false"><span class="material-symbols-outlined">volume_up</span></button>
+				</div>
+				<div class="tool spacer" data-requires="video" ></div>
+				<div class="tool-set">
+					<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+					<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
+					<button class="tool" id="toolEraser" data-ui="action" data-action="eraseTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">ink_eraser</span></button>
+				</div>
+				<div class="tool spacer" data-requires="audio" ></div>
+				<div class="tool-set">
+					<span class="tool material-symbols-outlined volume-icon disabled" id="iconVolume" data-requires="audio">volume_down</span>
+					<span class="tool volume" id="toolVolume disabled" data-requires="audio"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
+				</div>
 			</div>
 		</div>
+
+
+
+
 		<!-- peers -->
-		<div class="side-panel hidden" id="sidePeers">
+		<div class="side-panel pad hidden" id="sidePeers">
 			<div id="user" class="peer">
 				<div id="userStreamVU" class="peerVU" data-property="--vu">
 					<video id="userStream" class="peerStream" autoplay playsinline disablepictureinpicture></video>
@@ -71,58 +82,84 @@
 				<!-- <span class="material-symbols-outlined peer-options" data-ui="popover" data-target="peerControls" aria-expanded="false">more_vert</span> -->
 			</div>
 		</div>
+
+
+
+
+
 		<!-- waiting room -->
-		<div class="side-panel hidden" id="sideWaitingRoom">
+		<div class="side-panel pad hidden" id="sideWaitingRoom">
 			<div class="toolbar" style="position: unset;">
 				<label>Waiting room</label>
 			</div>
 		</div>
+
+
+
 		<!-- Chat -->
 		<div class="side-panel pad hidden" id="sideChat">
-			<div class="chat" id="chatContainer">
-			</div>
-			<div class="toolbar bottom">
-				<div>
+			<div class="chat" id="chatContainer"></div>
+
+			<div class="toolbar stretch">
+				<div class="tool-set">
 					<textarea id="inputChatMessage" autocomplete="off"></textarea>
-				</div>
-				<div>
 					<button id="sendMessage" class="button bold blue" data-ui="tool" data-tool="sendMessage">+</button>
 				</div>
 			</div>
 		</div>
+
+
+
 		<!-- Files -->
-		<div class="side-panel pad hidden" id="sideFiles">
-			<div class="toolbar">
-				<div>
-					<button class="tool blue"id="toolAddFile" data-ui="action"  data-action="upload"><span class="material-symbols-outlined">drive_folder_upload</span></button>
+		<div class="side-panel hidden" id="sideFiles">
+			<div class="toolbar stretch">
+				<div class="tool-set">
+					<button class="tool blue" id="toolAddFile" data-ui="action"  data-action="upload"><span class="material-symbols-outlined">drive_folder_upload</span></button>
 				</div>
 				<div class="tool-spacer-horiz"></div>
-				<div class="radioset" role="radiogroup" aria-labelledby="resolution" data-group="">
-				<label><input type="radio" name="sortLatest" id="sortLatest" data-ui="tool" data-group="sortBy" data-tool="sortLatest" aria-pressed="true" checked>Latest</label>
-				<label><input type="radio" name="sortName" id="sortName" data-ui="tool" data-group="sortBy" data-tool="sortName" aria-pressed="false">Name</label>
+				<div class="tool-set" >
+					<button class="tool" id="sortName" data-ui="sort" data-group="sortOptions" data-action="name" aria-pressed="false">Name</button>
+					<button class="tool selected" id="sortLatest" data-ui="sort" data-group="sortOptions"  data-action="latest" aria-pressed="true">Latest</button>
 				</div>
 			</div>
+			
+			<div class="file-list" id="fileList"></div>
 		</div>
+
+
+
+
+
+
 		<!-- side toolbar -->
-		<div class="toolbar-side">
+		<div class="toolbar vert">
 			<div class="tool-set">
 				<button class="tool" id="toolHelp" data-ui="action" data-action="help">?</button>
-				<div class="tool-spacer-vert"></div>
-			<button class="tool" id="toolShare" data-ui="dialog" data-target="shareDialog"><span class="material-symbols-outlined">ios_share</span></button>
-				<div class="tool-spacer-vert"></div>
-				<button class="tool hidden" id="toolWaitingRoom" data-ui="panel" data-group="panel" data-target="sideWaitingRoom" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">room_service</span></button>		
-				<button class="tool" id="toolPeers" data-ui="panel" data-group="panel" data-target="sidePeers" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>		
-				<button class="tool" id="toolChat" data-ui="panel" data-group="panel" data-target="sideChat" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">chat_bubble</span></button>
-				<button class="tool" id="toolFiles" data-ui="panel" data-group="panel" data-target="sideFiles" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">folder</span></button>
 			</div>
-			<div class="tool-set bottom">
+			<div class="tool spacer"></div>
+			<div class="tool-set vert">
+				<button class="tool" id="toolShare" data-ui="dialog" data-target="shareDialog"><span class="material-symbols-outlined">ios_share</span></button>
+			</div>
+			<div class="tool spacer"></div>
+			<div class="tool-set vert">
+				<button class="tool hidden" id="toolWaitingRoom" data-ui="panel" data-group="panel" data-target="sideWaitingRoom" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">room_service</span></button>		
+				<button class="tool" id="toolPeers" data-ui="panel" data-group="panel" data-target="sidePeers" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>	
+				<button class="tool" id="toolChat" data-ui="panel" data-group="panel" data-target="sideChat" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">chat_bubble</span></button>
+				<button class="tool" id="toolFiles" data-ui="panel" data-group="panel" data-target="sideFiles" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">folder</span></button>	
+			</div>
+			<div class="tool-set vert bottom">
 				<button class="tool red" id="toolMuteMicrophone" data-ui="toggle" data-group="userTools" data-state="toolMuteMicrophone" data-action="muteMicrophone" data-requires="microphone" aria-pressed="false"><span class="material-symbols-outlined">mic</span></button>
 				<button class="tool" id="toolMuteCamera" data-ui="toggle" data-group="userTools" data-state="toolMutecamera" data-action="muteCamera" data-requires="camera" aria-pressed="false"><span class="material-symbols-outlined">photo_camera</span></button>
-				<div class="tool-spacer-vert"></div>
+			</div>
+			<div class="tool spacer"></div>
+			<div class="tool-set vert">
 				<button class="tool" id="toolSettings" data-ui="dialog" data-target="settingsDialog"><span class="material-symbols-outlined">settings</span></button>
 			</div>
 		</div>
 	</div>
+
+
+
 	<!-- colour palet -->
 	<div id="colorPalette" class="popover pallet hidden"  data-close-outside>
 		<span class="colorpot" data-ui="action" aria-pressed="false" value="black" style="background-color: black;"></span>
@@ -137,77 +174,115 @@
 		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="green" style="background-color: green;"></span>
 		<span class="colorpot" data-ui="action" data-group="colorpot" aria-pressed="false" value="blue" style="background-color: blue;"></span>
 	</div>
+
+
+
+	<div class="drop hidden" id="dropArea">
+		<div>
+			<span id="dragDropIcon" class="material-symbols-outlined largeIcon">drive_folder_upload</span><input id="filePicker" type="file" multiple>
+			<h1 id="dragDropMessage">Drop files or folders to share</h1>
+			<p>&nbsp;</p>
+		</div>
+	</div>
+
+
 	<!-- peer controls -->
 	<div id="peerControls" class="popover hidden"  data-close-outside>
-		<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
-		<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
+		<div class="tool-set">
+			<button class="tool" data-ui="action" data-action="oneOnOne" data-requires="remoteAudio"><span class="material-symbols-outlined">view_real_size</span></button>
+			<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
+			<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
+		</div>
 		<div class="tool-spacer-horiz"></div>
-		<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
+		<div class="tool-set">
+			<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
+		</div>
 	</div>
-	<!-- setting dialog -->
-	<div id="settingsDialog" class="dialog settings middle hidearrow">
-		<div class="settings-section bold">Session settings</div>
-		<div>Title</div>
-			<input style="width:404px" type="text" class="textinput" maxlength="55" id="project" name="clientName" placeholder="(Optional)">
-			<button id="toolHistory" data-ui="popover" data-target="historyDialog"><span class="material-symbols-outlined">history</span></button>
-		<div>Resolution</div>
-		<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
-			<label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label>
-			<label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label>
-		</div>
-		<div class="settings-preview">
-			<video id="videoPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
-			<audio id="audioPreview" class="audiosource" autoplay playsinline disablepictureinpicture></audio>
-			<span id="meterGraph" class="vu-meter"><span id="mainPreviewVU" class="meter"></span>	</span>
-		</div>
-		<div>Quality</div>
-		<div class="radioset" role="radiogroup" aria-labelledby="quality" role="button">
-			<label><input type="radio" name="quality" id="qualityHigh" value="high" >High</label>
-			<label><input type="radio" name="quality" id="qualityMed" value="med" checked>Med</label>
-			<label><input type="radio" name="quality" id="qualityLow" value="low" >Low</label>
-		</div>
-		<div>Video source</div>
-			<div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
-		<div>Audio source</div>
-			<div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
-		<div class="settings-section optional hidden" style="margin:2px;"></div>
 
-		<div id="settingsUser" class="settings-section bold optional hidden" style="grid-column:  1 / 2; margin-top:12px; margin-bottom:12px;">User settings</div>
-		<div class="settings-preview optional hidden">
-			<video id="cameraPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
-			<span id="meterGraph" class="vu-meter"><span id="userPreviewVU" class="meter"></span>	</span>
+
+
+	<!-- setting dialog -->
+	<div id="settingsDialog" class="dialog  middle hidearrow">
+
+		<div class="toolbar horiz section ">
+			<div class="tool-set" style="gap:0px;">
+				<button class="tool selected" id="sectionButtonSession" data-ui="section" data-group="section" data-target="sectionSession" aria-pressed="true" style="width:150px;">Session settings</button>
+				<button class="tool"  id="sectionButtonUser" data-ui="section" data-group="section" data-target="sectionUser" aria-pressed="false" style="width:150px;" >User settings</button>
+				<button class="tool" id="sectionButtonHistory" data-ui="section" data-group="section" data-target="sectionHistory" aria-pressed="false" style="width:150px;" >Previous sessions</button>
+			</div>
+			<div class="tool-set">
+				<button class="tool" id="sectionButtonHelp" data-ui="action" data-action="help">?</button>
+			</div>
 		</div>
-		<div class="optional hidden">User</div>
-			<input  class="optional hidden" type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" autocomplete="off">
-		<div class="optional hidden">Camera</div>
-			<div class="custom-select optional hidden"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
-		<div class="optional hidden">Microphone</div>
-			<div class="custom-select optional hidden"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
-		<div class="settings-section" style="margin:2px;"></div>
-		<div><button id="buttonMoreSettings" class="button bold">+</button></div>
-		<div id="spacer"></div>
-		<div><button id="startSessionButton" class="button blue wider">Start session</button></div>
+
+		<!-- session settings -->
+		<div id="sectionSession" class="settings" data-section>
+			<div>Session title</div>
+				<input style="grid-column:  2 / -1; width:405px" type="text" class="textinput" maxlength="55" id="project" name="clientName" placeholder="(Optional)">
+			<div>Resolution</div>
+			<div class="radioset" role="radiogroup" aria-labelledby="resolution" role="button">
+				<label><input type="radio" name="resolution" id="res1080P" value="1080" data-width="1920" data-height="1080">1080P</label>
+				<label><input type="radio" name="resolution" id="res720P" checked value="720" data-width="1280" data-height="720">720P</label>
+			</div>
+			<div class="settings-preview">
+				<video id="videoPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
+				<audio id="audioPreview" class="audiosource" autoplay playsinline disablepictureinpicture></audio>
+				<span id="meterGraph" class="vu-meter"><span id="mainPreviewVU" class="meter"></span>	</span>
+			</div>
+			<div>Quality</div>
+			<div class="radioset" role="radiogroup" aria-labelledby="quality" role="button">
+				<label><input type="radio" name="quality" id="qualityHigh" value="high" >High</label>
+				<label><input type="radio" name="quality" id="qualityMed" value="med" checked>Med</label>
+				<label><input type="radio" name="quality" id="qualityLow" value="low" >Low</label>
+			</div>
+			<div>Video source</div>
+				<div class="custom-select"><select contenteditable="true" id="videoSource"><option value="">None</option></select></div>
+			<div>Audio source</div>
+				<div class="custom-select"><select contenteditable="true" id="audioSource"><option value="">None</option></select></div>
+			<div style="margin:2px;"></div>
+		</div>
+
+		<!-- user settings -->
+		<div id="sectionUser" class="settings hidden" data-section>
+			<div id="settingsUser" class="settings-section bold optional" style="grid-column:  1 / 2; margin-top:12px; margin-bottom:12px;">User settings</div>
+			<div class="settings-preview optional">
+				<video id="cameraPreview" class="videosource" autoplay playsinline disablepictureinpicture></video>
+				<span id="meterGraph" class="vu-meter"><span id="userPreviewVU" class="meter"></span>	</span>
+			</div>
+			<div class="optional">User name</div>
+				<input  class="optional" type="text" maxlength="25" class="textinput" id="name" name="username" placeholder="Optional (Host)" autocomplete="off">
+			<div class="optional">Camera</div>
+				<div class="custom-select optional"><select contenteditable="true" id="cameraSource"><option value="">None</option></select></div>
+			<div class="optional">Microphone</div>
+				<div class="custom-select optional"><select contenteditable="true" id="microphoneSource"><option value="">None</option></select></div>
+			<div style="margin:2px;"></div>
+		</div>
+
+		<!-- previous sessions -->
+		<div id="sectionHistory" class="hidden"  data-section style="height:388px;">
+		</div>	
+
+		<!-- start session button -->
+		<div class="settings">
+			<span id="settingFiller"></span>
+			<span></span>
+			<button id="startSessionButton" class="button blue wider">Start session</button>
+		</div>
 	</div>
-	<!-- history dialog -->
-	<div id="historyDialog" class=" popover hidden"  data-close-outside>
-		<span class="history-heading bold">IMPORTANT Loading a previous project will re-use existing share links</span>
-	</div>				
+			
 	<!-- share dialog -->
 	<div id="shareDialog" class="dialog sharing hidden" data-close-outside>
 		<div class="link" id="copyMainLink">
 			<div class="bold">Main share link (default)</div>
-			Users join main session
-			<br>Full comms and markup
+			Users join main session directly, full voice comms and markup
 		</div>
 		<div class="link" id="copyQuickLink">
 			<div class="bold">Quick share link</div>
-			Use for faster, no prompt joins
-			<br>No comms, only host can markup
+			Faster, no prompt joins, no voice comms, only host can markup
 		</div>
 		<div class="link" id="copyQuickLink">
 			<div class="bold">Waiting room share link</div>
-			Users join a waiting room
-			<br>Full comms and markup
+			Users join a waiting room until admitted
 		</div>
 		<!-- <div class="link" id="copyQuickLink">
 			<div class="bold">OBS share link</div>
@@ -220,10 +295,11 @@
 			<br>Use with Decklink utility for playout
 		</div> -->
 		<div class="smartTV" id="smartTV">
-			<div class="bold">Smart TV link</div> <input type="text" maxlength="25" class="textinput smartTV-code " id="name" name="smartTVCode" placeholder="XXXX - XXXX" autocomplete="off">
+			<div class="bold">Smart TV link</div> 
+			Enter code displayed on Smart TV (visit https://rpxl.app/tv)<br>
+			<input type="text" maxlength="25" class="textinput smartTV-code " id="name" name="smartTVCode" placeholder="XXXX - XXXX" autocomplete="off">
 			<button id="startTVButton" class="button blue" style="width: 40px;">+</button>
-			<br>Enter code displayed on Smart TV
-			<br>(https://rpxl.app/tv)
+
 		</div>
 	</div>
 
@@ -268,9 +344,12 @@
 <script src="/scripts/peers.js"></script>
 <script src="/scripts/chat.js"></script>
 <script src="/scripts/markup.js"></script>
+<script src="/scripts/files-manage.js"></script>
+<script src="/scripts/files-render.js"></script>
 
 <script type="text/javascript">
 	const APP_NS = 'RPXL-Hosts';
+
 
 	let historyBGAttached = false;
 	let mainPublished = false;
@@ -282,24 +361,42 @@
 	restoreSetingsLast(); //storage.js
 	loadHistoryIntoDialog();	//inithistory.js
 
-	//check if mobile device and warn user
-	const mobileDialog = document.getElementById("mobileDialog");
-	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-	if (isMobile) {
-		mobileDialog.classList.remove("hidden");
-		mobileDismiss.addEventListener("pointerup", () => {
-			mobileDialog.classList.add("hidden");
-		});
+
+
+//	startDLWorker();
+
+	async function startDLWorker() {
+		if (!navigator.serviceWorker) {
+			console.warn("Service Worker not supported in this browser");
+			return;
+		}
+
+		try {
+			const registration = await navigator.serviceWorker.register("/downloader.js", {
+				scope: "/"
+			});
+			console.log("Service Worker registered successfully", registration);
+
+			// Check if SW is already active
+			if (registration.active) {
+				console.log("Service Worker is active");
+			} else if (registration.installing) {
+				console.log("Service Worker installing...");
+			} else if (registration.waiting) {
+				console.log("Service Worker waiting to activate");
+			}
+
+			// Listen for controller change when SW becomes active
+			navigator.serviceWorker.addEventListener('controllerchange', () => {
+				console.log("Service Worker took control");
+			});
+
+		} catch (error) {
+			console.error("Service Worker registration failed:", error);
+			console.error("Details:", error.message);
+		}
 	}
-
-	//more settings menu on create dialogue flyout
-	buttonMoreSettings.addEventListener("pointerup", () => {
-		const isExpanded = buttonMoreSettings.getAttribute("aria-expanded") === "true";
-		buttonMoreSettings.setAttribute("aria-expanded", isExpanded ? "false" : "true");
-		buttonMoreSettings.innerHTML = isExpanded ? "+" : "-";
-		document.querySelectorAll(".optional").forEach(e => e.classList.toggle("hidden"));
-	});
 
 	startSessionButton.addEventListener("pointerup", startSession, { once: true, passive: true });
 
@@ -338,23 +435,29 @@
 		audioPreview.srcObject = null;
 		cameraPreview.srcObject = null;
 
-		//Change create dialog layout for settings to re-use it
-		["settingsDialog", "toolHistory", "spacer", "buttonMoreSettings"].forEach(id => {
+		["sectionButtonHelp", "sectionButtonHistory", "settingsDialog", "settingsUser", "sectionHistory", "settingFiller"].forEach(id => {
 			document.getElementById(id).classList.add("hidden");
 		});
-		settingsDialog.setAttribute("data-close-outside", "");
+
 		project.style.width = "200px";
-		document.querySelectorAll(".optional").forEach(e => e.classList.remove("hidden"));
-		document.querySelectorAll(".settings-preview").forEach(e => e.classList.add("hidden"));
-		settingsDialog.style.gridTemplateColumns = "90px 200px";
+		settingsDialog.setAttribute("data-close-outside", "");
+		settingsDialog.style = "right: 50px; bottom: 10px;";
 		settingsDialog.classList.remove("middle", "hidearrow");
-		settingsUser.style.gridColumn = "1 / -1";
+		sectionUser.style = "margin-top: 94px";
+		document.querySelectorAll(".settings-preview").forEach(e => e.classList.add("hidden"));
+		document.querySelectorAll(".settings").forEach(e => e.style.gridTemplateColumns = "100px 200px");
+
+		const button = document.querySelector('[data-target="sectionSession"]');
+		UI.section(button);
+
 		startSessionButton.innerHTML = "Apply settings";
 
 		zoomdiv.addEventListener("wheel", onWheel, { passive: false });
 		zoomdiv.addEventListener("pointerdown", onMouseDown);
 		zoomdiv.addEventListener("pointermove", onMouseMove);
 		zoomdiv.addEventListener("pointerup", onMouseUp);
+
+		setupFileDrop();
 
 		startSessionButton.addEventListener("pointerup", () => {
 			initUserStream();//from initvdo.js
