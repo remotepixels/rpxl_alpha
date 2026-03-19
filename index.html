@@ -229,7 +229,20 @@
 			<div class="file-list" id="fileList"></div>
 		</div>
 
+	<!-- peer controls -->
+	<div id="peerControls" class="popover hidden"  data-close-outside>
+		<div class="tool-set">
+			<button class="tool" data-ui="action" data-action="oneOnOne" data-requires="remoteAudio"><span class="material-symbols-outlined">view_real_size</span></button>
+			<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
+			<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
+		</div>
+		<div class="tool-spacer-horiz"></div>
+		<div class="tool-set">
+			<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
+		</div>
+	</div>
 
+	
 		<!-- side toolbar -->
 		<div class="toolbar vert">
 			<div class="tool-set">
