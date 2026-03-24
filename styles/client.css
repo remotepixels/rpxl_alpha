@@ -23,9 +23,7 @@
 	margin:5px 0px 5px -5px;
 
 }
-.settings>div {
 
-}
 #settingsDialog::after {
 	position: absolute;
 	bottom:15px;

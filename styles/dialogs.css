@@ -77,7 +77,7 @@
 .vu-meter {
 	position: absolute;
 	overflow: hidden;
-	right :15px;
+	right :20px;
 	width:10px;
 	height:165px;
 	background-color: light-dark(var(white), var(--color-mid-grey));

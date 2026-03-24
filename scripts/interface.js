@@ -1,3 +1,6 @@
+const peerButton = document.getElementById("toolPeers");
+const chatButton = document.getElementById("toolChat");
+const filesButton = document.getElementById("toolFiles");
 let activePeerUUID = null;
 
 //pointer up on buttons with data-ui attribute to trigger UI actions, pointer down to close popups when clicking outside
@@ -52,14 +55,15 @@ document.addEventListener("pointermove", (e) => {
     }
 });
 
-const chatButton = document.getElementById("toolChat");
-
 chatButton.addEventListener("pointerup", () => {
 	unreadMessages = 0;
 	updateChatBadge();
 });
 
-const peerButton = document.getElementById("toolPeers");
+filesButton.addEventListener("pointerup", () => {
+	newFiles = 0;
+	updateFilesBadge();
+});
 
 peerButton.addEventListener("pointerup", () => {
 	updatePeerBadge();
@@ -132,7 +136,7 @@ const UI = {
         const newState = !state;
 
         button.setAttribute("aria-pressed", newState);
-        button.classList.toggle("selected", newState);
+        button.classList.toggle("selected");
 
         runAction(button, newState);
     },
@@ -142,7 +146,7 @@ const UI = {
         const newState = !state;
 
         button.setAttribute("aria-pressed", newState);
-        button.classList.toggle("selected", newState);
+        button.classList.toggle("selected");
 
         runAction(button, newState);
 	},
@@ -175,10 +179,21 @@ const UI = {
 			activePeerUUID = peer.dataset.uuid; 
 
 			const vu = peer.querySelector(".peerVU");
-			const micTool = popover.querySelector('[data-requires="remoteAudio"]');
+			const micTools = popover.querySelectorAll('[data-requires="remoteAudio"]');
 
 			const hasMic = !vu.classList.contains("micOffline");
-			micTool.classList.toggle("hidden", !hasMic);
+
+			// Check where the peer lives
+			const inMainRoom = !!peer.closest('#sidePeers');
+			const inWaitingRoom = !!peer.closest('#sideWaitingRoom');
+
+			// Final rule:
+			// Must have mic AND be in main room
+			const allowRemoteAudio = hasMic && inMainRoom && !inWaitingRoom;
+
+			micTools.forEach(tool => {
+				tool.classList.toggle("hidden", !allowRemoteAudio);
+			});
 		}
 
 		// close other popovers
@@ -219,12 +234,13 @@ const ACTIONS = {
 		if (state) {
 			console.log("Toggling video state (muted)");
 			TRACKS.main.video.enabled = false;
-			showBanner({ key:"video_blind", message:"Main video stream disabled", type:"warning", timeout:null });
+			showBanner({ key:"video_blind", message:"Main video stream disabled", type:"warning", timeout:3000 });
 		} 
 		if (!state) {
 			console.log("Toggling video state (live)");
 			TRACKS.main.video.enabled = true;
 			hideBannerByKey("video_blind");
+
 		}
     },
 
@@ -232,12 +248,13 @@ const ACTIONS = {
 		if (state) {
 			console.log("Toggling audio state (muted)");
 			TRACKS.main.audio.enabled = false;
-			showBanner({ key:"audio_muted", message:"Main audio stream disabled", type:"warning", timeout:null });
+			showBanner({ key:"audio_muted", message:"Main audio stream disabled", type:"warning", timeout:3000 });
 		} 
 		if (!state) {
 			console.log("Toggling audio state (live)");
 			TRACKS.main.audio.enabled = true;
 			hideBannerByKey("audio_muted");
+
 		}
     },
 
@@ -257,6 +274,7 @@ const ACTIONS = {
 			canvas.removeEventListener('pointermove', draw);
 			canvas.removeEventListener('pointerup', endDrawing);
 			canvas.removeEventListener('mouseout', endDrawing);
+
 		}
     },
 
@@ -283,16 +301,84 @@ const ACTIONS = {
 		//console.log("Toggling peer mic", activePeerUUID);
 	},
 
-	moveToRoom() {
+	oneOnOne(state) {
 		if (!activePeerUUID) return;
 
-		vdo.sendData({
-			type: 'moveToRoom',
-			user: activePeerUUID,
-			timestamp: Date.now()
-		},activePeerUUID);
+		const allButtons = peerControls.querySelectorAll('.tool');
 
-		togglePeerRoom(activePeerUUID);
+		if (state) {
+
+			vdo.sendData({
+				type: 'oneOnOne',
+				action: "active",
+				user: activePeerUUID,
+				host: localUUID,
+				timestamp: Date.now()
+			});
+
+			showBanner({ key:"oneOnOne", message:"You are in one on one", type:"notification", timeout:null });
+			
+			oneOnOneUser = activePeerUUID;
+			toggleOneOnOne(activePeerUUID, localUUID);
+			peerControls.classList.toggle("hidden", true);
+
+			console.log("one on one active with peeer", activePeerUUID);
+			
+			document.querySelectorAll('#peerControls .tool').forEach(popupEl => {
+				popupEl.classList.add("hidden");
+			});
+
+		}
+		
+		if (!state) {
+
+			vdo.sendData({
+				type: 'oneOnOne',
+				action: "off",
+				user: activePeerUUID,
+				host: localUUID,
+				timestamp: Date.now()
+			});
+
+			allButtons.forEach(btn => {
+				if (!btn.querySelector('[data-action="oneOnOne"]')) {
+					btn.classList.remove(".hidden");
+					}
+				});
+
+			clearOneOnOne();
+			
+			document.querySelectorAll('#peerControls .tool').forEach(popupEl => {
+				popupEl.classList.remove("hidden");
+			});
+
+			peerControls.classList.toggle("hidden", true);
+			console.log("one on one off");
+		}
+	},
+
+	moveToRoom() {
+		if (!activePeerUUID) return;
+		const peer = document.querySelector(`.peer[data-uuid="${activePeerUUID}"]`);
+
+		const mainRoom = document.getElementById("sidePeers");
+		let targetRoom = null;
+
+		if (peer.parentElement === mainRoom) {
+			targetRoom = "lobby";
+		} else {
+			targetRoom = "main";
+		}
+		console.log("sending : ", activePeerUUID, " to room : ", targetRoom);
+
+		// vdo.sendData({
+		// 	type: 'moveToRoom',
+		// 	room: targetRoom,
+		// 	user: activePeerUUID,
+		// 	timestamp: Date.now()
+		// });
+		
+		togglePeerRoom(activePeerUUID, targetRoom);
 		peerControls.classList.toggle("hidden", true);
 		//console.log("moving peer", activePeerUUID);
 	},
@@ -338,6 +424,7 @@ const ACTIONS = {
 			});
 
 			hideBannerByKey("mic_muted");
+
 		}
     },
 

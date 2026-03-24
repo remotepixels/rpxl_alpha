@@ -16,7 +16,11 @@
 			flex-direction: row;
 	}
 	.tool.spacer {
-		display:none;
+	height:calc(var(--button-height) - 10px);
+	width: 2px;
+	}
+	.tool.spacer.bottom {
+		margin-left:auto;
 	}
 	.tool {
 		width:50px;

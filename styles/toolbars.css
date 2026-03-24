@@ -20,7 +20,7 @@
 }
 
 .toolbar.horiz {
-	padding: 5px;
+	padding: 2px;
 	bottom: 10px;
 	left: 50%;
 	transform: translateX(-50%);
@@ -57,7 +57,11 @@
 	bottom:0px;
 	padding-top:5px;
 	padding-bottom:17px;
+	gap:5px;
 
+}
+.toolbar.vert > button {
+	border-radius: var(--radius-big);
 }
 .toolbar.stretch{
 	position:relative;
@@ -80,8 +84,9 @@
 .tool-set.vert{
 	flex-direction: column;
 }
-.tool-set.bottom {
+.tool.spacer.bottom {
 	margin-top:auto;
+	background-color: unset;
 }
 
 .tool {
@@ -174,7 +179,9 @@ button[data-ui="toggle"][aria-pressed="true"]::after {
 	box-shadow: var(--shadows);
 	z-index: 11;
 }
-
+.popover > button {
+	border-radius: var(--radius-big);
+}
 .pallet {
 	display: unset;
 	width:140px; 

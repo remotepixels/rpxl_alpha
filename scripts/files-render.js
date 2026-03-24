@@ -13,6 +13,12 @@ function debounce(fn, delay) {
 	};
 }
 
+function updateFilesBadge() {
+	if (!filesButton) return;
+
+	filesButton.dataset.count = newFiles;
+}
+
 //SORTS FILE TREE BY DATE/NAME LOCAL/REMOTE OR ALL
 function rerenderFileTree() {
 	const treeRoot = document.getElementById('fileList');
@@ -125,7 +131,6 @@ function renderTreeItem(f) {
 				} else {
 					if (confirm(`Remove entire folder "${folderPath.slice(8)}" from share?`)) {
 						await deleteDirectory(folderPath);
-						sendDirectoryRemoved(folderPath);
 					}
 				}
 			});

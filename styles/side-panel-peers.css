@@ -94,3 +94,11 @@
 .peerVU.disabled::before {
     display: none;
 } */
+ .peer.dimmed {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.peer {
+  transition: opacity 0.2s ease;
+}

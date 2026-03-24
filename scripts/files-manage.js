@@ -1,7 +1,41 @@
 //add / remove files
-const files = {};
-let folderMap = {}; // keeps track of folder DOM nodes
+const filePicker = document.getElementById('filePicker');
+const folderPicker = document.getElementById('folderPicker');
 
+const files = {}; //
+		// id,
+		// name,
+		// size: file.size,
+		// folderPath,
+		// uploadedBy: 'local' || remote uuid,
+		// lastModified: file.lastModified,
+		// timestamp,
+		// file
+
+let folderMap = {}; // keeps track of folder DOM nodes
+let newFiles = 0;
+
+function handleGuestFiles(guestUUID) {
+	let logOnce = false;
+	const ids = Object.keys(files);
+
+	if (ids.length === 0) {
+		console.log('No files to send.');
+		return;
+	}
+
+	//only send local files
+	for (const id of ids) {
+		const meta = files[id];
+		if (meta.uploadedBy == 'local') {
+			sendToPeer(guestUUID, "file-announce", meta);
+			if (logOnce === false) {
+				console.log(`Sending list of ${ids.length} files to new guest ${guestUUID}...`);
+				logOnce = true;
+			}
+		}
+	}
+}
 
 function escapeHtml(s) {
 	return String(s).replace(/[&<>\"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]);
@@ -15,37 +49,38 @@ function formatBytes(a) {
 }
 
 //DRAG AND DROP AND FILE ADDING HANDLING
-toolAddFile.addEventListener("click", () => {
-	toolAddFile.click();
+addFileBtn.addEventListener("click", () => {
+	filePicker.click();
+	//console.log("FILE PICKER MODE");
 });
 
+addFolderBtn.addEventListener("click", () => {
+	folderPicker.click();
+	//console.log("folder PICKER MODE");
+});
 
-// Always handle picking files on both desktop + mobile
-toolAddFile.addEventListener("change", (event) => {
-	const files = event.target.files;
+filePicker.addEventListener("change", (e) => {
+	handlePickedFiles(e.target.files, filePicker);
+});
+
+folderPicker.addEventListener("change", (e) => {
+	handlePickedFiles(e.target.files, folderPicker);
+});
+
+function handlePickedFiles(fileList, inputEl) {
 	const dropId = generateRandomID(8);
 
-	for (let i = 0; i < files.length; i++) {
-		const file = files[i];
-
-		let relativePath;
-		if (file.webkitRelativePath && file.webkitRelativePath !== "") {
-			relativePath = file.webkitRelativePath;
-		} else {
-			relativePath = file.name;
-		}
-
+	for (let file of fileList) {
+		const relativePath = file.webkitRelativePath || file.name;
 		file.relativePath = `${dropId}/${relativePath}`;
+
 		if (!isHiddenFile(file)) addFile(file);
 	}
 
-});
+	inputEl.value = ""; // reset
+}
 
 function setupFileDrop()  {
-	//set for desktop (folders and drag drop)
-	toolAddFile.setAttribute('webkitdirectory', "");
-	toolAddFile.setAttribute('directory', "");
-
 	const dropOverlay = document.getElementById('dropArea');
 
 	dropOverlay.classList.remove("hidden");
@@ -73,7 +108,7 @@ function setupFileDrop()  {
 		dropOverlay.classList.remove('dragover');
 	});
 
-	dropArea.addEventListener('drop', async (e) => {
+	dropOverlay.addEventListener('drop', async (e) => {
 		e.preventDefault();
 		const dropId = generateRandomID(8);
 
@@ -197,14 +232,14 @@ function addFile(file) {
 		folderPath,
 		timestamp
 	});
+	
+	newFiles++;
+	updateFilesBadge();
 }
 
 //SEND CONTROL MESSAGES (NOT DATA, FILE ADDED/REMOVED, FILE REQUESTS ETC)
 //SEND TO SPECIFIC PEER (STREAMID)
 function sendToPeer(targetUUID, dataType, payload = {}) {
-	const total = Object.keys(connectedPeers).length;
-	if (total === 0) return; // only send if peers connected
-
 	vdo.sendData({
 		dataType,
 		payload
@@ -214,9 +249,6 @@ function sendToPeer(targetUUID, dataType, payload = {}) {
 
 //BROADCAST TO ALL PEERS (connects, disconnects, adding or removing files)
 function sendBroadcast(dataType, payload = {}) {
-	const total = Object.keys(connectedPeers).length;
-	if (total === 0) return; // only send if peers connected
-
 	vdo.sendData({
 		dataType,
 		payload
@@ -225,7 +257,7 @@ function sendBroadcast(dataType, payload = {}) {
 }
 
 //REMOVE ANY FILES THE PEER HAS UPLOADED IF THEY DISCONNECT
-function removePeerFiles(peerUUID) {
+function removeFiles(peerUUID) {
 	// Collect IDs of files uploaded by the disconnected peer
 	const toRemove = Object.values(files)
 		.filter(f => f.uploadedBy === peerUUID)
@@ -269,7 +301,6 @@ function removeElementWithFade(el) {
 //REMOVE DIRECTORY(S)
 async function deleteDirectory(path) {
 	if (!path) return;
-	//log(`Deleting directory: ${path}`);
 
 	// Find all file IDs inside that folder (recursively)
 	const toDelete = Object.keys(files).filter(id =>
@@ -280,7 +311,8 @@ async function deleteDirectory(path) {
 	for (const id of toDelete) {
 		const el = document.querySelector(`.file-item[data-id="${id}"]`);
 		removeElementWithFade(el);
-		await announceFileRemoved(id, path);
+		sendBroadcast("file-removed", { id });
+		//await announceFileRemoved(id, path);
 		delete files[id];
 	}
 
@@ -289,17 +321,8 @@ async function deleteDirectory(path) {
 	if (folderDiv) folderDiv.remove();
 
 	delete folderMap[path];    // Remove from folderMap
-	await sendDirectoryRemoved(path);    //announce directory removal to peers
-	cleanupEmptyFolders(path);    //clean any now-empty parents
-}
-
-//ANNOUNCE DIRECTORY REMOVAL TO ALL PEERS
-async function sendDirectoryRemoved(path, targetUUID = null) {
-	const peerKeys = Object.keys(connectedPeers);
-	if (peerKeys.length === 0) return;      //console.log("No connected guests");
-
 	sendBroadcast("directory-removed", { path });
-	//log(`Announced directory removal : ${path}`);
+	cleanupEmptyFolders(path);    //clean any now-empty parents
 }
 
 //REMOVE FILE FROM DOM
@@ -313,19 +336,11 @@ async function deleteFile(id) {
 
 	if (el) await removeElementWithFade(el);
 
-	//log(`Deleted file : / ${folderPath} / ${file.name}`);
-	cleanupEmptyFolders(folderPath);
-	await announceFileRemoved(id, folderPath);
-}
-
-//ANNOUNCE FILE REMOVAL TO ALL PEERS
-async function announceFileRemoved(id, path) {
-	const total = Object.keys(connectedPeers).length;
-	if (total == 0) return;
-
 	sendBroadcast("file-removed", { id });
-	//log(`Announced file removal : `, files[id]);
+	cleanupEmptyFolders(folderPath);
+
 }
+
 
 //CLEANUP AND REMOVE ANY EMPTY FOLDERS
 function cleanupEmptyFolders(startPath = null) {

@@ -1,4 +1,7 @@
 let connectedPeers = 0;
+let oneOnOneUser = null;
+let oneOnOneHost = null;
+let inRoom = null;
 
 function updatePeerBadge(connectedPeers = 0) {
 	const peersButton = document.getElementById("toolPeers");
@@ -76,7 +79,9 @@ function addToRegistry(uuid, label = null, streamID = null, track = null) {
 		peer.label = label;
 	}
 
-	addPeerToDOM(uuid, streamID, label);
+	//if (uuid && streamID && label) {
+		addPeerToDOM(uuid, streamID, label);
+	//}
 
 	if (!track) return;
 	//add tracks to registry if doesn't exist
@@ -219,6 +224,7 @@ function addPeerToDOM(uuid, streamID, label = null) {
 	}
 							
 	updatePeerRoomCount()
+
 }
 
 function updateDOMLabel(uuid, streamID, label) {
@@ -302,46 +308,147 @@ async function disconnectPeer(uuid) {
 	streams.clear();
 	REGISTRY.delete(uuid);
 
+	if (uuid === oneOnOneUser || uuid === oneOnOneHost) {
+		clearOneOnOne();
+	}
+
 	updatePeerRoomCount();
 }
 
-function togglePeerRoom(uuid) {
-	let peer = null;
-	if (uuid === localUUID) {
-		peer= document.getElementById("user")
-	} else {
-		peer = document.querySelector(`.peer[data-uuid="${uuid}"]`);
-	}
+function togglePeerRoom(uuid, targetRoom) {
+	if (!uuid || !targetRoom) return;
+
+	//const = null;
+	const peer = document.querySelector(`.peer[data-uuid="${uuid}"]`);
+
     if (!peer) return;
+	let target = null;
 
-    const peers = document.getElementById("sidePeers");
-    const waiting = document.getElementById("sideWaitingRoom");
+	if (targetRoom === "main")  {
+		target = document.getElementById("sidePeers");
+	} else {
+		target = document.getElementById("sideWaitingRoom");
+		targetRoom = "lobby";
+	}
 
-    if (peer.parentElement === peers) {
-		if (isStreamer) {
-			vdo.sendData({
-				type: "moveToRoom",
-				room: "lobby",
-				user: uuid
-			});
+	if (peer.parentElement === target) return;
+
+	if (uuid === localUUID) {
+		console.log("moving to room :", targetRoom);
+		inRoom = targetRoom;
+		
+		updateRoomUI(targetRoom);
+	}
+
+	if (isStreamer) {
+		vdo.sendData({
+			type: "moveToRoom",
+			room: targetRoom,
+			user: uuid
+		});
+	}
+
+	target.appendChild(peer);
+	updatePeerRoomCount();
+}
+
+function toggleOneOnOne(targetUUID, hostUUID) {
+ 	const amIHost = (localUUID === hostUUID);
+	const amITarget = (localUUID === targetUUID);
+	const isParticipant = amIHost || amITarget;
+
+	const peerElements = document.querySelectorAll('#sidePeers .peer');
+
+	peerElements.forEach(peerEl => {
+
+		const video = peerEl.querySelector('video');
+		if (!video) return;
+
+		const peerId = peerEl.dataset.uuid;
+
+		const isHostPeer = (peerId === hostUUID);
+		const isTargetPeer = (peerId === targetUUID);
+		const isInWhisperPair = isHostPeer || isTargetPeer;
+
+		if (isParticipant) {
+			if (isInWhisperPair) {
+				showBanner({ key:"oneOnOne", message:"You are in one on one", type:"notification", timeout:null });
+	
+				video.volume = 1;
+				video.muted = false;
+				
+			} else {
+				video.volume = 0.2;
+				video.muted = false;
+			}
+
 		} else {
-			updateRoomUI("lobby")
+			if (isInWhisperPair) {
+				video.volume = 1;
+				video.muted = true;
+			} else {
+				video.volume = 1;
+				video.muted = false;
+			}
 		}
-       waiting.appendChild(peer);
-    } else {
-		if (isStreamer) {
-			vdo.sendData({
-				type: 'moveToRoom',
-				room: "main",
-				user: uuid
-			});
-		} else {
-			updateRoomUI("main")
-		}
-       	peers.appendChild(peer);
-    }
 
-	updatePeerRoomCount()
+		let shouldDim;
+
+		if (isParticipant) {
+			shouldDim = !isInWhisperPair;   // dim others
+		} else {
+			shouldDim = isInWhisperPair;    // dim whisper pair
+		}
+
+		peerEl.classList.toggle('dimmed', shouldDim);
+	});
+}
+
+function excludeOneOnOne(excludeUUID) {
+	console.log("late joiner exclude from one on one", excludeUUID)
+	const peerEl = document.querySelector(`[data-uuid="${excludeUUID}"]`);
+	const video = peerEl.querySelector('video');
+	
+	if (!peerEl) return;
+
+	peerEl.classList.add('dimmed');
+	video.volume = 0.2;
+	video.muted = false;
+}
+
+function clearOneOnOne() {
+	//if (oneOnOneUser === null) return;
+
+	document.querySelectorAll('#sidePeers .peer').forEach(peerEl => {
+			const video = peerEl.querySelector('video');
+
+			if (video) {
+				video.muted = false;
+				video.volume = 1;
+			}
+
+		peerEl.classList.remove('dimmed');
+
+	});
+
+	document.querySelectorAll('#peerControls .tool').forEach(popupEl => {
+		popupEl.classList.remove("hidden");
+	});
+
+	vdo.sendData({
+		type: 'oneOnOne',
+		action: "off",
+		user: oneOnOneUser,
+		host: oneOnOneHost,
+		timestamp: Date.now()
+	});
+
+		hideBannerByKey("oneOnOne");
+
+	document.querySelector('[data-action="oneOnOne"]').classList.remove("selected");
+	document.querySelector('[data-action="oneOnOne"]').setAttribute("aria-pressed", "false");
+	oneOnOneUser = null;
+	oneOnOneHost = null;
 }
 
 function updatePeerRoomCount() {
@@ -356,15 +463,15 @@ function updatePeerRoomCount() {
 	const waitingCount = waitingRoom.querySelectorAll(".peerVU").length;
 
 	const waitingRoomButton = document.getElementById("toolWaitingRoom");
+	waitingRoomButton.dataset.count = waitingCount;
 
-	if (!waitingCount) {
-		waitingRoomButton.classList.add("hidden");
-		waitingRoomButton.dataset.count = waitingCount;
-	} else {
-		waitingRoomButton.classList.remove("hidden");
-		waitingRoomButton.dataset.count = waitingCount;
+	if (isStreamer) {
+		if (!waitingCount) {
+			waitingRoomButton.classList.add("hidden");
+		} else {
+			waitingRoomButton.classList.remove("hidden");
+		}
 	}
-
 	updateRoomAudio();
 }
 
@@ -393,14 +500,14 @@ function updateRoomUI(moveToRoom) {
     const chatBtn = document.getElementById("toolChat");
     const filesBtn = document.getElementById("toolFiles");
     const peersBtn = document.getElementById("toolPeers");
-	const mainToolbar = document.querySelector(".toolbar-horiz");
+	const mainToolbar = document.querySelector(".toolbar.horiz");
 	const mainVideo = document.querySelector(".mainStream");
 	const zoomIndicator = document.querySelector(".zoom-popup");
 	const mainVU =  document.getElementById("mainStreamVU");
 	const markup = document.getElementById("markup");
 
-    if (moveToRoom === "lobby") {
-        chatBtn.classList.remove("hidden");
+    if (moveToRoom == "lobby") {
+        waitingRoomBtn.classList.remove("hidden");
         // hide buttons
         chatBtn.classList.add("hidden");
         filesBtn.classList.add("hidden");

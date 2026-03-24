@@ -159,7 +159,7 @@
 				<canvas id="markup" class="markup" data-requires="video"></canvas>
 			</div>
 			<!-- main toolbar -->
-			<div class="toolbar horiz fade">
+			<div class="toolbar horiz fade" id="mainToolBar">
 				<div class="tool-set">
 					<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
 					<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
@@ -217,9 +217,11 @@
 		<div class="side-panel hidden" id="sideFiles">
 			<div class="toolbar stretch">
 				<div class="tool-set">
-					<button class="tool blue" id="toolAddFile" data-ui="action"  data-action="upload"><span class="material-symbols-outlined">drive_folder_upload</span></button>
+					<button class="tool blue" id="addFileBtn" data-ui="action"  data-action="upload"  data-group="files"><span class="material-symbols-outlined">upload_file</span></button>
+					<button class="tool blue" id="addFolderBtn" data-ui="action"  data-action="upload" data-group="files"><span class="material-symbols-outlined">drive_folder_upload</span></button>
+					<input class="hidden" type="file" id="filePicker" multiple>
+					<input class="hidden" type="file" id="folderPicker" webkitdirectory directory>
 				</div>
-				<div class="tool-spacer-horiz"></div>
 				<div class="tool-set" >
 					<button class="tool" id="sortName" data-ui="sort" data-group="sortOptions" data-action="name" aria-pressed="false">Name</button>
 					<button class="tool selected" id="sortLatest" data-ui="sort" data-group="sortOptions"  data-action="latest" aria-pressed="true">Latest</button>
@@ -229,39 +231,20 @@
 			<div class="file-list" id="fileList"></div>
 		</div>
 
-	<!-- peer controls -->
-	<div id="peerControls" class="popover hidden"  data-close-outside>
-		<div class="tool-set">
-			<button class="tool" data-ui="action" data-action="oneOnOne" data-requires="remoteAudio"><span class="material-symbols-outlined">view_real_size</span></button>
-			<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
-			<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
-		</div>
-		<div class="tool-spacer-horiz"></div>
-		<div class="tool-set">
-			<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
-		</div>
-	</div>
-
 	
 		<!-- side toolbar -->
 		<div class="toolbar vert">
-			<div class="tool-set">
-				<button class="tool" id="toolHelp" data-ui="action" data-action="help">?</button>
-			</div>
+			<button class="tool" id="toolHelp" data-ui="action" data-action="help">?</button>
 			<div class="tool spacer"></div>
-			<div class="tool-set vert">
-				<button class="tool" id="toolPeers" data-ui="panel" data-group="panel" data-target="sidePeers" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>	
-				<button class="tool" id="toolChat" data-ui="panel" data-group="panel" data-target="sideChat" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">chat_bubble</span></button>
-				<button class="tool" id="toolFiles" data-ui="panel" data-group="panel" data-target="sideFiles" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">folder</span></button>	
-			</div>
-			<div class="tool-set vert bottom">
-				<button class="tool red" id="toolMuteMicrophone" data-ui="toggle" data-group="userTools" data-state="toolMuteMicrophone" data-action="muteMicrophone" data-requires="microphone" aria-pressed="false"><span class="material-symbols-outlined">mic</span></button>
-				<button class="tool" id="toolMuteCamera" data-ui="toggle" data-group="userTools" data-state="toolMutecamera" data-action="muteCamera" data-requires="camera" aria-pressed="false"><span class="material-symbols-outlined">photo_camera</span></button>
-			</div>
+			<button class="tool hidden" id="toolWaitingRoom" data-ui="panel" data-group="panel" data-target="sideWaitingRoom" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>		
+			<button class="tool" id="toolPeers" data-ui="panel" data-group="panel" data-target="sidePeers" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">account_circle</span></button>	
+			<button class="tool" id="toolChat" data-ui="panel" data-group="panel" data-target="sideChat" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">chat_bubble</span></button>
+			<button class="tool" id="toolFiles" data-ui="panel" data-group="panel" data-target="sideFiles" data-count="0" aria-expanded="false"><span class="material-symbols-outlined">folder</span></button>	
+			<div class="tool spacer bottom"></div>
+			<button class="tool red" id="toolMuteMicrophone" data-ui="toggle" data-group="userTools" data-state="toolMuteMicrophone" data-action="muteMicrophone" data-requires="microphone" aria-pressed="false"><span class="material-symbols-outlined">mic</span></button>
+			<button class="tool" id="toolMuteCamera" data-ui="toggle" data-group="userTools" data-state="toolMutecamera" data-action="muteCamera" data-requires="camera" aria-pressed="false"><span class="material-symbols-outlined">photo_camera</span></button>
 			<div class="tool spacer"></div>
-			<div class="tool-set vert">
-				<button class="tool" id="toolSettings" data-ui="dialog" data-target="settingsDialog"><span class="material-symbols-outlined">settings</span></button>
-			</div>
+			<button class="tool" id="toolSettings" data-ui="dialog" data-target="settingsDialog"><span class="material-symbols-outlined">settings</span></button>
 		</div>
 	</div>
 
@@ -291,6 +274,21 @@
 		</div>
 	</div>
 
+
+		<!-- peer controls NOT USED FOR CLIENTS -->
+	<div id="peerControls" class="popover hidden"  data-close-outside>
+		<div class="tool-set">
+			<button class="tool" data-ui="action" data-action="oneOnOne" data-requires="remoteAudio"><span class="material-symbols-outlined">view_real_size</span></button>
+			<button class="tool" data-ui="action" data-action="remoteToggleMic" data-requires="remoteAudio"><span class="material-symbols-outlined">mic</span></button>
+			<button class="tool" data-ui="action" data-action="moveToRoom"><span class="material-symbols-outlined">meeting_room</span></button>
+		</div>
+		<div class="tool-spacer-horiz"></div>
+		<div class="tool-set">
+			<button class="tool red" data-ui="action" data-action="kick"><span class="material-symbols-outlined">skull</span></button>
+		</div>
+	</div>
+
+
 	<!-- setting dialog -->
 	<div id="settingsDialog" class="dialog middle hidearrow hidden">
 		<div id="settingsPreview" class="settings-preview" style="display:grid; justify-content: center; align-items: center; grid-column:  1 / -1; ">
@@ -312,7 +310,9 @@
 		</div>
 
 		<div class="settings">
+					<div class="tool-set">
 			<span><button class="tool" id="joinHelp" data-ui="action" data-action="help">?</button></span>
+			</div>
 			<button id="checkLogin" class="button blue wider">Join session</button>
 		</div>
 
@@ -361,12 +361,18 @@
 <script src="/scripts/peers.js"></script>
 <script src="/scripts/chat.js"></script>
 <script src="/scripts/markup.js"></script>
+<script src="/scripts/files-manage.js"></script>
+<script src="/scripts/files-render.js"></script>
+<script src="/scripts/files-rx.js"></script>
+<script src="/scripts/files-rxqueue.js"></script>
+<script src="/scripts/files-rxdb.js"></script>
+<script src="/scripts/files-tx.js"></script>
+<script src="/scripts/files-txdb.js"></script>
 
 <script lang="javascript">
 sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
 
 const APP_NS = 'RPXL-Client';
-
 let sessionID = null;
 
 randomBG (); //from interface.js
@@ -469,7 +475,42 @@ function startSession() {
 	});
 
 	document.getElementById("app").classList.remove("hidden");
-
+	
+	setupFileDrop();
+	startDLWorker();
 	VDOConnect(sessionID);
 }
+
+async function startDLWorker() {
+	if (!navigator.serviceWorker) {
+		console.warn("Service Worker not supported in this browser");
+		return;
+	}
+
+	try {
+		const registration = await navigator.serviceWorker.register("/files-swdownloader.js", {
+			scope: "/"
+		});
+		//console.log("Service Worker registered successfully", registration);
+
+		// Check if SW is already active
+		if (registration.active) {
+			console.log("Service Worker is active");
+		} else if (registration.installing) {
+			console.log("Service Worker installing...");
+		} else if (registration.waiting) {
+			console.log("Service Worker waiting to activate");
+		}
+
+		// Listen for controller change when SW becomes active
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			console.log("Service Worker took control");
+		});
+
+	} catch (error) {
+		console.error("Service Worker registration failed:", error);
+		console.error("Details:", error.message);
+	}
+}
+
 </script>
