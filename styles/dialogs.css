@@ -150,12 +150,17 @@
 	cursor: pointer;
 }
 
-.link:hover {
+.link:active {
 	color: light-dark(var(--color-dark-bg), var(--color-light-white));
 	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-
-.smartTV-code {
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+	color: light-dark(var(--color-dark-bg), var(--color-light-white));
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+  }
+}
+.smartTVcode {
 	color: light-dark(var(--color-dark-bg), var(--color-light-white));
 	font-family: ui-monospace, monospace;
 	font-size: 15px;

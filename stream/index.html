@@ -286,9 +286,8 @@
 		<div class="smartTV" id="smartTV">
 			<div class="bold">Smart TV link</div> 
 			Enter code displayed on Smart TV (visit https://rpxl.app/tv)<br>
-			<input type="text" maxlength="25" class="textinput smartTV-code " id="name" name="smartTVCode" placeholder="XXXX - XXXX" autocomplete="off">
-			<button id="startTVButton" class="button blue" style="width: 40px;">+</button>
-
+			<input type="text" maxlength="9" class="textinput smartTVcode " id="smartTVInput" placeholder="XXXX-XXXX" autocomplete="off">
+			<button id="smartTVButton" class="button blue" style="width: 40px;">+</button>
 		</div>
 	</div>
 
@@ -340,16 +339,13 @@
 <script src="/scripts/files-rxdb.js"></script>
 <script src="/scripts/files-tx.js"></script>
 <script src="/scripts/files-txdb.js"></script>
-
+<script src="/scripts/smartTV.js"></script>
 
 <script type="text/javascript">
 	const APP_NS = 'RPXL-Hosts';
 
-
-	//let historyBGAttached = false;
-	//let mainPublished = false;
 	let sessionID = generateRandomID();
-	let waitingRoomID = generateRandomID();
+	//let waitingRoomID = generateRandomID();
 	console.log("generating new session id :", sessionID);
 
 	randomBG(); //interface.js
@@ -377,8 +373,8 @@
 	}
 
 	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${sessionID}`);
+	setupShareButton("copyWaitingLink", "sessionID", value => `${devURL}/?WID=${sessionID}`);
 	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${sessionID}`);
-	//setupShareButton("copyOBSLink", "sessionID", value => `${devURL}/vdo/?view=Stream${value}&solo&room=RPXL${value}`);
 
 	async function startSession() {
 		createNewStoreEntry(); //storage.js

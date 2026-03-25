@@ -392,7 +392,7 @@ async function checkSessionURL() {
     const SID_REGEX = /^[A-Za-z0-9]{24}$/;
     const params = new URLSearchParams(window.location.search.slice(1));
 
-    if (!params.has('SID')) return;
+	if (params !== 'SID' || params !== 'WID') return;
 
     const SID = params.get('SID');
 

@@ -55,19 +55,26 @@ document.addEventListener("pointermove", (e) => {
     }
 });
 
-chatButton.addEventListener("pointerup", () => {
-	unreadMessages = 0;
-	updateChatBadge();
-});
+if (peerButton) {
+	peerButton.addEventListener("pointerup", () => {
+		updatePeerBadge();
+	});
+}
 
-filesButton.addEventListener("pointerup", () => {
-	newFiles = 0;
-	updateFilesBadge();
-});
+if (chatButton) {
+	chatButton.addEventListener("pointerup", () => {
+		unreadMessages = 0;
+		updateChatBadge();
+	});
+}
 
-peerButton.addEventListener("pointerup", () => {
-	updatePeerBadge();
-});
+if (filesButton) {
+	filesButton.addEventListener("pointerup", () => {
+		newFiles = 0;
+		updateFilesBadge();
+	});
+}
+
 
 //ui types, panels, dialogs, tools, toggles, actions, popovers
 const UI = {
@@ -285,7 +292,7 @@ const ACTIONS = {
 
 	//sidebar
 	help() {
-        window.open("/help.html", "_help");
+        window.open("help.html", "_help");
     },
 
 	remoteToggleMic() {
@@ -371,13 +378,6 @@ const ACTIONS = {
 		}
 		console.log("sending : ", activePeerUUID, " to room : ", targetRoom);
 
-		// vdo.sendData({
-		// 	type: 'moveToRoom',
-		// 	room: targetRoom,
-		// 	user: activePeerUUID,
-		// 	timestamp: Date.now()
-		// });
-		
 		togglePeerRoom(activePeerUUID, targetRoom);
 		peerControls.classList.toggle("hidden", true);
 		//console.log("moving peer", activePeerUUID);

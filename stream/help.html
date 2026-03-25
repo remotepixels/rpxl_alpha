@@ -32,7 +32,7 @@
 
 <body>
 	<div id="navbar" class="navbar">
-		<a href="#joining">Joining a session</a>
+		<a href="#creating">Creating a session</a>
 		<p></p>
 		<a href="#main">Main interface</a>
 		<p></p>
@@ -44,11 +44,10 @@
 		<p></p>
 	</div>
 
-	<div id="joining" class="content">
-
-		<h1>Joining a session</h1>
+	<div id="creating" class="content">
+		<h1>Creating a session</h1>
 		<p>
-			<img src="images/join.jpg" width="262" height="490" style="border-radius: 10px; overflow: hidden; margin-left:50px; float:right">
+			
 			<p>To join a session all you need is an invite link sent by the host</p>
 			<p>If the link is valid you will be prompted for a user name, the only required information</p>
 			<p>If you wish, you can select your camera and microphone to participate in voice and video chats</p>
@@ -76,6 +75,12 @@
 	<div id="toolbar" class="content">
 		<h1>Main toolbar</h1>
 		<p>The main toolbar contins tools that allow you to interact with the main stream, it is dynamic and will only display options relevant to the current session, for example, if the host is not sending an audio stream the volume controls will not be available</p>
+		<span class="point material-symbols-outlined">movie</span>
+		<span class="h2">Mute main stream video</span>
+		<p class="pointItem">This allows you to mute the main video stream to all users, think of it as turning the monitor of at the front of your suite</p>
+		<span class="point material-symbols-outlined">volume_up</span>
+		<span class="h2">Mute main stream audio</span>
+		<p class="pointItem">This allows you to mute the main audio stream to all users, think of it as muting output to the speakers</p>
 		<span class="point material-symbols-outlined">format_ink_highlighter</span>
 		<span class="h2">Markup pen</span>
 		<p class="pointItem">Use this tool to draw and markup over the main stream, your markups will be shared between all users and will remain until either you or the host clears them</p>
@@ -92,15 +97,47 @@
 	<hr>
 	<div id="panels" class="content">
 		<h1>Side panels</h1>
-		<p>There are three side panels, users, chat and files</p>
+		<p>There are four side panels,sharing, users, chat and files</p>
+		<span class="point material-symbols-outlined">ios_share</span>
+		<span class="h2">Share menu</span>
+		<p class="pointItem">Copies share links to your clipboard to send to clients</p>
+		<p class="pointItem">Main share link (default) <br>
+		Users will be prompted for a user name, and can select a camera or microphone. Users will join the main room automatically. They will have full access to the chat and files panels and markup the main stream</p>
+		<p class="pointItem">Quick share link <br>
+		Use for quick no prompt joins, users will not be prompted for a username, or to select a microphone or camera device. Use this if you want to quickly get feedback from a client and you already have the client on another platform for communication</p>
+		<p class="pointItem">Waiting room share link <br>
+		Users will be prompted for a user name, and can select a camera or microphone. Users will join the waiting room and can chat to other users in that room until you admit them to the main room. They will not see or hear the main stream or any users in the main room</p>
+		<p class="pointItem">Smart TV link <br>
+		If you wish to play out directly to a smart TV connected to the internet, visit https://rpxl.app/tv/ on your TV and enter the code displayed into the dialog below <br>
+		This has been tested on some LG smart TV's and some Samsung Tv's, but it's very dependant on the firmware version and browser version installed, your mileage may vary
+		</p>
+		<span class="point material-symbols-outlined">meeting_room</span>
+		<span class="h2">Lobby or waiting room</span>
+		<p class="pointItem">This is a holding room where guests can be isolated from the main session. They can chat amongst themselves but can not hear or see the main stream, or chat with anyone in the main room. If you sent out a Waiting room share link, users will join into this room rather than the main room.<br>
+		This iscon will only appear if you have used a waiting room share link, or sent a user from the main room to the lobby</p>
 		<span class="point material-symbols-outlined">account_circle</span>
 		<span class="h2">Users</span>
-		<p class="pointItem">Shows all the users in the current room. You will be in one of two rooms depending on the host, the main room, and the waiting room. If you are in the waiting room you will not see the main stream, chat or files</p>
-		<p class="pointItem">Users will either have a pastel icon if they have not selected a camera source or their webcam output will be displayed, if the icon is black they have mted their webcam</p>
+		<p class="pointItem">Shows all the users in the current room</p>
+				<p class="pointItem">Users will either have a pastel icon if they have not selected a camera source or their webcam output will be displayed, if the icon is black they have mted their webcam</p>
 		<p class="pointItem">Surrounding each user icon is a coloured ring, this displays audio status for the user<br>
 		Black : user has not selected an audio device and can not talk (though they will still hear you)<br>
 		Red : user has a microphone but is mute<br>
 		White / Blue : Vu of user talking, mic is live</p>
+		<p class="pointItem">As the host you have access to a popup menu for each user</p>
+		<div style="position:relative; margin-left: 50px;">
+			<span class="point material-symbols-outlined">mic</span>
+			<span class="h2">Remote mute a user</span>
+			<p class="pointItem">Mutes or un-mutes a remote users microphone (there's always one)</p>
+			<span class="point material-symbols-outlined">view_real_size</span>
+			<span class="h2">One to one</span>
+			<p class="pointItem">Starts a private voice chat with the user, other users will audio will be dimmed and the will not be able to hear you or the user, think of this a leaning over to talk to the director</p>
+			<span class="point material-symbols-outlined">meeting_room</span>
+			<span class="h2">Send user to lobby</span>
+			<p class="pointItem">Sends the selected user to the lobby, they will no longer see or hear the main stream and will not be able to chat with any users in the main room. Users in the lobby can still chat amongst themselves but will lose access to the text messages and the shared files. This is the the same as asking clients to leave the suite for a while, you can select them in the lobby and allow them back in individually</p>
+			<span class="point material-symbols-outlined">skull</span>
+			<span class="h2">Kick user</span>
+			<p class="pointItem">Will force disconnect a user from a room... satisfying but they can just reconnect, so use with caution</p>
+		</div>
 		<span class="point material-symbols-outlined">chat_bubble</span>
 		<span class="h2">Chat</span>
 		<p class="pointItem">A simple text chat area, chats are sent to all users and remain throughout the session. Users who join late will recieve the full history of messages. You can paste links in the chat, but use the files panel to send and recieve files</p>
@@ -120,13 +157,13 @@
 		<p>You can change any of your user settings with the tools below</p>
 		<span class="point material-symbols-outlined">mic</span>
 		<span class="h2">Microphone</span>
-		<p class="pointItem">If you have selected a microphone you will be able to mute yourself quickly with this button</p>
+		<p class="pointItem">If you have selected a microphone you will be able to mute yourself quickly with this button, note this will not mute the main stream, only your local microphone</p>
 		<span class="point material-symbols-outlined">photo_camera</span>
 		<span class="h2">Camera</span>
-		<p class="pointItem">If you have selected a camera you will be able to disable your video stream quickly with this button</p>
+		<p class="pointItem">If you have selected a camera you will be able to disable your video stream quickly with this button, note users will still see the main stream, only your local webcam will disabled</p>
 		<span class="point material-symbols-outlined">settings</span>
 		<span class="h2">Settings</span>
-		<p class="pointItem">Here you can change your selected microphone or camera device, you can also change your username any time during the session</p>
+		<p class="pointItem">Here you can change any of the devices or settings you set when creating the session, as well as any devices you selected for yourself, see the creating a session section for more detail on each option available</p>
 	</div>
 	<hr>
 	<p>&nbsp;</p>

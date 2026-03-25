@@ -518,39 +518,6 @@ function setupVDOMSListeners() {
 
 }
 
-//
-function setupVDOWRListeners() {
-	// vdoWR.addEventListener(`roomJoined`, (event) => {
-	// 	console.log("moved to waiting room :", event);
-	// });
-
-	// vdoWR.addEventListener(`roomLeft`, (event) => {
-	// 	console.log("left waiting room :", event.detail.room);
-	// });
-
-	// vdoWR.addEventListener('peerConnected', (event) => {		
-	// 	const uuid = event.detail.uuid;
-	// 	const pc = event.detail.connection?.pc;
-
-	// 	playBeep(400, 1);
-	// 	console.warn("peer connected to waiting room",uuid);
-	// });
-
-	// vdoWR.addEventListener('peerDisconnected', (event) => {
-	// 	const uuid = event.detail.uuid;
-	// 	playBeep(200, 2);
-	// 	disconnectPeer(uuid);
-	// 	console.warn("peer disconnected to waiting room", event.detail);
-	// });
-
-	// vdoWR.addEventListener(`publishing`, (event) => {	//NOTE! vdoMS
-	// 	//only lists the stream being published????
-	// 	console.warn("publishing Stream to waiting room:", event);
-	// });
-
-}
-
-
 // If the tab regains focus, re-request wake lock
 document.addEventListener("visibilitychange", () => {
 	if (!document.hidden && wakeLock) {

@@ -137,6 +137,7 @@ h5 {
 	 color: light-dark(var(--color-light-white), var(--color-light-grey))!important;
 }
 
+
 .textBackground {
     margin-top:-20px;
     margin-bottom:-20px;
@@ -151,6 +152,11 @@ sup{
     line-height: 0;
 }
 
-a:hover {
+a:active {
     color: var(--color-dark-grey);
+}
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+	    color: var(--color-dark-grey);
+  }
 }

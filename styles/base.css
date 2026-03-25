@@ -52,8 +52,14 @@ a, a:visited, a:active {
     text-decoration: none;
 	color:light-dark(var(--color-light-grey), var(--color-light-white));
 }
-a:hover {
+a:active {
     color: var(--color-light-white);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+   color: var(--color-light-white);
+  }
 }
 
 .bold{
@@ -80,6 +86,7 @@ a:hover {
 .disabled:hover {
 	pointer-events: none!important;
 }
+
 /*custom dropdown selector*/
 select {
 	appearance: none;
@@ -98,9 +105,16 @@ select {
 	height: var(--button-height);
 	border-radius: var(--radius-big);
 }
-select:hover, select:active {
+select:active {
 	color: light-dark(var(--color-dark-bg), var(--color-light-white));
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .select:hover {
+   color: light-dark(var(--color-dark-bg), var(--color-light-white));
+  }
+}
+
 .custom-select::before {
 	position: absolute;
 	content: "";
@@ -182,13 +196,25 @@ button {
 	color: light-dark(var(--color-light-grey), var(--color-light-grey));
 	background-color: light-dark(var(--color-light-bg), var(--color-dark-grey));
 }
-button:hover {
+button:active {
 	color: light-dark(var(--color-dark-grey), var(--color-light-white));
 	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-button.blue:hover {
+@media (hover: hover) and (pointer: fine) {
+  button:hover {
+   color: light-dark(var(--color-dark-grey), var(--color-light-white));
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+  }
+}
+button.blue:active {
 	color: light-dark(var(--color-light-bg), var(--color-light-white));
 	background-color: var(--color-blue);
+}
+@media (hover: hover) and (pointer: fine) {
+  button.blue:hover {
+	color: light-dark(var(--color-light-bg), var(--color-light-white));
+	background-color: var(--color-blue);
+  }
 }
 button.wider{
 	width:200px;
@@ -254,8 +280,13 @@ input[type="range"]::-moz-range-thumb {
 	width: 120px!important;
 	margin-right:20px;
 }
-.volume:hover {
+.volume:active {
 	background-color: unset!important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .volume:hover {
+	background-color: unset!important;
+  }
 }
 .volume-icon {
 	/* margin-top: 6px; */

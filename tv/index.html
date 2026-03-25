@@ -23,185 +23,151 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
-    <link rel="stylesheet" href="/styles/styles.css">
-    <title>rpxl.app v3.5 | Smart TV View</title>
+    <link rel="stylesheet" href="/styles/base.css">
+	<link rel="stylesheet" href="/styles/dialogs.css">
+
+    <title>rpxl.app v4 | Smart TV View</title>
     
 </head>
 <style>
-
-.loginDialog {
-	position: fixed;
+#popup {
 	display: flex;
-
 	flex-direction: column;
 	align-items: center;
 	justify-content: top;
 	top: 30%;
-	left: 0;
-	/* margin: 20px; */
 	text-align: center;
 	padding: 20px;
 	border-radius: 8px;
 	z-index: 100;
-	width: 100%;
-	height: 100%;
-	cursor: pointer;
+	width: fit-content;
+	height: 150px;
 }
-.largeIcon {
-	font-size: clamp(1rem, 20dvh, 32rem);
-	color: light-dark(var(--color-mid-grey), var(--color-light-grey));
-}
+
 .scode {
 	color: light-dark(var(--color-dark-bg), var(--color-light-white));
 	font-family: ui-monospace, monospace;
-	font-size: 24px;
-	letter-spacing: 14px;
-	margin: 5px;
-	border: 1px solid light-dark(var(--color-dark-bg), var(--color-light-white));
+	font-size: 48px;
+	letter-spacing: 10px;
+	margin: 20px;
 }
 </style>
 
 <body id="body">
-	<div class="peerList hidden" id="peerList">
-		<div class="peer">
-			<video class="peerStream" id="userStream" autoplay playsinline disablepictureinpicture ></video>
-			<span class="peerLabel" id="userLabel"></span>
-			<!-- <span class="peerControl"> -->
-				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mic</span></button> -->
-				<!-- <button  class="peerControlButton"><span class="material-symbols-outlined">mode_off_on</span></button> -->
-			<!-- </span> -->
-		</div>
-    </div>
-    <div class="mainViewer hidden" id="mainViewer">
-   	 	<div class="mainZoom" id="zoomdiv">
-		    <video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-       		<canvas id="markup" class="markup"></canvas>
-    	</div>
-	</div>
-
-
-    <!--Main interface-->
-    <div id="mainWindow" class="hidden">
-        <div id="bottomMenu" class="toolbar bottom">
-            <div class="toolbar-section left">
-                <div class="toolset">
-                    <button class="tool moresettings" id="toolSettings" aria-expanded="false" role="button"><span class="material-symbols-outlined">settings</span></button>
-                    <button class="tool red disable hidden" aria-expanded="false" id="toolMuteMicrophone" role="button" disabled><span class="material-symbols-outlined">mic</span></button>
-                    <button class="tool disable hidden" aria-expanded="false" id="toolMuteCamera" disabled role="button"><span class="material-symbols-outlined">photo_camera</span></button>
-                </div>
-            </div>
-            <div class="toolbar-section center">
-                <div class="toolset" id="toolAnnotations">
-                    <button class="tool disable hidden" aria-expanded="false" id="toolDraw" disabled role="button"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-                    <button class="tool moresettings disable hidden" aria-expanded="false" id="toolPalette" disabled role="button"><span class="material-symbols-outlined">palette</span></button>
-                    <button class="tool disable hidden" aria-expanded="false" id="toolEraser" disabled role="button"><span class="material-symbols-outlined">ink_eraser_off</span></button>
-                </div>
-
-            </div>
-            <div class="toolbar-section right">
-                <div class="toolset">
-                    <span class="tool volume disable hidden " role="button" id="toolVolume"><input type="range" id="toolStreamVolume" value="0" min="0" max="100" /></span>
-                </div>
-            </div>
-        </div>
-        <div class="copyCreditGrad"></div>
-        <div class="copyText toolbar-section left" id="statusLeft"></div>
-		<div class="copyText toolbar-section right" id="statusRight"></div>
-    </div>
-
-    <div class="popupBG hidden" id="popupBG"></div>
-    
-	
-	<div id="loginDialog" class="loginDialog">
-		<div id="joinShareDialog" onclick="event.stopPropagation()" style="border-radius:10px; background-color:light-dark(var(--color-light-bg), var(--color-dark-grey)); box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25); cursor: default!important;">
-			<h2 style="height:20px; margin:10px; color:light-dark(var(--color-dark-bg), var(--color-light-bg));">Enter code to join a session</h2><br>
-			<input type="text" class="scode" maxlenght="8" id="shareCodeInput" style="width:300px; margin: 0px 20px 5px 20px; padding:5px 0px 5px 10px; font-size: 30px; border-radius: 5px; color: light-dark(black, white);" placeholder="XXXX-XXXX">
-			<div style="margin-bottom:10px;"><button id="joinButton" class="joinbutton blue wider" >Join</button></div>
+	<div id="app" class="app hidden">
+		<div class="mainViewer">
+			<!-- main window -->
+			<div id="sessionName" class="session-name"></div>
+			<div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
+			<div id="mainVU"><span id="mainStreamVU" class="meter" data-property="--vu"></span></div>
+			<div class="mainZoom" id="zoomdiv">
+				<video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+				<canvas id="markup" class="markup" data-requires="video"></canvas>
+			</div>
+			<!-- main toolbar -->
+			<div class="toolbar horiz fade" id="mainToolBar">
+				<div class="tool-set">
+					<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
+					<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
+					<button class="tool" id="toolEraser" data-ui="action" data-action="eraseTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">ink_eraser</span></button>
+				</div>
+				<div class="tool spacer" data-requires="audio" ></div>
+				<div class="tool-set">
+					<span class="tool material-symbols-outlined volume-icon disabled" id="iconVolume" data-requires="audio">volume_down</span>
+					<span class="tool volume" id="toolVolume disabled" data-requires="audio"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
+				</div>
+			</div>
 		</div>
 	</div>
-</body>
+
+		<div id="popup" class="dialog middle warning">
+		<div>
+			Smart TV connect code
+		</div>
+		<div id="scode" class="scode">
+
+		</div>
+	</div>
+
+
 </html>
 
 <script src="/scripts/vdoninja-sdk.js"></script>
-<script src="/scripts/storage.js"></script>
 <script src="/scripts/global.js"></script>
-<script src="/scripts/initdevice.js"></script>
-<script src="/scripts/initstreams.js"></script>
-<script src="/scripts/initvdo.js"></script>
-<script src="/scripts/listeners.js"></script>
+<!-- <script src="/scripts/initdevice.js"></script> -->
+<!-- <script src="/scripts/storage.js"></script> -->
+<!-- <script src="/scripts/initstreams.js"></script> -->
+<!-- <script src="/scripts/inithistory.js"></script> -->
+<!-- <script src="/scripts/initvdo.js"></script> -->
+<!-- <script src="/scripts/listeners.js"></script> -->
 <script src="/scripts/interface.js"></script>
-<script src="/scripts/markup.js"></script>
+<!-- <script src="/scripts/peers.js"></script> -->
+<!-- <script src="/scripts/chat.js"></script> -->
+<!-- <script src="/scripts/markup.js"></script> -->
+<!-- <script src="/scripts/files-manage.js"></script> -->
+<!-- <script src="/scripts/files-render.js"></script> -->
+<!-- <script src="/scripts/files-rx.js"></script> -->
+<!-- <script src="/scripts/files-rxqueue.js"></script> -->
+<!-- <script src="/scripts/files-rxdb.js"></script> -->
+<!-- <script src="/scripts/files-tx.js"></script> -->
+<!-- <script src="/scripts/files-txdb.js"></script> -->
 
 <script lang="javascript">
-	const input = document.getElementById("shareCodeInput");
-	const joinWithShareCode = document.getElementById("joinButton");
-
 	const APP_NS = 'tv-RPXL';
-	const devURL = window.location.origin;
-	let isVDOReady = false;
 
-	randomBG (); 
+	const smartTV = generateRandomID(8).toUpperCase();;
+	scode.textContent = smartTV.replace(/(.{4})(.{4})/, "$1-$2");
 
-	localStorage.clear(); //clear local storage on load to avoid issues with old settings
-	sessionStorage.clear(); //clear session storage on load to avoid issues with old settings
-
-	const vdoWR = new VDONinjaSDK({
+	let vdo, vdoTV;
+	const config = {
 		salt: "rpxl.app",
 		allowFallback: false,
 		debug: false
+	};
+
+	vdo = new VDONinjaSDK(config);
+	vdoTV = new VDONinjaSDK(config);
+
+	randomBG (); 
+
+	vdoTV.autoConnect({
+		room: smartTV,
+		mode: "half",	//data only
+		password: ""
 	});
 
-	//join with share code
-	joinWithShareCode.addEventListener('pointerdown', joinWaitingRoom);
-
-	// Enter key on share code input
-	input.addEventListener("keydown", e => {
-	if (e.key === "Enter") {
-			e.preventDefault();
-			joinWaitingRoom();
-		}
+	vdoTV.addEventListener(`roomJoined`, (event) => {
+		console.log("in holding pattern, waiting for host @ ",event.detail.room);
 	});
 
-	//HANDLE SHORT CODE INPUT (UPPERCASE NO FUNNY'S)
-	input.addEventListener("input", e => {
-		let v = input.value;
+	vdoTV.addEventListener('dataReceived', (event) => {
+	const uuid = event.detail.uuid;
+	const data = event.detail.data;
 
-		v = v.replace(/[^a-zA-Z0-9]/g, "");
-		v = v.toUpperCase();
-		v = v.slice(0, 8);
+	//console.warn('control message waiting room:', event);
+	if (data.dataType === "migrate") {
+		mainRoom = data.roomid;
 
-		if (v.length > 4) {
-			v = v.slice(0, 4) + "-" + v.slice(4);
-		}
+		console.log("recieved main room :", mainRoom);
+		
+		vdoTV.sendData({
+			dataType: 'peer-disconnect',
+			timestamp: Date.now()
+		});
 
-		input.value = v;
-	});
+		vdoTV.disconnect();
 
+		document.getElementById("popup").classList.add("hidden");
 
-	//JOIN WAITING ROOM (SHORT CODE)
-	async function joinWaitingRoom() {
-		const prettyShare = input.value;
-		const shareCode = input.value.replace("-", "");
+		wait(500); 
 
-		if (shareCode.length !== 8) {
-			input.value = null;
-			return;
-		};
+		vdo.autoConnect({
+			room: mainRoom,
+			mode: "full",	//video etc
+			password: ""
+		});
 
-		await vdoWR.autoConnect({
-				room: shareCode,
-				mode: "half",	//data only
-				password: ""
-			});
-
-		console.log('Joined waiting room :', shareCode);
-		setupVDOWRListeners();
-
-		firstInteraction = false;
-		document.getElementById("joinShareDialog").innerHTML = `
-		<div style="padding:20px"><span class="material-symbols-outlined largeIcon">orbit</span><br>
-		<h2>Joined waiting room</h2><br>
-		<h2>(${prettyShare})</h2><br>
-		<h3>Host will let you in</h1></div>`
 	}
+});
+
 </script>

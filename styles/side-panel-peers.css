@@ -55,8 +55,13 @@
 	width:20px;
 	cursor: pointer;
 }
-.peer:hover {
+.peer:active {
 	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+}
+@media (hover: hover) and (pointer: fine) {
+  .peer:hover {
+	background-color: light-dark(var(--color-light-white), var(--color-mid-grey));
+  }
 }
 .peerVU::before {
     content: "";

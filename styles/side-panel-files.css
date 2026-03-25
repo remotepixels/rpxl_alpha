@@ -91,7 +91,11 @@ h1 {
 .folder-header:hover {
 	background: light-dark(var(--color-light-white), var(--color-mid-grey));
 }
-
+@media (hover: hover) and (pointer: fine) {
+  .folder-header:hover {
+		background: light-dark(var(--color-light-white), var(--color-mid-grey));
+  }
+}
 .folder-icon {
 	color: light-dark(var(--color-dark-grey), var(--color-light-grey));
 }
@@ -162,11 +166,15 @@ h1 {
 	/* background-color: light-dark(var(--color-light-bg), var(--color-dark-bg)); */
 }
 
-.file-item:hover {
+.file-item:active {
 	background: light-dark(var(--color-light-white), var(--color-mid-grey));
 
 }
-
+@media (hover: hover) and (pointer: fine) {
+  .file-item:hover {
+	background: light-dark(var(--color-light-white), var(--color-mid-grey));
+  }
+}
 .file-item.local {
 	color: light-dark(var(--color-light-grey), var(--color-light-grey));
 }
@@ -222,14 +230,21 @@ h1 {
 	/* pointer-events: none; */
 }
 
-.file-dead:hover {
+.file-dead:active {
 	color: rgb(255, 0, 0) !important;
 	background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
 			red 47%,
 			light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%) !important;
 
 }
-
+@media (hover: hover) and (pointer: fine) {
+  .file-dead:hover {
+	color: rgb(255, 0, 0) !important;
+	background: linear-gradient(light-dark(var(--color-light-bg), var(--color-dark-bg)) 46%,
+			red 47%,
+			light-dark(var(--color-light-bg), var(--color-dark-bg)) 49%) !important;
+  }
+}
 .fade-slide-out {
 	opacity: 0;
 	transform: translateY(-10px);
