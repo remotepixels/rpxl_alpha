@@ -267,22 +267,12 @@
 		</div>
 		<div class="link" id="copyQuickLink">
 			<div class="bold">Quick share link</div>
-			Faster, no prompt joins, no voice comms, only host can markup
+			Faster, no prompt join, no voice comms, chat or file sharing
 		</div>
-		<div class="link" id="copyQuickLink">
+		<div class="link" id="copyWaitingLink">
 			<div class="bold">Waiting room share link</div>
 			Users join a waiting room until admitted
 		</div>
-		<!-- <div class="link" id="copyQuickLink">
-			<div class="bold">OBS share link</div>
-			Direct link to main source only
-			<br>Use for recording through OBS
-		</div>
-		<div class="link" id="copyQuickLink">
-			<div class="bold">FFMPEG share link</div>
-			URL Source for FFMPEG
-			<br>Use with Decklink utility for playout
-		</div> -->
 		<div class="smartTV" id="smartTV">
 			<div class="bold">Smart TV link</div> 
 			Enter code displayed on Smart TV (visit https://rpxl.app/tv)<br>
@@ -343,8 +333,8 @@
 
 <script type="text/javascript">
 	const APP_NS = 'RPXL-Hosts';
-
 	let sessionID = generateRandomID();
+	
 	//let waitingRoomID = generateRandomID();
 	console.log("generating new session id :", sessionID);
 
@@ -373,9 +363,8 @@
 	}
 
 	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${sessionID}`);
-	setupShareButton("copyWaitingLink", "sessionID", value => `${devURL}/?WID=${sessionID}`);
 	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${sessionID}`);
-
+	setupShareButton("copyWaitingLink", "sessionID", value => `${devURL}/?WID=${sessionID}`);
 	async function startSession() {
 		createNewStoreEntry(); //storage.js
 

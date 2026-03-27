@@ -155,6 +155,19 @@ function setupVDOListeners() {
 
 			document.getElementById("user").setAttribute("data-uuid", localUUID);
 			console.log("Recieved local UUID Info :", localUUID);
+
+			//if we have to join waiting room announce and move immediately
+			if (joinWaiting === true) {
+				vdo.sendData({
+					type: "moveToRoom",
+					room: "lobby",
+					user: localUUID
+				});
+				
+				togglePeerRoom(localUUID, "lobby");
+				wait(100);
+				document.getElementById("app").classList.remove("hidden");
+			}
 		}
 
 		if (data.type === 'remoteToggleMic') {

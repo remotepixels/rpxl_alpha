@@ -23,13 +23,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
 
-	<link rel="stylesheet" href="../styles/styles.css">
-	<link rel="stylesheet" href="../styles/help.css">
+	<link rel="stylesheet" href="/styles/base.css">
+	<link rel="stylesheet" href="/styles/help.css">
 
     <title>rpxl.app v3.5</title>
 </head>
 
 <body style="margin-left:5%; max-width: calc(100% - 10%)">
+
+<h1>Update 2026-0 </h1>
+<UL style="color:#cbcbcb">
+	<li>Another big update, after moving to the sdk we* were able to add some new features</li>
+	<li>New layout, using side panels for new tools and a floating toolbar which should allow more space for the main stream</li>
+	<li>UI now scales for corectly for portrait / landscape use and generally works on mobile now</li>
+	<li>UI responds and behave correctly with touch interfaces and no longer "sticks"</li>
+	<li>Over all UI should be more responsive and stable over all devices</li>
+	<li>Main toolbar now floats and fades out after a few seconds of inactivity</li>
+	<li>Markups have also become "stateful", a user who connects late will recieve any active markups to bring them up to date, any erased markups however remain erased</li>
+	<li>More colours have been added to markups.</li>
+	<li>User microphone states are now visualy displayed, black no microphone, red muted, white active</li>
+	<li>Users now have individual VU meters in their previews, VU is calculated by the individual user and only the VU value is sent to others to limit bandwidth and processing</li>
+	<li>Host can now remote mute or un-mute a user, since there's always one, you know who you are, Dave</li>
+	<li>Remote muting is the same as if a user muted themselves, their interface will update and the "your microphone is muted" banner will appear</li>
+	<li>Added a lobby / waiting room</li>
+	<li>User links can now be sent that force the user to join the lobby first and the host has to manually admit them, by default they will join the main room</li>
+	<li>Added the ability for the host to move people between the lobby and main room at any time, users can only see and hear users in the same room, and those in the lobby can not see or hear the main stream or access the chat or files</li>
+	<li>Added "one on one" between host and another user, helpful if you wish to run something past a user without the rest of the room hearing</li>
+	<li>Other users are not fully muted during one on one, you as host will still hear them but they will not hear you</li>
+	<li>Added the ability to kick users from a session, but in fairness they can just reconnect, so satisfaction may be temporary</li>
+	<li>User panel can be collapsed to allow more space for main stream</li>
+	<li>Text chat has been added, simple text only, no fancy gifs or emoji's but URL's are recognised and display as a link correctly</li>
+	<li>Chat bubbles show the poster and time, remote users are in grey to the left as in most text chat apps</li>
+	<li>Text chat is also "stateful" if a user joins late they will recieve all the chats they have missed</li>
+	<li>Chats are not saved to the session history and are deleted at the end of every session</li>
+	<li>Added the ability to share files peer to peer, based on the send app we created earlier but with significant updates</li>
+	<li>Links to files are created and shared between users allowing them to directly download files from each other, files are never uploaded to a central server</li>
+	<li>Use the buttons on the top of the panel to upload files or folder or simply drag and drop anywhere on to the app</li>
+	<li>Drag and drop works throughout the app for sharing files or folders</li>
+	<li>Files and folders can be sorted by name or latest (default)</li>
+	<li>Files or folders you share will be in grey and have a delete icon to the right to remove them from the share (this will not remove them from your drive, only the share)</li>
+	<li>Files or folders shared with you are displayed in blue and have a download icon to their right</li>
+	<li>You can expand or collapse folders during navigation</li>
+	<li>You can download entire folders and their contents but unfortunately browsers can not create folders in your download folder and so any structure will be lost</li>
+	<li>Files are chunked and stored in indexdb on download and then streamed to disk to minimize memory use</li>
+	<li>A software worker is used to stream from indexdb to drive to not block the main thread</li>
+	<li>Files are only chunked when requested and stored by the sender in indexdb, once completed they are marked for removal from the indexdb after a few minutes, if another user requests the same file it does not need to be re-chunked and the purge will be delayed</li>
+	<li>If files are moved or deleted off the source disk but not the share, they will be marked as dead for all users</li>
+	<li>Transfering files can overload the network very quickly, if you have ten users all downloading four files similtaneously this adds up very, very fast, so use with discretion</li>
+	<li>File shares are stopped the moment a user disconnects from the session, any files they were sharing will be removed from the file list immediately</li>
+	<li>File shares are not like torrents and spread between users, each user sends directly, peer to peer, well for now any way</li>
+	<li>Like markups or chats users who join late will recieve the same list of files shared</li>
+	<li>Changed layout for session creation to be a simpler and clearer</li>
+	<li>Previous sessions list has been upgraded to ten items and to ask for confirmation before loading and launching</li>
+	<li>For hosts the settings menu has been split into session / user sections same as on session creation to simplify layout</li>
+	<li>Ability to connect to a smart TV (depends on model and version, but works on some TV browsers)</li>
+	<li>Visit https://rpxl.app/tv on your smart TV web browser and take note of the code displayed, use this code in the share menu to add the smart TV to the session, only the main stream will be sent to the smart TV</li>
+	<li>On the backend side we've split the css documents and javascript files up substantially to help break up development</li>
+	<li>Removed the old vdo ninja app as it's no longer required at all since everything is running through the SDK now</li>
+	<li>Help has been updated for new interface and features</li>
+	<li>*the royal we</li>
+</UL>
+<hr style="width:95%">
+<p>&nbsp;</p>
+
+
 <h1>Update 2026-02-13</h1>
 <UL style="color:#cbcbcb">
 	<li>Updated the help document</li>

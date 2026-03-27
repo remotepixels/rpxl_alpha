@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="-1" />
+
+	<meta name="msapplication-TileColor" content="#2e2e2e" />
+	<meta name="description" content="Serverless web app that allows you transmit to a high quality stream to clients to view and comment on using WEBRTC and VDO.NINJA. Communication between clients is handled using low latency and very little bandwidth, dedicating as much bandwidth to the main strea, often the feed from an edit machine. Also, we think Capybara's are awesome though that might not be relevant in this case.">
+	<meta name="keywords" content="Gui Felix, Advertising, Visual Effects, Motion Graphics, Remote Pixels, vdo.ninja" />
+	<meta name="robots" content="index, follow" />
+	<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="color-scheme" content="light dark">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+	<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/icons/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+
+	<title>RPXL | SND</title>
+</head>
+
+<body>
+	<div id="mainWindow" class="mainWindow">
+		<div id="topmenu" class="toolbar top hidden">
+			<div class="toolbar-section left">
+				<div class="toolset" id="shareTools"><button class="tool" id="shareBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">ios_share</span></button></div>
+				<div class="toolset" id="addTools"><button class="tool" id="addBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">playlist_add</span></button><input id="filePicker" type="file" multiple></div>
+			</div>
+			<div class="toolbar-section center">
+				<div class="toolset">
+					<span class="tool toolwider" id="waitingButton">Waiting : <span id="waitingList">(0)</span></span>
+					<span class="tool toolwider" id="connectedButton" style="pointer-events: none;">Connected : <span id="peersList">(0)</span></span>
+				</div>
+			</div>
+			<div class="toolbar-section right">
+				<div class="toolset">
+				<button class="tool" id="logBtn" aria-expanded="false" role="button"><span class="material-symbols-outlined">terminal</span></button>
+				</div>
+			</div>
+		</div>
+		<div class="logAndFiles">
+			<pre class="log hidden" id="log"></pre>
+			<div id="subToolBar" class="subtoolbar hidden">
+				<div class="toolbar-section left">
+					<span id="transferSpeed">Download: 0 B/s| Upload: 0 B/s </span>
+				</div>
+				<div class="toolbar-section center">
+					<span id="filterControls">Show &nbsp;</span>
+					<span class="subToolSet filterSet"><button id="filterAll" class="active subTool">All</button><button id="filterLocal" class="subTool">Local</button><button id="filterRemote" class="subTool">Remote</button></span>
+				</div>
+				<div class="toolbar-section right">
+					<span id="sortControls">Sort by &nbsp;</span><span class="subToolSet sortSet"><button id="sortByTime" class="active subTool">Latest</button><button id="sortByName" class="subTool">Name</button></span>
+				</div>
+			</div>
+
+			<div class="file-list" id="fileList">
+				<div id="loadingMessage" class="hidden">Loading files...</div>
+			</div>
+			<div class="copyCredit">
+				<a href="changelog.html" target="_new">Updated 2026-02-01 : See more</span></a>
+			</div>
+		</div>
+
+		<div id="container"></div>
+
+		<div class="drop" id="dropArea">
+			<div id="joinShareDialog" onclick="event.stopPropagation()" style="margin: 0px; border: 2px solid var(--color-med-grey); border-radius:10px; background-color:light-dark(var(--color-light-bg), var(--color-dark-grey)); box-shadow: 0 0px 40px rgba(0, 0, 0, 0.25); cursor: default!important;;">
+				<h2 style="height:20px; margin:10px; color:light-dark(var(--color-dark-bg), var(--color-light-bg));">Enter code to join a share</h2>
+				<input type="text" class="scode" maxlenght="8" id="shareCodeInput" style="width:300px; margin: 0px 20px 5px 20px; padding:5px 0px 5px 10px; font-size: 30px; border-radius: 5px; color: light-dark(black, white);" placeholder="XXXX-XXXX">
+				<div style="margin-bottom:10px;"><button id="joinButton" class="joinbutton blue wider" >Join</button></div>
+			</div>
+			<div>
+				<span id="dragDropIcon" class="material-symbols-outlined largeIcon">drive_folder_upload</span>
+				<h1 id="dragDropMessage">Or drag & drop files or folders to start sharing</h1>
+				<h2 id="dragDropSubMessage"style="margin:0px; transform: translateY(-20px);">(click to pick)</h2>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+
+		<div style="position:absolute; right:25px; top:25px;   z-index: 101;" id="helpIcon">
+			<a href="help.html"><span style="position:absolute; top:10px; right:50px; font-size: 24px;">Help</span><span
+					class="material-symbols-outlined" style="font-size: 48px;">help</span></a>
+		</div>
+
+		<!-- Share menu -->
+   		<div class="popupBG hidden" id="popupBG"></div>
+		<div id="popupClipboard" class="toolpopup hidden top left share ">
+			<div class="padding">
+				<h2><span class="linkCopied">Link copied to clipboard</span><br><span>(Paste in messaging app to send)</span></h2>
+			</div>
+			<hr>
+			<div class="padding">
+				<h2 style="margin:10px 0px 0px 0px; padding:0px;">Or scan QR code to connect</h2>
+				<div id="qrcode"></div>
+				<p></p>
+			</div>
+			<hr>
+			<div class="padding">
+				<h2 style="margin:10px 0px 0px 0px; padding:0px;">Alternatively, use share code</h2>
+				<h5 id="scode" class="scode" style="margin:0px; padding:0px; border:0px;"></h5>
+				<br>
+			</div>
+		</div>
+
+		<!-- waiting room menu -->
+		<div id="popupWaitingList" class="toolpopup top middleLeft hidden">
+			<div id="waiting_uuid" class="waitingList">
+			</div>
+		</div>
+</body>
+
+</html>
+
+<script src="scripts/vdoninja-sdk.js"></script>
+<script src="scripts/qrcode.js"></script>
+<script src="scripts/sndGlobals.js"></script>
+<script src="scripts/sndInterface.js"></script>
+<script src="scripts/sndTx.js"></script>
+<script src="scripts/sndRx.js"></script>
+<script src="scripts/sndListeners.js"></script>
+<script lang="javascript">
+	//GLOBALS
+	let mainRoom = null;
+	let waitingRoom = null;
+	let firstInteraction = true;
+	let wakeLock = null;
+
+	const connectedPeers = new Set();
+	const waitingPeers = new Map();
+
+	const files = {}; // id -> {file, name, size, chunks:[], progress}
+	let folderMap = {}; // keeps track of folder DOM nodes
+	let folderState = {}; // path → true/false
+	let currentSort = 'latest'; // default sort method
+	let currentFilter = 'all'; // values: 'all' | 'local' | 'remote'
+	let downloadQueue = [];        // holds pending fileIDs
+	const fileUIState = new Map();
+
+	const dropArea = document.getElementById('dropArea');
+	const fileList = document.getElementById('fileList');
+	const logEl = document.getElementById('log');
+	const waitingList = document.getElementById('waitingList');
+	const peersList = document.getElementById('peersList');
+	const shareBtn = document.getElementById('shareBtn');
+	const addBtn = document.getElementById('addBtn');
+	const filePicker = document.getElementById('filePicker');
+	const logBtn = document.getElementById('logBtn');
+	const popupClipboard = document.getElementById('popupClipboard');
+	const loadingEl = document.getElementById('loadingMessage');
+	const input = document.getElementById("shareCodeInput");
+	const joinWithShareCode = document.getElementById("joinButton");
+	const waitingButton = document.getElementById("waitingButton");
+
+	const devURL = window.location.origin;
+	const debouncedRerender = debounce(rerenderFileTree, 100);//slow sorting index
+	
+	//setup vdo sdk's, 
+	const vdo = new VDONinjaSDK({
+		salt: "rpxl.app",
+		allowFallback: false,
+		debug: false
+	});
+
+	const vdoWR = new VDONinjaSDK({
+		salt: "rpxl.app",
+		allowFallback: false,
+		debug: false
+	});
+
+	//GENERATE RANDOM SID
+	function randomID(len) {
+		const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		const arr = new Uint8Array(len);
+		crypto.getRandomValues(arr);
+		return Array.from(arr, n => chars[n % chars.length]).join('');
+	}
+
+	//LOG WINDOW
+	function log(...args) {
+		//console.log(...args);
+		logEl.textContent += args.join(' ') + '\n';
+		logEl.scrollTop = logEl.scrollHeight;
+	}
+
+	checkSessionURL();
+
+	//CHECK IF THERE IS A CORRECT SID IN THE URL AND AUTOCONNECT
+	function checkSessionURL() {
+		const queryURL = window.location.search.slice(1);
+		const params = new URLSearchParams(queryURL);
+
+		if (params.has('SID')) {
+			const SID = params.get('SID');
+			mainRoom = encodeURIComponent(SID);
+			if (!mainRoom || mainRoom.length !== 24) {
+				log('INCORRECTLY FORMATTED SESSION ID\n\nIf you are seeing this message, the session ID supplied is invalid. Please check the link and try again.\n\nOr contact the host for assistance.\n\nAlternativesly use the 8 digit share code supplied by the host, to join the waiting room.');
+				return;
+			} else {
+				log('SESSION ID FOUND IN URL:', mainRoom);
+
+				["joinShareDialog", "helpIcon", "shareTools", "waitingButton"].forEach(id => {
+					document.getElementById(id).style.display = "none";
+				});
+
+				document.getElementById('dropArea').classList.add('hidden');
+				document.getElementById('topmenu').classList.remove('hidden');
+				document.getElementById('subToolBar').classList.remove('hidden')
+
+				document.getElementById('dragDropMessage').textContent = "Drop to add files"
+				document.getElementById('dragDropSubMessage').textContent = ""
+
+				createVDOroom()
+				return;
+			}
+		} else {
+			//setup qr code and room codes, do not start room till we do something (drop files enter a code etc.)
+			mainRoom = randomID(24);
+			waitingRoom = randomID(8).toUpperCase();;
+			scode.textContent = waitingRoom.replace(/(.{4})(.{4})/, "$1-$2");
+
+			url = `${devURL}/snd/?SID=${mainRoom}`
+
+			var qrcode = new QRCode("qrcode", {
+				text: url,
+				width: 250,
+				height: 250,
+				colorDark : "#141414",
+				colorLight : "#f0f0f0",
+				correctLevel : QRCode.CorrectLevel.H
+			});
+		}
+	}
+
+	//CREATE VDO ROOM (MAIN)
+	async function createVDOroom() {
+		await vdo.autoConnect({
+			room: mainRoom,
+			mode: "half",	//data only
+			password: "",
+			claim: true
+		});
+
+		firstInteraction = false;
+		log('Joined room :', mainRoom);
+
+		flushTxRxDB("OutgoingFileCache"); //remove cache if exists
+		flushTxRxDB("IncomingFileCache"); //remove cache if exists
+		
+		setupVDOListeners();
+	}
+
+	//CREATE WAITING ROOM (SHORT CODE)
+	async function createVDOwaitingRoom() {
+		await vdoWR.autoConnect({
+			room: waitingRoom,
+			mode: "half",	//data only
+			password: "",
+			claim: true
+		});
+
+		firstInteraction = false;
+		log('Watching waiting room : ', waitingRoom);
+		setupVDOWRListeners();
+	}
+
+	//JOIN WAITING ROOM (SHORT CODE)
+	async function joinWaitingRoom() {
+		const prettyShare = input.value;
+		const shareCode = input.value.replace("-", "");
+
+		if (shareCode.length !== 8) {
+			input.value = null;
+			return;
+		};
+
+		await vdoWR.autoConnect({
+				room: shareCode,
+				mode: "half",	//data only
+				password: ""
+			});
+
+		//firstInteraction = false;
+		//console.warn('Joined waiting room :', waitingRoom);
+		setupVDOWRListeners();
+
+		firstInteraction = false;
+		document.getElementById('loadingMessage').style.display = "none";
+		document.getElementById('joinShareDialog').style.display = "none";
+		document.getElementById('dropArea').style.pointerEvents = "none";
+		document.getElementById('dragDropIcon').textContent = "orbit";
+		document.getElementById('dragDropMessage').textContent = `Joined waiting room (${prettyShare})`;
+		document.getElementById('dragDropSubMessage').textContent = "the host will let you in";
+	}
+
+	startDLWorker();
+
+	async function startDLWorker() {
+		if (!navigator.serviceWorker) {
+			console.warn("Service Worker not supported in this browser");
+			return;
+		}
+
+		try {
+			const registration = await navigator.serviceWorker.register("/snd/sndDownloader.js", {
+				scope: "/snd/"
+			});
+			console.log("Service Worker registered successfully", registration);
+
+			// Check if SW is already active
+			if (registration.active) {
+				console.log("Service Worker is active");
+			} else if (registration.installing) {
+				console.log("Service Worker installing...");
+			} else if (registration.waiting) {
+				console.log("Service Worker waiting to activate");
+			}
+
+			// Listen for controller change when SW becomes active
+			navigator.serviceWorker.addEventListener('controllerchange', () => {
+				console.log("Service Worker took control");
+			});
+
+		} catch (error) {
+			console.error("Service Worker registration failed:", error);
+			console.error("Details:", error.message);
+		}
+	}
+
+	//join with share code
+	joinWithShareCode.addEventListener('pointerdown', joinWaitingRoom);
+
+	// Enter key on share code input
+	input.addEventListener("keydown", e => {
+	if (e.key === "Enter") {
+			e.preventDefault();
+			joinWaitingRoom();
+		}
+	});
+	//waiting room popup
+	waitingButton.addEventListener('pointerdown', () => {
+		popupBG.classList.remove("hidden");
+		waitingButton.classList.add("selected");
+		popupWaitingList.classList.remove("hidden");
+	});
+
+	//HANDLE SHORT CODE INPUT (UPPERCASE NO FUNNY'S)
+	input.addEventListener("input", e => {
+		let v = input.value;
+
+		v = v.replace(/[^a-zA-Z0-9]/g, "");
+		v = v.toUpperCase();
+		v = v.slice(0, 8);
+
+		if (v.length > 4) {
+			v = v.slice(0, 4) + "-" + v.slice(4);
+		}
+
+		input.value = v;
+	});
+
+	//WAKE LOCK TO PREVENT SLEEPING DURING LARGE TRANSFERS
+	async function enableWakeLock() {
+		try {
+			wakeLock = await navigator.wakeLock.request("screen");
+			wakeLock.addEventListener("release", () => {
+			});
+			//console.log("Wake Lock active");
+		} catch (err) {
+			console.error(`${err.name}, ${err.message}`);
+		}
+	}
+
+	async function disableWakeLock() {
+		if (!wakeLock) return;
+		try {
+			await wakeLock.release();
+			wakeLock = null;
+			//console.log("Wake Lock disabled");
+		} catch (err) {
+			console.error(err);
+		}
+	}
+
+</script>

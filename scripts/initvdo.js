@@ -82,6 +82,7 @@ async function VDOConnect(sessionID) {
 			password: "",
 			push: true
 		});
+		
 		await vdoMS.joinRoom({
 			room: sessionID,
 			mode: "full",

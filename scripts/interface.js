@@ -37,6 +37,8 @@ const toolbar = document.querySelector(".toolbar");
 let timer;
 
 function resetToolbarTimer() {
+	if (!toolbar) return;
+	
     toolbar.classList.remove("fade");
 
     clearTimeout(timer);

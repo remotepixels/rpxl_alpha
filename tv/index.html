@@ -30,6 +30,31 @@
     
 </head>
 <style>
+.app {
+    height: 100%;
+    width: 100%;
+}
+.hidden {
+	opacity: 0!important;
+	pointer-events: none!important;
+	display: none!important;
+}
+
+.mainStream {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+.markup {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+}
+
 #popup {
 	display: flex;
 	flex-direction: column;
@@ -55,32 +80,11 @@
 
 <body id="body">
 	<div id="app" class="app hidden">
-		<div class="mainViewer">
-			<!-- main window -->
-			<div id="sessionName" class="session-name"></div>
-			<div id="zoom-popup" class="zoom-popup">Stream zoomed</div>
-			<div id="mainVU"><span id="mainStreamVU" class="meter" data-property="--vu"></span></div>
-			<div class="mainZoom" id="zoomdiv">
-				<video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
-				<canvas id="markup" class="markup" data-requires="video"></canvas>
-			</div>
-			<!-- main toolbar -->
-			<div class="toolbar horiz fade" id="mainToolBar">
-				<div class="tool-set">
-					<button class="tool" id="toolDraw" data-ui="tool" data-action="drawTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">format_ink_highlighter</span></button>
-					<button class="tool" id="toolPalette" data-ui="popover" data-target="colorPalette" data-requires="video" aria-expanded="false"><span class="material-symbols-outlined">palette</span></button>
-					<button class="tool" id="toolEraser" data-ui="action" data-action="eraseTool" data-requires="video" aria-pressed="false"><span class="material-symbols-outlined">ink_eraser</span></button>
-				</div>
-				<div class="tool spacer" data-requires="audio" ></div>
-				<div class="tool-set">
-					<span class="tool material-symbols-outlined volume-icon disabled" id="iconVolume" data-requires="audio">volume_down</span>
-					<span class="tool volume" id="toolVolume disabled" data-requires="audio"><input type="range" id="toolStreamVolume" value="10" min="0" max="100" /></span>
-				</div>
-			</div>
-		</div>
+		<video class="mainStream" id="mainStream" autoplay playsinline disablepictureinpicture ></video>
+		<canvas id="markup" class="markup" data-requires="video"></canvas>
 	</div>
 
-		<div id="popup" class="dialog middle warning">
+	<div id="popup" class="dialog middle warning">
 		<div>
 			Smart TV connect code
 		</div>
@@ -88,8 +92,6 @@
 
 		</div>
 	</div>
-
-
 </html>
 
 <script src="/scripts/vdoninja-sdk.js"></script>
@@ -130,44 +132,135 @@
 
 	randomBG (); 
 
+	setupVDOTVListeners();
+
 	vdoTV.autoConnect({
 		room: smartTV,
 		mode: "half",	//data only
 		password: ""
 	});
 
-	vdoTV.addEventListener(`roomJoined`, (event) => {
-		console.log("in holding pattern, waiting for host @ ",event.detail.room);
-	});
 
-	vdoTV.addEventListener('dataReceived', (event) => {
-	const uuid = event.detail.uuid;
-	const data = event.detail.data;
+	function setupVDOTVListeners() {
+		vdoTV.addEventListener(`connected`, (event) => {
+			console.log("connected to signaling server");
+		});
 
-	//console.warn('control message waiting room:', event);
-	if (data.dataType === "migrate") {
-		mainRoom = data.roomid;
+		vdoTV.addEventListener(`disconnected`, (event) => {
+			console.log("disconnected to signaling server");
+		});
 
-		console.log("recieved main room :", mainRoom);
+		vdoTV.addEventListener(`roomJoined`, (event) => {
+			console.log("Waiting @ :", event.detail.room);
+		});
+
+		vdoTV.addEventListener('peerConnected', (event) => {		//NOTE! vdoMS
+		const uuid = event.detail.uuid;
+
+		console.warn("Somebody joined, waiting commands", uuid);
+		});
+
+		vdoTV.addEventListener("peerInfo", (event) => {
+		//comes later will contain the peer label (username) but not tracks
+		const uuid = event.detail.uuid;
+		});
 		
+		vdoTV.addEventListener('dataChannelOpen', (event) => {
+			//RUNS - ONCE FOR DATA, ONCE FOR VIDEO/AUDIO
+
+		});
+
+		vdoTV.addEventListener('dataReceived', (event) => {
+			const data = event.detail.data;
+
+			if (data.type === 'migrate') {
+				const moveToRoom = data.roomid;
+
+				console.log("Recieved migrate command will now join session", moveToRoom);
+
+				joinMainSession(moveToRoom)
+			}
+		});
+
+	}
+
+	function joinMainSession (moveToRoom) {
 		vdoTV.sendData({
-			dataType: 'peer-disconnect',
-			timestamp: Date.now()
+			type: "ack-migrate"
 		});
 
 		vdoTV.disconnect();
 
-		document.getElementById("popup").classList.add("hidden");
+		popup.classList.add("hidden");
+		body.style.backgroundImage = "none";
+		body.style.background = "#222222"
 
-		wait(500); 
+		//console.log(vdoTV);
+
+		wait(200);
+
+		setupVDOListeners();
 
 		vdo.autoConnect({
-			room: mainRoom,
-			mode: "full",	//video etc
-			password: ""
+			room: moveToRoom,
+			mode: "full"
 		});
 
 	}
-});
+
+function setupVDOListeners() {
+		vdo.addEventListener(`connected`, (event) => {
+			console.log("connected to signaling server");
+		});
+
+		vdo.addEventListener(`disconnected`, (event) => {
+			console.log("disconnected to signaling server");
+		});
+
+		vdo.addEventListener(`roomJoined`, (event) => {
+			console.log("joined :", event.detail.room);
+		});
+
+		vdo.addEventListener('peerConnected', (event) => {		
+			
+		});
+
+		vdo.addEventListener("peerInfo", (event) => {
+
+		});
+		
+		vdo.addEventListener('dataChannelOpen', (event) => {
+
+		});
+
+		vdo.addEventListener('dataReceived', (event) => {
+
+		});
+
+		vdo.addEventListener("track", (event) => {
+		const streamID = event.detail.streamID || null;
+		const track = event.detail.track || null;
+
+		if (streamID.startsWith("ms_")) { 
+			console.log("main stream Info:", streamID, track)
+			showMainStream(streamID, track);
+		}
+	});
+
+}
+
+function showMainStream(streamID, track) {
+	app.classList.remove("hidden");
+	const mainViewer = document.getElementById('mainStream');
+
+	if (!mainViewer.srcObject) {
+		mainViewer.srcObject = new MediaStream();
+	}
+
+	const stream = mainViewer.srcObject;
+
+	stream.addTrack(track);	
+
+}
 
 </script>
