@@ -32,6 +32,16 @@ document.addEventListener("pointerdown", (e) => {
     });
 });
 
+const volumeSlider = document.getElementById("toolStreamVolume");
+const mainVideo = document.getElementById("mainStream");
+
+// If your slider is 0–100
+volumeSlider.addEventListener("input", () => {
+	mainVideo.volume = volumeSlider.value / 100;
+});
+
+mainVideo.volume = volumeSlider.value / 100;
+
 //hide toolbar after 3 seconds of inactivity, show when mouse moves near bottom or on click
 const toolbar = document.querySelector(".toolbar");
 let timer;
