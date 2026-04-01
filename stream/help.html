@@ -48,7 +48,7 @@
 	<div id="before" class="content">
 		<h1>Preface</h1>
 		<p>RPXL was created to allow sharing your timeline with a small number of people with the least delay possible, if you wish to present to more than a dozen people then you'll be better served by traditional apps that send your data to a central server for encoding and distribution, this allows more people but increases latency significantly</p>
-		<p>RPXL is a serverless application, all video and audio processing is done locally on your machine and then streamed to the users, directly, peer to peer</p>
+		<p>RPXL is a server less application, all video and audio processing is done locally on your machine and then streamed to the users, directly, peer to peer</p>
 		<p>Streaming and encoding only begins once a user connects, so no bandwidth is used while the app is running if no users are connected</p>
 		<p>So it is very dependant on your processor and the amount of bandwidth you have available, as the more users connect to your machine the greater the encoding load, the greater the bandwidth used</p>
 		<p>You can offload the streaming to separate machine from your edit machine to lighten the load, but rooms of eight or so participants should be fine, as in a physical suite space was limited, so to here</p>
@@ -60,7 +60,7 @@
 
 	<div id="creating" class="content">
 		<h1>Creating a session</h1>
-		<p>The create session dialog offers all the settings for the main stream and user stream you wish to broadcast, it also keeps a list of previous sessions stored localy on the machine</p>
+		<p>The create session dialog offers all the settings for the main stream and user stream you wish to broadcast, it also keeps a list of previous sessions stored locally on your machine (stored in local storage)</p>
 		<p>All the settings in this dialog are optional, you can choose to start a session without any devices or settings and change them later in the settings menu</p>
 		<p>The dialog is broken up into three sections</p>
 		<span class="point">1</span>
@@ -69,7 +69,7 @@
 			<br><span class="bold">Session title</span> is displayed top left of the main viewer, this is also used to label sessions in the Previous sessions tab for easy identification
 			<br><span class="bold">Resolution</span> allows you to select a maximum resolution for your stream
 			<br>Streams will often start a little smaller and as the connection stabilizes over a few seconds will expand to their maximum resolution.
-			<br>Athough the browser will attempt to limit the capture resolution of the device this can sometimes be ignored by the hardware, however, the stream will be resized by the browser to the maximum value selected  
+			<br>Although the browser will attempt to limit the capture resolution of the device this can sometimes be ignored by the hardware, however, the stream will be resized by the browser to the maximum value selected  
 			<br><span class="bold">Quality</span> selects a bitrate for your main stream, again these values are ramped up to as a user connects and these set the maximum allowed bitrate.
 			<p class="pointItem"><span class="bold">High</span> between 16Mbps and 8Mbps</p>
 			<p class="pointItem"><span class="bold">Medium</span> between 8Mbps and 4Mbps</p>
@@ -113,7 +113,7 @@
 	<hr>
 	<div id="toolbar" class="content">
 		<h1>Main toolbar</h1>
-		<p>The main toolbar contins tools that allow you to interact with the main stream, it is dynamic and will only display options relevant to the current session, for example, if the host is not sending an audio stream the volume controls will not be available</p>
+		<p>The main toolbar contains tools that allow you to interact with the main stream, it is dynamic and will only display options relevant to the current session, for example, if the host is not sending an audio stream the volume controls will not be available</p>
 		<span class="point material-symbols-outlined">movie</span>
 		<span class="h2">Mute main stream video</span>
 		<p class="pointItem">This allows you to mute the main video stream to all users, think of it as turning the monitor of at the front of your suite</p>
@@ -136,7 +136,7 @@
 	<hr>
 	<div id="panels" class="content">
 		<h1>Side panels</h1>
-		<p>There are four side panels,sharing, users, chat and files</p>
+		<p>There are four side panels, sharing, users, chat and files</p>
 		<span class="point material-symbols-outlined">ios_share</span>
 		<span class="h2">Share menu</span>
 		<p class="pointItem">Copies share links to your clipboard to send to clients</p>
@@ -157,7 +157,7 @@
 		<span class="point material-symbols-outlined">account_circle</span>
 		<span class="h2">Users</span>
 		<p class="pointItem">Shows all the users in the current room</p>
-				<p class="pointItem">Users will either have a pastel icon if they have not selected a camera source or their webcam output will be displayed, if the icon is black they have mted their webcam</p>
+				<p class="pointItem">Users will either have a pastel icon if they have not selected a camera source or their webcam output will be displayed, if the icon is black they have muted their webcam</p>
 		<p class="pointItem">Surrounding each user icon is a coloured ring, this displays audio status for the user<br>
 		Black : user has not selected an audio device and can not talk (though they will still hear you)<br>
 		Red : user has a microphone but is mute<br>
@@ -179,15 +179,15 @@
 		</div>
 		<span class="point material-symbols-outlined">chat_bubble</span>
 		<span class="h2">Chat</span>
-		<p class="pointItem">A simple text chat area, chats are sent to all users and remain throughout the session. Users who join late will recieve the full history of messages. You can paste links in the chat, but use the files panel to send and recieve files</p>
+		<p class="pointItem">A simple text chat area, chats are sent to all users and remain throughout the session. Users who join late will receive the full history of messages. You can paste links in the chat, but use the files panel to send and receive files</p>
 		<span class="point material-symbols-outlined">folder</span>
 		<span class="h2">Files</span>
-		<p class="pointItem">You can send files to other users and recieve files from other users in this panel. You can use the two buttons on the top to add individual files or folders. You can also drag and drop files or folders directly on the app window</p>
+		<p class="pointItem">You can send files to other users and receive files from other users in this panel. You can use the two buttons on the top to add individual files or folders. You can also drag and drop files or folders directly on the app window</p>
 		<p class="pointItem">Files are not uploaded to a server, a link is created to the file on your drive, and users will download directly peer to peer</p>
 		<p class="pointItem">Files can be sorted by name but by default the latest files uploaded are added to the top of the list</p>
 		<p class="pointItem">Remote files shared with you are in blue, any files you share will be in grey</p>
 		<p class="pointItem">Each file will options for either downloading or removing from the share to the right of the name</p>
-		<p class="pointItem">This system is more for sending smallere files you may need though, large files can be sent the speed is dependant on each peers connection</p>
+		<p class="pointItem">This system is more for sending smaller files you may need, though, large files can be sent the speed is dependant on each peers connection</p>
 		<p class="pointItem">Once you leave the session any files you have shared will be removed from the list of files shared</p>
 	</div>
 	<hr>

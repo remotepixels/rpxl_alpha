@@ -31,17 +31,17 @@
 
 <body style="margin-left:5%; max-width: calc(100% - 10%)">
 
-<h1>Update 2026-0x-xx </h1>
+<h1>Update 2026-04-xx </h1>
 <UL style="color:#cbcbcb">
 	<li>Another big update, after moving to the sdk we* were able to add some new features</li>
 	<li>New layout, using side panels for new tools and a floating toolbar which should allow more space for the main stream</li>
-	<li>UI now scales for corectly for portrait / landscape use and generally works on mobile now</li>
+	<li>UI now scales for correctly for portrait / landscape use and generally works on mobile now</li>
 	<li>UI responds and behave correctly with touch interfaces and no longer "sticks"</li>
 	<li>Over all UI should be more responsive and stable over all devices</li>
 	<li>Main toolbar now floats and fades out after a few seconds of inactivity</li>
-	<li>Markups have also become "stateful", a user who connects late will recieve any active markups to bring them up to date, any erased markups however remain erased</li>
+	<li>Markups have also become "stateful", a user who connects late will receive any active markups to bring them up to date, any erased markups however remain erased</li>
 	<li>More colours have been added to markups.</li>
-	<li>User microphone states are now visualy displayed, black no microphone, red muted, white active</li>
+	<li>User microphone states are now visually displayed, black no microphone, red muted, white active</li>
 	<li>Users now have individual VU meters in their previews, VU is calculated by the individual user and only the VU value is sent to others to limit bandwidth and processing</li>
 	<li>Host can now remote mute or un-mute a user, since there's always one, you know who you are, Dave</li>
 	<li>Remote muting is the same as if a user muted themselves, their interface will update and the "your microphone is muted" banner will appear</li>
@@ -54,7 +54,7 @@
 	<li>User panel can be collapsed to allow more space for main stream</li>
 	<li>Text chat has been added, simple text only, no fancy gifs or emoji's but URL's are recognised and display as a link correctly</li>
 	<li>Chat bubbles show the poster and time, remote users are in grey to the left as in most text chat apps</li>
-	<li>Text chat is also "stateful" if a user joins late they will recieve all the chats they have missed</li>
+	<li>Text chat is also "stateful" if a user joins late they will receive all the chats they have missed</li>
 	<li>Chats are not saved to the session history and are deleted at the end of every session</li>
 	<li>Added the ability to share files peer to peer, based on the send app we created earlier but with significant updates</li>
 	<li>Links to files are created and shared between users allowing them to directly download files from each other, files are never uploaded to a central server</li>
@@ -69,10 +69,10 @@
 	<li>A software worker is used to stream from indexdb to drive to not block the main thread</li>
 	<li>Files are only chunked when requested and stored by the sender in indexdb, once completed they are marked for removal from the indexdb after a few minutes, if another user requests the same file it does not need to be re-chunked and the purge will be delayed</li>
 	<li>If files are moved or deleted off the source disk but not the share, they will be marked as dead for all users</li>
-	<li>Transfering files can overload the network very quickly, if you have ten users all downloading four files similtaneously this adds up very, very fast, so use with discretion</li>
+	<li>Transferring files can overload the network very quickly, if you have ten users all downloading four files simultaneously this adds up very, very fast, so use with discretion</li>
 	<li>File shares are stopped the moment a user disconnects from the session, any files they were sharing will be removed from the file list immediately</li>
 	<li>File shares are not like torrents and spread between users, each user sends directly, peer to peer, well for now any way</li>
-	<li>Like markups or chats users who join late will recieve the same list of files shared</li>
+	<li>Like markups or chats users who join late will receive the same list of files shared</li>
 	<li>Changed layout for session creation to be a simpler and clearer</li>
 	<li>Previous sessions list has been upgraded to ten items and to ask for confirmation before loading and launching</li>
 	<li>For hosts the settings menu has been split into session / user sections same as on session creation to simplify layout</li>
