@@ -310,26 +310,27 @@
 	</body>
 </html>
 
-<script src="/scripts/vdoninja-sdk.js"></script>
-<script src="/scripts/global.js"></script>
-<script src="/scripts/initdevice.js"></script>
+<script src="/scripts/vdoninja-sdk.js" ></script>
+<script src="/scripts/global.js" ></script>
+<script src="/scripts/initdevice.js" ></script>
 <script src="/scripts/storage.js"></script>
-<script src="/scripts/initstreams.js"></script>
-<script src="/scripts/inithistory.js"></script>
-<script src="/scripts/initvdo.js"></script>
-<script src="/scripts/listeners.js"></script>
-<script src="/scripts/interface.js"></script>
-<script src="/scripts/peers.js"></script>
-<script src="/scripts/chat.js"></script>
-<script src="/scripts/markup.js"></script>
-<script src="/scripts/files-manage.js"></script>
-<script src="/scripts/files-render.js"></script>
-<script src="/scripts/files-rx.js"></script>
-<script src="/scripts/files-rxqueue.js"></script>
-<script src="/scripts/files-rxdb.js"></script>
-<script src="/scripts/files-tx.js"></script>
-<script src="/scripts/files-txdb.js"></script>
-<script src="/scripts/smartTV.js"></script>
+<script src="/scripts/inithistory.js" ></script>
+<script src="/scripts/initstreams.js" defer></script>
+<script src="/scripts/initvdo.js" defer></script>
+<script src="/scripts/listeners.js" defer></script>
+<script src="/scripts/interface.js" ></script>
+<script src="/scripts/peers.js" defer></script>
+<script src="/scripts/chat.js" defer></script>
+<script src="/scripts/markup.js" defer></script>
+<script src="/scripts/files-manage.js" defer></script>
+<script src="/scripts/files-render.js" defer></script>
+<script src="/scripts/files-rx.js" defer></script>
+<script src="/scripts/files-rxqueue.js" defer></script>
+<script src="/scripts/files-rxdb.js" defer></script>
+<script src="/scripts/files-tx.js" defer></script>
+<script src="/scripts/files-txdb.js" defer></script>
+<script src="/scripts/files-listeners.js" defer></script>
+<script src="/scripts/smartTV.js" defer></script>
 
 <script type="text/javascript">
 	const APP_NS = 'RPXL-Hosts';
@@ -384,7 +385,7 @@
 
 		project.style.width = "200px";
 		settingsDialog.setAttribute("data-close-outside", "");
-		settingsDialog.style = "right: 50px; bottom: 10px;";
+		settingsDialog.style = "right: 55px; bottom: 10px;";
 		settingsDialog.classList.remove("middle", "hidearrow");
 		sectionUser.style = "margin-top: 94px";
 		document.querySelectorAll(".settings-preview").forEach(e => e.classList.add("hidden"));

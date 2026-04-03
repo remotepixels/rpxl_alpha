@@ -1,5 +1,6 @@
-const swDownloadQueue = [];
-let swDownloadBusy = false; 
+const swDownloadQueue = []; //service worker queue not main download queue
+let activeSWDownloads = 0;
+const MAX_SW_DOWNLOADS = 4;
 
 //RECEIVER
 function requestDownload(fileID, isFolder = false) {
@@ -33,7 +34,6 @@ function requestDownload(fileID, isFolder = false) {
 
 //FILE RECEIVING HANDLING
 async function handleIncomingChunk(buffer) {
-	//onChunkReceived(buffer.byteLength);  //used for speed
 	const view = new DataView(buffer);
 	let offset = 0;
 
@@ -54,29 +54,38 @@ async function handleIncomingChunk(buffer) {
 		return;
 	}
 
-	if (!incomingFiles.has(fileID)) {
-		incomingFiles.set(fileID, {
+	let file = incomingFiles.get(fileID);
+
+	if (!file) {
+		file = {
 			total,
 			received: new Set(),
+			chunks: new Map(),
+			useMemoryOnly: total === 1,
 			pendingAckParts: [],
 			ackTimerId: null,
 			completed: false,
 			assembling: false,
 			startTime: Date.now(),
 			bytesReceived: 0
-		});
+		};
+		incomingFiles.set(fileID, file);
+	} else {
+
+		file.total = total;
 	}
 
-	const file = incomingFiles.get(fileID);
-
-	// Skip duplicate chunks
 	if (file.received.has(part)) {
 		return;
 	}
 
 	// Store chunk to IndexedDB
 	try {
-		await storeRxChunk(fileID, part, total, chunk);
+		if (file.useMemoryOnly) {
+			file.chunks.set(part, chunk);
+		} else {
+			await storeRxChunk(fileID, part, total, chunk);
+		}
 		file.received.add(part);
 		file.bytesReceived += chunk.byteLength;
 		updateFileProgressUI(fileID, (file.received.size / file.total) * 100);
@@ -87,13 +96,13 @@ async function handleIncomingChunk(buffer) {
 
 	// Batch ACKs: collect parts and send periodically to reduce network overhead
 	file.pendingAckParts.push(part);
-	
+
 	// Clear existing timer and set new one
 	if (file.ackTimerId) clearTimeout(file.ackTimerId);
-	
+
 	const ACK_BATCH_SIZE = 32; // ACK up to 32 parts at once
-	const ACK_BATCH_DELAY = 5; // Wait up to 50ms to batch ACKs
-	
+	const ACK_BATCH_DELAY = 2; // Wait up to 50ms to batch ACKs
+
 	if (file.pendingAckParts.length >= ACK_BATCH_SIZE) {
 		// Send immediately if batch full
 		sendAckBatch(fileID);
@@ -106,7 +115,7 @@ async function handleIncomingChunk(buffer) {
 	if (file.received.size === file.total && !file.completed && !file.assembling) {
 		// Cancel any pending ACK timer since we're done receiving
 		if (file.ackTimerId) clearTimeout(file.ackTimerId);
-		
+
 		file.completed = true;
 		file.assembling = true;
 
@@ -135,22 +144,55 @@ function sendAckBatch(fileID) {
 		parts
 	});
 
-	console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
+	//console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
 }
 
 async function assembleReceivedFile(fileID) {
 	const file = incomingFiles.get(fileID);
 	if (!file) return;
 
+	if (file.useMemoryOnly) {
+		//assemble directly from memory
+		const buffers = [];
+
+		for (let i = 0; i < file.total; i++) {
+			buffers.push(file.chunks.get(i));
+		}
+
+		const blob = new Blob(buffers);
+
+		triggerBrowserDownload(blob, files[fileID]?.name || fileID);
+
+		console.log("Saved (memory):", fileID);
+
+		incomingFiles.delete(fileID);
+
+		markDownloadCompleted(fileID);
+		activeFileDownloads = Math.max(0, activeFileDownloads - 1);
+		processDownloadQueue();
+
+		return;
+	}
+
+	// fallback → IndexedDB + SW
 	console.debug(`File ready in IndexedDB: ${fileID}`);
+	activeFileDownloads = Math.max(0, activeFileDownloads - 1);
+	processDownloadQueue();
 
-	// mark complete locally
-	incomingFiles.delete(fileID);
-
-	// queue download via SW
+	markDownloadSaving(fileID)
 	enqueueSWDownload(fileID);
 }
 
+function triggerBrowserDownload(blob, filename) {
+	const url = URL.createObjectURL(blob);
+
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	a.click();
+
+	URL.revokeObjectURL(url);
+}
 
 function enqueueSWDownload(fileID) {
 	swDownloadQueue.push({ fileID });
@@ -159,14 +201,13 @@ function enqueueSWDownload(fileID) {
 
 
 function processSWQueue() {
-	if (swDownloadBusy) return;
-	if (!swDownloadQueue.length) return;
+	while (activeSWDownloads < MAX_SW_DOWNLOADS && swDownloadQueue.length) {
 
-	swDownloadBusy = true;
+		const { fileID } = swDownloadQueue.shift();
 
-	const { fileID } = swDownloadQueue.shift();
-	startSWDownload(fileID);
-
+		activeSWDownloads++;
+		startSWDownload(fileID);
+	}
 }
 
 async function startSWDownload(fileID) {
@@ -183,7 +224,7 @@ async function startSWDownload(fileID) {
 	const channel = new MessageChannel();
 
 	const readyPromise = new Promise((resolve, reject) => {
-		const timeout = setTimeout(() => reject(new Error("SW prepare timeout")), 5000);
+		const timeout = setTimeout(() => reject(new Error("SW prepare timeout")), 15000);
 
 		channel.port1.onmessage = (event) => {
 			if (event.data?.type === "download-ready" && event.data.fileID === fileID) {
@@ -193,7 +234,6 @@ async function startSWDownload(fileID) {
 		};
 	});
 
-	// send message WITH reply port
 	sw.postMessage({
 		type: "prepare-download",
 		fileID,

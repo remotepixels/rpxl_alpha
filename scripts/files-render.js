@@ -182,6 +182,10 @@ function renderTreeItem(f) {
 		updateFileProgressUI(f.id, state.progress);
 	}
 
+	if (state.saving) {
+		markDownloadSaving(f.id);
+	}
+
 	// completed
 	if (state.completed) {
 		markDownloadCompleted(f.id);
@@ -196,6 +200,7 @@ function getUIState(id) {
 			dead: false,
 			downloading: false,
 			progress: 0,
+			saving: false,
 			completed: false
 		});
 	}
@@ -256,8 +261,32 @@ function restoreDownloadIcon(id) {
 
 	const state = getUIState(id);
 	state.downloading = false;
+		state.saving = false;
 	state.progress = 0;
+	
 	state.completed = true;
+}
+
+function markDownloadSaving(id) {
+	const fileEl = document.getElementById(`icon-container_${id}`);
+	if (!fileEl) return;
+
+	const bar = document.getElementById(`progress-bar-${id}`);
+	if (bar) {
+		bar.style.backgroundImage = `conic-gradient(dodgerblue 0deg, dodgerblue 360deg)`;
+		bar.classList.add("saving-pulse"); 
+	}
+
+	const btn = document.getElementById(`stop-btn-${id}`);
+	if (btn) {
+		btn.innerHTML = ``;
+		btn.onclick = null;     // remove interaction
+		btn.style.cursor = "default";
+	}
+
+	const state = getUIState(id);
+	state.saving = true;
+	state.completed = false;
 }
 
 function markDownloadCompleted(id) {
@@ -265,7 +294,10 @@ function markDownloadCompleted(id) {
 	if (!fileEl) return;
 
 	const bar = document.getElementById(`progress-bar-${id}`);
-	if (bar) bar.style.backgroundImage = `conic-gradient(dodgerblue 0deg, dodgerblue 360deg)`;
+	if (bar) {
+		bar.style.backgroundImage = `conic-gradient(dodgerblue 0deg, dodgerblue 360deg)`;
+		bar.classList.remove("saving-pulse");
+	}
 
 	// Replace stop button with ✓ icon (but keep clickable)
 	const btn = document.getElementById(`stop-btn-${id}`);
@@ -282,6 +314,7 @@ function markDownloadCompleted(id) {
 	}
 
 	const state = getUIState(id);
+		state.saving = false;
 	state.completed = true;
 }
 

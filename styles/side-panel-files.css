@@ -280,3 +280,13 @@ h1 {
 	border-radius: 50%;
 	background-color: light-dark(var(--color-light-bg), var(--color-dark-bg));
 }
+
+@keyframes savingPulse {
+	0%   { opacity: 1; transform: scale(1); }
+	50%  { opacity: 0.1; transform: scale(1.25); }
+	100% { opacity: 1; transform: scale(1); }
+}
+
+.saving-pulse {
+	animation: savingPulse 1.2s ease-in-out infinite;
+}

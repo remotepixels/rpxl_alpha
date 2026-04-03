@@ -1,6 +1,5 @@
 
 const downloads = new Map();
-const DOWNLOAD_TIMEOUT = 5 * 60 * 1000; // 5 minute timeout for abandoned downloads
 const RX_DB = "IncomingFileCache";
 const RX_STORE = "chunks";
 
@@ -107,7 +106,7 @@ async function streamDownload(url) {
 	const db = await openRxDB();
 
 	let part = 0;
-	const BATCH = 64;          // tune later
+	const BATCH = 32;          // tune later
 	let buffer = [];
 	let done = false;
 
