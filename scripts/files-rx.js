@@ -26,10 +26,43 @@ function requestDownload(fileID, isFolder = false) {
 	//single file
 	const meta = files[fileID];
 	if (!meta) return console.log("Requested file failed : no such file");
-
+	//prepareWritable(fileID);
 	const host = meta.uploadedBy;
 	queueDownload(fileID, host, false);
 	createFileProgressUI(fileID);
+
+}
+
+async function prepareWritable(fileID) {
+	const meta = files[fileID];
+
+	if (!window.showSaveFilePicker) {
+		console.warn("FS API not supported, fallback to SW");
+		return;
+	}
+
+	try {
+		const handle = await window.showSaveFilePicker({
+			suggestedName: meta?.name || fileID
+		});
+
+		const writable = await handle.createWritable();
+
+		const file = incomingFiles.get(fileID);
+		if (file) {
+			file.writable = writable;
+			file.writeReady = true;
+		}
+
+		console.log("Writable ready for", fileID);
+
+	} catch (err) {
+		if (err.name === "AbortError") {
+			console.log("User cancelled save dialog");
+		} else {
+			console.log("FS API error:", err);
+		}
+	}
 }
 
 //FILE RECEIVING HANDLING
@@ -67,7 +100,10 @@ async function handleIncomingChunk(buffer) {
 			completed: false,
 			assembling: false,
 			startTime: Date.now(),
-			bytesReceived: 0
+			bytesReceived: 0,
+			//writable: null,
+			nextWriteIndex: 0,
+			//writeReady: false
 		};
 		incomingFiles.set(fileID, file);
 	} else {
@@ -89,6 +125,13 @@ async function handleIncomingChunk(buffer) {
 		file.received.add(part);
 		file.bytesReceived += chunk.byteLength;
 		updateFileProgressUI(fileID, (file.received.size / file.total) * 100);
+
+		// AFTER storeRxChunk + received.add(part)
+
+		// if (file.writeReady && file.writable) {
+		// 	await tryWriteChunks(fileID);
+		// }
+
 	} catch (err) {
 		console.error("Failed to store chunk:", err);
 		return;
@@ -111,20 +154,30 @@ async function handleIncomingChunk(buffer) {
 		file.ackTimerId = setTimeout(() => sendAckBatch(fileID), ACK_BATCH_DELAY);
 	}
 
-	// Check if download complete
-	if (file.received.size === file.total && !file.completed && !file.assembling) {
-		// Cancel any pending ACK timer since we're done receiving
-		if (file.ackTimerId) clearTimeout(file.ackTimerId);
-
+	if (file.received.size === file.total && !file.completed) {
 		file.completed = true;
-		file.assembling = true;
+
+		// if (file.writable) {
+		// 	await tryWriteChunks(fileID); // flush remaining
+		// 	await file.writable.close();
+
+		// 	console.log("Saved (write-through):", fileID);
+
+		// 	incomingFiles.delete(fileID);
+		// 	markDownloadCompleted(fileID);
+		// } else {
+		// 	// fallback to old system
+		// 	assembleReceivedFile(fileID);
+		// }
+
+				assembleReceivedFile(fileID);
 
 		const elapsed = Date.now() - file.startTime;
 		const throughput = (file.bytesReceived / (elapsed / 1000) / 1024 / 1024).toFixed(2);
 		console.log(`All chunks received for ${fileID}: ${file.total} chunks, ${throughput} MB/s`);
 
-		// Start assembly process
-		assembleReceivedFile(fileID);
+		activeFileDownloads = Math.max(0, activeFileDownloads - 1);
+		processDownloadQueue();
 	}
 }
 
@@ -146,6 +199,46 @@ function sendAckBatch(fileID) {
 
 	//console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
 }
+
+// async function tryWriteChunks(fileID) {
+// 	const file = incomingFiles.get(fileID);
+// 	if (!file || !file.writable) return;
+
+// 	// prevent concurrent writes
+// 	if (file.writing) return;
+// 	file.writing = true;
+
+// 	try {
+// 		while (true) {
+// 			const next = file.nextWriteIndex;
+
+// 			let chunk;
+
+// 			if (file.useMemoryOnly) {
+// 				chunk = file.chunks.get(next);
+// 			} else {
+// 				chunk = await getRxChunk(fileID, next); // ← your IndexedDB getter
+// 			}
+
+// 			if (!chunk) break;
+
+// 			await file.writable.write(chunk);
+
+// 			// cleanup after write
+// 			if (file.useMemoryOnly) {
+// 				file.chunks.delete(next);
+// 			} else {
+// 				//   setTimeout(() => deleteRxChunk(fileID, next), 0);
+// 			}
+
+// 			file.nextWriteIndex++;
+// 		}
+// 	} catch (err) {
+// 		console.error("Write error:", err);
+// 	} finally {
+// 		file.writing = false;
+// 	}
+// }
 
 async function assembleReceivedFile(fileID) {
 	const file = incomingFiles.get(fileID);
@@ -173,13 +266,15 @@ async function assembleReceivedFile(fileID) {
 
 		return;
 	}
+	await flushAllRxChunks(fileID);
 
-	// fallback → IndexedDB + SW
 	console.debug(`File ready in IndexedDB: ${fileID}`);
+
 	activeFileDownloads = Math.max(0, activeFileDownloads - 1);
 	processDownloadQueue();
 
-	markDownloadSaving(fileID)
+	markDownloadSaving(fileID);
+
 	enqueueSWDownload(fileID);
 }
 

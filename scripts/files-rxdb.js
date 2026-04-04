@@ -2,8 +2,8 @@ const RX_DB = "IncomingFileCache";
 const RX_STORE = "chunks";
 let rxDB;
 const rxWriteBuffers = new Map();
-const RX_WRITE_BATCH = 32;
-const RX_WRITE_DELAY = 25; // ms
+const RX_WRITE_BATCH = 8;
+const RX_WRITE_DELAY = 50; // ms
 
 function openRxDB() {
 	if (rxDB) return rxDB;
@@ -23,31 +23,49 @@ async function storeRxChunk(fileID, part, total, data) {
 	let entry = rxWriteBuffers.get(fileID);
 
 	if (!entry) {
-		entry = { parts: [], timer: null };
+		entry = { parts: [], timer: null, flushing: false };
 		rxWriteBuffers.set(fileID, entry);
 	}
 
 	entry.parts.push({ part, total, data });
 
+	// backpressure protection
+	if (entry.parts.length >= RX_WRITE_BATCH * 4) {
+		await flushRxChunkBatch(fileID);
+		return;
+	}
+
 	if (entry.parts.length >= RX_WRITE_BATCH) {
-		flushRxChunkBatch(fileID);
+		await flushRxChunkBatch(fileID);
 	} else if (!entry.timer) {
-		entry.timer = setTimeout(() => flushRxChunkBatch(fileID), RX_WRITE_DELAY);
+		entry.timer = setTimeout(() => {
+			entry.timer = null;
+			flushRxChunkBatch(fileID).catch(console.error);
+		}, RX_WRITE_DELAY);
 	}
 }
 
 //writes chunks from memeory to index db
 async function flushRxChunkBatch(fileID) {
 	const entry = rxWriteBuffers.get(fileID);
-	if (!entry || !entry.parts.length) return;
+	if (!entry || entry.flushing) return;
 
-	rxWriteBuffers.delete(fileID);
+	entry.flushing = true;
+
+	const batch = entry.parts.splice(0, RX_WRITE_BATCH);
+
+	if (entry.parts.length === 0) {
+		rxWriteBuffers.delete(fileID);
+	} else {
+		entry.flushing = false;
+		setTimeout(() => flushRxChunkBatch(fileID), 0);
+	}
 
 	const db = await openRxDB();
 	const tx = db.transaction(RX_STORE, "readwrite");
 	const store = tx.objectStore(RX_STORE);
 
-	for (const p of entry.parts) {
+	for (const p of batch) {
 		store.put({
 			key: `${fileID}:${p.part}`,
 			fileID,
@@ -62,6 +80,21 @@ async function flushRxChunkBatch(fileID) {
 		tx.oncomplete = res;
 		tx.onerror = () => rej(tx.error);
 	});
+}
+
+async function flushAllRxChunks(fileID) {
+	const entry = rxWriteBuffers.get(fileID);
+
+	if (entry) {
+		// cancel timer
+		if (entry.timer) {
+			clearTimeout(entry.timer);
+			entry.timer = null;
+		}
+
+		// flush remaining parts
+		await flushRxChunkBatch(fileID);
+	}
 }
 
 //once file succesfully downloaded delete from index db
