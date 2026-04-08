@@ -1,4 +1,23 @@
 
+//main and user streams and tracks used for local playback used in initvdo.js
+//should probaly merge with REGISTRY???????
+const TRACKS = {
+	main: {
+		video: null,
+		audio: null
+	},
+	user: {
+		video: null,
+		audio: null
+	}
+};
+
+const STREAMS = {
+	user: null,
+	main: null
+};
+
+
 //creates empty stream as placeholder till devices come online, then we replace tracks
 function initStream(whichStream) {
 	const stream = new MediaStream();

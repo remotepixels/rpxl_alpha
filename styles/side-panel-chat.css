@@ -3,7 +3,6 @@ height: calc(100vh - 68px);
 	overflow-y: auto; 
 }
 
-
 textarea {
 	position: relative;
 	width: 310px!important;
@@ -17,7 +16,20 @@ textarea {
 .chat a {
 	color: white;
 	font-weight: 400;
+	font-style: italic;
+	text-decoration: none;
 }
+
+.chat-bubble a {
+	color: black;
+	text-decoration: underline;
+}
+
+.chat-bubble.blue a {
+	color: white;
+	text-decoration: underline;
+}
+
 .chat-bubble {
 	position: relative;
 	padding:10px 10px 25px 10px;
@@ -26,12 +38,14 @@ textarea {
 	max-width:260px;
 	word-wrap: break-word;
 	margin:0px 0px 5px 0px;
-	background: light-dark(var(--color-light-white), var(--color-dark-bg));
+	color: light-dark(var(--color-dark-grey), var(--color-light-bg));
+	background: light-dark(var(--color-light-white), var(--color-mid-grey));
 	border-radius: var(--radius-big);
 	white-space: pre-wrap;
     word-break: break-word;
 	will-change: transform, opacity;
 }
+
 .chat-bubble.blue {
 	position: relative;
 	margin-left: auto;
@@ -39,6 +53,7 @@ textarea {
 	color: light-dark(var(--color-light-bg), var(--color-light-bg));
 	background: light-dark(var(--color-blue), var(--color-blue));
 }
+
 .chat-user {
 	padding-bottom: 5px;
 }
@@ -49,6 +64,7 @@ textarea {
 	right:10px;
 	font-size: smaller;
 }
+
 #inputChatMessage {
 	border-radius: var(--radius-big);
 	height:40px;
@@ -61,9 +77,7 @@ textarea {
 	padding:10px;
 	white-space: wrap;
 }
-.chat-bubble a {
-    text-decoration: underline;
-}
+
 .bubble-in {
 	animation: bubbleIn 180ms ease-out;
 }

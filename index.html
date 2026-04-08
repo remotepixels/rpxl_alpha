@@ -175,7 +175,7 @@
 
 		<!-- peers -->
 		<div class="side-panel pad hidden" id="sidePeers">
-			<div id="user" class="peer">
+			<div id="user" class="peer"  data-room="main">
 				<div id="userStreamVU" class="peerVU" data-property="--vu">
 					<video id="userStream" class="peerStream" autoplay playsinline disablepictureinpicture></video>
 				</div>
@@ -352,21 +352,21 @@
 <script src="/scripts/initdevice.js" ></script>
 <script src="/scripts/storage.js"></script>
 <!-- <script src="/scripts/inithistory.js" ></script> -->
-<script src="/scripts/initstreams.js" defer></script>
-<script src="/scripts/initvdo.js" defer></script>
-<script src="/scripts/listeners.js" defer></script>
+<script src="/scripts/initstreams.js" ></script>
+<script src="/scripts/initvdo.js" ></script>
+<script src="/scripts/listeners.js" ></script>
 <script src="/scripts/interface.js" ></script>
-<script src="/scripts/peers.js" defer></script>
-<script src="/scripts/chat.js" defer></script>
-<script src="/scripts/markup.js" defer></script>
-<script src="/scripts/files-manage.js" defer></script>
-<script src="/scripts/files-render.js" defer></script>
-<script src="/scripts/files-rx.js" defer></script>
-<script src="/scripts/files-rxqueue.js" defer></script>
-<script src="/scripts/files-rxdb.js" defer></script>
-<script src="/scripts/files-tx.js" defer></script>
-<script src="/scripts/files-txdb.js" defer></script>
-<script src="/scripts/files-listeners.js" defer></script>
+<script src="/scripts/peers.js" ></script>
+<script src="/scripts/chat.js" ></script>
+<script src="/scripts/markup.js" ></script>
+<script src="/scripts/files-manage.js" ></script>
+<script src="/scripts/files-render.js" ></script>
+<script src="/scripts/files-rx.js" ></script>
+<script src="/scripts/files-rxqueue.js" ></script>
+<script src="/scripts/files-rxdb.js" ></script>
+<script src="/scripts/files-tx.js" ></script>
+<script src="/scripts/files-txdb.js" ></script>
+<script src="/scripts/files-listeners.js" ></script>
 <!-- <script src="/scripts/smartTV.js" defer></script> -->
 
 <script lang="javascript">
@@ -463,7 +463,7 @@ function startSession() {
 		});
 	settingsDialog.classList.remove("middle", "hidearrow");
 	settingsDialog.setAttribute("data-close-outside", "");
-	settingsDialog.style = "right: 55px; bottom: 10px;";
+	settingsDialog.style = "right: 55px; bottom: 15px;";
 
 	document.getElementById("checkLogin").innerHTML = "Apply settings";
 

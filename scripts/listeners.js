@@ -60,6 +60,7 @@ function setupVDOListeners() {
 		//runs ONCE for each peer that connects
 		const uuid = event.detail.uuid;
 		const pc = event.detail.connection?.pc;
+		let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
 
 		addToRegistry(uuid, null, null, null);
 
@@ -69,7 +70,21 @@ function setupVDOListeners() {
 		}
 
 		//if peer changes microphone settings, micLive / micOffline (if no mic selected, used because we always send stream)
-		wait(350);		
+		wait(350);	
+		
+		//done 3 times once here, once on peerlist and on addvideo to be sure this stuff gets through!
+		vdo.sendData({
+			type: 'status',
+			oneOnOneUser: oneOnOneUser,
+			room: inRoom,
+			timestamp: Date.now()
+		}, uuid);
+
+		vdo.sendData({
+			type: 'userLabel',
+			label: sanitizedCurrentUserName,
+			timestamp: Date.now()
+		}, uuid);
 
 		vdo.sendData({
 			type: 'userStreamAudio',
@@ -383,9 +398,25 @@ function setupVDOListeners() {
 		//will run as user connects once with streamID as null, second time with streamID
 		const uuid = event.detail.uuid;
 		const streamID = event.detail.streamID || null;
+		let sanitizedCurrentUserName = encodeURIComponent(document.getElementById("name").value.trim());
+
 		if (!streamID) return;
 
 		addToRegistry(uuid, null, streamID, null)
+
+		vdo.sendData({
+			type: 'status',
+			oneOnOneUser: oneOnOneUser,
+			room: inRoom,
+			timestamp: Date.now()
+		}, uuid);
+
+		vdo.sendData({
+			type: 'userLabel',
+			label: sanitizedCurrentUserName,
+			timestamp: Date.now()
+		}, uuid);
+
 		//console.warn("video added to room",uuid, event);
 	});
 

@@ -19,7 +19,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" rel="stylesheet" />
 
 	<link rel="stylesheet" href="/styles/base.css">
@@ -74,7 +74,7 @@
 
 		<!-- peers -->
 		<div class="side-panel pad hidden" id="sidePeers">
-			<div id="user" class="peer">
+			<div id="user" class="peer" data-room="main">
 				<div id="userStreamVU" class="peerVU" data-property="--vu">
 					<video id="userStream" class="peerStream" autoplay playsinline disablepictureinpicture></video>
 				</div>
@@ -315,22 +315,22 @@
 <script src="/scripts/initdevice.js" ></script>
 <script src="/scripts/storage.js"></script>
 <script src="/scripts/inithistory.js" ></script>
-<script src="/scripts/initstreams.js" defer></script>
-<script src="/scripts/initvdo.js" defer></script>
-<script src="/scripts/listeners.js" defer></script>
+<script src="/scripts/initstreams.js"></script>
+<script src="/scripts/initvdo.js"></script>
+<script src="/scripts/listeners.js"></script>
 <script src="/scripts/interface.js" ></script>
-<script src="/scripts/peers.js" defer></script>
-<script src="/scripts/chat.js" defer></script>
-<script src="/scripts/markup.js" defer></script>
-<script src="/scripts/files-manage.js" defer></script>
-<script src="/scripts/files-render.js" defer></script>
-<script src="/scripts/files-rx.js" defer></script>
-<script src="/scripts/files-rxqueue.js" defer></script>
-<script src="/scripts/files-rxdb.js" defer></script>
-<script src="/scripts/files-tx.js" defer></script>
-<script src="/scripts/files-txdb.js" defer></script>
-<script src="/scripts/files-listeners.js" defer></script>
-<script src="/scripts/smartTV.js" defer></script>
+<script src="/scripts/peers.js" ></script>
+<script src="/scripts/chat.js" ></script>
+<script src="/scripts/markup.js" ></script>
+<script src="/scripts/files-manage.js" ></script>
+<script src="/scripts/files-render.js" ></script>
+<script src="/scripts/files-rx.js" ></script>
+<script src="/scripts/files-rxqueue.js" ></script>
+<script src="/scripts/files-rxdb.js" ></script>
+<script src="/scripts/files-tx.js" ></script>
+<script src="/scripts/files-txdb.js" ></script>
+<script src="/scripts/files-listeners.js" ></script>
+<script src="/scripts/smartTV.js" ></script>
 
 <script type="text/javascript">
 	const APP_NS = 'RPXL-Hosts';
@@ -338,6 +338,17 @@
 	
 	//let waitingRoomID = generateRandomID();
 	console.log("generating new session id :", sessionID);
+
+	//check if mobile device and warn user
+	const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+	const mobileDialog = document.getElementById("mobileDialog");
+
+	if (isMobile) {
+		mobileDialog.classList.remove("hidden");
+		mobileDismiss.addEventListener("pointerup", () => {
+			mobileDialog.classList.add("hidden");
+		});
+	}
 
 	randomBG(); //interface.js
 	restoreSetingsLast(); //storage.js
@@ -366,6 +377,7 @@
 	setupShareButton("copyMainLink", "sessionID", value => `${devURL}/?SID=${sessionID}`);
 	setupShareButton("copyQuickLink", "sessionID", value => `${devURL}/qs/?SID=${sessionID}`);
 	setupShareButton("copyWaitingLink", "sessionID", value => `${devURL}/?WID=${sessionID}`);
+
 	async function startSession() {
 		createNewStoreEntry(); //storage.js
 
@@ -385,7 +397,7 @@
 
 		project.style.width = "200px";
 		settingsDialog.setAttribute("data-close-outside", "");
-		settingsDialog.style = "right: 55px; bottom: 10px;";
+		settingsDialog.style = "right: 55px; bottom: 15px;";
 		settingsDialog.classList.remove("middle", "hidearrow");
 		sectionUser.style = "margin-top: 94px";
 		document.querySelectorAll(".settings-preview").forEach(e => e.classList.add("hidden"));

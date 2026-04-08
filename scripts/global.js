@@ -1,23 +1,4 @@
-//shared functions that I don't know where to put :(
-//keeps track off all connected peers, their streams, last tracks and label, see structure below
-// Map {
-//   "peerUUID" => {
-//     uuid: "peerUUID",
-//     label: "Alice",
-//     streams: Map {
-//       "streamID" => {
-//         streamID: "streamID",
-//         tracks: Map {
-//           "audio" => { ...latest audio track... },
-//           "video" => { ...latest video track... }
-//         }
-//       }
-//     }
-//	transports:{
-//		main:null,
-//		user:null
-//		}
-//   }
+
 let isVDOReady = false;
 let firstRun = true;
 let userStreamID = generateRandomID();
@@ -31,39 +12,11 @@ let wakeLock = null;
 const devURL = window.location.origin;
 const REGISTRY = new Map();
 
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 const isStreamer = window.location.pathname.startsWith("/stream");
 const isQuickShare = window.location.pathname.startsWith("/qs");
 const isTVShare = window.location.pathname.startsWith("/tv");
 const mainVideoPreview = document.getElementById("mainStream");
-
-//check if mobile device and warn user
-const mobileDialog = document.getElementById("mobileDialog");
-
-if (isMobile) {
-	mobileDialog.classList.remove("hidden");
-	mobileDismiss.addEventListener("pointerup", () => {
-		mobileDialog.classList.add("hidden");
-	});
-}
-
-//main and user streams and tracks used for local playback used in initvdo.js
-//should probaly merge with REGISTRY???????
-const TRACKS = {
-	main: {
-		video: null,
-		audio: null
-	},
-	user: {
-		video: null,
-		audio: null
-	}
-};
-
-const STREAMS = {
-	user: null,
-	main: null
-};
 
 // enter and escape keys to dismiss dialogs
 window.addEventListener("keydown", handleKey);

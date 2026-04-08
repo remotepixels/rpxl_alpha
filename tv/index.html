@@ -197,7 +197,7 @@
 
 		//console.log(vdoTV);
 
-		wait(200);
+		wait(300);
 
 		setupVDOListeners();
 
@@ -242,7 +242,7 @@ function setupVDOListeners() {
 		const track = event.detail.track || null;
 
 		if (streamID.startsWith("ms_")) { 
-			console.log("main stream Info:", streamID, track)
+			//console.log("main stream Info:", streamID, track)
 			showMainStream(streamID, track);
 		}
 	});

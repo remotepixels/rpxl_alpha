@@ -137,12 +137,13 @@
 	color: light-dark(var(--color-light-bg), var(--color-light-bg));
 	background-color: var(--color-red);
 }
-@media (hover: hover) and (pointer: fine) {
-.tool.red:hover, .tool.red.selected {
+/* @media (hover: hover) and (pointer: fine) { */
+/* .tool.red:hover,  */
+.tool.red.selected {
 	color: light-dark(var(--color-light-bg), var(--color-light-bg));
 	background-color: var(--color-red);
   }
-}
+/* } */
 button[data-ui="toggle"] {
     position: relative;
 }

@@ -238,6 +238,8 @@ async function reconcileVideoPreview(role, deviceId) {
 }
 
 function getVULevel(analyser, dataArray) {
+	if (!analyser) return;
+	
 	analyser.getByteTimeDomainData(dataArray);
 	let sum = 0;
 

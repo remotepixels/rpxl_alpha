@@ -1,7 +1,28 @@
+//shared functions that I don't know where to put :(
+//keeps track off all connected peers, their streams, last tracks and label, see structure below
+// Map {
+//   "peerUUID" => {
+//     uuid: "peerUUID",
+//     label: "Alice",
+//     streams: Map {
+//       "streamID" => {
+//         streamID: "streamID",
+//         tracks: Map {
+//           "audio" => { ...latest audio track... },
+//           "video" => { ...latest video track... }
+//         }
+//       }
+//     }
+//	transports:{
+//		main:null,
+//		user:null
+//		}
+//   }
+
 let connectedPeers = 0;
 let oneOnOneUser = null;
 let oneOnOneHost = null;
-let inRoom = null;
+let inRoom = "main";
 
 function updatePeerBadge(connectedPeers = 0) {
 	const peersButton = document.getElementById("toolPeers");
@@ -80,7 +101,7 @@ function addToRegistry(uuid, label = null, streamID = null, track = null) {
 	}
 
 	//if (uuid && streamID && label) {
-		addPeerToDOM(uuid, streamID, label);
+	addPeerToDOM(uuid, streamID, label);
 	//}
 
 	if (!track) return;
@@ -102,7 +123,7 @@ function addToRegistry(uuid, label = null, streamID = null, track = null) {
 			readyState: track.readyState ?? "live"
 		};
 	}
-	addTracksToStream(uuid, streamID, track)
+	addTracksToStream(uuid, streamID, track);
 }
 
 //attaches tracks to streams in DOM, ms_(main stream) is always dropped in main viewer
@@ -146,13 +167,6 @@ function addTracksToStream(uuid, streamID, track) {
 
 		whichStream.play().catch(() => { });
 	}
-
-	if (track.kind === 'audio' && streamID.startsWith("ms_")) {
-		//reactivateTools("streamAudio");
-	}
-	if (track.kind === 'video' && streamID.startsWith("ms_")) {
-		//reactivateTools("streamVideo");
-	}
 }
 
 //low capture quality, low bandwidth, low framerate
@@ -162,12 +176,12 @@ function limitVideoBitrateForUser() {
 	let frameRate = 15;
 
 	vdo.updatePublisherMedia({
-	media: {
-		video: {
-			height: 80,
-			maxBitrate: brMax,
-			minBitrate: brMin,
-			frameRate: frameRate
+		media: {
+			video: {
+				height: 80,
+				maxBitrate: brMax,
+				minBitrate: brMin,
+				frameRate: frameRate
 			}
 		}
 	});
@@ -185,6 +199,7 @@ function addPeerToDOM(uuid, streamID, label = null) {
 	const peerDiv = document.createElement("div");
 	peerDiv.className = "peer";
 	peerDiv.setAttribute("data-uuid", uuid);
+	peerDiv.setAttribute("data-room", "main");
 
 	const peerVU = document.createElement("div");
 	peerVU.className = "peerVU";
@@ -222,7 +237,7 @@ function addPeerToDOM(uuid, streamID, label = null) {
 	} else {
 		sidePeers.appendChild(peerDiv);
 	}
-							
+
 	updatePeerRoomCount()
 
 }
@@ -258,18 +273,18 @@ function updateDOMuserAudio(uuid, audio) {
 		userVUElement.classList.add("muted");
 		userVUElement.classList.remove("micOffline");
 		return;
-	}	
+	}
 	if (audio === "micLive") {
 		userVUElement.classList.remove("muted");
 		userVUElement.classList.remove("micOffline");
 		return;
-	}	
+	}
 }
 
 function updateDOMuserVU(uuid, level) {
 	const peer = document.querySelector(`[data-uuid="${uuid}"]`);
 	if (!peer) return;
-	
+
 	const userVUElement = peer.querySelector(".peerVU");
 	if (!userVUElement) return;
 
@@ -321,10 +336,10 @@ function togglePeerRoom(uuid, targetRoom) {
 	//const = null;
 	const peer = document.querySelector(`.peer[data-uuid="${uuid}"]`);
 
-    if (!peer) return;
+	if (!peer) return;
 	let target = null;
 
-	if (targetRoom === "main")  {
+	if (targetRoom === "main") {
 		target = document.getElementById("sidePeers");
 	} else {
 		target = document.getElementById("sideWaitingRoom");
@@ -336,7 +351,7 @@ function togglePeerRoom(uuid, targetRoom) {
 	if (uuid === localUUID) {
 		console.log("moving to room :", targetRoom);
 		inRoom = targetRoom;
-		
+
 		updateRoomUI(targetRoom);
 	}
 
@@ -348,12 +363,15 @@ function togglePeerRoom(uuid, targetRoom) {
 		});
 	}
 
+	peer.dataset.room = targetRoom;
 	target.appendChild(peer);
+	console.log("SET:", targetRoom, "READ:", peer.dataset.room);
+
 	updatePeerRoomCount();
 }
 
 function toggleOneOnOne(targetUUID, hostUUID) {
- 	const amIHost = (localUUID === hostUUID);
+	const amIHost = (localUUID === hostUUID);
 	const amITarget = (localUUID === targetUUID);
 	const isParticipant = amIHost || amITarget;
 
@@ -372,13 +390,13 @@ function toggleOneOnOne(targetUUID, hostUUID) {
 
 		if (isParticipant) {
 			if (isInWhisperPair) {
-				showBanner({ key:"oneOnOne", message:"You are in one on one", type:"notification", timeout:null });
-	
+				showBanner({ key: "oneOnOne", message: "You are in one on one", type: "notification", timeout: null });
+
 				video.volume = 1;
 				video.muted = false;
-				
+
 			} else {
-				video.volume = 0.2;
+				video.volume = 0.1;
 				video.muted = false;
 			}
 
@@ -407,12 +425,11 @@ function toggleOneOnOne(targetUUID, hostUUID) {
 function excludeOneOnOne(excludeUUID) {
 	console.log("late joiner exclude from one on one", excludeUUID)
 	const peerEl = document.querySelector(`[data-uuid="${excludeUUID}"]`);
-	const video = peerEl.querySelector('video');
-	
 	if (!peerEl) return;
+	const video = peerEl.querySelector('video');
 
 	peerEl.classList.add('dimmed');
-	video.volume = 0.2;
+	video.volume = 0.1;
 	video.muted = false;
 }
 
@@ -420,12 +437,12 @@ function clearOneOnOne() {
 	//if (oneOnOneUser === null) return;
 
 	document.querySelectorAll('#sidePeers .peer').forEach(peerEl => {
-			const video = peerEl.querySelector('video');
+		const video = peerEl.querySelector('video');
 
-			if (video) {
-				video.muted = false;
-				video.volume = 1;
-			}
+		if (video) {
+			video.muted = false;
+			video.volume = 1;
+		}
 
 		peerEl.classList.remove('dimmed');
 
@@ -443,26 +460,27 @@ function clearOneOnOne() {
 		timestamp: Date.now()
 	});
 
-		hideBannerByKey("oneOnOne");
+	hideBannerByKey("oneOnOne");
 
 	document.querySelector('[data-action="oneOnOne"]').classList.remove("selected");
-	document.querySelector('[data-action="oneOnOne"]').setAttribute("aria-pressed", "false");
+	const oneOnOneBtn = document.querySelector('[data-action="oneOnOne"]');
+	if (oneOnOneBtn) {
+		oneOnOneBtn.classList.remove("selected");
+		oneOnOneBtn.setAttribute("aria-pressed", "false");
+	}
 	oneOnOneUser = null;
 	oneOnOneHost = null;
 }
-
 function updatePeerRoomCount() {
 	const mainRoom = document.getElementById("sidePeers");
 	const mainCount = mainRoom.querySelectorAll(".peerVU").length;
 
 	const mainRoomButton = document.getElementById("toolPeers");
-	if (!mainRoomButton) return;
-	mainRoomButton.dataset.count = mainCount - 1;
-
 	const waitingRoom = document.getElementById("sideWaitingRoom");
 	const waitingCount = waitingRoom.querySelectorAll(".peerVU").length;
 
 	const waitingRoomButton = document.getElementById("toolWaitingRoom");
+	if (!waitingRoomButton) return;
 	waitingRoomButton.dataset.count = waitingCount;
 
 	if (isStreamer) {
@@ -472,64 +490,75 @@ function updatePeerRoomCount() {
 			waitingRoomButton.classList.remove("hidden");
 		}
 	}
+			waitingRoomButton.classList.remove("hidden");
+		}
+	}
+
 	updateRoomAudio();
 }
 
 function updateRoomAudio() {
+	console.log("MY ROOM:", inRoom);
 
-  const waitingVideos = document.querySelectorAll("#sideWaitingRoom video");
-  const mainVideos = document.querySelectorAll("#sidePeers video");
+	const allVideos = document.querySelectorAll(".peerVU video");
 
-  waitingVideos.forEach(v => setPeerAudio(v, true));
-  mainVideos.forEach(v => setPeerAudio(v, false));
+	allVideos.forEach(video => {
+		if (video.id === "userStream") return;
 
+		const peerEl = video.closest(".peer");
+		if (!peerEl) return;
+
+		const peerRoom = peerEl.dataset.room || "main";
+
+		const shouldHear = (peerRoom === inRoom);
+
+		console.log(
+			"PEER:", video.id,
+			"dataset.room:", peerEl.dataset.room,
+			"I am in Room:", inRoom
+		);
+
+		setPeerAudio(video, shouldHear);
+	});
 }
 
 function setPeerAudio(video, enabled) {
-    const stream = video.srcObject;
-    if (!stream) return;
 
-    const track = stream.getAudioTracks()[0];
-    if (track) track.enabled = enabled;
+	const stream = video.srcObject;
+	if (!stream) return;
+
+	video.muted = !enabled; //oppositesies
+
+	const track = stream.getAudioTracks()[0];
+	if (track) track.enabled = enabled;
+	//	console.log("v element:", video, "video:" ,video.muted, "track :", track.enabled )
+
 }
 
 function updateRoomUI(moveToRoom) {
 	document.querySelectorAll('.side-panel:not(.hidden)').forEach(panel => panel.classList.add("hidden"));
 
-    const waitingRoomBtn = document.getElementById("toolWaitingRoom");
-    const chatBtn = document.getElementById("toolChat");
-    const filesBtn = document.getElementById("toolFiles");
-    const peersBtn = document.getElementById("toolPeers");
+	const waitingRoomBtn = document.getElementById("toolWaitingRoom");
+	const chatBtn = document.getElementById("toolChat");
+	const filesBtn = document.getElementById("toolFiles");
+	const peersBtn = document.getElementById("toolPeers");
 	const mainToolbar = document.querySelector(".toolbar.horiz");
 	const mainVideo = document.querySelector(".mainStream");
 	const zoomIndicator = document.querySelector(".zoom-popup");
-	const mainVU =  document.getElementById("mainStreamVU");
+	const mainVU = document.getElementById("mainStreamVU");
 	const markup = document.getElementById("markup");
 
-    if (moveToRoom == "lobby") {
-        waitingRoomBtn.classList.remove("hidden");
-        // hide buttons
-        chatBtn.classList.add("hidden");
-        filesBtn.classList.add("hidden");
-        peersBtn.classList.add("hidden");
-		mainToolbar.classList.add("hidden");
+	if (moveToRoom == "lobby") {
+		waitingRoomBtn.classList.remove("hidden");
+		// hide buttons
+		[chatBtn, filesBtn, peersBtn, mainToolbar, mainVU, zoomIndicator, mainVideo, markup].forEach(el => el?.classList.add("hidden"));
 
-		mainVU.classList.add("hidden");
-		zoomIndicator.classList.add("hidden");
-		mainVideo.classList.add("hidden");
-		markup.classList.add("hidden");
-		setPeerAudio(mainVideo, false);
-    } else {
+		//setPeerAudio(mainVideo, false);
+	} else {
 		waitingRoomBtn.classList.add("hidden");
-        chatBtn.classList.remove("hidden");
-        filesBtn.classList.remove("hidden");
-        peersBtn.classList.remove("hidden");
-		mainToolbar.classList.remove("hidden");
-		
-		mainVU.classList.remove("hidden");
-		zoomIndicator.classList.remove("hidden");
-		mainVideo.classList.remove("hidden");
-		markup.classList.remove("hidden");
-		setPeerAudio(mainVideo, true);
-    }
+		//show buttons
+		[chatBtn, filesBtn, peersBtn, mainToolbar, mainVU, zoomIndicator, mainVideo, markup].forEach(el => el?.classList.remove("hidden"));
+
+		//setPeerAudio(mainVideo, true);
+	}
 }
