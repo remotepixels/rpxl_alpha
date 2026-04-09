@@ -447,6 +447,15 @@ function setupVDOListeners() {
 			timestamp: Date.now()
 		}, uuid);
 
+		if (isStreamer) {
+			vdo.sendData({
+				type: "markup",
+				overlayNinja: {
+					action: "syncState",
+					to: uuid
+				}
+			}, uuid);
+		}
 		//console.warn("video added to room",uuid, event);
 	});
 
