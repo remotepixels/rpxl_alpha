@@ -550,12 +550,12 @@ function updateRoomUI(moveToRoom) {
 		// hide buttons
 		[chatBtn, filesBtn, peersBtn, mainToolbar, mainVU, zoomIndicator, mainVideo, markup].forEach(el => el?.classList.add("hidden"));
 
-		//setPeerAudio(mainVideo, false);
+		setPeerAudio(mainVideo, false);
 	} else {
 		waitingRoomBtn.classList.add("hidden");
 		//show buttons
 		[chatBtn, filesBtn, peersBtn, mainToolbar, mainVU, zoomIndicator, mainVideo, markup].forEach(el => el?.classList.remove("hidden"));
 
-		//setPeerAudio(mainVideo, true);
+		setPeerAudio(mainVideo, true);
 	}
 }
