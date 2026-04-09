@@ -70,7 +70,7 @@ function setupVDOListeners() {
 		}
 
 		//if peer changes microphone settings, micLive / micOffline (if no mic selected, used because we always send stream)
-		wait(350);	
+		wait(500);	 //delay 
 		
 		//done 3 times once here, once on peerlist and on addvideo to be sure this stuff gets through!
 		vdo.sendData({
