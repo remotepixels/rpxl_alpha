@@ -490,10 +490,7 @@ function updatePeerRoomCount() {
 			waitingRoomButton.classList.remove("hidden");
 		}
 	}
-			waitingRoomButton.classList.remove("hidden");
-		}
-	}
-
+	
 	updateRoomAudio();
 }
 
