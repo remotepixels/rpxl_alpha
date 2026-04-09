@@ -294,7 +294,7 @@ function stopVULoop(whichVU) {
 }
 
 function sendVULevel(whichVU, vuLevel) {
-	if (connectedPeers > 1) {
+	if (connectedPeers > 2) {
 		vdo.sendData({
 			type: 'VUData',
 			whichVU: whichVU,
