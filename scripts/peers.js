@@ -326,7 +326,7 @@ async function disconnectPeer(uuid) {
 	if (uuid === oneOnOneUser || uuid === oneOnOneHost) {
 		clearOneOnOne();
 	}
-
+	connectedPeers--;
 	updatePeerRoomCount();
 }
 
