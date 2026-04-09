@@ -243,6 +243,7 @@ function sendFullState(targetUUID) {
             state: drawingHistory
         }
     });
+	//console.log("senffullstate fired");
 }
 
 //resize markup canvas on window resize

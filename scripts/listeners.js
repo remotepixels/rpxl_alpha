@@ -100,6 +100,13 @@ function setupVDOListeners() {
 			timestamp: Date.now()
 		});
 
+		vdo.sendData({
+			type: "markup",
+			overlayNinja: {
+				action: "syncState",
+				to: uuid
+			}
+		}, uuid);
 		// if (isStreamer) {
 		// 	let currentProjectName = encodeURIComponent(project.value.trim() || "");
 			
@@ -321,10 +328,12 @@ function setupVDOListeners() {
 			}
 
 			if (dataMarkup.action === "syncState" && isStreamer) {
+				//console.log("recieved markup syncState");
 				sendFullState();
 			}
 
 			if (dataMarkup.action === "stateDump") {
+				//console.log("recieved markup state dump");
 				Object.assign(drawingHistory, dataMarkup.state);
 				redrawCanvas();
 			}
@@ -413,13 +422,6 @@ function setupVDOListeners() {
 				history: chatHistory
 			}, uuid);
 
-			vdo.sendData({
-				type: "markup",
-				overlayNinja: {
-					action: "syncState",
-					to: uuid
-				}
-			}, uuid);
 		}
 
 	});

@@ -495,8 +495,6 @@ function updatePeerRoomCount() {
 }
 
 function updateRoomAudio() {
-	console.log("MY ROOM:", inRoom);
-
 	const allVideos = document.querySelectorAll(".peerVU video");
 
 	allVideos.forEach(video => {
@@ -509,11 +507,7 @@ function updateRoomAudio() {
 
 		const shouldHear = (peerRoom === inRoom);
 
-		console.log(
-			"PEER:", video.id,
-			"dataset.room:", peerEl.dataset.room,
-			"I am in Room:", inRoom
-		);
+		//console.log("PEER:", video.id,"dataset.room:", peerEl.dataset.room,"I am in Room:", inRoom);
 
 		setPeerAudio(video, shouldHear);
 	});
