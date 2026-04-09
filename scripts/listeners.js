@@ -70,7 +70,7 @@ function setupVDOListeners() {
 		}
 
 		//if peer changes microphone settings, micLive / micOffline (if no mic selected, used because we always send stream)
-		wait(250);	 //delay 
+		wait(500);	 //delay 
 		
 		//done 3 times once here, once on peerlist and on addvideo to be sure this stuff gets through!
 		vdo.sendData({
@@ -100,34 +100,34 @@ function setupVDOListeners() {
 			timestamp: Date.now()
 		});
 
-		if (isStreamer) {
-			let currentProjectName = encodeURIComponent(project.value.trim() || "");
+		// if (isStreamer) {
+		// 	let currentProjectName = encodeURIComponent(project.value.trim() || "");
 			
-			vdo.sendData({
-				type: 'streamInfo',
-				label: currentProjectName,
-				timestamp: Date.now()
-			}, uuid);
+		// 	vdo.sendData({
+		// 		type: 'streamInfo',
+		// 		label: currentProjectName,
+		// 		timestamp: Date.now()
+		// 	}, uuid);
 
-			vdo.sendData({
-				type: 'mainStreamAudio',
-				info: mainStreamAudio,
-				timestamp: Date.now()
-			}, uuid);
+		// 	vdo.sendData({
+		// 		type: 'mainStreamAudio',
+		// 		info: mainStreamAudio,
+		// 		timestamp: Date.now()
+		// 	}, uuid);
 
-			vdo.sendData({
-				type: "chatHistory",
-				history: chatHistory
-			}, uuid);
+		// 	vdo.sendData({
+		// 		type: "chatHistory",
+		// 		history: chatHistory
+		// 	}, uuid);
 
-			vdo.sendData({
-				type: "markup",
-				overlayNinja: {
-					action: "syncState",
-					to: uuid
-				}
-			}, uuid);
-		}
+		// 	vdo.sendData({
+		// 		type: "markup",
+		// 		overlayNinja: {
+		// 			action: "syncState",
+		// 			to: uuid
+		// 		}
+		// 	}, uuid);
+		// }
 	});
 
 	vdo.addEventListener('peerDisconnected', (event) => {
@@ -393,6 +393,7 @@ function setupVDOListeners() {
 		}, uuid);
 
 		if (isStreamer) {
+			wait (500);
 			let currentProjectName = encodeURIComponent(project.value.trim() || "");
 			
 			vdo.sendData({
@@ -447,15 +448,6 @@ function setupVDOListeners() {
 			timestamp: Date.now()
 		}, uuid);
 
-		if (isStreamer) {
-			vdo.sendData({
-				type: "markup",
-				overlayNinja: {
-					action: "syncState",
-					to: uuid
-				}
-			}, uuid);
-		}
 		//console.warn("video added to room",uuid, event);
 	});
 
