@@ -70,7 +70,7 @@ function setupVDOListeners() {
 		}
 
 		//if peer changes microphone settings, micLive / micOffline (if no mic selected, used because we always send stream)
-		wait(500);	 //delay 
+		wait(250);	 //delay 
 		
 		//done 3 times once here, once on peerlist and on addvideo to be sure this stuff gets through!
 		vdo.sendData({
@@ -90,14 +90,6 @@ function setupVDOListeners() {
 			type: 'userStreamAudio',
 			info: userStreamAudio,
 			timestamp: Date.now()
-		}, uuid);
-
-		vdo.sendData({
-			type: "markup",
-			overlayNinja: {
-				action: "syncState",
-				to: uuid
-			}
 		}, uuid);
 
 		vdo.sendData({
@@ -126,6 +118,14 @@ function setupVDOListeners() {
 			vdo.sendData({
 				type: "chatHistory",
 				history: chatHistory
+			}, uuid);
+
+			vdo.sendData({
+				type: "markup",
+				overlayNinja: {
+					action: "syncState",
+					to: uuid
+				}
 			}, uuid);
 		}
 	});
@@ -391,6 +391,36 @@ function setupVDOListeners() {
 			label: sanitizedCurrentUserName,
 			timestamp: Date.now()
 		}, uuid);
+
+		if (isStreamer) {
+			let currentProjectName = encodeURIComponent(project.value.trim() || "");
+			
+			vdo.sendData({
+				type: 'streamInfo',
+				label: currentProjectName,
+				timestamp: Date.now()
+			}, uuid);
+
+			vdo.sendData({
+				type: 'mainStreamAudio',
+				info: mainStreamAudio,
+				timestamp: Date.now()
+			}, uuid);
+
+			vdo.sendData({
+				type: "chatHistory",
+				history: chatHistory
+			}, uuid);
+
+			vdo.sendData({
+				type: "markup",
+				overlayNinja: {
+					action: "syncState",
+					to: uuid
+				}
+			}, uuid);
+		}
+
 	});
 
 
