@@ -1,7 +1,7 @@
 
 const downloads = new Map();
-const RX_DB = "IncomingFileCache";
-const RX_STORE = "chunks";
+const SW_DB = "IncomingFileCache";
+const SW_STORE = "chunks";
 
 let rxDBPromise = null;
 
@@ -23,7 +23,7 @@ function openRxDB() {
 	if (rxDBPromise) return rxDBPromise;
 
 	rxDBPromise = new Promise((resolve, reject) => {
-		const req = indexedDB.open(RX_DB, 1);
+		const req = indexedDB.open(SW_DB, 1);
 
 		req.onupgradeneeded = e => {
 			// DB already exists from page — do nothing
@@ -41,8 +41,8 @@ function openRxDB() {
 async function readChunkBatch(db, fileID, start, count) {
 	return new Promise((resolve, reject) => {
 
-		const tx = db.transaction(RX_STORE, "readonly");
-		const store = tx.objectStore(RX_STORE);
+		const tx = db.transaction(SW_STORE, "readonly");
+		const store = tx.objectStore(SW_STORE);
 
 		const results = new Array(count);
 		let remaining = count;

@@ -101,9 +101,7 @@ async function handleIncomingChunk(buffer) {
 			assembling: false,
 			startTime: Date.now(),
 			bytesReceived: 0,
-			//writable: null,
 			nextWriteIndex: 0,
-			//writeReady: false
 		};
 		incomingFiles.set(fileID, file);
 	} else {
@@ -125,12 +123,6 @@ async function handleIncomingChunk(buffer) {
 		file.received.add(part);
 		file.bytesReceived += chunk.byteLength;
 		updateFileProgressUI(fileID, (file.received.size / file.total) * 100);
-
-		// AFTER storeRxChunk + received.add(part)
-
-		// if (file.writeReady && file.writable) {
-		// 	await tryWriteChunks(fileID);
-		// }
 
 	} catch (err) {
 		console.error("Failed to store chunk:", err);
@@ -157,20 +149,7 @@ async function handleIncomingChunk(buffer) {
 	if (file.received.size === file.total && !file.completed) {
 		file.completed = true;
 
-		// if (file.writable) {
-		// 	await tryWriteChunks(fileID); // flush remaining
-		// 	await file.writable.close();
-
-		// 	console.log("Saved (write-through):", fileID);
-
-		// 	incomingFiles.delete(fileID);
-		// 	markDownloadCompleted(fileID);
-		// } else {
-		// 	// fallback to old system
-		// 	assembleReceivedFile(fileID);
-		// }
-
-				assembleReceivedFile(fileID);
+		assembleReceivedFile(fileID);
 
 		const elapsed = Date.now() - file.startTime;
 		const throughput = (file.bytesReceived / (elapsed / 1000) / 1024 / 1024).toFixed(2);
@@ -199,46 +178,6 @@ function sendAckBatch(fileID) {
 
 	//console.debug(`ACK batch: ${parts.length} chunks for ${fileID}`);
 }
-
-// async function tryWriteChunks(fileID) {
-// 	const file = incomingFiles.get(fileID);
-// 	if (!file || !file.writable) return;
-
-// 	// prevent concurrent writes
-// 	if (file.writing) return;
-// 	file.writing = true;
-
-// 	try {
-// 		while (true) {
-// 			const next = file.nextWriteIndex;
-
-// 			let chunk;
-
-// 			if (file.useMemoryOnly) {
-// 				chunk = file.chunks.get(next);
-// 			} else {
-// 				chunk = await getRxChunk(fileID, next); // ← your IndexedDB getter
-// 			}
-
-// 			if (!chunk) break;
-
-// 			await file.writable.write(chunk);
-
-// 			// cleanup after write
-// 			if (file.useMemoryOnly) {
-// 				file.chunks.delete(next);
-// 			} else {
-// 				//   setTimeout(() => deleteRxChunk(fileID, next), 0);
-// 			}
-
-// 			file.nextWriteIndex++;
-// 		}
-// 	} catch (err) {
-// 		console.error("Write error:", err);
-// 	} finally {
-// 		file.writing = false;
-// 	}
-// }
 
 async function assembleReceivedFile(fileID) {
 	const file = incomingFiles.get(fileID);
@@ -295,13 +234,13 @@ function enqueueSWDownload(fileID) {
 }
 
 
-function processSWQueue() {
+async function processSWQueue() {
 	while (activeSWDownloads < MAX_SW_DOWNLOADS && swDownloadQueue.length) {
 
 		const { fileID } = swDownloadQueue.shift();
 
 		activeSWDownloads++;
-		startSWDownload(fileID);
+		await startSWDownload(fileID);
 	}
 }
 
@@ -344,4 +283,46 @@ async function startSWDownload(fileID) {
 	document.body.appendChild(iframe);
 
 	console.log("Saving to disk :", filename);
+}
+
+
+async function startDLWorker() {
+	if (!navigator.serviceWorker) {
+		console.warn("Service Worker not supported in this browser");
+		return;
+	}
+
+	try {
+		const registration = await navigator.serviceWorker.register("/files-swdownloader.js", {
+			scope: "/"
+		});
+
+		console.log("SW registered");
+
+		// 🚨 THIS is the key part
+		await navigator.serviceWorker.ready;
+
+		// Wait until SW actually controls THIS page
+		if (!navigator.serviceWorker.controller) {
+			console.log("Waiting for SW control...");
+
+			await new Promise(resolve => {
+				navigator.serviceWorker.addEventListener(
+					"controllerchange",
+					() => {
+						console.log("Service Worker took control");
+						resolve();
+					},
+					{ once: true }
+				);
+			});
+		} else {
+			console.log("Service Worker already controlling page");
+		}
+
+		console.log("SW fully ready and controlling");
+
+	} catch (error) {
+		console.log("Service Worker registration failed:", error);
+	}
 }
