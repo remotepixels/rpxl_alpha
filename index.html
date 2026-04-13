@@ -42,7 +42,7 @@
     <div id="shmeg" class="shmeg">
 		<div style="position: fixed; top :0px; left:0px; width:100%; height:40px; background-color: black; z-index: 2; opacity: 1; justify-content: center;">
 			<a href="changelog.html" target="_new">
-				<span style="color: white; position: absolute; top : 10px; height:30px; margin-left:50%; transform: translateX(-50%); width:260px;">Updated 2026-02-13 : See more</span>	
+				<span style="color: white; position: absolute; top : 10px; height:30px; margin-left:50%; transform: translateX(-50%); width:260px;">Updated 2026-04-13 : See more</span>	
 			</a>
 		</div>
         <div class="siteHeader" >
@@ -482,37 +482,5 @@ function startSession() {
 	startDLWorker();
 	VDOConnect(sessionID);
 }
-
-// async function startDLWorker() {
-// 	if (!navigator.serviceWorker) {
-// 		console.warn("Service Worker not supported in this browser");
-// 		return;
-// 	}
-
-// 	try {
-// 		const registration = await navigator.serviceWorker.register("/files-swdownloader.js", {
-// 			scope: "/"
-// 		});
-// 		//console.log("Service Worker registered successfully", registration);
-
-// 		// Check if SW is already active
-// 		if (registration.active) {
-// 			console.log("Service Worker is active");
-// 		} else if (registration.installing) {
-// 			console.log("Service Worker installing...");
-// 		} else if (registration.waiting) {
-// 			console.log("Service Worker waiting to activate");
-// 		}
-
-// 		// Listen for controller change when SW becomes active
-// 		navigator.serviceWorker.addEventListener('controllerchange', () => {
-// 			console.log("Service Worker took control");
-// 		});
-
-// 	} catch (error) {
-// 		console.error("Service Worker registration failed:", error);
-// 		console.error("Details:", error.message);
-// 	}
-// }
 
 </script>
